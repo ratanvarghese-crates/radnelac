@@ -1,21 +1,44 @@
-use crate::epoch::moment_from_jd;
+use crate::epoch::Epoch;
+use crate::epoch::FixedDate;
+use crate::epoch::JulianDate;
 use crate::math::modulus;
 
-pub const EGYPTIAN_EPOCH: f64 = moment_from_jd(1448638.0) - 0.5; //Nabonassar era
-
-pub fn fixed_from_egyptian(year: i32, month: u8, day: u8) -> f64 {
-    let year = year as f64;
-    let month = month as f64;
-    let day = day as f64;
-    EGYPTIAN_EPOCH + (365.0 * (year - 1.0)) + (30.0 * (month - 1.0)) + day - 1.0
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+pub struct EgyptianDate {
+    pub year: i32,
+    pub month: u8,
+    pub day: u8,
 }
 
-pub fn fixed_to_egyptian(date: f64) -> (i32, u8, u8) {
-    let days = date - EGYPTIAN_EPOCH;
-    let year = (days / 365.0).floor() + 1.0;
-    let month = (modulus(days, 365.0) / 30.0).floor() + 1.0;
-    let day = days - (365.0 * (year - 1.0)) - (30.0 * (month - 1.0)) + 1.0;
-    (year as i32, month as u8, day as u8)
+impl Epoch for EgyptianDate {
+    type Output = FixedDate;
+    fn epoch() -> FixedDate {
+        FixedDate::from(JulianDate(1448638.0)) //Nabonassar era
+    }
+}
+
+impl From<EgyptianDate> for FixedDate {
+    fn from(date: EgyptianDate) -> FixedDate {
+        let year = date.year as f64;
+        let month = date.month as f64;
+        let day = date.day as f64;
+        let offset = (365.0 * (year - 1.0)) + (30.0 * (month - 1.0)) + day - 1.0;
+        EgyptianDate::epoch() + FixedDate(offset)
+    }
+}
+
+impl From<FixedDate> for EgyptianDate {
+    fn from(date: FixedDate) -> EgyptianDate {
+        let days = (date - EgyptianDate::epoch()).0;
+        let year = (days / 365.0).floor() + 1.0;
+        let month = (modulus(days, 365.0) / 30.0).floor() + 1.0;
+        let day = days - (365.0 * (year - 1.0)) - (30.0 * (month - 1.0)) + 1.0;
+        EgyptianDate {
+            year: year as i32,
+            month: month as u8,
+            day: day as u8,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -24,12 +47,12 @@ mod tests {
 
     #[test]
     fn egyptian_roundtrip() {
-        let year0 = 747;
-        let month0 = 6;
-        let day0 = 29;
-        let (year1, month1, day1) = fixed_to_egyptian(fixed_from_egyptian(year0, month0, day0));
-        assert_eq!(year0, year1);
-        assert_eq!(month0, month1);
-        assert_eq!(day0, day1);
+        let e0 = EgyptianDate {
+            year: 747,
+            month: 6,
+            day: 29,
+        };
+        let e1 = EgyptianDate::from(FixedDate::from(e0));
+        assert_eq!(e0, e1);
     }
 }

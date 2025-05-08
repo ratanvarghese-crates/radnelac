@@ -1,13 +1,43 @@
 use crate::calendar::egyptian::*;
+use crate::epoch::Epoch;
+use crate::epoch::FixedDate;
+use crate::epoch::FixedMoment;
+use crate::epoch::RataDie;
 
-const ARMENIAN_EPOCH: f64 = 201443.0;
-
-pub fn fixed_from_armenian(year: i32, month: u8, day: u8) -> f64 {
-    ARMENIAN_EPOCH + fixed_from_egyptian(year, month, day) - EGYPTIAN_EPOCH
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+pub struct ArmenianDate {
+    year: i32,
+    month: u8,
+    day: u8,
 }
 
-pub fn fixed_to_armenian(date: f64) -> (i32, u8, u8) {
-    fixed_to_egyptian(date + EGYPTIAN_EPOCH - ARMENIAN_EPOCH)
+impl Epoch for ArmenianDate {
+    type Output = FixedDate;
+    fn epoch() -> FixedDate {
+        FixedDate::from(FixedMoment::from(RataDie(201443.0)))
+    }
+}
+
+impl From<ArmenianDate> for FixedDate {
+    fn from(date: ArmenianDate) -> FixedDate {
+        let e = FixedDate::from(EgyptianDate {
+            year: date.year,
+            month: date.month,
+            day: date.day,
+        });
+        ArmenianDate::epoch() + e - EgyptianDate::epoch()
+    }
+}
+
+impl From<FixedDate> for ArmenianDate {
+    fn from(date: FixedDate) -> ArmenianDate {
+        let e = EgyptianDate::from(date + EgyptianDate::epoch() - ArmenianDate::epoch());
+        ArmenianDate {
+            year: e.year,
+            month: e.month,
+            day: e.day,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -16,12 +46,12 @@ mod tests {
 
     #[test]
     fn armenian_roundtrip() {
-        let year0 = 747;
-        let month0 = 6;
-        let day0 = 29;
-        let (year1, month1, day1) = fixed_to_armenian(fixed_from_armenian(year0, month0, day0));
-        assert_eq!(year0, year1);
-        assert_eq!(month0, month1);
-        assert_eq!(day0, day1);
+        let a0 = ArmenianDate {
+            year: 747,
+            month: 6,
+            day: 29,
+        };
+        let a1 = ArmenianDate::from(FixedDate::from(a0));
+        assert_eq!(a0, a1);
     }
 }
