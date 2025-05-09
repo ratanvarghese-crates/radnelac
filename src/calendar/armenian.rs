@@ -1,15 +1,12 @@
+use crate::calendar::common::CommonDate;
 use crate::calendar::egyptian::*;
-use crate::epoch::Epoch;
-use crate::epoch::FixedDate;
-use crate::epoch::FixedMoment;
-use crate::epoch::RataDie;
+use crate::epoch::fixed::Epoch;
+use crate::epoch::fixed::FixedDate;
+use crate::epoch::fixed::FixedMoment;
+use crate::epoch::rd::RataDie;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
-pub struct ArmenianDate {
-    year: i32,
-    month: u8,
-    day: u8,
-}
+pub struct ArmenianDate(pub CommonDate);
 
 impl Epoch for ArmenianDate {
     type Output = FixedDate;
@@ -20,11 +17,7 @@ impl Epoch for ArmenianDate {
 
 impl From<ArmenianDate> for FixedDate {
     fn from(date: ArmenianDate) -> FixedDate {
-        let e = FixedDate::from(EgyptianDate {
-            year: date.year,
-            month: date.month,
-            day: date.day,
-        });
+        let e = FixedDate::from(EgyptianDate(date.0));
         ArmenianDate::epoch() + e - EgyptianDate::epoch()
     }
 }
@@ -32,11 +25,7 @@ impl From<ArmenianDate> for FixedDate {
 impl From<FixedDate> for ArmenianDate {
     fn from(date: FixedDate) -> ArmenianDate {
         let e = EgyptianDate::from(date + EgyptianDate::epoch() - ArmenianDate::epoch());
-        ArmenianDate {
-            year: e.year,
-            month: e.month,
-            day: e.day,
-        }
+        ArmenianDate(e.0)
     }
 }
 
@@ -46,11 +35,11 @@ mod tests {
 
     #[test]
     fn armenian_roundtrip() {
-        let a0 = ArmenianDate {
+        let a0 = ArmenianDate(CommonDate {
             year: 747,
             month: 6,
             day: 29,
-        };
+        });
         let a1 = ArmenianDate::from(FixedDate::from(a0));
         assert_eq!(a0, a1);
     }
