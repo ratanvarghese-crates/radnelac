@@ -4,6 +4,20 @@ use std::ops::Sub;
 
 const EFFECTIVE_MAX: f64 = 9007199254740992.0;
 const EFFECTIVE_MIN: f64 = f32::EPSILON as f64;
+const EQ_SCALE: f64 = 4294967296.0;
+
+fn approx_eq(x: f64, y: f64) -> bool {
+    x == y || (x - y).abs() < (x.abs() / EQ_SCALE) || (x - y).abs() < EFFECTIVE_MIN
+}
+
+fn approx_eq_slice(x: &[f64], y: &[f64]) -> bool {
+    for i in 0..x.len() {
+        if !approx_eq(x[i], y[i]) {
+            return false;
+        }
+    }
+    true
+}
 
 pub fn round(x: f64) -> f64 {
     (x + 0.5).floor()
@@ -167,7 +181,6 @@ mod tests {
         assert_eq!(modulus(-9.0, 5.0), 1.0);
         assert_eq!(modulus(9.0, -5.0), -1.0);
         assert_eq!(modulus(-9.0, -5.0), -4.0);
-        //TODO: revisit chapter 1.7 for modulus properties
     }
 
     #[test]
@@ -221,29 +234,34 @@ mod tests {
         assert_eq!(z, 499.0);
     }
 
-    #[test]
-    fn mixed_radix_time() {
-        let a = [1.0, 21.0, 14.0];
-        let b = [60.0, 60.0];
-        let seconds = from_mixed_radix(&a, &b, 2);
-        let minutes = from_mixed_radix(&a, &b, 1);
-        let hours = from_mixed_radix(&a, &b, 0);
-        assert_eq!(seconds, (1.0 * 3600.0) + (21.0 * 60.0) + 14.0);
-        assert_eq!(minutes, (1.0 * 60.0) + 21.0 + (14.0 / 60.0));
-        assert_eq!(hours, 1.0 + (21.0 / 60.0) + (14.0 / 3600.0));
-
-        let a_seconds = to_mixed_radix(seconds, &b, 2);
-        let a_minutes = to_mixed_radix(minutes, &b, 1);
-        let a_hours = to_mixed_radix(hours, &b, 0);
-
-        println!("{seconds}, {minutes}, {hours}");
-
-        assert_eq!(a_seconds, a);
-        assert_eq!(a_minutes, a);
-        assert_eq!(a_hours, a);
-    }
-
     proptest! {
+        #[test]
+        fn mixed_radix_time(ahr in 0..24,amn in 0..59,asc in 0..59) {
+            let ahr = ahr as f64;
+            let amn = amn as f64;
+            let asc = asc as f64;
+            let a = [ahr, amn, asc];
+            let b = [60.0, 60.0];
+            let seconds = from_mixed_radix(&a, &b, 2);
+            let minutes = from_mixed_radix(&a, &b, 1);
+            let hours = from_mixed_radix(&a, &b, 0);
+            let expected_seconds = (ahr * 3600.0) + (amn* 60.0) + asc;
+            let expected_minutes = (ahr * 60.0) + amn + (asc / 60.0);
+            let expected_hours = ahr + (amn / 60.0) + (asc / 3600.0);
+            assert!(approx_eq(seconds, expected_seconds));
+            assert!(approx_eq(minutes, expected_minutes));
+            assert!(approx_eq(hours, expected_hours));
+
+            let a_seconds = to_mixed_radix(seconds, &b, 2);
+            let a_minutes = to_mixed_radix(minutes, &b, 1);
+            let a_hours = to_mixed_radix(hours, &b, 0);
+
+            assert!(approx_eq_slice(&a_seconds, &a));
+            assert!(approx_eq_slice(&a_minutes, &a));
+            assert!(approx_eq_slice(&a_hours, &a));
+        }
+
+
         #[test]
         fn modulus_positivity(x in -EFFECTIVE_MAX..EFFECTIVE_MAX, y in EFFECTIVE_MIN..EFFECTIVE_MAX) {
             assert!(modulus(x as f64, y as f64) >= 0.0);
@@ -255,8 +273,7 @@ mod tests {
             prop_assume!(modulus(x as f64,y as f64) != 0.0);
             let a0 = modulus(-x as f64, y as f64);
             let a1 = y as f64 - modulus(x as f64, y as f64);
-            let diff = a0 - a1;
-            assert!(diff == 0.0 || diff.abs() < a0/1e12);
+            assert!(approx_eq(a0, a1));
         }
 
         #[test]
@@ -269,8 +286,7 @@ mod tests {
             prop_assume!((z as f64).abs() > EFFECTIVE_MIN);
             let a = modulus(x, y);
             let az = modulus(x*z, y*z);
-            let diff = (a * z) - az;
-            assert!(diff == 0.0 || (diff as f64).abs() < az.abs()/1e12);
+            assert!(approx_eq(a * z, az));
         }
 
         #[test]
