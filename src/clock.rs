@@ -23,14 +23,14 @@ impl From<ClockTime> for TimeOfDay {
     fn from(clock: ClockTime) -> TimeOfDay {
         let a = [clock.hours, clock.minutes as f64, clock.seconds as f64];
         let b = [24.0, 60.0, 60.0];
-        TimeOfDay(from_mixed_radix(&a, &b, 0.0) / 24.0)
+        TimeOfDay(from_mixed_radix(&a, &b, 0) / 24.0)
     }
 }
 
 impl From<FixedMoment> for ClockTime {
     fn from(t: FixedMoment) -> ClockTime {
         let b = [24.0, 60.0, 60.0];
-        let a = to_mixed_radix(t.0, &b, 0.0);
+        let a = to_mixed_radix(t.0, &b, 0);
         ClockTime {
             hours: a[1],
             minutes: a[2] as f32,
