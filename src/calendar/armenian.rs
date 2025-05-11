@@ -28,7 +28,7 @@ pub struct ArmenianDate(CommonDate);
 
 impl ArmenianDate {
     fn get_month(self) -> Option<ArmenianMonth> {
-        match self.0.month {
+        match self.0.get_month() {
             1 => Some(ArmenianMonth::Nawasardi),
             2 => Some(ArmenianMonth::Hori),
             3 => Some(ArmenianMonth::Sahmi),
@@ -78,17 +78,19 @@ impl TryFrom<CommonDate> for ArmenianDate {
 
 impl From<ArmenianDate> for FixedDate {
     fn from(date: ArmenianDate) -> FixedDate {
-        let e = FixedDate::from(EgyptianDate::try_from(date.0).expect("Same validity rules"));
-        FixedDate(ArmenianDate::epoch().0 + e.0 - EgyptianDate::epoch().0)
+        let e = FixedDate::from(EgyptianDate::try_from(date.0).expect("Same field limits"));
+        let result =
+            i64::from(ArmenianDate::epoch()) + i64::from(e) - i64::from(EgyptianDate::epoch());
+        FixedDate::try_from(result).expect("CommonDate enforces year limits")
     }
 }
 
 impl TryFrom<FixedDate> for ArmenianDate {
     type Error = CalendarError;
     fn try_from(date: FixedDate) -> Result<ArmenianDate, Self::Error> {
-        let e = EgyptianDate::try_from(FixedDate(
-            date.0 + EgyptianDate::epoch().0 - ArmenianDate::epoch().0,
-        ))?;
+        let d =
+            i64::from(date) + i64::from(EgyptianDate::epoch()) - i64::from(ArmenianDate::epoch());
+        let e = EgyptianDate::try_from(FixedDate::try_from(d)?)?;
         Ok(ArmenianDate(CommonDate::from(e)))
     }
 }
@@ -96,50 +98,40 @@ impl TryFrom<FixedDate> for ArmenianDate {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::calendar::common::MAX_YEARS;
     use proptest::proptest;
 
     proptest! {
         #[test]
-        fn armenian_roundtrip(year in i16::MIN..i16::MAX, month in 1..12, day in 1..30) {
-            let e0 = ArmenianDate::try_from(CommonDate {
-                year,
-                month: month as u8,
-                day: day as u8
-            }).unwrap();
-            let e1 = ArmenianDate::try_from(FixedDate::try_from(e0).unwrap()).unwrap();
+        fn roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
+            let d = CommonDate::try_new(year, month as u8, day as u8).unwrap();
+            let e0 = ArmenianDate::try_from(d).unwrap();
+            let e1 = ArmenianDate::try_from(FixedDate::from(e0)).unwrap();
             assert_eq!(e0, e1);
         }
 
         #[test]
-        fn armenian_roundtrip_month13(year in i16::MIN..i16::MAX, day in 1..5) {
-            let e0 = ArmenianDate::try_from(CommonDate {
-                year,
-                month: 13 as u8,
-                day: day as u8
-            }).unwrap();
-            let e1 = ArmenianDate::try_from(FixedDate::try_from(e0).unwrap()).unwrap();
+        fn roundtrip_month13(year in -MAX_YEARS..MAX_YEARS, day in 1..5) {
+            let d = CommonDate::try_new(year, 13, day as u8).unwrap();
+            let e0 = ArmenianDate::try_from(d).unwrap();
+            let e1 = ArmenianDate::try_from(FixedDate::from(e0)).unwrap();
             assert_eq!(e0, e1);
         }
 
         #[test]
-        fn armenian_month_is_some(year in i16::MIN..i16::MAX, month in 1..12, day in 1..30) {
-            let e0 = ArmenianDate::try_from(CommonDate {
-                year,
-                month: month as u8,
-                day: day as u8
-            }).unwrap();
+        fn month_is_some(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
+            let d = CommonDate::try_new(year, month as u8, day as u8).unwrap();
+            let e0 = ArmenianDate::try_from(d).unwrap();
             assert!(e0.get_month().is_some());
+            assert_eq!(CommonDate::from(e0), d);
         }
 
         #[test]
-        fn armenian_roundtrip_is_none(year in i16::MIN..i16::MAX, day in 1..5) {
-            let e0 = ArmenianDate::try_from(CommonDate {
-                year,
-                month: 13 as u8,
-                day: day as u8
-            }).unwrap();
-            assert!(e0.get_month().is_none())
+        fn roundtrip_is_none(year in -MAX_YEARS..MAX_YEARS, day in 1..5) {
+            let d = CommonDate::try_new(year, 13, day as u8).unwrap();
+            let e0 = ArmenianDate::try_from(d).unwrap();
+            assert!(e0.get_month().is_none());
+            assert_eq!(CommonDate::from(e0), d);
         }
-
     }
 }

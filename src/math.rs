@@ -26,11 +26,6 @@ use std::ops::Sub;
 // 2 ** 36          = 68719476736
 // That is a lot of days, converted into years:
 // 2 ** 36 / 365.25 = 188143673.47296372
-// For those us born after the Miocene period, n = 32 would be sufficient
-// 2 ** 32 / 365.25 = 11758979.592060233
-// However there may be other quantities to calculate, so the n = 35 restriction
-// can be enforced here, and the n = 32 restriction can be enforced when specifically
-// dealing with days.
 
 pub const EFFECTIVE_MAX: f64 = 68719476736.0;
 pub const EFFECTIVE_MIN: f64 = 0.00000762939453125;
