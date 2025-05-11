@@ -6,6 +6,7 @@ mod epoch {
     pub mod unix;
 }
 mod clock;
+mod error;
 mod math;
 mod calendar {
     mod armenian;

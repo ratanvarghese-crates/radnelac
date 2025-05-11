@@ -1,12 +1,12 @@
 use crate::epoch::fixed::Epoch;
 use crate::epoch::fixed::FixedDate;
 use crate::epoch::fixed::FixedMoment;
+use crate::error::CalendarError;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct JulianDate(pub f64);
 
-impl Epoch for JulianDate {
-    type Output = FixedMoment;
+impl Epoch<FixedMoment> for JulianDate {
     fn epoch() -> FixedMoment {
         FixedMoment(-1721424.5)
     }
@@ -14,19 +14,20 @@ impl Epoch for JulianDate {
 
 impl From<JulianDate> for FixedMoment {
     fn from(jd: JulianDate) -> FixedMoment {
-        FixedMoment(jd.0) + JulianDate::epoch()
+        FixedMoment(jd.0 + JulianDate::epoch().0)
     }
 }
 
 impl From<FixedMoment> for JulianDate {
     fn from(t: FixedMoment) -> JulianDate {
-        JulianDate((t - JulianDate::epoch()).0)
+        JulianDate(t.0 - JulianDate::epoch().0)
     }
 }
 
-impl From<JulianDate> for FixedDate {
-    fn from(jd: JulianDate) -> FixedDate {
-        FixedDate::from(FixedMoment::from(jd))
+impl TryFrom<JulianDate> for FixedDate {
+    type Error = CalendarError;
+    fn try_from(jd: JulianDate) -> Result<FixedDate, Self::Error> {
+        FixedDate::try_from(FixedMoment::from(jd))
     }
 }
 
@@ -39,8 +40,7 @@ impl From<FixedDate> for JulianDate {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct ModifiedJulianDate(pub f64);
 
-impl Epoch for ModifiedJulianDate {
-    type Output = FixedMoment;
+impl Epoch<FixedMoment> for ModifiedJulianDate {
     fn epoch() -> FixedMoment {
         FixedMoment(678576.0)
     }
@@ -48,41 +48,45 @@ impl Epoch for ModifiedJulianDate {
 
 impl From<ModifiedJulianDate> for FixedMoment {
     fn from(mjd: ModifiedJulianDate) -> FixedMoment {
-        FixedMoment(mjd.0) + ModifiedJulianDate::epoch()
+        FixedMoment(mjd.0 + ModifiedJulianDate::epoch().0)
     }
 }
 
 impl From<FixedMoment> for ModifiedJulianDate {
     fn from(t: FixedMoment) -> ModifiedJulianDate {
-        ModifiedJulianDate((t - ModifiedJulianDate::epoch()).0)
+        ModifiedJulianDate(t.0 - ModifiedJulianDate::epoch().0)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::math::approx_eq;
+    use proptest::proptest;
 
-    #[test]
-    fn jd_roundtrip() {
-        let j0 = JulianDate(12345678.9);
-        let j1 = JulianDate::from(FixedMoment::from(j0));
-        let j2 = JulianDate::from(FixedDate::from(j0));
-        assert_eq!(j0, j1);
-        assert_eq!(j0.0.floor(), j2.0.floor());
-    }
+    proptest! {
+        #[test]
+        fn jd_roundtrip(t in ((i32::MIN/2) as f64)..((i32::MAX/2) as f64)) {
+            let j0 = JulianDate(t);
+            let j1 = JulianDate::from(FixedMoment::from(j0));
+            let j2 = JulianDate::from(FixedDate::try_from(j0).unwrap());
+            assert!(approx_eq(j0.0, j1.0));
+            assert!((j0.0 - j2.0).abs() < 1.0);
+        }
 
-    #[test]
-    fn mjd_roundtrip() {
-        let j0 = ModifiedJulianDate(12345678.9);
-        let j1 = ModifiedJulianDate::from(FixedMoment::from(j0));
-        assert_eq!(j0, j1);
-    }
+        #[test]
+        fn mjd_roundtrip(t: f64) {
+            let j0 = ModifiedJulianDate(t);
+            let j1 = ModifiedJulianDate::from(FixedMoment::from(j0));
+            assert!(approx_eq(j0.0, j1.0));
+        }
 
-    #[test]
-    fn mjd_from_jd() {
-        let x = FixedMoment(12345678.0);
-        let j0 = JulianDate::from(x);
-        let mjd0 = ModifiedJulianDate::from(x);
-        assert_eq!(mjd0.0, j0.0 - 2400000.5);
+        #[test]
+        fn mjd_from_jd(t: f64) {
+            let x = FixedMoment(t);
+            let j0 = JulianDate::from(x);
+            let mjd0 = ModifiedJulianDate::from(x);
+            assert!(approx_eq(mjd0.0, j0.0 - 2400000.5));
+        }
     }
 }
