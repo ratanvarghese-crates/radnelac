@@ -28,8 +28,9 @@ use std::ops::Sub;
 // 2 ** 36 / 365.25 = 188143673.47296372
 
 pub const EFFECTIVE_MAX: f64 = 68719476736.0;
-pub const EFFECTIVE_MIN: f64 = 0.00000762939453125;
+pub const EFFECTIVE_MIN: f64 = -EFFECTIVE_MAX;
 pub const EQ_SCALE: f64 = EFFECTIVE_MAX;
+pub const EFFECTIVE_EPSILON: f64 = 0.00000762939453125;
 
 pub fn approx_eq(x: f64, y: f64) -> bool {
     if x == y {
@@ -37,7 +38,7 @@ pub fn approx_eq(x: f64, y: f64) -> bool {
     } else if (x > 0.0 && y < 0.0) || (x < 0.0 && y > 0.0) {
         false
     } else {
-        (x - y).abs() < (x.abs() / EQ_SCALE) || (x - y).abs() < EFFECTIVE_MIN
+        (x - y).abs() < (x.abs() / EQ_SCALE) || (x - y).abs() < EFFECTIVE_EPSILON
     }
 }
 
@@ -400,7 +401,7 @@ mod tests {
 
 
         #[test]
-        fn modulus_positivity(x in -EFFECTIVE_MAX..EFFECTIVE_MAX, y in 0.0..EFFECTIVE_MAX) {
+        fn modulus_positivity(x in EFFECTIVE_MIN..EFFECTIVE_MAX, y in 0.0..EFFECTIVE_MAX) {
             assert!(modulus(x as f64, y as f64).unwrap() >= 0.0);
         }
 
@@ -487,7 +488,7 @@ mod tests {
         }
 
         #[test]
-        fn modulus_bounds(x in -EFFECTIVE_MAX..EFFECTIVE_MAX, y in -EFFECTIVE_MAX..EFFECTIVE_MAX) {
+        fn modulus_bounds(x in EFFECTIVE_MIN..EFFECTIVE_MAX, y in EFFECTIVE_MIN..EFFECTIVE_MAX) {
             prop_assume!(y != 0.0);
             let a = modulus(x, y).unwrap() * sign(y);
             assert!(0.0 <= a && a < y.abs());

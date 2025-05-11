@@ -26,11 +26,12 @@ impl From<FixedMoment> for UnixMoment {
 mod tests {
     use super::*;
     use crate::math::EFFECTIVE_MAX;
+    use crate::math::EFFECTIVE_MIN;
     use proptest::proptest;
 
     proptest! {
         #[test]
-        fn roundtrip(t in -EFFECTIVE_MAX..EFFECTIVE_MAX) {
+        fn roundtrip(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
             let unix0 = UnixMoment(t);
             let unix1 = UnixMoment::from(FixedMoment::from(unix0));
             assert_eq!(unix0.0.floor(), unix1.0.floor());

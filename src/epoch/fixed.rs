@@ -1,5 +1,6 @@
 use crate::error::CalendarError;
 use crate::math::EFFECTIVE_MAX;
+use crate::math::EFFECTIVE_MIN;
 
 pub trait Fixed {}
 
@@ -59,7 +60,7 @@ impl TryFrom<f64> for FixedDate {
     type Error = CalendarError;
     fn try_from(t: f64) -> Result<FixedDate, Self::Error> {
         let date = t.floor();
-        if date > EFFECTIVE_MAX || date < (-EFFECTIVE_MAX) {
+        if date > EFFECTIVE_MAX || date < (EFFECTIVE_MIN) {
             Err(CalendarError::OutOfBounds)
         } else {
             Ok(FixedDate(date))

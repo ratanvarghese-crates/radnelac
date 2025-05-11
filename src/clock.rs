@@ -91,6 +91,7 @@ mod tests {
     use super::*;
     use crate::epoch::jd::JulianDate;
     use crate::math::EFFECTIVE_MAX;
+    use crate::math::EFFECTIVE_MIN;
     use proptest::proptest;
 
     #[test]
@@ -140,7 +141,7 @@ mod tests {
         }
 
         #[test]
-        fn clock_time_from_moment(x in -EFFECTIVE_MAX..EFFECTIVE_MAX) {
+        fn clock_time_from_moment(x in EFFECTIVE_MIN..EFFECTIVE_MAX) {
             let t = TimeOfDay::try_from(FixedMoment(x)).unwrap();
             let c = ClockTime::try_from(t).unwrap();
             check_fields(c.hours, c.minutes, c.seconds).unwrap();
