@@ -1,8 +1,6 @@
 use crate::epoch::fixed::FixedMoment;
 use crate::error::CalendarError;
-use crate::math::from_mixed_radix;
-use crate::math::modulus;
-use crate::math::to_mixed_radix;
+use crate::math::TermNum;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct TimeOfDay(f64);
@@ -11,7 +9,7 @@ impl TryFrom<FixedMoment> for TimeOfDay {
     type Error = CalendarError;
 
     fn try_from(t: FixedMoment) -> Result<TimeOfDay, Self::Error> {
-        Ok(TimeOfDay(modulus(t.0, 1.0)?))
+        Ok(TimeOfDay(t.0.modulus(1.0)))
     }
 }
 
@@ -67,7 +65,7 @@ impl From<ClockTime> for TimeOfDay {
             clock.seconds as f64,
         ];
         let b = [24.0, 60.0, 60.0];
-        TimeOfDay(from_mixed_radix(&a, &b, 0).expect("Inputs are valid"))
+        TimeOfDay(TermNum::from_mixed_radix(&a, &b, 0).expect("Inputs are valid"))
     }
 }
 
@@ -77,7 +75,7 @@ impl TryFrom<TimeOfDay> for ClockTime {
     fn try_from(t: TimeOfDay) -> Result<ClockTime, CalendarError> {
         let b = [24.0, 60.0, 60.0];
         let mut a = [0.0, 0.0, 0.0, 0.0];
-        to_mixed_radix(t.0, &b, 0, &mut a)?;
+        TermNum::to_mixed_radix(t.0, &b, 0, &mut a)?;
         Ok(ClockTime {
             hours: a[1] as u8,
             minutes: a[2] as u8,

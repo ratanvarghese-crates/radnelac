@@ -1,10 +1,10 @@
 use crate::error::CalendarError;
-use std::num::NonZero;
-use std::ops::AddAssign;
-use std::ops::Div;
-use std::ops::Mul;
-use std::ops::MulAssign;
-use std::ops::Sub;
+use num_traits::AsPrimitive;
+use num_traits::Euclid;
+use num_traits::FromPrimitive;
+use num_traits::NumAssign;
+use num_traits::Signed;
+use std::cmp::PartialOrd;
 
 // https://en.m.wikipedia.org/wiki/Double-precision_floating-point_format
 // > Between 2^52=4,503,599,627,370,496 and 2^53=9,007,199,254,740,992 the
@@ -32,135 +32,252 @@ pub const EFFECTIVE_MIN: f64 = -EFFECTIVE_MAX;
 pub const EQ_SCALE: f64 = EFFECTIVE_MAX;
 pub const EFFECTIVE_EPSILON: f64 = 0.00000762939453125;
 
-pub fn approx_eq(x: f64, y: f64) -> bool {
-    if x == y {
-        true
-    } else if (x > 0.0 && y < 0.0) || (x < 0.0 && y > 0.0) {
-        false
-    } else {
-        (x - y).abs() < (x.abs() / EQ_SCALE) || (x - y).abs() < EFFECTIVE_EPSILON
-    }
-}
-
-fn approx_eq_slice(x: &[f64], y: &[f64]) -> bool {
-    if x.len() != y.len() {
-        return false;
+pub trait TermNum:
+    NumAssign + Signed + PartialOrd + AsPrimitive<f64> + FromPrimitive + Euclid
+{
+    fn approx_eq(self, other: Self) -> bool {
+        self == other
     }
 
-    for i in 0..x.len() {
-        if !approx_eq(x[i], y[i]) {
-            return false;
+    fn approx_floor(self) -> Self {
+        self
+    }
+
+    fn floor_round(self) -> Self {
+        self
+    }
+
+    fn modulus(self, other: Self) -> Self {
+        if other > Self::zero() {
+            let x = self;
+            let y = other;
+            Euclid::rem_euclid(&x, &y)
+        } else {
+            let x = -self;
+            let y = -other;
+            -Euclid::rem_euclid(&x, &y)
         }
     }
-    true
-}
 
-fn floor_unless_scraping_ceiling(x: f64) -> f64 {
-    let cx = x.ceil();
-    if approx_eq(x, cx) {
-        cx
-    } else {
-        x.floor()
+    fn approx_eq_iter<T: IntoIterator<Item = Self>>(x: T, y: T) -> bool {
+        !x.into_iter()
+            .zip(y.into_iter())
+            .any(|(zx, zy)| !zx.approx_eq(zy))
+    }
+
+    fn sign(self) -> Self {
+        if self.is_zero() {
+            Self::zero()
+        } else {
+            self.signum()
+        }
+    }
+
+    fn checked_modulus(self, other: Self) -> Result<Self, CalendarError> {
+        if other.is_zero() {
+            Err(CalendarError::DivisionByZero)
+        } else if self.abs().as_() > EFFECTIVE_MAX || other.abs().as_() > EFFECTIVE_MAX {
+            Err(CalendarError::OutOfBounds)
+        } else {
+            Ok(self.modulus(other))
+        }
+    }
+
+    fn gcd(self, other: Self) -> Self {
+        let x = self;
+        let y = other;
+        if y.is_zero() {
+            x
+        } else {
+            y.gcd(x.modulus(y))
+        }
+    }
+
+    fn lcm(self, other: Self) -> Self {
+        let x = self;
+        let y = other;
+        (x * y) / x.gcd(y)
+    }
+
+    fn interval_modulus(self, other: Self, another: Self) -> Self {
+        let x = self;
+        let a = other;
+        let b = another;
+        if a == b {
+            x
+        } else {
+            a + (x - a).modulus(x - b)
+        }
+    }
+
+    fn sum<U: CalendricIndex>(f: impl Fn(U) -> Self, p: impl Fn(U) -> bool, k: U) -> Self {
+        let mut result = Self::zero();
+        let mut i = k;
+        while p(i) {
+            result += f(i);
+            i += U::one();
+        }
+        result
+    }
+
+    fn product<U: CalendricIndex>(f: impl Fn(U) -> Self, p: impl Fn(U) -> bool, k: U) -> Self {
+        let mut result = Self::one();
+        let mut i = k;
+        while p(i) {
+            result *= f(i);
+            i += U::one();
+        }
+        result
+    }
+
+    fn validate_mixed_radix(a: &[Self], b: &[Self]) -> Result<(), CalendarError> {
+        if a.len() != (b.len() + 1) {
+            Err(CalendarError::MixedRadixWrongSize)
+        } else if b.iter().any(|&bx| bx.is_zero()) {
+            Err(CalendarError::MixedRadixZeroBase)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn from_mixed_radix(a: &[Self], b: &[Self], k: usize) -> Result<f64, CalendarError> {
+        let n = b.len();
+        match TermNum::validate_mixed_radix(a, b) {
+            Ok(()) => (),
+            Err(error) => return Err(error),
+        };
+
+        let sum_mul: f64 = TermNum::sum(
+            |i| a[i] * TermNum::product(|j| b[j], |j| j < k, i),
+            |i| i <= k,
+            0,
+        )
+        .as_();
+
+        let sum_div: f64 = TermNum::sum(
+            |i| (a[i].as_() as f64) / ((TermNum::product(|j| b[j], |j| j < i, k)).as_() as f64),
+            |i| i <= n,
+            k + 1,
+        );
+
+        Ok(sum_mul + sum_div)
+    }
+
+    fn to_mixed_radix(x: f64, b: &[Self], k: usize, a: &mut [Self]) -> Result<(), CalendarError> {
+        let n = b.len();
+        match TermNum::validate_mixed_radix(a, b) {
+            Ok(()) => (),
+            Err(error) => return Err(error),
+        };
+
+        for i in 0..(n + 1) {
+            if i == 0 {
+                let p0 = TermNum::product(|j| b[j], |j| j < k, 0);
+                let q0 = Self::from_f64((x / p0.as_()).approx_floor() as f64);
+                match q0 {
+                    Some(q) => a[i] = q,
+                    None => return Err(CalendarError::OutOfBounds),
+                }
+            } else if i > 0 && i < k {
+                let p1 = TermNum::product(|j| b[j], |j| j < k, i);
+                let q1 = Self::from_f64((x / p1.as_()).approx_floor() as f64);
+                match q1 {
+                    Some(q) => a[i] = q.modulus(b[i - 1]),
+                    None => return Err(CalendarError::OutOfBounds),
+                }
+            } else if i >= k && i < n {
+                let p2 = TermNum::product(|j| b[j], |j| j < i, k);
+                let q2 = Self::from_f64((x * p2.as_()).approx_floor() as f64);
+                match q2 {
+                    Some(q) => a[i] = q.modulus(b[i - 1]),
+                    None => return Err(CalendarError::OutOfBounds),
+                }
+            } else {
+                let p3 = TermNum::product(|j| b[j], |j| j < n, k);
+                let q3 = x * p3.as_();
+                let m = q3.modulus(b[n - 1].as_());
+                if m.approx_eq(b[n - 1].as_()) || m.approx_eq(0.0) {
+                    a[i] = Self::zero();
+                } else if m.fract().approx_eq(1.0) {
+                    a[i] = match Self::from_f64(m.ceil()) {
+                        Some(m3) => m3,
+                        None => return Err(CalendarError::OutOfBounds),
+                    };
+                } else {
+                    a[i] = match Self::from_f64(m) {
+                        Some(m3) => m3,
+                        None => return Err(CalendarError::OutOfBounds),
+                    };
+                }
+            }
+        }
+        Ok(())
     }
 }
 
-pub fn round(x: f64) -> f64 {
-    (x + 0.5).floor()
-}
+impl TermNum for i64 {}
+impl TermNum for i32 {}
 
-pub fn sign(y: f64) -> f64 {
-    if y == 0.0 {
-        0.0
-    } else {
-        y.signum()
+impl TermNum for f64 {
+    fn approx_eq(self, other: Self) -> bool {
+        let x = self;
+        let y = other;
+        if x == y {
+            true
+        } else if x.signum() != y.signum() && x != 0.0 && y != 0.0 {
+            false
+        } else {
+            (x - y).abs() < (x.abs() / EQ_SCALE) || (x - y).abs() < EFFECTIVE_EPSILON
+        }
+    }
+
+    fn approx_floor(self) -> Self {
+        let x = self;
+        let cx = x.ceil();
+        if x.approx_eq(cx) {
+            cx
+        } else {
+            x.floor()
+        }
+    }
+
+    fn floor_round(self) -> Self {
+        (self + 0.5).floor()
+    }
+
+    fn modulus(self, other: Self) -> Self {
+        let x = self;
+        let y = other;
+        debug_assert!(y != 0.0);
+        debug_assert!(y.abs() < EFFECTIVE_MAX && x.abs() < EFFECTIVE_MAX); //TODO: revisit
+        if x == 0.0 {
+            0.0
+        } else {
+            x - (y * (x / y).floor())
+        }
     }
 }
 
-pub fn modulus(x: f64, y: f64) -> Result<f64, CalendarError> {
-    if y == 0.0 {
-        Err(CalendarError::DivisionByZero)
-    } else if y.abs() > EFFECTIVE_MAX || x.abs() > EFFECTIVE_MAX {
-        Err(CalendarError::OutOfBounds)
-    } else if x == 0.0 {
-        Ok(0.0)
-    } else {
-        Ok(x - (y * (x / y).floor()))
+pub trait CalendricIndex: NumAssign + Copy {
+    fn search_min(p: impl Fn(Self) -> bool, k: Self) -> Self {
+        let mut i = k;
+        while !p(i) {
+            i += Self::one()
+        }
+        i
+    }
+
+    fn search_max(p: impl Fn(Self) -> bool, k: Self) -> Self {
+        let mut i = k - Self::one();
+        while p(i) {
+            i += Self::one()
+        }
+        i
     }
 }
 
-pub fn modulus_i(x: i32, y: NonZero<i32>) -> i32 {
-    modulus(x as f64, y.get() as f64).expect("Nonzero i32 is safe for modulus") as i32
-}
-
-pub fn gcd(x: f64, y: f64) -> Result<f64, CalendarError> {
-    if y == 0.0 {
-        Ok(x)
-    } else {
-        gcd(y, modulus(x, y)?)
-    }
-}
-
-pub fn lcm(x: f64, y: f64) -> Result<f64, CalendarError> {
-    Ok((x * y) / gcd(x, y)?)
-}
-
-pub fn interval_modulus(x: f64, a: f64, b: f64) -> Result<f64, CalendarError> {
-    if a == b {
-        Ok(x)
-    } else {
-        Ok(a + modulus(x - a, b - a)?)
-    }
-}
-
-pub fn sum<T, U>(f: impl Fn(U) -> T, p: impl Fn(U) -> bool, k: U) -> T
-where
-    T: AddAssign + From<u8> + Copy,
-    U: AddAssign + From<u8> + Copy,
-{
-    let mut result: T = T::from(0);
-    let mut i = k;
-    while p(i) {
-        result += f(i);
-        i += U::from(1);
-    }
-    result
-}
-
-pub fn product<T, U>(f: impl Fn(U) -> T, p: impl Fn(U) -> bool, k: U) -> T
-where
-    T: MulAssign + From<u8> + Copy,
-    U: AddAssign + From<u8> + Copy,
-{
-    let mut result: T = T::from(1);
-    let mut i = k;
-    while p(i) {
-        result *= f(i);
-        i += U::from(1);
-    }
-    result
-}
-
-pub fn search_min<T>(p: impl Fn(T) -> bool, k: T) -> T
-where
-    T: AddAssign + From<u8> + Copy,
-{
-    let mut i = k;
-    while !p(i) {
-        i += T::from(1)
-    }
-    i
-}
-
-pub fn search_max<T>(p: fn(T) -> bool, k: T) -> T
-where
-    T: AddAssign + Sub<T, Output = T> + From<u8> + Copy,
-{
-    let mut i = k - T::from(1);
-    while p(i) {
-        i += T::from(1)
-    }
-    i
-}
+impl CalendricIndex for f64 {}
+impl CalendricIndex for usize {}
 
 // TODO: binary search (listing 1.35)
 // TODO: inverse f (listing 1.36)
@@ -168,104 +285,7 @@ where
 // TODO: range (1.38)
 // TODO: scan_range (1.39)
 // TODO: positions_in_range (1.40)
-
-fn validate_mixed_radix<T: Into<f64> + Copy>(a: &[T], b: &[T]) -> Result<(), CalendarError> {
-    if a.len() != (b.len() + 1) {
-        Err(CalendarError::MixedRadixWrongSize)
-    } else if b.iter().any(|&bx| bx.into() == 0.0) {
-        Err(CalendarError::MixedRadixZeroBase)
-    } else {
-        Ok(())
-    }
-}
-
-pub fn from_mixed_radix<T>(a: &[T], b: &[T], k: usize) -> Result<f64, CalendarError>
-where
-    T: Mul<Output = T> + Div<Output = T> + MulAssign + AddAssign + Into<f64> + From<u8> + Copy,
-{
-    let n = b.len();
-    match validate_mixed_radix(a, b) {
-        Ok(()) => (),
-        Err(error) => return Err(error),
-    };
-
-    let sum_mul: f64 = sum(|i| a[i] * product(|j| b[j], |j| j < k, i), |i| i <= k, 0).into();
-
-    let sum_div: f64 = sum(
-        |i| (a[i].into() as f64) / ((product(|j| b[j], |j| j < i, k)).into() as f64),
-        |i| i <= n,
-        k + 1,
-    )
-    .into();
-
-    Ok(sum_mul + sum_div)
-}
-
-pub fn to_mixed_radix(x: f64, b: &[f64], k: usize, a: &mut [f64]) -> Result<(), CalendarError> {
-    let n = b.len();
-    match validate_mixed_radix(a, b) {
-        Ok(()) => (),
-        Err(error) => return Err(error),
-    };
-
-    for i in 0..(n + 1) {
-        if i == 0 {
-            let p0 = product(|j| b[j], |j| j < k, 0);
-            a[i] = floor_unless_scraping_ceiling(x / p0);
-        } else if i > 0 && i < k {
-            let p1 = product(|j| b[j], |j| j < k, i);
-            a[i] = modulus(floor_unless_scraping_ceiling(x / p1), b[i - 1])?;
-        } else if i >= k && i < n {
-            let p2 = product(|j| b[j], |j| j < i, k);
-            a[i] = modulus(floor_unless_scraping_ceiling(x * p2), b[i - 1])?;
-        } else {
-            let p3 = product(|j| b[j], |j| j < n, k);
-            let m = modulus(x * p3, b[n - 1])?;
-            if approx_eq(m, b[n - 1]) || approx_eq(m, 0.0) {
-                a[i] = 0.0;
-            } else {
-                a[i] = m;
-            }
-        }
-    }
-    Ok(())
-}
-
-pub fn to_mixed_radix_i(x: f64, b: &[i32], k: usize, a: &mut [i32]) -> Result<(), CalendarError> {
-    let n = b.len();
-    match validate_mixed_radix(a, b) {
-        Ok(()) => (),
-        Err(error) => return Err(error),
-    };
-
-    for i in 0..(n + 1) {
-        if i == 0 {
-            let p0 = product(|j| b[j], |j| j < k, 0) as f64;
-            a[i] = floor_unless_scraping_ceiling(x / p0) as i32;
-        } else if i > 0 && i < k {
-            let p1 = product(|j| b[j], |j| j < k, i) as f64;
-            a[i] = modulus_i(
-                floor_unless_scraping_ceiling(x / p1) as i32,
-                NonZero::new(b[i - 1]).expect("Checked for 0 earlier"),
-            );
-        } else if i >= k && i < n {
-            let p2 = product(|j| b[j], |j| j < i, k) as f64;
-            a[i] = modulus_i(
-                floor_unless_scraping_ceiling(x * p2) as i32,
-                NonZero::new(b[i - 1]).expect("Checked for 0 earlier"),
-            );
-        } else {
-            let p3 = product(|j| b[j], |j| j < n, k) as f64;
-            a[i] = modulus_i(
-                (x * p3).round() as i32, //A deviation from the formula
-                NonZero::new(b[i - 1]).expect("Checked for 0 earlier"),
-            );
-        }
-    }
-    Ok(())
-}
-
-//TODO: angles, minutes, degrees
+// TODO: angles, minutes, degrees
 
 #[cfg(test)]
 mod tests {
@@ -275,60 +295,60 @@ mod tests {
 
     #[test]
     fn modulus_basics() {
-        assert_eq!(modulus(9.0, 5.0).unwrap(), 4.0);
-        assert_eq!(modulus(-9.0, 5.0).unwrap(), 1.0);
-        assert_eq!(modulus(9.0, -5.0).unwrap(), -1.0);
-        assert_eq!(modulus(-9.0, -5.0).unwrap(), -4.0);
+        assert_eq!((9.0).modulus(5.0), 4.0);
+        assert_eq!((-9.0).modulus(5.0), 1.0);
+        assert_eq!((9.0).modulus(-5.0), -1.0);
+        assert_eq!((-9.0).modulus(-5.0), -4.0);
     }
 
     #[test]
     #[should_panic]
     fn modulus_zero() {
-        modulus(123.0, 0.0).unwrap();
+        (123.0).checked_modulus(0.0).unwrap();
     }
 
     #[test]
     fn gcd_wikipedia_examples() {
         //See https://en.wikipedia.org/wiki/Greatest_common_divisor
-        assert_eq!(gcd(8.0, 12.0).unwrap(), 4.0);
-        assert_eq!(gcd(54.0, 24.0).unwrap(), 6.0);
-        assert_eq!(gcd(9.0, 28.0).unwrap(), 1.0); //Coprime
-        assert_eq!(gcd(24.0, 60.0).unwrap(), 12.0);
-        assert_eq!(gcd(42.0, 56.0).unwrap(), 14.0);
+        assert_eq!(8.0.gcd(12.0), 4.0);
+        assert_eq!(54.0.gcd(24.0), 6.0);
+        assert_eq!(9.0.gcd(28.0), 1.0); //Coprime
+        assert_eq!(24.0.gcd(60.0), 12.0);
+        assert_eq!(42.0.gcd(56.0), 14.0);
     }
 
     #[test]
     fn lcm_wikipedia_examples() {
         //https://en.wikipedia.org/wiki/Least_common_multiple
-        assert_eq!(lcm(5.0, 4.0).unwrap(), 20.0);
-        assert_eq!(lcm(6.0, 4.0).unwrap(), 12.0);
+        assert_eq!((5.0).lcm(4.0), 20.0);
+        assert_eq!((6.0).lcm(4.0), 12.0);
     }
 
     #[test]
     fn sum_of_2x() {
-        let y = sum(|x| x * 2.0, |i| i < 3.0, 1.0);
+        let y = TermNum::sum(|x| x * 2.0, |i| i < 3.0, 1.0);
         assert_eq!(y, 3.0 * 2.0);
     }
 
     #[test]
     fn product_of_2x() {
-        let y = product(|x| x * 2.0, |i| i < 3.0, 1.0);
+        let y = TermNum::product(|x| x * 2.0, |i| i < 3.0, 1.0);
         assert_eq!(y, 2.0 * 4.0);
     }
 
     #[test]
     fn search_min_sign() {
-        let y = search_min(|i| sign(i) == 1.0, -10.0);
+        let y = CalendricIndex::search_min(|i| i.sign() == 1.0, -10.0);
         assert_eq!(y, 1.0);
-        let z = search_min(|i| sign(i) == 1.0, 500.0);
+        let z = CalendricIndex::search_min(|i| i.sign() == 1.0, 500.0);
         assert_eq!(z, 500.0);
     }
 
     #[test]
     fn search_max_sign() {
-        let y = search_max(|i| sign(i) == -1.0, -10.0);
+        let y = CalendricIndex::search_max(|i| i.sign() == -1.0, -10.0);
         assert_eq!(y, 0.0);
-        let z = search_max(|i| sign(i) == -1.0, 500.0);
+        let z = CalendricIndex::search_max(|i| i.sign() == -1.0, 500.0);
         assert_eq!(z, 499.0);
     }
 
@@ -340,28 +360,28 @@ mod tests {
             let asc = asc as f64;
             let a = [ahr, amn, asc];
             let b = [60.0, 60.0];
-            let seconds = from_mixed_radix(&a, &b, 2).unwrap();
-            let minutes = from_mixed_radix(&a, &b, 1).unwrap();
-            let hours = from_mixed_radix(&a, &b, 0).unwrap();
+            let seconds = TermNum::from_mixed_radix(&a, &b, 2).unwrap();
+            let minutes = TermNum::from_mixed_radix(&a, &b, 1).unwrap();
+            let hours = TermNum::from_mixed_radix(&a, &b, 0).unwrap();
             let expected_seconds = (ahr * 3600.0) + (amn* 60.0) + asc;
             let expected_minutes = (ahr * 60.0) + amn + (asc / 60.0);
             let expected_hours = ahr + (amn / 60.0) + (asc / 3600.0);
-            assert!(approx_eq(seconds, expected_seconds));
-            assert!(approx_eq(minutes, expected_minutes));
-            assert!(approx_eq(hours, expected_hours));
+            assert!(seconds.approx_eq(expected_seconds));
+            assert!(minutes.approx_eq(expected_minutes));
+            assert!(hours.approx_eq(expected_hours));
 
             let mut a_seconds = [0.0, 0.0, 0.0];
             let mut a_minutes = [0.0, 0.0, 0.0];
             let mut a_hours = [0.0, 0.0, 0.0];
-            to_mixed_radix(seconds, &b, 2, &mut a_seconds).unwrap();
-            to_mixed_radix(minutes, &b, 1, &mut a_minutes).unwrap();
-            to_mixed_radix(hours, &b, 0, &mut a_hours).unwrap();
+            TermNum::to_mixed_radix(seconds, &b, 2, &mut a_seconds).unwrap();
+            TermNum::to_mixed_radix(minutes, &b, 1, &mut a_minutes).unwrap();
+            TermNum::to_mixed_radix(hours, &b, 0, &mut a_hours).unwrap();
 
             println!("a: {a:?}, a_hours: {a_hours:?}, hours: {hours}");
 
-            assert!(approx_eq_slice(&a_seconds, &a));
-            assert!(approx_eq_slice(&a_minutes, &a));
-            assert!(approx_eq_slice(&a_hours, &a));
+            assert!(TermNum::approx_eq_iter(a_seconds, a));
+            assert!(TermNum::approx_eq_iter(a_minutes, a));
+            assert!(TermNum::approx_eq_iter(a_hours, a));
         }
 
         #[test]
@@ -371,9 +391,9 @@ mod tests {
             let asc = asc as i32;
             let a = [ahr, amn, asc];
             let b = [60, 60];
-            let seconds = from_mixed_radix(&a, &b, 2).unwrap();
-            let minutes = from_mixed_radix(&a, &b, 1).unwrap();
-            let hours = from_mixed_radix(&a, &b, 0).unwrap();
+            let seconds = TermNum::from_mixed_radix(&a, &b, 2).unwrap();
+            let minutes = TermNum::from_mixed_radix(&a, &b, 1).unwrap();
+            let hours = TermNum::from_mixed_radix(&a, &b, 0).unwrap();
 
             let ahr = ahr as f64;
             let amn = amn as f64;
@@ -381,16 +401,16 @@ mod tests {
             let expected_seconds = (ahr * 3600.0) + (amn* 60.0) + asc;
             let expected_minutes = (ahr * 60.0) + amn + (asc / 60.0);
             let expected_hours = ahr + (amn / 60.0) + (asc / 3600.0);
-            assert!(approx_eq(seconds, expected_seconds));
-            assert!(approx_eq(minutes, expected_minutes));
-            assert!(approx_eq(hours, expected_hours));
+            assert!(seconds.approx_eq(expected_seconds));
+            assert!(minutes.approx_eq(expected_minutes));
+            assert!(hours.approx_eq(expected_hours));
 
             let mut a_seconds = [0, 0, 0];
             let mut a_minutes = [0, 0, 0];
             let mut a_hours = [0, 0, 0];
-            to_mixed_radix_i(seconds, &b, 2, &mut a_seconds).unwrap();
-            to_mixed_radix_i(minutes, &b, 1, &mut a_minutes).unwrap();
-            to_mixed_radix_i(hours, &b, 0, &mut a_hours).unwrap();
+            TermNum::to_mixed_radix(seconds, &b, 2, &mut a_seconds).unwrap();
+            TermNum::to_mixed_radix(minutes, &b, 1, &mut a_minutes).unwrap();
+            TermNum::to_mixed_radix(hours, &b, 0, &mut a_hours).unwrap();
 
             println!("a: {a:?}, a_hours: {a_hours:?}, hours: {hours}");
 
@@ -402,33 +422,31 @@ mod tests {
 
         #[test]
         fn modulus_positivity(x in EFFECTIVE_MIN..EFFECTIVE_MAX, y in 0.0..EFFECTIVE_MAX) {
-            assert!(modulus(x as f64, y as f64).unwrap() >= 0.0);
+            assert!((x as f64).modulus(y as f64) >= 0.0);
         }
 
         #[test]
         fn modulus_i_positivity(x: i32, y in 1..i32::MAX) {
-            assert!(modulus_i(x, NonZero::new(y).unwrap()) >= 0);
+            assert!(x.modulus(y) >= 0);
         }
 
 
         #[test]
         fn modulus_negative_x(x in 0.0..EFFECTIVE_MAX, y in 0.0..EFFECTIVE_MAX) {
             prop_assume!(y != 0.0);
-            prop_assume!(modulus(x as f64,y as f64).unwrap() != 0.0);
-            let a0 = modulus(-x as f64, y as f64).unwrap();
-            let a1 = y as f64 - modulus(x as f64, y as f64).unwrap();
-            assert!(approx_eq(a0, a1));
+            prop_assume!(x.modulus(y) != 0.0);
+            let a0 = (-x).modulus(y);
+            let a1 = y - x.modulus(y);
+            assert!(a0.approx_eq(a1));
         }
 
         #[test]
         fn modulus_i_negative_x(x in 0..i32::MAX, y in 1..i32::MAX) {
-            let y = NonZero::new(y).unwrap();
-            prop_assume!(modulus_i(x,y) != 0);
-            let a0 = modulus_i(-x, y);
-            let a1 = y.get() - modulus_i(x, y);
+            prop_assume!(x.modulus(y) != 0);
+            let a0 = (-x).modulus(y);
+            let a1 = y - x.modulus(y);
             assert_eq!(a0, a1);
         }
-
 
         #[test]
         fn modulus_mult(
@@ -441,10 +459,10 @@ mod tests {
             let z = z as f64;
             prop_assume!(y != 0.0);
             prop_assume!(z != 0.0);
-            let a: f64 = modulus(x, y).unwrap();
-            let az: f64 = modulus(x*z, y*z).unwrap();
+            let a: f64 = x.modulus(y);
+            let az: f64 = (x*z).modulus(y*z);
             println!("x={}; y={}; z={}; a={}; a*z= {}; az= {};", x, y, z, a, a*z, az);
-            assert!(approx_eq(a * z, az));
+            assert!((a * z).approx_eq(az));
         }
 
         #[test]
@@ -457,10 +475,8 @@ mod tests {
             let z = z as i32;
             prop_assume!(y != 0);
             prop_assume!(z != 0);
-            let nzyz = NonZero::new(y*z).unwrap();
-            let nzy = NonZero::new(y).unwrap();
-            let a = modulus_i(x, nzy);
-            let az = modulus_i(x*z, nzyz);
+            let a = x.modulus(y);
+            let az = (x*z).modulus(y*z);
             println!("x={}; y={}; z={}; a={}; a*z= {}; az= {};", x, y, z, a, a*z, az);
             assert_eq!(a * z, az);
         }
@@ -468,35 +484,35 @@ mod tests {
         #[test]
         fn modulus_mult_minus_1(x in 0.0..EFFECTIVE_MAX, y in 0.0..EFFECTIVE_MAX) {
             prop_assume!(y != 0.0);
-            let a0 = modulus(-(x as f64), -(y as f64)).unwrap();
-            let a1 = -modulus(x, y).unwrap();
+            let a0 = (-x).modulus(-y);
+            let a1 = -(x.modulus(y));
             assert_eq!(a0, a1);
         }
 
         #[test]
         fn modulus_i_mult_minus_1(x in 0..i32::MAX, y in 1..i32::MAX) {
-            let a0 = modulus_i(-x, NonZero::new(-y).unwrap());
-            let a1 = -modulus_i(x, NonZero::new(y).unwrap());
+            let a0 = (-x).modulus(-y);
+            let a1 = -(x.modulus(y));
             assert_eq!(a0, a1);
         }
 
         #[test]
         fn modulus_i_multiple_of_y(x: i32, y: i32) {
             prop_assume!(y != 0);
-            let a = (x as i64) - (modulus_i(x, NonZero::new(y).unwrap()) as i64);
+            let a = (x as i64) - (x.modulus(y) as i64);
             assert_eq!(a % (y as i64), 0);
         }
 
         #[test]
         fn modulus_bounds(x in EFFECTIVE_MIN..EFFECTIVE_MAX, y in EFFECTIVE_MIN..EFFECTIVE_MAX) {
             prop_assume!(y != 0.0);
-            let a = modulus(x, y).unwrap() * sign(y);
+            let a = x.modulus(y) * y.sign();
             assert!(0.0 <= a && a < y.abs());
         }
         #[test]
         fn modulus_i_bounds(x: i32, y: i32) {
             prop_assume!(y != 0);
-            let a = modulus_i(x, NonZero::new(y).unwrap()) * (sign(y as f64) as i32);
+            let a = x.modulus(y) * (y.sign());
             assert!(0 <= a && a < y.abs());
         }
     }

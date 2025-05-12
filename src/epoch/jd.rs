@@ -61,7 +61,7 @@ impl From<FixedMoment> for ModifiedJulianDate {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::math::approx_eq;
+    use crate::math::TermNum;
     use proptest::proptest;
 
     proptest! {
@@ -70,7 +70,7 @@ mod tests {
             let j0 = JulianDate(t);
             let j1 = JulianDate::from(FixedMoment::from(j0));
             let j2 = JulianDate::from(FixedDate::try_from(j0).unwrap());
-            assert!(approx_eq(j0.0, j1.0));
+            assert!(j0.0.approx_eq(j1.0));
             assert!((j0.0 - j2.0).abs() < 1.0);
         }
 
@@ -78,7 +78,7 @@ mod tests {
         fn mjd_roundtrip(t: f64) {
             let j0 = ModifiedJulianDate(t);
             let j1 = ModifiedJulianDate::from(FixedMoment::from(j0));
-            assert!(approx_eq(j0.0, j1.0));
+            assert!(j0.0.approx_eq(j1.0));
         }
 
         #[test]
@@ -86,7 +86,7 @@ mod tests {
             let x = FixedMoment(t);
             let j0 = JulianDate::from(x);
             let mjd0 = ModifiedJulianDate::from(x);
-            assert!(approx_eq(mjd0.0, j0.0 - 2400000.5));
+            assert!(mjd0.0.approx_eq(j0.0 - 2400000.5));
         }
     }
 }

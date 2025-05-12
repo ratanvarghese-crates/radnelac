@@ -4,7 +4,7 @@ use crate::epoch::fixed::Epoch;
 use crate::epoch::fixed::FixedDate;
 use crate::epoch::jd::JulianDate;
 use crate::error::CalendarError;
-use crate::math::modulus;
+use crate::math::TermNum;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub enum EgyptianMonth {
@@ -92,10 +92,10 @@ impl From<EgyptianDate> for FixedDate {
 impl TryFrom<FixedDate> for EgyptianDate {
     type Error = CalendarError;
     fn try_from(date: FixedDate) -> Result<EgyptianDate, Self::Error> {
-        let days = f64::from(date) - f64::from(EgyptianDate::epoch());
-        let year = ((days as f64) / 365.0).floor() + 1.0;
-        let month = (modulus(days, 365.0)? / 30.0).floor() + 1.0;
-        let day = days - (365.0 * (year - 1.0)) - (30.0 * (month - 1.0)) + 1.0;
+        let days = i64::from(date) - i64::from(EgyptianDate::epoch());
+        let year = days.div_euclid(365) + 1;
+        let month = days.modulus(365).div_euclid(30) + 1;
+        let day = days - (365 * (year - 1)) - (30 * (month - 1)) + 1;
         Ok(EgyptianDate(CommonDate::try_new(
             year as i32,
             month as u8,

@@ -1,6 +1,6 @@
 use crate::epoch::fixed::FixedDate;
 use crate::error::CalendarError;
-use crate::math::modulus;
+use crate::math::TermNum;
 
 use crate::math::EFFECTIVE_MAX;
 
@@ -19,51 +19,52 @@ pub enum CommonDayOfWeek {
 
 impl CommonDayOfWeek {
     fn on_or_before(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
-        let date = f64::from(date);
-        let k = (self as i64) as f64;
-        FixedDate::try_from(date - (CommonDayOfWeek::try_from(date - k)? as i64) as f64)
+        let date = i64::from(date);
+        let k = self as i64;
+        FixedDate::try_from(date - (CommonDayOfWeek::from(date - k) as i64))
     }
 
     fn on_or_after(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
-        let date = FixedDate::try_from(f64::from(date) + 6.0)?;
+        let date = FixedDate::try_from(i64::from(date) + 6)?;
         self.on_or_before(date)
     }
 
     fn nearest(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
-        let date = FixedDate::try_from(f64::from(date) + 3.0)?;
+        let date = FixedDate::try_from(i64::from(date) + 3)?;
         self.on_or_before(date)
     }
 
     fn before(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
-        let date = FixedDate::try_from(f64::from(date) - 1.0)?;
+        let date = FixedDate::try_from(i64::from(date) - 1)?;
         self.on_or_before(date)
     }
 
     fn after(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
-        let date = FixedDate::try_from(f64::from(date) + 7.0)?;
+        let date = FixedDate::try_from(i64::from(date) + 7)?;
         self.on_or_before(date)
     }
 }
 
-impl TryFrom<f64> for CommonDayOfWeek {
-    type Error = CalendarError;
-    fn try_from(date: f64) -> Result<CommonDayOfWeek, Self::Error> {
-        match modulus(date, 7.0)? {
-            0.0 => Ok(CommonDayOfWeek::Sunday),
-            1.0 => Ok(CommonDayOfWeek::Monday),
-            2.0 => Ok(CommonDayOfWeek::Tuesday),
-            3.0 => Ok(CommonDayOfWeek::Wednesday),
-            4.0 => Ok(CommonDayOfWeek::Thursday),
-            5.0 => Ok(CommonDayOfWeek::Friday),
-            6.0 => Ok(CommonDayOfWeek::Saturday),
-            _ => Err(CalendarError::ImpossibleResult),
+impl From<i64> for CommonDayOfWeek {
+    fn from(date: i64) -> CommonDayOfWeek {
+        let m = date.modulus(7);
+        assert!(m >= 0 && m <= 6);
+        match m {
+            0 => CommonDayOfWeek::Sunday,
+            1 => CommonDayOfWeek::Monday,
+            2 => CommonDayOfWeek::Tuesday,
+            3 => CommonDayOfWeek::Wednesday,
+            4 => CommonDayOfWeek::Thursday,
+            5 => CommonDayOfWeek::Friday,
+            6 => CommonDayOfWeek::Saturday,
+            _ => CommonDayOfWeek::Sunday,
         }
     }
 }
 
 impl From<FixedDate> for CommonDayOfWeek {
     fn from(date: FixedDate) -> CommonDayOfWeek {
-        CommonDayOfWeek::try_from(f64::from(date)).expect("FixedDate will be in range for modulus")
+        CommonDayOfWeek::from(i64::from(date))
     }
 }
 

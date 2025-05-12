@@ -8,14 +8,14 @@ pub trait Fixed {}
 pub struct FixedMoment(pub f64);
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
-pub struct FixedDate(f64);
+pub struct FixedDate(i64);
 
 impl Fixed for FixedMoment {}
 impl Fixed for FixedDate {}
 
 impl From<FixedDate> for f64 {
     fn from(date: FixedDate) -> f64 {
-        date.0
+        date.0 as f64
     }
 }
 
@@ -45,7 +45,7 @@ impl From<FixedDate> for FixedMoment {
 
 impl From<i32> for FixedDate {
     fn from(date: i32) -> FixedDate {
-        FixedDate(date as f64)
+        FixedDate(date as i64)
     }
 }
 
@@ -63,7 +63,7 @@ impl TryFrom<f64> for FixedDate {
         if date > EFFECTIVE_MAX || date < (EFFECTIVE_MIN) {
             Err(CalendarError::OutOfBounds)
         } else {
-            Ok(FixedDate(date))
+            Ok(FixedDate(date as i64))
         }
     }
 }
