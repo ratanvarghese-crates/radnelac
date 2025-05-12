@@ -217,6 +217,8 @@ pub trait TermNum:
 
 impl TermNum for i64 {}
 impl TermNum for i32 {}
+impl TermNum for i16 {}
+impl TermNum for i8 {}
 
 impl TermNum for f64 {
     fn approx_eq(self, other: Self) -> bool {

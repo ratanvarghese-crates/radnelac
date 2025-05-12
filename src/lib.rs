@@ -9,6 +9,7 @@ mod clock;
 mod error;
 mod math;
 mod calendar {
+    mod akan;
     mod armenian;
     mod common;
     mod egyptian;
