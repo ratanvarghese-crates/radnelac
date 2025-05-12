@@ -175,8 +175,8 @@ mod tests {
             // Governments would declare that certain days would be skipped
             // The table below lists Julian dates and the Gregorian dates of the next day.
             // https://en.wikipedia.org/wiki/Adoption_of_the_Gregorian_calendar
-            (CommonDate::new(1582, 10, 4), CommonDate::new(1582, 10, 15)), // Papal States, Spain
-            (CommonDate::new(1582, 12, 9), CommonDate::new(1582, 12, 20)), // France
+            (CommonDate::new(1582, 10, 4), CommonDate::new(1582, 10, 15)), //Papal States, Spain
+            (CommonDate::new(1582, 12, 9), CommonDate::new(1582, 12, 20)), //France
             (CommonDate::new(1700, 2, 18), CommonDate::new(1700, 3, 1)),   //Denmark-Norway
             (CommonDate::new(1753, 2, 17), CommonDate::new(1753, 3, 1)),   //Sweden (partial?)
             (CommonDate::new(1752, 9, 2), CommonDate::new(1752, 9, 14)),   //British Empire
