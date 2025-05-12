@@ -14,4 +14,5 @@ mod calendar {
     mod common;
     mod egyptian;
     mod gregorian;
+    mod julian;
 }
