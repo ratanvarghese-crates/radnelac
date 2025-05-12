@@ -13,4 +13,5 @@ mod calendar {
     mod armenian;
     mod common;
     mod egyptian;
+    mod gregorian;
 }
