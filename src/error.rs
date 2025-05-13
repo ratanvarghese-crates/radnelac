@@ -1,6 +1,6 @@
-use std::error::Error;
-use std::fmt;
-use std::fmt::Display;
+use core::error::Error;
+use core::fmt;
+use core::fmt::Display;
 
 #[derive(Debug)]
 pub enum CalendarError {
