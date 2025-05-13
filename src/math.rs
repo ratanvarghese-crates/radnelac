@@ -4,7 +4,7 @@ use num_traits::Euclid;
 use num_traits::FromPrimitive;
 use num_traits::NumAssign;
 use num_traits::Signed;
-use core::cmp::PartialOrd;
+use std::cmp::PartialOrd;
 
 // https://en.m.wikipedia.org/wiki/Double-precision_floating-point_format
 // > Between 2^52=4,503,599,627,370,496 and 2^53=9,007,199,254,740,992 the
