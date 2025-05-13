@@ -101,8 +101,8 @@ impl AkanDay {
 
 impl Epoch<FixedDate> for AkanDay {
     fn epoch() -> FixedDate {
-        const CYCLE_START: i32 = 37;
-        FixedDate::from(CYCLE_START)
+        const CYCLE_START: i64 = 37;
+        FixedDate::try_from(CYCLE_START).expect("Epoch known to be within bounds.")
     }
 }
 

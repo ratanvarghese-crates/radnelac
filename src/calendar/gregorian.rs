@@ -53,7 +53,7 @@ impl GregorianDate {
 
 impl Epoch<FixedDate> for GregorianDate {
     fn epoch() -> FixedDate {
-        FixedDate::from(1)
+        FixedDate::try_from(1).expect("Epoch known to be within bounds.")
     }
 }
 

@@ -1,9 +1,11 @@
 use crate::error::CalendarError;
 use num_traits::AsPrimitive;
+use num_traits::Bounded;
 use num_traits::Euclid;
 use num_traits::FromPrimitive;
 use num_traits::NumAssign;
 use num_traits::Signed;
+use num_traits::ToPrimitive;
 use std::cmp::PartialOrd;
 
 // https://en.m.wikipedia.org/wiki/Double-precision_floating-point_format
@@ -27,13 +29,22 @@ use std::cmp::PartialOrd;
 // That is a lot of days, converted into years:
 // 2 ** 36 / 365.25 = 188143673.47296372
 
-pub const EFFECTIVE_MAX: f64 = 68719476736.0;
+pub const EFFECTIVE_MAX: f64 = 34359738368.0;
 pub const EFFECTIVE_MIN: f64 = -EFFECTIVE_MAX;
 pub const EQ_SCALE: f64 = EFFECTIVE_MAX;
 pub const EFFECTIVE_EPSILON: f64 = 0.00000762939453125;
 
 pub trait TermNum:
-    NumAssign + Signed + PartialOrd + AsPrimitive<f64> + FromPrimitive + Euclid
+    NumAssign
+    + Signed
+    + PartialOrd
+    + ToPrimitive
+    + FromPrimitive
+    + AsPrimitive<f64>
+    + AsPrimitive<i64>
+    + Euclid
+    + Bounded
+    + Copy
 {
     fn approx_eq(self, other: Self) -> bool {
         self == other
@@ -48,6 +59,7 @@ pub trait TermNum:
     }
 
     fn modulus(self, other: Self) -> Self {
+        debug_assert!(other != Self::zero());
         if other > Self::zero() {
             let x = self;
             let y = other;
@@ -73,14 +85,25 @@ pub trait TermNum:
         }
     }
 
-    fn checked_modulus(self, other: Self) -> Result<Self, CalendarError> {
-        if other.is_zero() {
-            Err(CalendarError::DivisionByZero)
-        } else if self.abs().as_() > EFFECTIVE_MAX || other.abs().as_() > EFFECTIVE_MAX {
+    fn within_bounds<T: TermNum>(self, min: T, max: T) -> Result<Self, CalendarError> {
+        let x = self.to_i64();
+        let min: i64 = min.as_();
+        let max: i64 = max.as_();
+        if x.is_none() {
+            Err(CalendarError::OutOfBounds)
+        } else if x.unwrap() > max || x.unwrap() < min {
             Err(CalendarError::OutOfBounds)
         } else {
-            Ok(self.modulus(other))
+            Ok(self)
         }
+    }
+
+    fn within_eff(self) -> Result<Self, CalendarError> {
+        self.within_bounds(EFFECTIVE_MIN, EFFECTIVE_MAX)
+    }
+
+    fn within_type<T: TermNum>(self) -> Result<Self, CalendarError> {
+        self.within_bounds(T::min_value(), T::max_value())
     }
 
     fn gcd(self, other: Self) -> Self {
@@ -142,6 +165,7 @@ pub trait TermNum:
 
     fn from_mixed_radix(a: &[Self], b: &[Self], k: usize) -> Result<f64, CalendarError> {
         let n = b.len();
+        let as_f64 = <Self as AsPrimitive<f64>>::as_;
         match TermNum::validate_mixed_radix(a, b) {
             Ok(()) => (),
             Err(error) => return Err(error),
@@ -155,7 +179,7 @@ pub trait TermNum:
         .as_();
 
         let sum_div: f64 = TermNum::sum(
-            |i| (a[i].as_() as f64) / ((TermNum::product(|j| b[j], |j| j < i, k)).as_() as f64),
+            |i| as_f64(a[i]) / as_f64(TermNum::product(|j| b[j], |j| j < i, k)),
             |i| i <= n,
             k + 1,
         );
@@ -172,29 +196,29 @@ pub trait TermNum:
 
         for i in 0..(n + 1) {
             if i == 0 {
-                let p0 = TermNum::product(|j| b[j], |j| j < k, 0);
-                let q0 = Self::from_f64((x / p0.as_()).approx_floor() as f64);
+                let p0: f64 = TermNum::product(|j| b[j], |j| j < k, 0).as_();
+                let q0 = Self::from_f64((x / p0).approx_floor() as f64);
                 match q0 {
                     Some(q) => a[i] = q,
                     None => return Err(CalendarError::OutOfBounds),
                 }
             } else if i > 0 && i < k {
-                let p1 = TermNum::product(|j| b[j], |j| j < k, i);
-                let q1 = Self::from_f64((x / p1.as_()).approx_floor() as f64);
+                let p1: f64 = TermNum::product(|j| b[j], |j| j < k, i).as_();
+                let q1 = Self::from_f64((x / p1).approx_floor() as f64);
                 match q1 {
                     Some(q) => a[i] = q.modulus(b[i - 1]),
                     None => return Err(CalendarError::OutOfBounds),
                 }
             } else if i >= k && i < n {
-                let p2 = TermNum::product(|j| b[j], |j| j < i, k);
-                let q2 = Self::from_f64((x * p2.as_()).approx_floor() as f64);
+                let p2: f64 = TermNum::product(|j| b[j], |j| j < i, k).as_();
+                let q2 = Self::from_f64((x * p2).approx_floor() as f64);
                 match q2 {
                     Some(q) => a[i] = q.modulus(b[i - 1]),
                     None => return Err(CalendarError::OutOfBounds),
                 }
             } else {
-                let p3 = TermNum::product(|j| b[j], |j| j < n, k);
-                let q3 = x * p3.as_();
+                let p3: f64 = TermNum::product(|j| b[j], |j| j < n, k).as_();
+                let q3 = x * p3;
                 let m = q3.modulus(b[n - 1].as_());
                 if m.approx_eq(b[n - 1].as_()) || m.approx_eq(0.0) {
                     a[i] = Self::zero();
@@ -260,6 +284,24 @@ impl TermNum for f64 {
     }
 }
 
+impl TermNum for f32 {
+    fn approx_eq(self, other: Self) -> bool {
+        (self as f64).approx_eq(other as f64)
+    }
+
+    fn approx_floor(self) -> Self {
+        (self as f64).approx_floor() as f32
+    }
+
+    fn floor_round(self) -> Self {
+        (self as f64).floor_round() as f32
+    }
+
+    fn modulus(self, other: Self) -> Self {
+        (self as f64).modulus(other as f64) as f32
+    }
+}
+
 pub trait CalendricIndex: NumAssign + Copy {
     fn search_min(p: impl Fn(Self) -> bool, k: Self) -> Self {
         let mut i = k;
@@ -306,7 +348,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn modulus_zero() {
-        (123.0).checked_modulus(0.0).unwrap();
+        (123.0).modulus(0.0);
     }
 
     #[test]
@@ -452,9 +494,9 @@ mod tests {
 
         #[test]
         fn modulus_mult(
-            x in -262144.0..262144.0,
-            y in -262144.0..262144.0,
-            z in -262144.0..262144.0) {
+            x in -185363.0..185363.0,
+            y in -185363.0..185363.0,
+            z in -185363.0..185363.0) {
             //Using sqrt(EFFECTIVE_MAX) as limit
             let x = x as f64;
             let y = y as f64;

@@ -3,8 +3,6 @@ use crate::calendar::common::ValidCommonDate;
 use crate::calendar::egyptian::*;
 use crate::epoch::fixed::Epoch;
 use crate::epoch::fixed::FixedDate;
-use crate::epoch::fixed::FixedMoment;
-use crate::epoch::rd::RataDie;
 use crate::error::CalendarError;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
@@ -48,8 +46,7 @@ impl ArmenianDate {
 
 impl Epoch<FixedDate> for ArmenianDate {
     fn epoch() -> FixedDate {
-        FixedDate::try_from(FixedMoment::from(RataDie(201443.0)))
-            .expect("Epoch is known to be in range")
+        FixedDate::try_from(201443).expect("Epoch known to be within bounds.")
     }
 }
 

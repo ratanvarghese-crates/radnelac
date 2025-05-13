@@ -5,11 +5,9 @@ use crate::math::TermNum;
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct TimeOfDay(f64);
 
-impl TryFrom<FixedMoment> for TimeOfDay {
-    type Error = CalendarError;
-
-    fn try_from(t: FixedMoment) -> Result<TimeOfDay, Self::Error> {
-        Ok(TimeOfDay(t.0.modulus(1.0)))
+impl From<FixedMoment> for TimeOfDay {
+    fn from(t: FixedMoment) -> TimeOfDay {
+        TimeOfDay(f64::from(t).modulus(1.0))
     }
 }
 
@@ -95,7 +93,7 @@ mod tests {
     #[test]
     fn time() {
         let j0: JulianDate = Default::default();
-        assert_eq!(TimeOfDay::try_from(FixedMoment::from(j0)).unwrap().0, 0.5);
+        assert_eq!(TimeOfDay::from(FixedMoment::try_from(j0).unwrap()).0, 0.5);
     }
 
     #[test]
@@ -140,7 +138,7 @@ mod tests {
 
         #[test]
         fn clock_time_from_moment(x in EFFECTIVE_MIN..EFFECTIVE_MAX) {
-            let t = TimeOfDay::try_from(FixedMoment(x)).unwrap();
+            let t = TimeOfDay::from(FixedMoment::try_from(x).unwrap());
             let c = ClockTime::try_from(t).unwrap();
             check_fields(c.hours, c.minutes, c.seconds).unwrap();
         }

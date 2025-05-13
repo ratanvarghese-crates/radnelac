@@ -1,4 +1,5 @@
 use crate::epoch::fixed::Epoch;
+use crate::error::CalendarError;
 
 use crate::epoch::fixed::FixedMoment;
 
@@ -7,28 +8,45 @@ pub struct RataDie(pub f64);
 
 impl Epoch<FixedMoment> for RataDie {
     fn epoch() -> FixedMoment {
-        FixedMoment(0.0)
+        FixedMoment::try_from(0).expect("Epoch known to be within bounds.")
     }
 }
 
-impl From<RataDie> for FixedMoment {
-    fn from(rd: RataDie) -> FixedMoment {
-        FixedMoment(rd.0 + RataDie::epoch().0)
+impl TryFrom<RataDie> for FixedMoment {
+    type Error = CalendarError;
+    fn try_from(rd: RataDie) -> Result<FixedMoment, Self::Error> {
+        FixedMoment::try_from(rd.0 + f64::from(RataDie::epoch()))
     }
 }
 
 impl From<FixedMoment> for RataDie {
     fn from(t: FixedMoment) -> RataDie {
-        RataDie(t.0 - RataDie::epoch().0)
+        RataDie(f64::from(t) - f64::from(RataDie::epoch()))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::math::EFFECTIVE_MAX;
+    use crate::math::EFFECTIVE_MIN;
+    use proptest::proptest;
 
     #[test]
     fn rd_is_epoch() {
-        assert_eq!(RataDie(0.0), RataDie::from(FixedMoment(0.0)));
+        assert_eq!(
+            RataDie(0.0),
+            RataDie::from(FixedMoment::try_from(0.0).unwrap())
+        );
+    }
+
+    proptest! {
+        #[test]
+        fn roundtrip(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+            let rd0 = RataDie(t);
+            let f0 = FixedMoment::try_from(rd0).unwrap();
+            let rd1 = RataDie::from(f0);
+            assert_eq!(rd0.0, rd1.0);
+        }
     }
 }
