@@ -5,6 +5,7 @@ use crate::epoch::fixed::Epoch;
 use crate::epoch::fixed::FixedDate;
 use crate::error::CalendarError;
 use crate::math::TermNum;
+use std::num::NonZero;
 
 pub type JulianMonth = GregorianMonth;
 
@@ -21,17 +22,17 @@ impl JulianDate {
         }
     }
 
-    fn new_year(g_year: i16) -> FixedDate {
+    fn new_year(g_year: NonZero<i16>) -> FixedDate {
         FixedDate::from(JulianDate(CommonDate::new(
-            g_year,
+            g_year.get(),
             JulianMonth::January as u8,
             1,
         )))
     }
 
-    fn year_end(g_year: i16) -> FixedDate {
+    fn year_end(g_year: NonZero<i16>) -> FixedDate {
         FixedDate::from(JulianDate(CommonDate::new(
-            g_year,
+            g_year.get(),
             JulianMonth::December as u8,
             31,
         )))
@@ -166,6 +167,7 @@ mod tests {
     use super::*;
     use crate::calendar::common::MAX_YEARS;
     use crate::calendar::gregorian::GregorianDate;
+    use proptest::prop_assume;
     use proptest::proptest;
 
     #[test]
@@ -226,8 +228,10 @@ mod tests {
 
         #[test]
         fn julian_year_ends(year in i16::MIN..i16::MAX) {
-            let new_years_eve = JulianDate::year_end(year);
-            let new_years_day = JulianDate::new_year(year + 1);
+            prop_assume!(year != 0);
+            let new_years_eve = JulianDate::year_end(NonZero::new(year).unwrap());
+            let next_year = if year == -1 { 1 } else { year + 1 };
+            let new_years_day = JulianDate::new_year(NonZero::new(next_year).unwrap());
             assert_eq!(i64::from(new_years_day), i64::from(new_years_eve) + 1);
         }
     }
