@@ -175,15 +175,36 @@ mod tests {
             // Governments would declare that certain days would be skipped
             // The table below lists Julian dates and the Gregorian dates of the next day.
             // https://en.wikipedia.org/wiki/Adoption_of_the_Gregorian_calendar
-            (CommonDate::new(1582, 10, 4), CommonDate::new(1582, 10, 15)), //Papal States, Spain
+            // https://en.wikipedia.org/wiki/List_of_adoption_dates_of_the_Gregorian_calendar_by_country
+            (CommonDate::new(1582, 10, 4), CommonDate::new(1582, 10, 15)), //Papal States, Spain, Portugal
             (CommonDate::new(1582, 12, 9), CommonDate::new(1582, 12, 20)), //France
-            (CommonDate::new(1700, 2, 18), CommonDate::new(1700, 3, 1)),   //Denmark-Norway
-            (CommonDate::new(1753, 2, 17), CommonDate::new(1753, 3, 1)),   //Sweden (partial?)
-            (CommonDate::new(1752, 9, 2), CommonDate::new(1752, 9, 14)),   //British Empire
-            (CommonDate::new(1916, 3, 31), CommonDate::new(1916, 4, 14)),  //Bulgaria
-            (CommonDate::new(1918, 1, 31), CommonDate::new(1918, 2, 14)),  //Soviet Union
-            (CommonDate::new(1919, 3, 31), CommonDate::new(1919, 4, 14)),  //Romania
-            (CommonDate::new(1923, 2, 15), CommonDate::new(1923, 3, 1)),   //Greece
+            (CommonDate::new(1582, 12, 14), CommonDate::new(1582, 12, 25)), //"Flanders" (Belgium), Netherlands
+            (CommonDate::new(1582, 12, 20), CommonDate::new(1582, 12, 31)), //"Southern Netherlands" (Belgium), Luxembourg
+            (CommonDate::new(1582, 12, 31), CommonDate::new(1583, 1, 11)),  //"Aachen" (Germany)
+            (CommonDate::new(1583, 1, 1), CommonDate::new(1583, 1, 12)), //"Holland" (Netherlands)
+            (CommonDate::new(1583, 2, 10), CommonDate::new(1583, 2, 21)), //"Salzburg" (Austria), "Liege" (Belgium)
+            (CommonDate::new(1583, 2, 13), CommonDate::new(1583, 2, 24)), //"Kaufbeuren" (Germany)
+            (CommonDate::new(1583, 2, 14), CommonDate::new(1583, 2, 25)), //"Ellwangen" (Germany)
+            (CommonDate::new(1583, 3, 1), CommonDate::new(1583, 3, 12)), //"Groningen" (Netherlands)
+            (CommonDate::new(1583, 10, 4), CommonDate::new(1583, 10, 15)), //"Tyrol" (Austria)
+            (CommonDate::new(1583, 10, 5), CommonDate::new(1583, 10, 16)), //"Bavaria" (Germany)
+            (CommonDate::new(1583, 10, 13), CommonDate::new(1583, 10, 24)), //"Austrian Upper Alsace" (France)
+            (CommonDate::new(1583, 10, 20), CommonDate::new(1583, 10, 31)), //"Lower Austria" (Austria)
+            (CommonDate::new(1583, 11, 2), CommonDate::new(1583, 11, 13)),  //"Cologne" (Germany)
+            (CommonDate::new(1583, 11, 11), CommonDate::new(1583, 11, 22)), //"Mainz" (Germany)
+            (CommonDate::new(1632, 12, 14), CommonDate::new(1632, 12, 25)), //"Hildesheim" (Germany)
+            (CommonDate::new(1700, 2, 18), CommonDate::new(1700, 3, 1)), //"Denmark-Norway" (Denmark, Norway)
+            (CommonDate::new(1753, 2, 17), CommonDate::new(1753, 3, 1)), //Sweden (partial?)
+            (CommonDate::new(1752, 9, 2), CommonDate::new(1752, 9, 14)), //British Empire (United Kingdom, Ireland, Canada, United States)
+            (CommonDate::new(1753, 2, 17), CommonDate::new(1753, 3, 1)), //Sweden
+            (CommonDate::new(1912, 11, 14), CommonDate::new(1912, 11, 28)), //Albania
+            (CommonDate::new(1916, 3, 31), CommonDate::new(1916, 4, 14)), //Bulgaria
+            (CommonDate::new(1918, 1, 31), CommonDate::new(1918, 2, 14)), //Soviet Union
+            (CommonDate::new(1918, 2, 15), CommonDate::new(1918, 3, 1)), //Estonia, Ukraine
+            (CommonDate::new(1918, 4, 17), CommonDate::new(1918, 5, 1)), //"Transcaucasian Democratic Federative Republic"
+            (CommonDate::new(1919, 1, 14), CommonDate::new(1919, 1, 28)), //Yugoslavia
+            (CommonDate::new(1919, 3, 31), CommonDate::new(1919, 4, 14)), //Romania
+            (CommonDate::new(1923, 2, 15), CommonDate::new(1923, 3, 1)), //Greece
         ];
 
         for pair in gap_list {

@@ -220,7 +220,7 @@ mod tests {
             (CommonDate::new(-3113, 8, 11), -1137142),  //Mayan epoch
             (CommonDate::new(-3101, 1, 23), -1132959),  //Hindu epoch (Kali Yuga)
             (CommonDate::new(-2636, 2, 15), -963099),   //Chinese epoch
-            //(CommonDate::new(-1638, 3, 3), -598573),    //Samaritan epoch
+            //(CommonDate::new(-1638, 3, 3), -598573),    //Samaritan epoch ... is it correct?
             (CommonDate::new(-746, 2, 18), -272787), //Egyptian epoch (Nabonassar era)
             (CommonDate::new(-310, 3, 29), -113502), //Babylonian epoch???????
             (CommonDate::new(-127, 12, 7), -46410),  //Tibetan epoch
