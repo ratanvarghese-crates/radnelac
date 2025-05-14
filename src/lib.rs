@@ -2,6 +2,7 @@
 mod epoch {
     pub mod fixed;
     pub mod jd;
+    pub mod mjd;
     pub mod rd;
     pub mod unix;
 }
