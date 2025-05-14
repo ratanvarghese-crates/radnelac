@@ -2,27 +2,11 @@ use crate::error::CalendarError;
 use crate::math::TermNum;
 use std::fmt::Debug;
 
-pub trait Fixed:
-    TryFrom<i64, Error: Debug>
-    + TryFrom<f64, Error: Debug>
-    + Into<i64>
-    + Into<f64>
-    + PartialEq
-    + PartialOrd
-    + Clone
-    + Copy
-    + Default
-{
-}
-
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct FixedMoment(f64);
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct FixedDate(i64);
-
-impl Fixed for FixedMoment {}
-impl Fixed for FixedDate {}
 
 // Between the two fixed types
 
@@ -124,6 +108,16 @@ fixed_from_small_int!(i16, FixedMoment);
 fixed_from_small_int!(i8, FixedDate);
 fixed_from_small_int!(i8, FixedMoment);
 
-pub trait Epoch<T: Fixed> {
-    fn epoch() -> T;
+pub trait Epoch {
+    fn epoch() -> FixedDate;
+}
+
+pub trait EpochMoment {
+    fn epoch_moment() -> FixedMoment;
+}
+
+impl<T: EpochMoment> Epoch for T {
+    fn epoch() -> FixedDate {
+        FixedDate::from(Self::epoch_moment())
+    }
 }

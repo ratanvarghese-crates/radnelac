@@ -1,4 +1,4 @@
-use crate::epoch::fixed::Epoch;
+use crate::epoch::fixed::EpochMoment;
 use crate::epoch::fixed::FixedDate;
 use crate::epoch::fixed::FixedMoment;
 use crate::error::CalendarError;
@@ -6,8 +6,8 @@ use crate::error::CalendarError;
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct JulianDate(pub f64);
 
-impl Epoch<FixedMoment> for JulianDate {
-    fn epoch() -> FixedMoment {
+impl EpochMoment for JulianDate {
+    fn epoch_moment() -> FixedMoment {
         FixedMoment::try_from(-1721424.5).expect("Epoch known to be within bounds.")
     }
 }
@@ -15,13 +15,13 @@ impl Epoch<FixedMoment> for JulianDate {
 impl TryFrom<JulianDate> for FixedMoment {
     type Error = CalendarError;
     fn try_from(jd: JulianDate) -> Result<FixedMoment, CalendarError> {
-        FixedMoment::try_from(jd.0 + f64::from(JulianDate::epoch()))
+        FixedMoment::try_from(jd.0 + f64::from(JulianDate::epoch_moment()))
     }
 }
 
 impl From<FixedMoment> for JulianDate {
     fn from(t: FixedMoment) -> JulianDate {
-        JulianDate(f64::from(t) - f64::from(JulianDate::epoch()))
+        JulianDate(f64::from(t) - f64::from(JulianDate::epoch_moment()))
     }
 }
 
@@ -41,8 +41,8 @@ impl From<FixedDate> for JulianDate {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct ModifiedJulianDate(pub f64);
 
-impl Epoch<FixedMoment> for ModifiedJulianDate {
-    fn epoch() -> FixedMoment {
+impl EpochMoment for ModifiedJulianDate {
+    fn epoch_moment() -> FixedMoment {
         FixedMoment::try_from(678576.0).expect("Epoch known to be within bounds.")
     }
 }
@@ -50,13 +50,13 @@ impl Epoch<FixedMoment> for ModifiedJulianDate {
 impl TryFrom<ModifiedJulianDate> for FixedMoment {
     type Error = CalendarError;
     fn try_from(mjd: ModifiedJulianDate) -> Result<FixedMoment, CalendarError> {
-        FixedMoment::try_from(mjd.0 + f64::from(ModifiedJulianDate::epoch()))
+        FixedMoment::try_from(mjd.0 + f64::from(ModifiedJulianDate::epoch_moment()))
     }
 }
 
 impl From<FixedMoment> for ModifiedJulianDate {
     fn from(t: FixedMoment) -> ModifiedJulianDate {
-        ModifiedJulianDate(f64::from(t) - f64::from(ModifiedJulianDate::epoch()))
+        ModifiedJulianDate(f64::from(t) - f64::from(ModifiedJulianDate::epoch_moment()))
     }
 }
 

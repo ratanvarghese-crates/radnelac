@@ -99,7 +99,7 @@ impl AkanDay {
     }
 }
 
-impl Epoch<FixedDate> for AkanDay {
+impl Epoch for AkanDay {
     fn epoch() -> FixedDate {
         const CYCLE_START: i64 = 37;
         FixedDate::try_from(CYCLE_START).expect("Epoch known to be within bounds.")

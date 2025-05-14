@@ -39,7 +39,7 @@ impl JulianDate {
     }
 }
 
-impl Epoch<FixedDate> for JulianDate {
+impl Epoch for JulianDate {
     fn epoch() -> FixedDate {
         FixedDate::try_from(-1).expect("Epoch known to be within bounds.")
     }

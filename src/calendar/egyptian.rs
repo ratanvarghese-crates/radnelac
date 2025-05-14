@@ -45,7 +45,7 @@ impl EgyptianDate {
     }
 }
 
-impl Epoch<FixedDate> for EgyptianDate {
+impl Epoch for EgyptianDate {
     fn epoch() -> FixedDate {
         const NABONASSAR_ERA_JD: f64 = 1448638.0;
         FixedDate::try_from(JulianDate(NABONASSAR_ERA_JD))

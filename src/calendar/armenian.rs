@@ -44,7 +44,7 @@ impl ArmenianDate {
     }
 }
 
-impl Epoch<FixedDate> for ArmenianDate {
+impl Epoch for ArmenianDate {
     fn epoch() -> FixedDate {
         FixedDate::try_from(201443).expect("Epoch known to be within bounds.")
     }
