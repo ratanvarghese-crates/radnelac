@@ -23,16 +23,18 @@ use std::cmp::PartialOrd;
 // point in the ranges where that would be inaccurate.
 // 1/(24 * 60 * 60) = 0.000011574074074074073499346534
 // 2 ** (36 - 52)   = 0.000015258789062500000000000000 (n = 36 is too large)
-// 2 ** (35 - 52)   = 0.000007629394531250000000000000 (n = 35 is small enough)
+// 2 ** (35 - 52)   = 0.000007629394531250000000000000 (n = 35 is small, but risks off by 1 second)
+// 2 ** (34 - 52)   = 0.000003814697265625000000000000 (n = 34 is probably small enough)
+// 2 ** 34          = 17179869184
 // 2 ** 35          = 34359738368
 // 2 ** 36          = 68719476736
-// That is a lot of days, converted into years:
-// 2 ** 36 / 365.25 = 188143673.47296372
+// Converted into years, it's still a lot of time:
+// 2 ** 34 / 365.25 = 47035918.36824093
 
-pub const EFFECTIVE_MAX: f64 = 34359738368.0;
+pub const EFFECTIVE_MAX: f64 = 17179869184.0;
 pub const EFFECTIVE_MIN: f64 = -EFFECTIVE_MAX;
 pub const EQ_SCALE: f64 = EFFECTIVE_MAX;
-pub const EFFECTIVE_EPSILON: f64 = 0.00000762939453125;
+pub const EFFECTIVE_EPSILON: f64 = 0.000003814697265625;
 
 pub trait TermNum:
     NumAssign
@@ -56,6 +58,10 @@ pub trait TermNum:
 
     fn floor_round(self) -> Self {
         self
+    }
+
+    fn is_weird(self) -> bool {
+        false
     }
 
     fn modulus(self, other: Self) -> Self {
@@ -83,27 +89,6 @@ pub trait TermNum:
         } else {
             self.signum()
         }
-    }
-
-    fn within_bounds<T: TermNum>(self, min: T, max: T) -> Result<Self, CalendarError> {
-        let x = self.to_i64();
-        let min: i64 = min.as_();
-        let max: i64 = max.as_();
-        if x.is_none() {
-            Err(CalendarError::OutOfBounds)
-        } else if x.unwrap() > max || x.unwrap() < min {
-            Err(CalendarError::OutOfBounds)
-        } else {
-            Ok(self)
-        }
-    }
-
-    fn within_eff(self) -> Result<Self, CalendarError> {
-        self.within_bounds(EFFECTIVE_MIN, EFFECTIVE_MAX)
-    }
-
-    fn within_type<T: TermNum>(self) -> Result<Self, CalendarError> {
-        self.within_bounds(T::min_value(), T::max_value())
     }
 
     fn gcd(self, other: Self) -> Self {
@@ -282,6 +267,10 @@ impl TermNum for f64 {
             x - (y * (x / y).floor())
         }
     }
+
+    fn is_weird(self) -> bool {
+        !self.is_finite()
+    }
 }
 
 impl TermNum for f32 {
@@ -299,6 +288,10 @@ impl TermNum for f32 {
 
     fn modulus(self, other: Self) -> Self {
         (self as f64).modulus(other as f64) as f32
+    }
+
+    fn is_weird(self) -> bool {
+        (self as f64).is_weird()
     }
 }
 
@@ -494,9 +487,9 @@ mod tests {
 
         #[test]
         fn modulus_mult(
-            x in -185363.0..185363.0,
-            y in -185363.0..185363.0,
-            z in -185363.0..185363.0) {
+            x in -131072.0..131072.0,
+            y in -131072.0..131072.0,
+            z in -131072.0..131072.0) {
             //Using sqrt(EFFECTIVE_MAX) as limit
             let x = x as f64;
             let y = y as f64;

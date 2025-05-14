@@ -1,5 +1,8 @@
 use crate::error::CalendarError;
 use crate::math::TermNum;
+use crate::math::EFFECTIVE_MAX;
+use crate::math::EFFECTIVE_MIN;
+use num_traits::Bounded;
 use std::fmt::Debug;
 use std::ops::Add;
 use std::ops::Sub;
@@ -31,6 +34,29 @@ impl From<FixedDate> for FixedMoment {
     }
 }
 
+// Bounded
+
+macro_rules! fixed_bounded {
+    ($t: ident) => {
+        impl Bounded for Fixed<$t> {
+            fn min_value() -> Fixed<$t> {
+                Fixed::<$t> {
+                    0: EFFECTIVE_MIN as $t,
+                }
+            }
+
+            fn max_value() -> Fixed<$t> {
+                Fixed::<$t> {
+                    0: EFFECTIVE_MAX as $t,
+                }
+            }
+        }
+    };
+}
+
+fixed_bounded!(f64);
+fixed_bounded!(i64);
+
 // Larger number primitives
 
 macro_rules! fixed_from_big_int {
@@ -51,9 +77,15 @@ macro_rules! fixed_from_big_int {
         impl TryFrom<$t> for Fixed<$t> {
             type Error = CalendarError;
             fn try_from(date: $t) -> Result<Fixed<$t>, Self::Error> {
-                Ok(Fixed::<$t> {
-                    0: date.within_eff()?,
-                })
+                if (date.is_weird()) {
+                    Err(CalendarError::NaNInfinite)
+                } else if (date < Fixed::<$t>::min_value().0) {
+                    Err(CalendarError::OutOfBounds)
+                } else if (date > Fixed::<$t>::max_value().0) {
+                    Err(CalendarError::OutOfBounds)
+                } else {
+                    Ok(Fixed::<$t> { 0: date })
+                }
             }
         }
 
@@ -81,7 +113,11 @@ macro_rules! fixed_from_small_int {
         impl TryFrom<Fixed<$u>> for $t {
             type Error = CalendarError;
             fn try_from(date: Fixed<$u>) -> Result<$t, Self::Error> {
-                Ok(i64::from(date).within_type::<$t>()? as $t)
+                if (date.0 < ($t::min_value() as $u) || date.0 > ($t::max_value() as $u)) {
+                    Err(CalendarError::OutOfBounds)
+                } else {
+                    Ok(date.0 as $t)
+                }
             }
         }
     };
@@ -121,5 +157,54 @@ pub trait EpochMoment {
 impl<T: EpochMoment> Epoch for T {
     fn epoch() -> FixedDate {
         FixedDate::from(Self::epoch_moment())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::math::EFFECTIVE_EPSILON;
+    use crate::math::EFFECTIVE_MAX;
+    use crate::math::EFFECTIVE_MIN;
+
+    #[test]
+    fn reject_weird() {
+        let weird_values = [
+            f64::NAN,
+            f64::INFINITY,
+            f64::NEG_INFINITY,
+            EFFECTIVE_MAX + 1.0,
+            EFFECTIVE_MIN - 1.0,
+        ];
+        for x in weird_values {
+            println!("{:?}", x);
+            assert!(FixedMoment::try_from(x).is_err());
+            assert!(FixedDate::try_from(x).is_err());
+        }
+    }
+
+    #[test]
+    fn accept_ok() {
+        let ok_values = [EFFECTIVE_MAX, EFFECTIVE_MIN, 0.0, -0.0, EFFECTIVE_EPSILON];
+        for x in ok_values {
+            assert!(FixedMoment::try_from(x).is_ok());
+            assert!(FixedDate::try_from(x).is_ok());
+        }
+    }
+
+    #[test]
+    fn bad_roundtrip() {
+        let start = FixedMoment::from(i32::MAX);
+        let next = FixedMoment::try_from(i64::try_from(start).unwrap() + 1).unwrap();
+        let last = i32::try_from(next);
+        assert!(last.is_err());
+    }
+
+    #[test]
+    fn good_roundtrip() {
+        let start = FixedMoment::from(i32::MAX);
+        let next = FixedMoment::try_from(i64::try_from(start).unwrap()).unwrap();
+        let last = i32::try_from(next).unwrap();
+        assert_eq!(last, i32::MAX);
     }
 }

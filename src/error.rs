@@ -11,6 +11,7 @@ pub enum CalendarError {
     OutOfBounds,
     MixedRadixWrongSize,
     MixedRadixZeroBase,
+    NaNInfinite,
     ImpossibleResult,
 }
 
@@ -24,6 +25,7 @@ impl Display for CalendarError {
             CalendarError::OutOfBounds => write!(f, "Out Of Bounds"),
             CalendarError::MixedRadixWrongSize => write!(f, "Mixed radix slices have wrong size"),
             CalendarError::MixedRadixZeroBase => write!(f, "Mixed radix base contains zero"),
+            CalendarError::NaNInfinite => write!(f, "NaN or infinite"),
             CalendarError::ImpossibleResult => write!(f, "Impossible result"),
         }
     }
