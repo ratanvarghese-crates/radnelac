@@ -72,27 +72,27 @@ fixed_from_big_int!(i64, f64);
 
 macro_rules! fixed_from_small_int {
     ($t:ident, $u: ident) => {
-        impl From<$t> for $u {
-            fn from(date: $t) -> $u {
-                $u::try_from(date as i64).expect("Known to be within bounds.")
+        impl From<$t> for Fixed<$u> {
+            fn from(date: $t) -> Fixed<$u> {
+                Fixed::<$u>::try_from(date as i64).expect("Known to be within bounds.")
             }
         }
 
-        impl TryFrom<$u> for $t {
+        impl TryFrom<Fixed<$u>> for $t {
             type Error = CalendarError;
-            fn try_from(date: $u) -> Result<$t, Self::Error> {
+            fn try_from(date: Fixed<$u>) -> Result<$t, Self::Error> {
                 Ok(i64::from(date).within_type::<$t>()? as $t)
             }
         }
     };
 }
 
-fixed_from_small_int!(i32, FixedDate);
-fixed_from_small_int!(i32, FixedMoment);
-fixed_from_small_int!(i16, FixedDate);
-fixed_from_small_int!(i16, FixedMoment);
-fixed_from_small_int!(i8, FixedDate);
-fixed_from_small_int!(i8, FixedMoment);
+fixed_from_small_int!(i32, i64);
+fixed_from_small_int!(i32, f64);
+fixed_from_small_int!(i16, i64);
+fixed_from_small_int!(i16, f64);
+fixed_from_small_int!(i8, i64);
+fixed_from_small_int!(i8, f64);
 
 // Sub and Add
 
