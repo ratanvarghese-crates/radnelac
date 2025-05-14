@@ -1,6 +1,8 @@
+use crate::epoch::common::simple_bounded;
 use crate::epoch::fixed::EpochMoment;
 use crate::epoch::fixed::FixedMoment;
 use crate::error::CalendarError;
+use crate::math::TermNum;
 use crate::math::EFFECTIVE_MAX;
 use crate::math::EFFECTIVE_MIN;
 use num_traits::Bounded;
@@ -11,7 +13,7 @@ pub const MAX_UNIX: i64 = ((EFFECTIVE_MAX - UNIX_EPOCH) as i64) * UNIX_DAY;
 pub const MIN_UNIX: i64 = ((EFFECTIVE_MIN - UNIX_EPOCH) as i64) * UNIX_DAY;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
-pub struct UnixMoment(pub i64);
+pub struct UnixMoment(i64);
 
 impl EpochMoment for UnixMoment {
     fn epoch_moment() -> FixedMoment {
@@ -32,15 +34,11 @@ impl From<FixedMoment> for UnixMoment {
     }
 }
 
-impl Bounded for UnixMoment {
-    fn min_value() -> Self {
-        UnixMoment(MIN_UNIX)
-    }
-
-    fn max_value() -> Self {
-        UnixMoment(MAX_UNIX)
-    }
-}
+simple_bounded!(i64, UnixMoment, MIN_UNIX, MAX_UNIX);
+// Let's not encourage code vulnerable to the Year 2038 problem
+// bounded_small_int_guaranteed!(i32, i64, UnixMoment);
+// bounded_small_int_guaranteed!(i16, i64, UnixMoment);
+// bounded_small_int_guaranteed!(i8, i64, UnixMoment);
 
 #[cfg(test)]
 mod tests {
@@ -49,12 +47,12 @@ mod tests {
 
     #[test]
     fn bounds() {
-        assert!(FixedMoment::try_from(UnixMoment::min_value()).is_ok());
-        assert!(FixedMoment::try_from(UnixMoment::max_value()).is_ok());
-        let beyond_min = UnixMoment(UnixMoment::min_value().0 - UNIX_DAY);
-        let beyond_max = UnixMoment(UnixMoment::max_value().0 + UNIX_DAY);
-        assert!(FixedMoment::try_from(beyond_min).is_err());
-        assert!(FixedMoment::try_from(beyond_max).is_err());
+        assert!(UnixMoment::try_from(UnixMoment::min_value()).is_ok());
+        assert!(UnixMoment::try_from(UnixMoment::max_value()).is_ok());
+        let beyond_min = i64::from(UnixMoment::min_value()) - 1;
+        let beyond_max = i64::from(UnixMoment::max_value()) + 1;
+        assert!(UnixMoment::try_from(beyond_min).is_err());
+        assert!(UnixMoment::try_from(beyond_max).is_err());
     }
 
     #[test]

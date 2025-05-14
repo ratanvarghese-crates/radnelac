@@ -3,6 +3,8 @@ use crate::calendar::common::ValidCommonDate;
 use crate::calendar::gregorian::GregorianMonth;
 use crate::epoch::fixed::Epoch;
 use crate::epoch::fixed::FixedDate;
+use crate::epoch::fixed::FixedMoment;
+use crate::epoch::rd::RataDie;
 use crate::error::CalendarError;
 use crate::math::TermNum;
 use std::num::NonZero;
@@ -41,7 +43,7 @@ impl Julian {
 
 impl Epoch for Julian {
     fn epoch() -> FixedDate {
-        FixedDate::try_from(-1).expect("Epoch known to be within bounds.")
+        FixedDate::from(FixedMoment::from(RataDie::from(-1)))
     }
 }
 

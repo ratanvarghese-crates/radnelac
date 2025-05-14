@@ -1,5 +1,6 @@
 // Calendrical Calculations chapter 1
 mod epoch {
+    mod common;
     pub mod fixed;
     pub mod jd;
     pub mod mjd;

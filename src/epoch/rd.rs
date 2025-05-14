@@ -1,5 +1,8 @@
+use crate::epoch::common::bounded_small_int_guaranteed;
+use crate::epoch::common::simple_bounded;
 use crate::epoch::fixed::EpochMoment;
 use crate::error::CalendarError;
+use crate::math::TermNum;
 use crate::math::EFFECTIVE_MAX;
 use crate::math::EFFECTIVE_MIN;
 use num_traits::Bounded;
@@ -11,7 +14,7 @@ pub const MAX_RD: f64 = EFFECTIVE_MAX - RD_EPOCH;
 pub const MIN_RD: f64 = EFFECTIVE_MIN - RD_EPOCH;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
-pub struct RataDie(pub f64);
+pub struct RataDie(f64);
 
 impl EpochMoment for RataDie {
     fn epoch_moment() -> FixedMoment {
@@ -19,10 +22,9 @@ impl EpochMoment for RataDie {
     }
 }
 
-impl TryFrom<RataDie> for FixedMoment {
-    type Error = CalendarError;
-    fn try_from(rd: RataDie) -> Result<FixedMoment, Self::Error> {
-        FixedMoment::try_from(RataDie::epoch_moment() + rd.0)
+impl From<RataDie> for FixedMoment {
+    fn from(rd: RataDie) -> FixedMoment {
+        FixedMoment::try_from(RataDie::epoch_moment() + rd.0).expect("Known within bounds.")
     }
 }
 
@@ -32,15 +34,10 @@ impl From<FixedMoment> for RataDie {
     }
 }
 
-impl Bounded for RataDie {
-    fn min_value() -> Self {
-        RataDie(MIN_RD)
-    }
-
-    fn max_value() -> Self {
-        RataDie(MAX_RD)
-    }
-}
+simple_bounded!(f64, RataDie, MIN_RD, MAX_RD);
+bounded_small_int_guaranteed!(i32, f64, RataDie);
+bounded_small_int_guaranteed!(i16, f64, RataDie);
+bounded_small_int_guaranteed!(i8, f64, RataDie);
 
 #[cfg(test)]
 mod tests {
@@ -57,12 +54,12 @@ mod tests {
 
     #[test]
     fn bounds() {
-        assert!(FixedMoment::try_from(RataDie::min_value()).is_ok());
-        assert!(FixedMoment::try_from(RataDie::max_value()).is_ok());
-        let beyond_min = RataDie(RataDie::min_value().0 - 1.0);
-        let beyond_max = RataDie(RataDie::max_value().0 + 1.0);
-        assert!(FixedMoment::try_from(beyond_min).is_err());
-        assert!(FixedMoment::try_from(beyond_max).is_err());
+        assert!(RataDie::try_from(RataDie::min_value()).is_ok());
+        assert!(RataDie::try_from(RataDie::max_value()).is_ok());
+        let beyond_min = f64::from(RataDie::min_value()) - 1.0;
+        let beyond_max = f64::from(RataDie::max_value()) + 1.0;
+        assert!(RataDie::try_from(beyond_min).is_err());
+        assert!(RataDie::try_from(beyond_max).is_err());
     }
 
     proptest! {
@@ -72,6 +69,13 @@ mod tests {
             let f0 = FixedMoment::try_from(rd0).unwrap();
             let rd1 = RataDie::from(f0);
             assert_eq!(rd0.0, rd1.0);
+        }
+
+        #[test]
+        fn easy_i32(t in i32::MIN..i32::MAX) {
+            let j0 = RataDie::try_from(t as f64).unwrap();
+            let j1 = RataDie::from(t);
+            assert_eq!(j0, j1);
         }
     }
 }

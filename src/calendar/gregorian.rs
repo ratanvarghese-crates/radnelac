@@ -2,6 +2,8 @@ use crate::calendar::common::CommonDate;
 use crate::calendar::common::ValidCommonDate;
 use crate::epoch::fixed::Epoch;
 use crate::epoch::fixed::FixedDate;
+use crate::epoch::fixed::FixedMoment;
+use crate::epoch::rd::RataDie;
 use crate::error::CalendarError;
 use crate::math::TermNum;
 
@@ -53,7 +55,7 @@ impl Gregorian {
 
 impl Epoch for Gregorian {
     fn epoch() -> FixedDate {
-        FixedDate::try_from(1).expect("Epoch known to be within bounds.")
+        FixedDate::from(FixedMoment::from(RataDie::from(1)))
     }
 }
 

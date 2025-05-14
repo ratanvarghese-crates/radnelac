@@ -47,8 +47,8 @@ impl Egyptian {
 
 impl Epoch for Egyptian {
     fn epoch() -> FixedDate {
-        const NABONASSAR_ERA_JD: f64 = 1448638.0;
-        FixedDate::try_from(JulianDay(NABONASSAR_ERA_JD)).expect("Epoch known to be within bounds.")
+        const NABONASSAR_ERA_JD: i32 = 1448638;
+        FixedDate::from(JulianDay::from(NABONASSAR_ERA_JD))
     }
 }
 

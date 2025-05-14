@@ -1,7 +1,10 @@
+use crate::epoch::common::bounded_small_int_guaranteed;
+use crate::epoch::common::simple_bounded;
 use crate::epoch::fixed::EpochMoment;
 use crate::epoch::fixed::FixedDate;
 use crate::epoch::fixed::FixedMoment;
 use crate::error::CalendarError;
+use crate::math::TermNum;
 use crate::math::EFFECTIVE_MAX;
 use crate::math::EFFECTIVE_MIN;
 use num_traits::Bounded;
@@ -11,7 +14,7 @@ pub const MAX_JD: f64 = EFFECTIVE_MAX - JD_EPOCH;
 pub const MIN_JD: f64 = EFFECTIVE_MIN - JD_EPOCH;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
-pub struct JulianDay(pub f64);
+pub struct JulianDay(f64);
 
 impl EpochMoment for JulianDay {
     fn epoch_moment() -> FixedMoment {
@@ -19,10 +22,9 @@ impl EpochMoment for JulianDay {
     }
 }
 
-impl TryFrom<JulianDay> for FixedMoment {
-    type Error = CalendarError;
-    fn try_from(jd: JulianDay) -> Result<FixedMoment, CalendarError> {
-        FixedMoment::try_from(JulianDay::epoch_moment() + jd.0)
+impl From<JulianDay> for FixedMoment {
+    fn from(jd: JulianDay) -> FixedMoment {
+        FixedMoment::try_from(JulianDay::epoch_moment() + jd.0).expect("Known within bounds")
     }
 }
 
@@ -32,10 +34,9 @@ impl From<FixedMoment> for JulianDay {
     }
 }
 
-impl TryFrom<JulianDay> for FixedDate {
-    type Error = CalendarError;
-    fn try_from(jd: JulianDay) -> Result<FixedDate, Self::Error> {
-        Ok(FixedDate::from(FixedMoment::try_from(jd)?))
+impl From<JulianDay> for FixedDate {
+    fn from(jd: JulianDay) -> FixedDate {
+        FixedDate::from(FixedMoment::from(jd))
     }
 }
 
@@ -45,15 +46,10 @@ impl From<FixedDate> for JulianDay {
     }
 }
 
-impl Bounded for JulianDay {
-    fn min_value() -> Self {
-        JulianDay(MIN_JD)
-    }
-
-    fn max_value() -> Self {
-        JulianDay(MAX_JD)
-    }
-}
+simple_bounded!(f64, JulianDay, MIN_JD, MAX_JD);
+bounded_small_int_guaranteed!(i32, f64, JulianDay);
+bounded_small_int_guaranteed!(i16, f64, JulianDay);
+bounded_small_int_guaranteed!(i8, f64, JulianDay);
 
 #[cfg(test)]
 mod tests {
@@ -66,29 +62,36 @@ mod tests {
         let before = FixedMoment::try_from(JulianDay::epoch_moment() + (-1.0)).unwrap();
         let exact = FixedMoment::try_from(JulianDay::epoch_moment() + 0.0).unwrap();
         let after = FixedMoment::try_from(JulianDay::epoch_moment() + 1.0).unwrap();
-        assert_eq!(JulianDay::from(before).0, -1.0);
-        assert_eq!(JulianDay::from(exact).0, 0.0);
-        assert_eq!(JulianDay::from(after).0, 1.0);
+        assert_eq!(f64::from(JulianDay::from(before)), -1.0);
+        assert_eq!(f64::from(JulianDay::from(exact)), 0.0);
+        assert_eq!(f64::from(JulianDay::from(after)), 1.0);
     }
 
     #[test]
     fn bounds() {
-        assert!(FixedMoment::try_from(JulianDay::min_value()).is_ok());
-        assert!(FixedMoment::try_from(JulianDay::max_value()).is_ok());
-        let beyond_min = JulianDay(JulianDay::min_value().0 - 1.0);
-        let beyond_max = JulianDay(JulianDay::max_value().0 + 1.0);
-        assert!(FixedMoment::try_from(beyond_min).is_err());
-        assert!(FixedMoment::try_from(beyond_max).is_err());
+        assert!(JulianDay::try_from(JulianDay::min_value()).is_ok());
+        assert!(JulianDay::try_from(JulianDay::max_value()).is_ok());
+        let beyond_min = f64::from(JulianDay::min_value()) - 1.0;
+        let beyond_max = f64::from(JulianDay::max_value()) + 1.0;
+        assert!(JulianDay::try_from(beyond_min).is_err());
+        assert!(JulianDay::try_from(beyond_max).is_err());
     }
 
     proptest! {
         #[test]
         fn roundtrip(t in MIN_JD..MAX_JD) {
-            let j0 = JulianDay(t);
+            let j0 = JulianDay::try_from(t).unwrap();
             let j1 = JulianDay::from(FixedMoment::try_from(j0).unwrap());
             let j2 = JulianDay::from(FixedDate::try_from(j0).unwrap());
             assert!(j0.0.approx_eq(j1.0));
             assert!((j0.0 - j2.0).abs() < 1.0);
+        }
+
+        #[test]
+        fn easy_i32(t in i32::MIN..i32::MAX) {
+            let j0 = JulianDay::try_from(t as f64).unwrap();
+            let j1 = JulianDay::from(t);
+            assert_eq!(j0, j1);
         }
     }
 }

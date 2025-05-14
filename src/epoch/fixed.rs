@@ -1,3 +1,5 @@
+use super::common::bounded_small_int_guaranteed;
+use super::common::simple_bounded;
 use crate::error::CalendarError;
 use crate::math::TermNum;
 use crate::math::EFFECTIVE_MAX;
@@ -36,26 +38,8 @@ impl From<FixedDate> for FixedMoment {
 
 // Bounded
 
-macro_rules! fixed_bounded {
-    ($t: ident) => {
-        impl Bounded for Fixed<$t> {
-            fn min_value() -> Fixed<$t> {
-                Fixed::<$t> {
-                    0: EFFECTIVE_MIN as $t,
-                }
-            }
-
-            fn max_value() -> Fixed<$t> {
-                Fixed::<$t> {
-                    0: EFFECTIVE_MAX as $t,
-                }
-            }
-        }
-    };
-}
-
-fixed_bounded!(f64);
-fixed_bounded!(i64);
+simple_bounded!(f64, FixedMoment, EFFECTIVE_MIN, EFFECTIVE_MAX);
+simple_bounded!(i64, FixedDate, EFFECTIVE_MIN, EFFECTIVE_MAX);
 
 // Larger number primitives
 
@@ -73,27 +57,6 @@ macro_rules! fixed_from_big_int {
                 $t::from(Fixed::<$t>::from(date))
             }
         }
-
-        impl TryFrom<$t> for Fixed<$t> {
-            type Error = CalendarError;
-            fn try_from(date: $t) -> Result<Fixed<$t>, Self::Error> {
-                if (date.is_weird()) {
-                    Err(CalendarError::NaNInfinite)
-                } else if (date < Fixed::<$t>::min_value().0) {
-                    Err(CalendarError::OutOfBounds)
-                } else if (date > Fixed::<$t>::max_value().0) {
-                    Err(CalendarError::OutOfBounds)
-                } else {
-                    Ok(Fixed::<$t> { 0: date })
-                }
-            }
-        }
-
-        impl From<Fixed<$t>> for $t {
-            fn from(date: Fixed<$t>) -> $t {
-                date.0
-            }
-        }
     };
 }
 
@@ -102,33 +65,12 @@ fixed_from_big_int!(i64, f64);
 
 // Smaller integer primitives (not bothering with f32)
 
-macro_rules! fixed_from_small_int {
-    ($t:ident, $u: ident) => {
-        impl From<$t> for Fixed<$u> {
-            fn from(date: $t) -> Fixed<$u> {
-                Fixed::<$u>::try_from(date as i64).expect("Known to be within bounds.")
-            }
-        }
-
-        impl TryFrom<Fixed<$u>> for $t {
-            type Error = CalendarError;
-            fn try_from(date: Fixed<$u>) -> Result<$t, Self::Error> {
-                if (date.0 < ($t::min_value() as $u) || date.0 > ($t::max_value() as $u)) {
-                    Err(CalendarError::OutOfBounds)
-                } else {
-                    Ok(date.0 as $t)
-                }
-            }
-        }
-    };
-}
-
-fixed_from_small_int!(i32, i64);
-fixed_from_small_int!(i32, f64);
-fixed_from_small_int!(i16, i64);
-fixed_from_small_int!(i16, f64);
-fixed_from_small_int!(i8, i64);
-fixed_from_small_int!(i8, f64);
+bounded_small_int_guaranteed!(i32, f64, FixedMoment);
+bounded_small_int_guaranteed!(i16, f64, FixedMoment);
+bounded_small_int_guaranteed!(i8, f64, FixedMoment);
+bounded_small_int_guaranteed!(i32, i64, FixedDate);
+bounded_small_int_guaranteed!(i16, i64, FixedDate);
+bounded_small_int_guaranteed!(i8, i64, FixedDate);
 
 // Sub and Add
 
@@ -166,6 +108,7 @@ mod tests {
     use crate::math::EFFECTIVE_EPSILON;
     use crate::math::EFFECTIVE_MAX;
     use crate::math::EFFECTIVE_MIN;
+    use proptest::proptest;
 
     #[test]
     fn reject_weird() {
@@ -206,5 +149,14 @@ mod tests {
         let next = FixedMoment::try_from(i64::try_from(start).unwrap()).unwrap();
         let last = i32::try_from(next).unwrap();
         assert_eq!(last, i32::MAX);
+    }
+
+    proptest! {
+        #[test]
+        fn easy_i32(t in i32::MIN..i32::MAX) {
+            let j0 = FixedMoment::try_from(t as f64).unwrap();
+            let j1 = FixedMoment::from(t);
+            assert_eq!(j0, j1);
+        }
     }
 }
