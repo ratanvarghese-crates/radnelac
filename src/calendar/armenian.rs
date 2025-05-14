@@ -22,9 +22,9 @@ pub enum ArmenianMonth {
 }
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
-pub struct ArmenianDate(CommonDate);
+pub struct Armenian(CommonDate);
 
-impl ArmenianDate {
+impl Armenian {
     fn get_month(self) -> Option<ArmenianMonth> {
         match self.0.get_month() {
             1 => Some(ArmenianMonth::Nawasardi),
@@ -44,49 +44,49 @@ impl ArmenianDate {
     }
 }
 
-impl Epoch for ArmenianDate {
+impl Epoch for Armenian {
     fn epoch() -> FixedDate {
         FixedDate::try_from(201443).expect("Epoch known to be within bounds.")
     }
 }
 
-impl ValidCommonDate for ArmenianDate {
+impl ValidCommonDate for Armenian {
     fn is_valid(date: CommonDate) -> bool {
-        EgyptianDate::is_valid(date)
+        Egyptian::is_valid(date)
     }
 }
 
-impl From<ArmenianDate> for CommonDate {
-    fn from(date: ArmenianDate) -> CommonDate {
+impl From<Armenian> for CommonDate {
+    fn from(date: Armenian) -> CommonDate {
         return date.0;
     }
 }
 
-impl TryFrom<CommonDate> for ArmenianDate {
+impl TryFrom<CommonDate> for Armenian {
     type Error = CalendarError;
-    fn try_from(date: CommonDate) -> Result<ArmenianDate, CalendarError> {
-        if ArmenianDate::is_valid(date) {
-            Ok(ArmenianDate(date))
+    fn try_from(date: CommonDate) -> Result<Armenian, CalendarError> {
+        if Armenian::is_valid(date) {
+            Ok(Armenian(date))
         } else {
             Err(CalendarError::OutOfBounds)
         }
     }
 }
 
-impl From<ArmenianDate> for FixedDate {
-    fn from(date: ArmenianDate) -> FixedDate {
-        let e = FixedDate::from(EgyptianDate::try_from(date.0).expect("Same field limits"));
-        let result = (ArmenianDate::epoch() - EgyptianDate::epoch()) + i64::from(e);
+impl From<Armenian> for FixedDate {
+    fn from(date: Armenian) -> FixedDate {
+        let e = FixedDate::from(Egyptian::try_from(date.0).expect("Same field limits"));
+        let result = (Armenian::epoch() - Egyptian::epoch()) + i64::from(e);
         FixedDate::try_from(result).expect("CommonDate enforces year limits")
     }
 }
 
-impl TryFrom<FixedDate> for ArmenianDate {
+impl TryFrom<FixedDate> for Armenian {
     type Error = CalendarError;
-    fn try_from(date: FixedDate) -> Result<ArmenianDate, Self::Error> {
-        let d = date + (EgyptianDate::epoch() - ArmenianDate::epoch());
-        let e = EgyptianDate::try_from(FixedDate::try_from(d)?)?;
-        Ok(ArmenianDate(CommonDate::from(e)))
+    fn try_from(date: FixedDate) -> Result<Armenian, Self::Error> {
+        let d = date + (Egyptian::epoch() - Armenian::epoch());
+        let e = Egyptian::try_from(FixedDate::try_from(d)?)?;
+        Ok(Armenian(CommonDate::from(e)))
     }
 }
 
@@ -100,23 +100,23 @@ mod tests {
         #[test]
         fn roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
             let d = CommonDate::try_new(year, month as u8, day as u8).unwrap();
-            let e0 = ArmenianDate::try_from(d).unwrap();
-            let e1 = ArmenianDate::try_from(FixedDate::from(e0)).unwrap();
+            let e0 = Armenian::try_from(d).unwrap();
+            let e1 = Armenian::try_from(FixedDate::from(e0)).unwrap();
             assert_eq!(e0, e1);
         }
 
         #[test]
         fn roundtrip_month13(year in -MAX_YEARS..MAX_YEARS, day in 1..5) {
             let d = CommonDate::try_new(year, 13, day as u8).unwrap();
-            let e0 = ArmenianDate::try_from(d).unwrap();
-            let e1 = ArmenianDate::try_from(FixedDate::from(e0)).unwrap();
+            let e0 = Armenian::try_from(d).unwrap();
+            let e1 = Armenian::try_from(FixedDate::from(e0)).unwrap();
             assert_eq!(e0, e1);
         }
 
         #[test]
         fn month_is_some(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
             let d = CommonDate::try_new(year, month as u8, day as u8).unwrap();
-            let e0 = ArmenianDate::try_from(d).unwrap();
+            let e0 = Armenian::try_from(d).unwrap();
             assert!(e0.get_month().is_some());
             assert_eq!(CommonDate::from(e0), d);
         }
@@ -124,7 +124,7 @@ mod tests {
         #[test]
         fn roundtrip_is_none(year in -MAX_YEARS..MAX_YEARS, day in 1..5) {
             let d = CommonDate::try_new(year, 13, day as u8).unwrap();
-            let e0 = ArmenianDate::try_from(d).unwrap();
+            let e0 = Armenian::try_from(d).unwrap();
             assert!(e0.get_month().is_none());
             assert_eq!(CommonDate::from(e0), d);
         }

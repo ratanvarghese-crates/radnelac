@@ -58,18 +58,18 @@ impl From<i64> for AkanStem {
 }
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
-pub struct AkanDay {
+pub struct Akan {
     prefix: AkanPrefix,
     stem: AkanStem,
 }
 
-impl AkanDay {
-    fn new(stem: AkanStem, prefix: AkanPrefix) -> AkanDay {
-        AkanDay { stem, prefix }
+impl Akan {
+    fn new(stem: AkanStem, prefix: AkanPrefix) -> Akan {
+        Akan { stem, prefix }
     }
 
-    fn day_name(n: i64) -> AkanDay {
-        AkanDay::new(AkanStem::from(n), AkanPrefix::from(n))
+    fn day_name(n: i64) -> Akan {
+        Akan::new(AkanStem::from(n), AkanPrefix::from(n))
     }
 
     fn name_difference(self, other: Self) -> i16 {
@@ -94,21 +94,21 @@ impl AkanDay {
 
     fn day_name_on_or_before(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
         let date = i64::from(date);
-        let diff = AkanDay::name_difference(AkanDay::from(FixedDate::from(0)), self) as i64;
+        let diff = Akan::name_difference(Akan::from(FixedDate::from(0)), self) as i64;
         FixedDate::try_from(diff.interval_modulus(date, date - 42))
     }
 }
 
-impl Epoch for AkanDay {
+impl Epoch for Akan {
     fn epoch() -> FixedDate {
         const CYCLE_START: i64 = 37;
         FixedDate::try_from(CYCLE_START).expect("Epoch known to be within bounds.")
     }
 }
 
-impl From<FixedDate> for AkanDay {
-    fn from(date: FixedDate) -> AkanDay {
-        AkanDay::day_name(date - AkanDay::epoch())
+impl From<FixedDate> for Akan {
+    fn from(date: FixedDate) -> Akan {
+        Akan::day_name(date - Akan::epoch())
     }
 }
 
@@ -120,9 +120,9 @@ mod tests {
     proptest! {
         #[test]
         fn akan_day_repeats(x in i32::MIN..(i32::MAX - 42)) {
-            let a1 = AkanDay::from(FixedDate::from(x));
-            let a2 = AkanDay::from(FixedDate::from(x + 1));
-            let a3 = AkanDay::from(FixedDate::from(x + 42));
+            let a1 = Akan::from(FixedDate::from(x));
+            let a2 = Akan::from(FixedDate::from(x + 1));
+            let a3 = Akan::from(FixedDate::from(x + 42));
             assert_ne!(a1, a2);
             assert_eq!(a1, a3);
         }

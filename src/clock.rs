@@ -85,14 +85,14 @@ impl TryFrom<TimeOfDay> for ClockTime {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::epoch::jd::JulianDate;
+    use crate::epoch::jd::JulianDay;
     use crate::math::EFFECTIVE_MAX;
     use crate::math::EFFECTIVE_MIN;
     use proptest::proptest;
 
     #[test]
     fn time() {
-        let j0: JulianDate = Default::default();
+        let j0: JulianDay = Default::default();
         assert_eq!(TimeOfDay::from(FixedMoment::try_from(j0).unwrap()).0, 0.5);
     }
 
