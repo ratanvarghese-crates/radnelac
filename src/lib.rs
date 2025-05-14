@@ -11,10 +11,10 @@ mod clock;
 mod error;
 mod math;
 mod calendar {
-    mod akan;
-    mod armenian;
-    mod common;
-    mod egyptian;
-    mod gregorian;
-    mod julian;
+    pub mod akan;
+    pub mod armenian;
+    pub mod common;
+    pub mod egyptian;
+    pub mod gregorian;
+    pub mod julian;
 }
