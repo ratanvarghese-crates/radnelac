@@ -4,8 +4,13 @@ use std::fmt::Debug;
 use std::ops::Add;
 use std::ops::Sub;
 
+pub trait DayCount: TermNum {}
+
+impl DayCount for f64 {}
+impl DayCount for i64 {}
+
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
-pub struct Fixed<T: TermNum>(T);
+pub struct Fixed<T: DayCount>(T);
 
 pub type FixedMoment = Fixed<f64>;
 pub type FixedDate = Fixed<i64>;
@@ -26,69 +31,44 @@ impl From<FixedDate> for FixedMoment {
     }
 }
 
-// TryFrom maximum size
+// Larger number primitives
 
-impl TryFrom<i64> for FixedDate {
-    type Error = CalendarError;
-    fn try_from(date: i64) -> Result<FixedDate, Self::Error> {
-        Ok(FixedDate {
-            0: date.within_eff()?,
-        })
-    }
+macro_rules! fixed_from_big_int {
+    ($t:ident, $u: ident) => {
+        impl TryFrom<$t> for Fixed<$u> {
+            type Error = CalendarError;
+            fn try_from(date: $t) -> Result<Fixed<$u>, Self::Error> {
+                Ok(Fixed::<$u>::from(Fixed::<$t>::try_from(date)?))
+            }
+        }
+
+        impl From<Fixed<$u>> for $t {
+            fn from(date: Fixed<$u>) -> $t {
+                $t::from(Fixed::<$t>::from(date))
+            }
+        }
+
+        impl TryFrom<$t> for Fixed<$t> {
+            type Error = CalendarError;
+            fn try_from(date: $t) -> Result<Fixed<$t>, Self::Error> {
+                Ok(Fixed::<$t> {
+                    0: date.within_eff()?,
+                })
+            }
+        }
+
+        impl From<Fixed<$t>> for $t {
+            fn from(date: Fixed<$t>) -> $t {
+                date.0
+            }
+        }
+    };
 }
 
-impl TryFrom<f64> for FixedMoment {
-    type Error = CalendarError;
-    fn try_from(t: f64) -> Result<FixedMoment, Self::Error> {
-        Ok(FixedMoment { 0: t.within_eff()? })
-    }
-}
+fixed_from_big_int!(f64, i64);
+fixed_from_big_int!(i64, f64);
 
-// TryFrom the other's type
-
-impl TryFrom<f64> for FixedDate {
-    type Error = CalendarError;
-    fn try_from(t: f64) -> Result<FixedDate, Self::Error> {
-        Ok(FixedDate::from(FixedMoment::try_from(t)?))
-    }
-}
-
-impl TryFrom<i64> for FixedMoment {
-    type Error = CalendarError;
-    fn try_from(t: i64) -> Result<FixedMoment, Self::Error> {
-        Ok(FixedMoment::from(FixedDate::try_from(t)?))
-    }
-}
-
-// From<Fixed> for maximum size
-
-impl From<FixedDate> for i64 {
-    fn from(date: FixedDate) -> i64 {
-        date.0
-    }
-}
-
-impl From<FixedMoment> for f64 {
-    fn from(t: FixedMoment) -> f64 {
-        t.0
-    }
-}
-
-// From<Fixed> for the other's type
-
-impl From<FixedDate> for f64 {
-    fn from(date: FixedDate) -> f64 {
-        f64::from(FixedMoment::from(date))
-    }
-}
-
-impl From<FixedMoment> for i64 {
-    fn from(t: FixedMoment) -> i64 {
-        i64::from(FixedDate::from(t))
-    }
-}
-
-// Smaller int types
+// Smaller integer primitives (not bothering with f32)
 
 macro_rules! fixed_from_small_int {
     ($t:ident, $u: ident) => {
@@ -116,14 +96,14 @@ fixed_from_small_int!(i8, FixedMoment);
 
 // Sub and Add
 
-impl<T: Sub<Output = T> + TermNum> Sub for Fixed<T> {
+impl<T: Sub<Output = T> + DayCount> Sub for Fixed<T> {
     type Output = T;
     fn sub(self, other: Self) -> Self::Output {
         self.0 - other.0
     }
 }
 
-impl<T: Add<Output = T> + TermNum> Add<T> for Fixed<T> {
+impl<T: Add<Output = T> + DayCount> Add<T> for Fixed<T> {
     type Output = T;
     fn add(self, other: T) -> Self::Output {
         self.0 + other
