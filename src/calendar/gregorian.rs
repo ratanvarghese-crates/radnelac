@@ -129,7 +129,7 @@ impl GregorianDate {
     }
 
     fn year_and_ord_day_from_fixed(date: FixedDate) -> (i32, u16) {
-        let d0 = i64::from(date) - i64::from(GregorianDate::epoch());
+        let d0 = date - GregorianDate::epoch();
         let n400 = d0.div_euclid((400 * 365) + 100 - 3);
         let d1 = d0.modulus((400 * 365) + 100 - 3);
         let n100 = d1.div_euclid((365 * 100) + 25 - 1);
@@ -152,7 +152,7 @@ impl From<GregorianDate> for FixedDate {
         let month = date.0.get_month() as i64;
         let day = date.0.get_day() as i64;
 
-        let offset_e = i64::from(GregorianDate::epoch()) - 1;
+        let offset_e = GregorianDate::epoch() - FixedDate::from(1 as i32);
         let offset_y = 365 * (year - 1);
         let offset_leap =
             (year - 1).div_euclid(4) - (year - 1).div_euclid(100) + (year - 1).div_euclid(400);
@@ -190,13 +190,8 @@ impl TryFrom<FixedDate> for GregorianDate {
             2
         };
         let month = (12 * (prior_days + correction) + 373).div_euclid(367);
-        let day = i64::from(date)
-            - i64::from(FixedDate::from(GregorianDate(CommonDate::try_new(
-                year,
-                month as u8,
-                1,
-            )?)))
-            + 1;
+        let day =
+            date - FixedDate::from(GregorianDate(CommonDate::try_new(year, month as u8, 1)?)) + 1;
         Ok(GregorianDate(CommonDate::try_new(
             year as i32,
             month as u8,

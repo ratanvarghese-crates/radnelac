@@ -108,7 +108,7 @@ impl Epoch for AkanDay {
 
 impl From<FixedDate> for AkanDay {
     fn from(date: FixedDate) -> AkanDay {
-        AkanDay::day_name(i64::from(date) - i64::from(AkanDay::epoch()))
+        AkanDay::day_name(date - AkanDay::epoch())
     }
 }
 

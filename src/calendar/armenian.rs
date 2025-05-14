@@ -76,8 +76,7 @@ impl TryFrom<CommonDate> for ArmenianDate {
 impl From<ArmenianDate> for FixedDate {
     fn from(date: ArmenianDate) -> FixedDate {
         let e = FixedDate::from(EgyptianDate::try_from(date.0).expect("Same field limits"));
-        let result =
-            i64::from(ArmenianDate::epoch()) + i64::from(e) - i64::from(EgyptianDate::epoch());
+        let result = (ArmenianDate::epoch() - EgyptianDate::epoch()) + i64::from(e);
         FixedDate::try_from(result).expect("CommonDate enforces year limits")
     }
 }
@@ -85,8 +84,7 @@ impl From<ArmenianDate> for FixedDate {
 impl TryFrom<FixedDate> for ArmenianDate {
     type Error = CalendarError;
     fn try_from(date: FixedDate) -> Result<ArmenianDate, Self::Error> {
-        let d =
-            i64::from(date) + i64::from(EgyptianDate::epoch()) - i64::from(ArmenianDate::epoch());
+        let d = date + (EgyptianDate::epoch() - ArmenianDate::epoch());
         let e = EgyptianDate::try_from(FixedDate::try_from(d)?)?;
         Ok(ArmenianDate(CommonDate::from(e)))
     }

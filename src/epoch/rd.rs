@@ -15,13 +15,13 @@ impl EpochMoment for RataDie {
 impl TryFrom<RataDie> for FixedMoment {
     type Error = CalendarError;
     fn try_from(rd: RataDie) -> Result<FixedMoment, Self::Error> {
-        FixedMoment::try_from(rd.0 + f64::from(RataDie::epoch_moment()))
+        FixedMoment::try_from(RataDie::epoch_moment() + rd.0)
     }
 }
 
 impl From<FixedMoment> for RataDie {
     fn from(t: FixedMoment) -> RataDie {
-        RataDie(f64::from(t) - f64::from(RataDie::epoch_moment()))
+        RataDie(t - RataDie::epoch_moment())
     }
 }
 

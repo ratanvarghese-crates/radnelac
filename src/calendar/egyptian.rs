@@ -85,7 +85,7 @@ impl From<EgyptianDate> for FixedDate {
         let month = date.0.get_month() as i64;
         let day = date.0.get_day() as i64;
         let offset = (365 * (year - 1)) + (30 * (month - 1)) + day - 1;
-        let result = (i64::from(EgyptianDate::epoch())) + offset;
+        let result = EgyptianDate::epoch() + offset;
         FixedDate::try_from(result as i64).expect("CommonDate enforces year limits")
     }
 }
@@ -93,7 +93,7 @@ impl From<EgyptianDate> for FixedDate {
 impl TryFrom<FixedDate> for EgyptianDate {
     type Error = CalendarError;
     fn try_from(date: FixedDate) -> Result<EgyptianDate, Self::Error> {
-        let days = i64::from(date) - i64::from(EgyptianDate::epoch());
+        let days = date - EgyptianDate::epoch();
         let year = days.div_euclid(365) + 1;
         let month = days.modulus(365).div_euclid(30) + 1;
         let day = days - (365 * (year - 1)) - (30 * (month - 1)) + 1;

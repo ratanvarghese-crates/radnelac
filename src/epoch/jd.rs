@@ -15,13 +15,13 @@ impl EpochMoment for JulianDate {
 impl TryFrom<JulianDate> for FixedMoment {
     type Error = CalendarError;
     fn try_from(jd: JulianDate) -> Result<FixedMoment, CalendarError> {
-        FixedMoment::try_from(jd.0 + f64::from(JulianDate::epoch_moment()))
+        FixedMoment::try_from(JulianDate::epoch_moment() + jd.0)
     }
 }
 
 impl From<FixedMoment> for JulianDate {
     fn from(t: FixedMoment) -> JulianDate {
-        JulianDate(f64::from(t) - f64::from(JulianDate::epoch_moment()))
+        JulianDate(t - JulianDate::epoch_moment())
     }
 }
 
@@ -50,13 +50,13 @@ impl EpochMoment for ModifiedJulianDate {
 impl TryFrom<ModifiedJulianDate> for FixedMoment {
     type Error = CalendarError;
     fn try_from(mjd: ModifiedJulianDate) -> Result<FixedMoment, CalendarError> {
-        FixedMoment::try_from(mjd.0 + f64::from(ModifiedJulianDate::epoch_moment()))
+        FixedMoment::try_from(ModifiedJulianDate::epoch_moment() + mjd.0)
     }
 }
 
 impl From<FixedMoment> for ModifiedJulianDate {
     fn from(t: FixedMoment) -> ModifiedJulianDate {
-        ModifiedJulianDate(f64::from(t) - f64::from(ModifiedJulianDate::epoch_moment()))
+        ModifiedJulianDate(t - ModifiedJulianDate::epoch_moment())
     }
 }
 

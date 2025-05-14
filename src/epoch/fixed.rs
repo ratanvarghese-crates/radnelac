@@ -1,24 +1,28 @@
 use crate::error::CalendarError;
 use crate::math::TermNum;
 use std::fmt::Debug;
+use std::ops::Add;
+use std::ops::Sub;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
-pub struct FixedMoment(f64);
+pub struct Fixed<T: TermNum>(T);
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
-pub struct FixedDate(i64);
+pub type FixedMoment = Fixed<f64>;
+pub type FixedDate = Fixed<i64>;
 
 // Between the two fixed types
 
 impl From<FixedMoment> for FixedDate {
     fn from(t: FixedMoment) -> FixedDate {
-        FixedDate(t.0.floor() as i64)
+        FixedDate {
+            0: t.0.floor() as i64,
+        }
     }
 }
 
 impl From<FixedDate> for FixedMoment {
     fn from(date: FixedDate) -> FixedMoment {
-        FixedMoment(date.0 as f64)
+        FixedMoment { 0: date.0 as f64 }
     }
 }
 
@@ -27,14 +31,16 @@ impl From<FixedDate> for FixedMoment {
 impl TryFrom<i64> for FixedDate {
     type Error = CalendarError;
     fn try_from(date: i64) -> Result<FixedDate, Self::Error> {
-        Ok(FixedDate(date.within_eff()?))
+        Ok(FixedDate {
+            0: date.within_eff()?,
+        })
     }
 }
 
 impl TryFrom<f64> for FixedMoment {
     type Error = CalendarError;
     fn try_from(t: f64) -> Result<FixedMoment, Self::Error> {
-        Ok(FixedMoment(t.within_eff()?))
+        Ok(FixedMoment { 0: t.within_eff()? })
     }
 }
 
@@ -107,6 +113,22 @@ fixed_from_small_int!(i16, FixedDate);
 fixed_from_small_int!(i16, FixedMoment);
 fixed_from_small_int!(i8, FixedDate);
 fixed_from_small_int!(i8, FixedMoment);
+
+// Sub and Add
+
+impl<T: Sub<Output = T> + TermNum> Sub for Fixed<T> {
+    type Output = T;
+    fn sub(self, other: Self) -> Self::Output {
+        self.0 - other.0
+    }
+}
+
+impl<T: Add<Output = T> + TermNum> Add<T> for Fixed<T> {
+    type Output = T;
+    fn add(self, other: T) -> Self::Output {
+        self.0 + other
+    }
+}
 
 pub trait Epoch {
     fn epoch() -> FixedDate;

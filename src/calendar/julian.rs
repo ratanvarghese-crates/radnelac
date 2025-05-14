@@ -105,7 +105,7 @@ impl From<JulianDate> for FixedDate {
 
         let y = if year < 0 { year + 1 } else { year } as i64;
 
-        let offset_e = i64::from(JulianDate::epoch()) - 1;
+        let offset_e = JulianDate::epoch() - FixedDate::from(1 as i32);
         let offset_y = 365 * (y - 1);
         let offset_leap = (y - 1).div_euclid(4);
         let offset_m = ((367 * month) - 362).div_euclid(12);
@@ -125,7 +125,7 @@ impl From<JulianDate> for FixedDate {
 impl TryFrom<FixedDate> for JulianDate {
     type Error = CalendarError;
     fn try_from(date: FixedDate) -> Result<JulianDate, Self::Error> {
-        let e_diff = i64::from(date) - i64::from(JulianDate::epoch());
+        let e_diff = date - JulianDate::epoch();
         let approx = ((4 * e_diff) + 1464).div_euclid(1461);
         let year = if approx <= 0 { approx - 1 } else { approx } as i32;
         let year_start = FixedDate::from(JulianDate(CommonDate::try_new(
@@ -133,7 +133,7 @@ impl TryFrom<FixedDate> for JulianDate {
             JulianMonth::January as u8,
             1,
         )?));
-        let prior_days = i64::from(date) - i64::from(year_start);
+        let prior_days = date - year_start;
         let march1 = FixedDate::from(JulianDate(CommonDate::try_new(
             year,
             JulianMonth::March as u8,
@@ -147,12 +147,7 @@ impl TryFrom<FixedDate> for JulianDate {
             2
         };
         let month = (12 * (prior_days + correction) + 373).div_euclid(367);
-        let m_diff = i64::from(date)
-            - i64::from(FixedDate::from(JulianDate(CommonDate::try_new(
-                year,
-                month as u8,
-                1,
-            )?)));
+        let m_diff = date - FixedDate::from(JulianDate(CommonDate::try_new(year, month as u8, 1)?));
         let day = m_diff + 1;
         Ok(JulianDate(CommonDate::try_new(
             year as i32,
