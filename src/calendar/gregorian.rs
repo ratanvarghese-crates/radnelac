@@ -78,7 +78,7 @@ impl Gregorian {
         m4 == 0 && m400 != 100 && m400 != 200 && m400 != 300
     }
 
-    fn new_year(g_year: i16) -> FixedDate {
+    pub fn new_year(g_year: i16) -> FixedDate {
         FixedDate::from(Gregorian(CommonDate::new(
             g_year,
             GregorianMonth::January as u8,
@@ -86,7 +86,7 @@ impl Gregorian {
         )))
     }
 
-    fn year_end(g_year: i16) -> FixedDate {
+    pub fn year_end(g_year: i16) -> FixedDate {
         FixedDate::from(Gregorian(CommonDate::new(
             g_year,
             GregorianMonth::December as u8,
@@ -94,7 +94,7 @@ impl Gregorian {
         )))
     }
 
-    fn year_and_ord_day_from_fixed(date: FixedDate) -> (i32, u16) {
+    pub fn year_and_ord_day_from_fixed(date: FixedDate) -> (i32, u16) {
         let d0 = date - Gregorian::epoch();
         let n400 = d0.div_euclid((400 * 365) + 100 - 3);
         let d1 = d0.modulus((400 * 365) + 100 - 3);
