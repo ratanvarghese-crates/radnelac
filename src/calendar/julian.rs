@@ -15,6 +15,14 @@ pub type JulianMonth = GregorianMonth;
 pub struct Julian(CommonDate);
 
 impl Julian {
+    pub fn get_month(self) -> JulianMonth {
+        JulianMonth::try_from(self.0.get_month()).expect("Won't allow setting invalid field")
+    }
+
+    pub fn get_day(self) -> u8 {
+        self.0.get_day()
+    }
+
     pub fn is_leap(g_year: i32) -> bool {
         let m4 = g_year.modulus(4);
         if g_year > 0 {

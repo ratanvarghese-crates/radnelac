@@ -48,7 +48,7 @@ impl TryFrom<u8> for GregorianMonth {
 pub struct Gregorian(CommonDate);
 
 impl Gregorian {
-    fn get_month(self) -> GregorianMonth {
+    pub fn get_month(self) -> GregorianMonth {
         GregorianMonth::try_from(self.0.get_month()).expect("Won't allow setting invalid field")
     }
 }

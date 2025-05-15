@@ -14,7 +14,9 @@ mod calendar {
     pub mod akan;
     pub mod armenian;
     pub mod common;
+    pub mod coptic;
     pub mod egyptian;
+    pub mod ethiopic;
     pub mod gregorian;
     pub mod julian;
     pub mod olympiad;
