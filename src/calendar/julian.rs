@@ -15,7 +15,7 @@ pub type JulianMonth = GregorianMonth;
 pub struct Julian(CommonDate);
 
 impl Julian {
-    fn is_leap(g_year: i32) -> bool {
+    pub fn is_leap(g_year: i32) -> bool {
         let m4 = g_year.modulus(4);
         if g_year > 0 {
             m4 == 0

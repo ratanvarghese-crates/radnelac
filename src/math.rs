@@ -114,7 +114,18 @@ pub trait TermNum:
         if a == b {
             x
         } else {
-            a + (x - a).modulus(x - b)
+            a + (x - a).modulus(b - a)
+        }
+    }
+
+    fn adjusted_remainder(self, other: Self) -> Self {
+        let x = self;
+        let b = other;
+        let m = x.modulus(b);
+        if m == Self::zero() {
+            b
+        } else {
+            m
         }
     }
 
@@ -336,6 +347,11 @@ mod tests {
         assert_eq!((-9.0).modulus(5.0), 1.0);
         assert_eq!((9.0).modulus(-5.0), -1.0);
         assert_eq!((-9.0).modulus(-5.0), -4.0);
+    }
+
+    #[test]
+    fn adjusted_remainder() {
+        assert_eq!((13).adjusted_remainder(12), 1);
     }
 
     #[test]

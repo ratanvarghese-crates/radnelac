@@ -17,4 +17,6 @@ mod calendar {
     pub mod egyptian;
     pub mod gregorian;
     pub mod julian;
+    pub mod olympiad;
+    pub mod roman;
 }
