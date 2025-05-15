@@ -18,28 +18,28 @@ pub enum CommonDayOfWeek {
 }
 
 impl CommonDayOfWeek {
-    fn on_or_before(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
+    pub fn on_or_before(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
         let date = i64::from(date);
         let k = self as i64;
         FixedDate::try_from(date - (CommonDayOfWeek::from(date - k) as i64))
     }
 
-    fn on_or_after(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
+    pub fn on_or_after(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
         let date = FixedDate::try_from(i64::from(date) + 6)?;
         self.on_or_before(date)
     }
 
-    fn nearest(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
+    pub fn nearest(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
         let date = FixedDate::try_from(i64::from(date) + 3)?;
         self.on_or_before(date)
     }
 
-    fn before(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
+    pub fn before(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
         let date = FixedDate::try_from(i64::from(date) - 1)?;
         self.on_or_before(date)
     }
 
-    fn after(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
+    pub fn after(self, date: FixedDate) -> Result<FixedDate, CalendarError> {
         let date = FixedDate::try_from(i64::from(date) + 7)?;
         self.on_or_before(date)
     }
