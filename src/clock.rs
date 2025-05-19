@@ -1,13 +1,33 @@
-use crate::epoch::fixed::FixedMoment;
-use crate::error::CalendarError;
-use crate::math::TermNum;
+use crate::common::bound::BoundedDayCount;
+use crate::common::error::CalendarError;
+use crate::common::math::TermNum;
+use crate::day_count::fixed::Fixed;
+use crate::day_count::fixed::FromFixed;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct TimeOfDay(f64);
 
-impl From<FixedMoment> for TimeOfDay {
-    fn from(t: FixedMoment) -> TimeOfDay {
-        TimeOfDay(f64::from(t).modulus(1.0))
+impl TimeOfDay {
+    pub fn get(self) -> f64 {
+        self.0
+    }
+
+    pub fn unchecked_new(t: f64) -> Self {
+        TimeOfDay(t)
+    }
+
+    pub fn checked_new(t: f64) -> Result<Self, CalendarError> {
+        if t < 0.0 || t > 1.0 {
+            Err(CalendarError::OutOfBounds)
+        } else {
+            Ok(Self::unchecked_new(t))
+        }
+    }
+}
+
+impl FromFixed for TimeOfDay {
+    fn from_fixed(t: Fixed) -> TimeOfDay {
+        TimeOfDay::unchecked_new(t.get().modulus(1.0))
     }
 }
 
@@ -32,7 +52,7 @@ fn check_fields(hours: u8, minutes: u8, seconds: f32) -> Result<(), CalendarErro
 }
 
 impl ClockTime {
-    fn set(hours: u8, minutes: u8, seconds: f32) -> Result<ClockTime, CalendarError> {
+    pub fn set(hours: u8, minutes: u8, seconds: f32) -> Result<ClockTime, CalendarError> {
         match check_fields(hours, minutes, seconds) {
             Ok(()) => Ok(ClockTime {
                 hours,
@@ -63,7 +83,7 @@ impl From<ClockTime> for TimeOfDay {
             clock.seconds as f64,
         ];
         let b = [24.0, 60.0, 60.0];
-        TimeOfDay(TermNum::from_mixed_radix(&a, &b, 0).expect("Inputs are valid"))
+        TimeOfDay::unchecked_new(TermNum::from_mixed_radix(&a, &b, 0).expect("Inputs are valid"))
     }
 }
 
@@ -85,42 +105,43 @@ impl TryFrom<TimeOfDay> for ClockTime {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::epoch::jd::JulianDay;
-    use crate::math::EFFECTIVE_MAX;
-    use crate::math::EFFECTIVE_MIN;
+    use crate::common::math::EFFECTIVE_MAX;
+    use crate::common::math::EFFECTIVE_MIN;
+    use crate::day_count::fixed::ToFixed;
+    use crate::day_count::jd::JulianDay;
     use proptest::proptest;
 
     #[test]
     fn time() {
-        let j0: JulianDay = Default::default();
-        assert_eq!(TimeOfDay::from(FixedMoment::try_from(j0).unwrap()).0, 0.5);
+        let j0: JulianDay = JulianDay::checked_new(0.0).unwrap();
+        assert_eq!(TimeOfDay::from_fixed(j0.to_fixed()).0, 0.5);
     }
 
     #[test]
     fn obvious_clock_times() {
         assert_eq!(
             TimeOfDay::from(ClockTime::set(0, 0, 0.0).unwrap()),
-            TimeOfDay(0.0)
+            TimeOfDay::checked_new(0.0).unwrap()
         );
         assert_eq!(
             TimeOfDay::from(ClockTime::set(0, 0, 1.0).unwrap()),
-            TimeOfDay(1.0 / (24.0 * 60.0 * 60.0))
+            TimeOfDay::checked_new(1.0 / (24.0 * 60.0 * 60.0)).unwrap()
         );
         assert_eq!(
             TimeOfDay::from(ClockTime::set(0, 1, 0.0).unwrap()),
-            TimeOfDay(1.0 / (24.0 * 60.0))
+            TimeOfDay::checked_new(1.0 / (24.0 * 60.0)).unwrap()
         );
         assert_eq!(
             TimeOfDay::from(ClockTime::set(6, 0, 0.0).unwrap()),
-            TimeOfDay(0.25)
+            TimeOfDay::checked_new(0.25).unwrap()
         );
         assert_eq!(
             TimeOfDay::from(ClockTime::set(12, 0, 0.0).unwrap()),
-            TimeOfDay(0.5)
+            TimeOfDay::checked_new(0.5).unwrap()
         );
         assert_eq!(
             TimeOfDay::from(ClockTime::set(18, 0, 0.0).unwrap()),
-            TimeOfDay(0.75)
+            TimeOfDay::checked_new(0.75).unwrap()
         );
     }
 
@@ -138,7 +159,7 @@ mod tests {
 
         #[test]
         fn clock_time_from_moment(x in EFFECTIVE_MIN..EFFECTIVE_MAX) {
-            let t = TimeOfDay::from(FixedMoment::try_from(x).unwrap());
+            let t = TimeOfDay::from_fixed(Fixed::checked_new(x).unwrap());
             let c = ClockTime::try_from(t).unwrap();
             check_fields(c.hours, c.minutes, c.seconds).unwrap();
         }

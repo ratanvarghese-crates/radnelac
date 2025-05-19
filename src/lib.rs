@@ -1,19 +1,25 @@
-// Calendrical Calculations chapter 1
-mod epoch {
-    mod common;
+#[macro_use]
+extern crate num_derive;
+
+pub mod common {
+    pub mod bound;
+    pub mod date;
+    pub mod error;
+    pub mod math;
+}
+pub mod day_count {
     pub mod fixed;
     pub mod jd;
     pub mod mjd;
     pub mod rd;
     pub mod unix;
 }
-mod clock;
-mod error;
-mod math;
-mod calendar {
+pub mod day_cycle {
     pub mod akan;
+    pub mod week;
+}
+pub mod calendar {
     pub mod armenian;
-    pub mod common;
     pub mod coptic;
     pub mod egyptian;
     pub mod ethiopic;
@@ -23,3 +29,4 @@ mod calendar {
     pub mod olympiad;
     pub mod roman;
 }
+pub mod clock;

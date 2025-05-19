@@ -1,4 +1,4 @@
-use crate::math::TermNum;
+use crate::common::math::TermNum;
 use std::num::NonZero;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
@@ -10,13 +10,13 @@ pub struct Olympiad {
 const OLYMPIAD_START: i32 = -776;
 
 impl Olympiad {
-    fn julian_year_from_olympiad(self) -> NonZero<i32> {
+    pub fn julian_year_from_olympiad(self) -> NonZero<i32> {
         let years = OLYMPIAD_START + 4 * (self.cycle - 1) + self.year - 1;
         let result = if years < 0 { years } else { years + 1 };
         NonZero::new(result).unwrap()
     }
 
-    fn olympiad_from_julian_year(j: NonZero<i32>) -> Self {
+    pub fn olympiad_from_julian_year(j: NonZero<i32>) -> Self {
         let j_year = j.get();
         let years = j_year - OLYMPIAD_START - (if j_year < 0 { 0 } else { 1 });
         Olympiad {

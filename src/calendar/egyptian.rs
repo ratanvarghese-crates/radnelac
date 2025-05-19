@@ -1,12 +1,22 @@
-use crate::calendar::common::CommonDate;
-use crate::calendar::common::ValidCommonDate;
-use crate::epoch::fixed::Epoch;
-use crate::epoch::fixed::FixedDate;
-use crate::epoch::jd::JulianDay;
-use crate::error::CalendarError;
-use crate::math::TermNum;
+use crate::common::bound::BoundedDayCount;
+use crate::common::bound::EffectiveBound;
+use crate::common::date::CommonDate;
+use crate::common::date::ToCommonDate;
+use crate::common::date::TryFromCommonDate;
+use crate::common::error::CalendarError;
+use crate::common::math::TermNum;
+use crate::day_count::fixed::CalculatedBounds;
+use crate::day_count::fixed::Epoch;
+use crate::day_count::fixed::Fixed;
+use crate::day_count::fixed::FromFixed;
+use crate::day_count::fixed::ToFixed;
+use crate::day_count::jd::JulianDay;
+#[allow(unused_imports)] //FromPrimitive is needed for derive
+use num_traits::FromPrimitive;
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+const NABONASSAR_ERA_JD: i32 = 1448638;
+
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
 pub enum EgyptianMonth {
     Thoth = 1,
     Phaophi,
@@ -26,121 +36,135 @@ pub enum EgyptianMonth {
 pub struct Egyptian(CommonDate);
 
 impl Egyptian {
-    fn get_month(self) -> Option<EgyptianMonth> {
-        match self.0.get_month() {
-            1 => Some(EgyptianMonth::Thoth),
-            2 => Some(EgyptianMonth::Phaophi),
-            3 => Some(EgyptianMonth::Athyr),
-            4 => Some(EgyptianMonth::Choiak),
-            5 => Some(EgyptianMonth::Tybi),
-            6 => Some(EgyptianMonth::Mechir),
-            7 => Some(EgyptianMonth::Phamenoth),
-            8 => Some(EgyptianMonth::Pharmuthi),
-            9 => Some(EgyptianMonth::Pachon),
-            10 => Some(EgyptianMonth::Payni),
-            11 => Some(EgyptianMonth::Epiphi),
-            12 => Some(EgyptianMonth::Mesori),
-            _ => None,
-        }
+    pub fn year(self) -> i32 {
+        self.0.year
     }
-}
 
-impl Epoch for Egyptian {
-    fn epoch() -> FixedDate {
-        const NABONASSAR_ERA_JD: i32 = 1448638;
-        FixedDate::from(JulianDay::from(NABONASSAR_ERA_JD))
-    }
-}
-
-impl ValidCommonDate for Egyptian {
-    fn is_valid(date: CommonDate) -> bool {
-        let a = date.get_month() > 0;
-        let b = date.get_month() < 13 && date.get_day() < 31;
-        let c = date.get_month() == 13 && date.get_day() < 6;
-        a && (b || c)
-    }
-}
-
-impl From<Egyptian> for CommonDate {
-    fn from(date: Egyptian) -> CommonDate {
-        return date.0;
-    }
-}
-
-impl TryFrom<CommonDate> for Egyptian {
-    type Error = CalendarError;
-    fn try_from(date: CommonDate) -> Result<Egyptian, CalendarError> {
-        if Egyptian::is_valid(date) {
-            Ok(Egyptian(date))
+    pub fn month(self) -> Option<EgyptianMonth> {
+        if self.0.month == 13 {
+            None
         } else {
-            Err(CalendarError::OutOfBounds)
+            EgyptianMonth::from_u8(self.0.month)
         }
     }
-}
 
-impl From<Egyptian> for FixedDate {
-    fn from(date: Egyptian) -> FixedDate {
-        let year = date.0.get_year() as i64;
-        let month = date.0.get_month() as i64;
-        let day = date.0.get_day() as i64;
-        let offset = (365 * (year - 1)) + (30 * (month - 1)) + day - 1;
-        let result = Egyptian::epoch() + offset;
-        FixedDate::try_from(result as i64).expect("CommonDate enforces year limits")
+    pub fn day(self) -> u8 {
+        self.0.day
     }
-}
 
-impl TryFrom<FixedDate> for Egyptian {
-    type Error = CalendarError;
-    fn try_from(date: FixedDate) -> Result<Egyptian, Self::Error> {
-        let days = date - Egyptian::epoch();
+    pub fn from_fixed_generic_unchecked(date: i64, epoch: i64) -> CommonDate {
+        let days = date - epoch;
         let year = days.div_euclid(365) + 1;
         let month = days.modulus(365).div_euclid(30) + 1;
         let day = days - (365 * (year - 1)) - (30 * (month - 1)) + 1;
-        Ok(Egyptian(CommonDate::try_new(
-            year as i32,
-            month as u8,
-            day as u8,
-        )?))
+        CommonDate {
+            year: year as i32,
+            month: month as u8,
+            day: day as u8,
+        }
+    }
+
+    pub fn to_fixed_generic_unchecked(date: CommonDate, epoch: i64) -> i64 {
+        let year = date.year as i64;
+        let month = date.month as i64;
+        let day = date.day as i64;
+        let offset = (365 * (year - 1)) + (30 * (month - 1)) + day - 1;
+        (epoch as i64) + offset
+    }
+}
+
+impl CalculatedBounds for Egyptian {}
+
+impl Epoch for Egyptian {
+    fn epoch() -> Fixed {
+        JulianDay::new(NABONASSAR_ERA_JD).to_fixed()
+    }
+}
+
+impl FromFixed for Egyptian {
+    fn from_fixed(date: Fixed) -> Egyptian {
+        Egyptian(Egyptian::from_fixed_generic_unchecked(
+            date.get_day_i(),
+            Egyptian::epoch().get_day_i(),
+        ))
+    }
+}
+
+impl ToFixed for Egyptian {
+    fn to_fixed(self) -> Fixed {
+        Fixed::cast_new(Egyptian::to_fixed_generic_unchecked(
+            self.0,
+            Egyptian::epoch().get_day_i(),
+        ))
+        .expect("TODO: verify")
+    }
+}
+
+impl ToCommonDate for Egyptian {
+    fn to_common_date(self) -> CommonDate {
+        self.0
+    }
+}
+
+impl TryFromCommonDate for Egyptian {
+    fn try_from_common_date(date: CommonDate) -> Result<Self, CalendarError> {
+        if date.month > 13 {
+            Err(CalendarError::InvalidMonth)
+        } else if date.day < 1 {
+            Err(CalendarError::InvalidDay)
+        } else if date.month < 13 && date.day > 30 {
+            Err(CalendarError::InvalidDay)
+        } else if date.month == 13 && date.day > 5 {
+            Err(CalendarError::InvalidDay)
+        } else {
+            let e = Egyptian(date);
+            if e < Egyptian::effective_min() || e > Egyptian::effective_max() {
+                Err(CalendarError::OutOfBounds)
+            } else {
+                Ok(e)
+            }
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::calendar::common::MAX_YEARS;
+    use crate::common::math::EFFECTIVE_MAX;
     use proptest::proptest;
+    const MAX_YEARS: i32 = (EFFECTIVE_MAX / 365.25) as i32;
 
     proptest! {
         #[test]
-        fn egyptian_roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
-            let d = CommonDate::try_new(year, month as u8, day as u8).unwrap();
-            let e0 = Egyptian::try_from(d).unwrap();
-            let e1 = Egyptian::try_from(FixedDate::from(e0)).unwrap();
+        fn roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
+            let d = CommonDate{ year: year, month: month as u8, day: day as u8 };
+            let e0 = Egyptian::try_from_common_date(d).unwrap();
+            let e1 = Egyptian::from_fixed(e0.to_fixed());
             assert_eq!(e0, e1);
         }
 
         #[test]
-        fn egyptian_roundtrip_month13(year in -MAX_YEARS..MAX_YEARS, day in 1..5) {
-            let d = CommonDate::try_new(year, 13, day as u8).unwrap();
-            let e0 = Egyptian::try_from(d).unwrap();
-            let e1 = Egyptian::try_from(FixedDate::from(e0)).unwrap();
+        fn roundtrip_month13(year in -MAX_YEARS..MAX_YEARS, day in 1..5) {
+            let d = CommonDate{ year: year, month: 13, day: day as u8 };
+            let e0 = Egyptian::try_from_common_date(d).unwrap();
+            let e1 = Egyptian::from_fixed(e0.to_fixed());
             assert_eq!(e0, e1);
         }
 
         #[test]
-        fn egyptian_month_is_some(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
-            let d = CommonDate::try_new(year, month as u8, day as u8).unwrap();
-            let e0 = Egyptian::try_from(d).unwrap();
-            assert!(e0.get_month().is_some());
-            assert_eq!(CommonDate::from(e0), d);
+        fn month_is_some(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
+            let d = CommonDate{ year: year, month: month as u8, day: day as u8 };
+            let e0 = Egyptian::try_from_common_date(d).unwrap();
+            assert!(e0.month().is_some());
+            assert_eq!(e0.to_common_date(), d);
         }
 
         #[test]
-        fn egyptian_roundtrip_is_none(year in -MAX_YEARS..MAX_YEARS, day in 1..5) {
-            let d = CommonDate::try_new(year, 13, day as u8).unwrap();
-            let e0 = Egyptian::try_from(d).unwrap();
-            assert!(e0.get_month().is_none());
-            assert_eq!(CommonDate::from(e0), d);
+        fn month_is_none(year in -MAX_YEARS..MAX_YEARS, day in 1..5) {
+            let d = CommonDate{ year: year, month: 13, day: day as u8 };
+            let e0 = Egyptian::try_from_common_date(d).unwrap();
+            assert!(e0.month().is_none());
+            assert_eq!(e0.to_common_date(), d);
         }
     }
 }

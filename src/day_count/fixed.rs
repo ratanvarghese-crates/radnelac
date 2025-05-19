@@ -1,0 +1,136 @@
+use crate::common::bound::BoundedDayCount;
+use crate::common::bound::EffectiveBound;
+use crate::common::math::TermNum;
+use crate::common::math::EFFECTIVE_MAX;
+use crate::common::math::EFFECTIVE_MIN;
+
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
+pub struct Fixed(f64);
+
+impl Fixed {
+    pub fn to_time_of_day(self) -> Fixed {
+        Fixed(self.0.modulus(1.0))
+    }
+
+    pub fn to_day(self) -> Fixed {
+        Fixed(self.0.floor())
+    }
+
+    pub fn get_day_i(self) -> i64 {
+        self.to_day().get() as i64
+    }
+}
+
+impl EffectiveBound for Fixed {
+    fn effective_min() -> Fixed {
+        Fixed(EFFECTIVE_MIN)
+    }
+
+    fn effective_max() -> Fixed {
+        Fixed(EFFECTIVE_MAX)
+    }
+}
+
+impl BoundedDayCount<f64> for Fixed {
+    fn unchecked_new(t: f64) -> Fixed {
+        debug_assert!(Fixed::in_effective_bounds(t).is_ok());
+        Fixed(t)
+    }
+    fn get(self) -> f64 {
+        self.0
+    }
+}
+
+pub trait FromFixed: Copy + Clone {
+    fn from_fixed(t: Fixed) -> Self;
+}
+
+pub trait ToFixed: Copy + Clone {
+    fn to_fixed(self) -> Fixed;
+}
+
+pub trait Epoch: FromFixed {
+    fn epoch() -> Fixed;
+}
+
+pub trait CalculatedBounds: FromFixed + ToFixed + PartialEq + PartialOrd {}
+
+impl<T: CalculatedBounds> EffectiveBound for T {
+    fn effective_min() -> Self {
+        Self::from_fixed(Fixed::effective_min())
+    }
+
+    fn effective_max() -> Self {
+        Self::from_fixed(Fixed::effective_max())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::common::math::EFFECTIVE_EPSILON;
+    use crate::common::math::EFFECTIVE_MAX;
+    use crate::common::math::EFFECTIVE_MIN;
+    use proptest::proptest;
+
+    #[test]
+    fn reject_weird() {
+        let weird_values = [
+            f64::NAN,
+            f64::INFINITY,
+            f64::NEG_INFINITY,
+            EFFECTIVE_MAX + 1.0,
+            EFFECTIVE_MIN - 1.0,
+        ];
+        for x in weird_values {
+            assert!(Fixed::checked_new(x).is_err());
+        }
+    }
+
+    #[test]
+    fn accept_ok() {
+        let ok_values = [EFFECTIVE_MAX, EFFECTIVE_MIN, 0.0, -0.0, EFFECTIVE_EPSILON];
+        for x in ok_values {
+            assert!(Fixed::checked_new(x).is_ok());
+        }
+    }
+
+    #[test]
+    fn comparisons() {
+        let f_min = Fixed::effective_min();
+        let f_mbig = Fixed::checked_new(-100000.0 * 365.25).unwrap();
+        let f_m1 = Fixed::checked_new(-1.0).unwrap();
+        let f_0 = Fixed::checked_new(0.0).unwrap();
+        let f_p1 = Fixed::checked_new(1.0).unwrap();
+        let f_pbig = Fixed::checked_new(100000.0 * 365.25).unwrap();
+        let f_max = Fixed::effective_max();
+        assert!(f_min < f_mbig);
+        assert!(f_mbig < f_m1);
+        assert!(f_m1 < f_0);
+        assert!(f_0 < f_p1);
+        assert!(f_p1 < f_pbig);
+        assert!(f_pbig < f_max);
+    }
+
+    proptest! {
+        #[test]
+        fn easy_i32(t in i32::MIN..i32::MAX) {
+            let f: f64 = Fixed::new(t).get();
+            assert_eq!(f, t as f64);
+        }
+
+        #[test]
+        fn time_of_day(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+            let f = Fixed::checked_new(t).unwrap().to_time_of_day().get();
+            assert!(f <= 1.0 && f >= 0.0);
+        }
+
+        #[test]
+        fn day(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+            let f = Fixed::checked_new(t).unwrap().to_day().get();
+            assert!(f <= (t + 1.0) && f >= (t - 1.0));
+            let d = Fixed::checked_new(t).unwrap().get_day_i();
+            assert_eq!(d as f64, f);
+        }
+    }
+}

@@ -1,179 +1,208 @@
-use crate::calendar::common::CommonDate;
-use crate::calendar::common::ValidCommonDate;
 use crate::calendar::gregorian::GregorianMonth;
-use crate::epoch::fixed::Epoch;
-use crate::epoch::fixed::FixedDate;
-use crate::epoch::fixed::FixedMoment;
-use crate::epoch::rd::RataDie;
-use crate::error::CalendarError;
-use crate::math::TermNum;
+use crate::common::bound::BoundedDayCount;
+use crate::common::bound::EffectiveBound;
+use crate::common::date::CommonDate;
+use crate::common::date::ToCommonDate;
+use crate::common::date::TryFromCommonDate;
+use crate::common::error::CalendarError;
+use crate::common::math::TermNum;
+use crate::day_count::fixed::CalculatedBounds;
+use crate::day_count::fixed::Epoch;
+use crate::day_count::fixed::Fixed;
+use crate::day_count::fixed::FromFixed;
+use crate::day_count::fixed::ToFixed;
+use crate::day_count::rd::RataDie;
 use std::num::NonZero;
 
+#[allow(unused_imports)] //FromPrimitive is needed for derive
+use num_traits::FromPrimitive;
+
 pub type JulianMonth = GregorianMonth;
+
+const JULIAN_EPOCH_RD: i32 = -1;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Julian(CommonDate);
 
 impl Julian {
-    pub fn get_month(self) -> JulianMonth {
-        JulianMonth::try_from(self.0.get_month()).expect("Won't allow setting invalid field")
+    pub fn year(self) -> NonZero<i32> {
+        NonZero::new(self.0.year).expect("Will not be assigned zero")
     }
 
-    pub fn get_day(self) -> u8 {
-        self.0.get_day()
+    pub fn month(self) -> GregorianMonth {
+        JulianMonth::from_u8(self.0.month).expect("Will not allow setting invalid value.")
     }
 
-    pub fn is_leap(g_year: i32) -> bool {
-        let m4 = g_year.modulus(4);
-        if g_year > 0 {
+    pub fn day(self) -> u8 {
+        self.0.day
+    }
+
+    pub fn is_leap(j_year: i32) -> bool {
+        let m4 = j_year.modulus(4);
+        if j_year > 0 {
             m4 == 0
         } else {
             m4 == 3
         }
     }
 
-    fn new_year(g_year: NonZero<i16>) -> FixedDate {
-        FixedDate::from(Julian(CommonDate::new(
-            g_year.get(),
-            JulianMonth::January as u8,
-            1,
-        )))
-    }
-
-    fn year_end(g_year: NonZero<i16>) -> FixedDate {
-        FixedDate::from(Julian(CommonDate::new(
-            g_year.get(),
-            JulianMonth::December as u8,
-            31,
-        )))
-    }
-}
-
-impl Epoch for Julian {
-    fn epoch() -> FixedDate {
-        FixedDate::from(FixedMoment::from(RataDie::from(-1)))
-    }
-}
-
-impl ValidCommonDate for Julian {
-    fn is_valid(date: CommonDate) -> bool {
-        let month = date.get_month();
-        let day = date.get_day();
-        let year = date.get_year();
-        if year == 0 {
-            return false;
-        }
-
-        match JulianMonth::try_from(month) {
-            Err(_) => false,
-            Ok(month) => match month {
-                JulianMonth::January => day >= 1 && day <= 31,
-                JulianMonth::February => {
-                    if Julian::is_leap(year) {
-                        day >= 1 && day <= 29
-                    } else {
-                        day >= 1 && day <= 28
-                    }
-                }
-                JulianMonth::March => day >= 1 && day <= 31,
-                JulianMonth::April => day >= 1 && day <= 30,
-                JulianMonth::May => day >= 1 && day <= 31,
-                JulianMonth::June => day >= 1 && day <= 30,
-                JulianMonth::July => day >= 1 && day <= 31,
-                JulianMonth::August => day >= 1 && day <= 31,
-                JulianMonth::September => day >= 1 && day <= 30,
-                JulianMonth::October => day >= 1 && day <= 31,
-                JulianMonth::November => day >= 1 && day <= 30,
-                JulianMonth::December => day >= 1 && day <= 31,
+    pub fn from_fixed_generic_unchecked<T: Fn(i32) -> bool>(
+        date: i64,
+        epoch: i64,
+        is_leap: &T,
+    ) -> CommonDate {
+        let approx = ((4 * (date - epoch)) + 1464).div_euclid(1461);
+        let year = if approx <= 0 { approx - 1 } else { approx } as i32;
+        let year_start = Julian::to_fixed_generic_unchecked(
+            CommonDate {
+                year,
+                month: JulianMonth::January as u8,
+                day: 1,
             },
-        }
-    }
-}
-
-impl From<Julian> for CommonDate {
-    fn from(date: Julian) -> CommonDate {
-        return date.0;
-    }
-}
-
-impl TryFrom<CommonDate> for Julian {
-    type Error = CalendarError;
-    fn try_from(date: CommonDate) -> Result<Julian, CalendarError> {
-        if Julian::is_valid(date) {
-            Ok(Julian(date))
+            epoch,
+            &is_leap,
+        );
+        let prior_days = date - year_start;
+        let march1 = Julian::to_fixed_generic_unchecked(
+            CommonDate {
+                year,
+                month: JulianMonth::March as u8,
+                day: 1,
+            },
+            epoch,
+            &is_leap,
+        );
+        let correction = if date < march1 {
+            0
+        } else if is_leap(year) {
+            1
         } else {
-            Err(CalendarError::OutOfBounds)
-        }
+            2
+        };
+        let month = (12 * (prior_days + correction) + 373).div_euclid(367) as u8;
+        let month_start = Julian::to_fixed_generic_unchecked(
+            CommonDate {
+                year,
+                month,
+                day: 1,
+            },
+            epoch,
+            &is_leap,
+        );
+        let day = ((date - month_start) as u8) + 1;
+        debug_assert!(day > 0);
+        CommonDate { year, month, day }
     }
-}
 
-impl From<Julian> for FixedDate {
-    fn from(date: Julian) -> FixedDate {
-        let year = date.0.get_year();
-        let month = date.0.get_month() as i64;
-        let day = date.0.get_day() as i64;
+    pub fn to_fixed_generic_unchecked<T: Fn(i32) -> bool>(
+        date: CommonDate,
+        epoch: i64,
+        is_leap: &T,
+    ) -> i64 {
+        let year = date.year;
+        let month = date.month as i64;
+        let day = date.day as i64;
 
         let y = if year < 0 { year + 1 } else { year } as i64;
 
-        let offset_e = Julian::epoch() - FixedDate::from(1 as i32);
+        let offset_e = epoch - 1;
         let offset_y = 365 * (y - 1);
         let offset_leap = (y - 1).div_euclid(4);
         let offset_m = ((367 * month) - 362).div_euclid(12);
         let offset_x = if month <= 2 {
             0
-        } else if Julian::is_leap(year) {
+        } else if is_leap(year) {
             -1
         } else {
             -2
         };
         let offset_d = day;
-        let result = offset_e + offset_y + offset_leap + offset_m + offset_x + offset_d;
-        FixedDate::try_from(result as i64).expect("CommonDate enforces year limits")
+        offset_e + offset_y + offset_leap + offset_m + offset_x + offset_d
+    }
+
+    pub fn new_year(g_year: NonZero<i16>) -> Fixed {
+        Julian(CommonDate {
+            year: g_year.get() as i32,
+            month: JulianMonth::January as u8,
+            day: 1,
+        })
+        .to_fixed()
+    }
+
+    pub fn year_end(g_year: NonZero<i16>) -> Fixed {
+        Julian(CommonDate {
+            year: g_year.get() as i32,
+            month: JulianMonth::December as u8,
+            day: 31,
+        })
+        .to_fixed()
     }
 }
 
-impl TryFrom<FixedDate> for Julian {
-    type Error = CalendarError;
-    fn try_from(date: FixedDate) -> Result<Julian, Self::Error> {
-        let e_diff = date - Julian::epoch();
-        let approx = ((4 * e_diff) + 1464).div_euclid(1461);
-        let year = if approx <= 0 { approx - 1 } else { approx } as i32;
-        let year_start = FixedDate::from(Julian(CommonDate::try_new(
-            year,
-            JulianMonth::January as u8,
-            1,
-        )?));
-        let prior_days = date - year_start;
-        let march1 = FixedDate::from(Julian(CommonDate::try_new(
-            year,
-            JulianMonth::March as u8,
-            1,
-        )?));
-        let correction = if date < march1 {
-            0
-        } else if Julian::is_leap(year) {
-            1
+impl CalculatedBounds for Julian {}
+
+impl Epoch for Julian {
+    fn epoch() -> Fixed {
+        RataDie::new(JULIAN_EPOCH_RD).to_fixed()
+    }
+}
+
+impl FromFixed for Julian {
+    fn from_fixed(date: Fixed) -> Julian {
+        let result = Julian::from_fixed_generic_unchecked(
+            date.get_day_i(),
+            Julian::epoch().get_day_i(),
+            &Julian::is_leap,
+        );
+        Julian(result)
+    }
+}
+
+impl ToFixed for Julian {
+    fn to_fixed(self) -> Fixed {
+        let result = Julian::to_fixed_generic_unchecked(
+            self.0,
+            Julian::epoch().get_day_i(),
+            &Julian::is_leap,
+        );
+        Fixed::cast_new(result).expect("TODO: verify")
+    }
+}
+
+impl ToCommonDate for Julian {
+    fn to_common_date(self) -> CommonDate {
+        self.0
+    }
+}
+
+impl TryFromCommonDate for Julian {
+    fn try_from_common_date(date: CommonDate) -> Result<Self, CalendarError> {
+        let month_opt = JulianMonth::from_u8(date.month);
+        if month_opt.is_none() {
+            Err(CalendarError::InvalidMonth)
+        } else if date.day < 1 {
+            Err(CalendarError::InvalidDay)
+        } else if date.day > month_opt.unwrap().length(Julian::is_leap(date.year)) {
+            Err(CalendarError::InvalidDay)
         } else {
-            2
-        };
-        let month = (12 * (prior_days + correction) + 373).div_euclid(367);
-        let m_diff = date - FixedDate::from(Julian(CommonDate::try_new(year, month as u8, 1)?));
-        let day = m_diff + 1;
-        Ok(Julian(CommonDate::try_new(
-            year as i32,
-            month as u8,
-            day as u8,
-        )?))
+            let e = Julian(date);
+            if e < Julian::effective_min() || e > Julian::effective_max() {
+                Err(CalendarError::OutOfBounds)
+            } else {
+                Ok(e)
+            }
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::calendar::common::MAX_YEARS;
     use crate::calendar::gregorian::Gregorian;
+    use crate::common::math::EFFECTIVE_MAX;
     use proptest::prop_assume;
     use proptest::proptest;
+    const MAX_YEARS: i32 = (EFFECTIVE_MAX / 365.25) as i32;
 
     #[test]
     fn julian_gregorian_conversion() {
@@ -206,8 +235,8 @@ mod tests {
             (CommonDate::new(1753, 2, 17), CommonDate::new(1753, 3, 1)), //Sweden
             (CommonDate::new(1912, 11, 14), CommonDate::new(1912, 11, 28)), //Albania
             (CommonDate::new(1916, 3, 31), CommonDate::new(1916, 4, 14)), //Bulgaria
-            (CommonDate::new(1918, 1, 31), CommonDate::new(1918, 2, 14)), //Soviet Union
-            (CommonDate::new(1918, 2, 15), CommonDate::new(1918, 3, 1)), //Estonia, Ukraine
+            (CommonDate::new(1918, 1, 31), CommonDate::new(1918, 2, 14)), //Soviet Union (Russia, etc.)
+            (CommonDate::new(1918, 2, 15), CommonDate::new(1918, 3, 1)),  //Estonia, Ukraine
             (CommonDate::new(1918, 4, 17), CommonDate::new(1918, 5, 1)), //"Transcaucasian Democratic Federative Republic"
             (CommonDate::new(1919, 1, 14), CommonDate::new(1919, 1, 28)), //Yugoslavia
             (CommonDate::new(1919, 3, 31), CommonDate::new(1919, 4, 14)), //Romania
@@ -215,19 +244,19 @@ mod tests {
         ];
 
         for pair in gap_list {
-            let dj = FixedDate::from(Julian::try_from(pair.0).unwrap());
-            let dg = FixedDate::from(Gregorian::try_from(pair.1).unwrap());
-            assert_eq!(i64::from(dj) + 1, i64::from(dg));
+            let dj = Julian::try_from_common_date(pair.0).unwrap().to_fixed();
+            let dg = Gregorian::try_from_common_date(pair.1).unwrap().to_fixed();
+            assert_eq!(dj.get_day_i() + 1, dg.get_day_i());
         }
     }
 
     proptest! {
         #[test]
         fn julian_roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..28) {
-            let d = CommonDate::try_new(year, month as u8, day as u8).unwrap();
-            let e0 = Julian::try_from(d).unwrap();
-            let t = FixedDate::from(e0);
-            let e1 = Julian::try_from(t).unwrap();
+            let d = CommonDate::new(year, month as u8, day as u8);
+            let e0 = Julian::try_from_common_date(d).unwrap();
+            let t = e0.to_fixed();
+            let e1 = Julian::from_fixed(t);
             assert_eq!(e0, e1);
         }
 
@@ -237,7 +266,7 @@ mod tests {
             let new_years_eve = Julian::year_end(NonZero::new(year).unwrap());
             let next_year = if year == -1 { 1 } else { year + 1 };
             let new_years_day = Julian::new_year(NonZero::new(next_year).unwrap());
-            assert_eq!(i64::from(new_years_day), i64::from(new_years_eve) + 1);
+            assert_eq!(new_years_day.get_day_i(), new_years_eve.get_day_i() + 1);
         }
     }
 }

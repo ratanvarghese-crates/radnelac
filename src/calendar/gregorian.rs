@@ -1,15 +1,26 @@
-use crate::calendar::common::CommonDate;
-use crate::calendar::common::CommonDayOfWeek;
-use crate::calendar::common::ValidCommonDate;
-use crate::epoch::fixed::Epoch;
-use crate::epoch::fixed::FixedDate;
-use crate::epoch::fixed::FixedMoment;
-use crate::epoch::rd::RataDie;
-use crate::error::CalendarError;
-use crate::math::TermNum;
+use crate::common::bound::BoundedDayCount;
+use crate::common::bound::EffectiveBound;
+use crate::common::date::CommonDate;
+use crate::common::date::OrdinalDate;
+use crate::common::date::ToCommonDate;
+use crate::common::date::TryFromCommonDate;
+use crate::common::error::CalendarError;
+use crate::common::math::TermNum;
+use crate::day_count::fixed::CalculatedBounds;
+use crate::day_count::fixed::Epoch;
+use crate::day_count::fixed::Fixed;
+use crate::day_count::fixed::FromFixed;
+use crate::day_count::fixed::ToFixed;
+use crate::day_count::rd::RataDie;
+use crate::day_cycle::week::Weekday;
 use std::num::NonZero;
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+#[allow(unused_imports)] //FromPrimitive is needed for derive
+use num_traits::FromPrimitive;
+
+const GREGORIAN_EPOCH_RD: i32 = 1;
+
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
 pub enum GregorianMonth {
     January = 1,
     February,
@@ -25,23 +36,27 @@ pub enum GregorianMonth {
     December,
 }
 
-impl TryFrom<u8> for GregorianMonth {
-    type Error = CalendarError;
-    fn try_from(m: u8) -> Result<GregorianMonth, CalendarError> {
-        match m {
-            1 => Ok(GregorianMonth::January),
-            2 => Ok(GregorianMonth::February),
-            3 => Ok(GregorianMonth::March),
-            4 => Ok(GregorianMonth::April),
-            5 => Ok(GregorianMonth::May),
-            6 => Ok(GregorianMonth::June),
-            7 => Ok(GregorianMonth::July),
-            8 => Ok(GregorianMonth::August),
-            9 => Ok(GregorianMonth::September),
-            10 => Ok(GregorianMonth::October),
-            11 => Ok(GregorianMonth::November),
-            12 => Ok(GregorianMonth::December),
-            _ => Err(CalendarError::OutOfBounds),
+impl GregorianMonth {
+    pub fn length(self, leap: bool) -> u8 {
+        match self {
+            GregorianMonth::January => 31,
+            GregorianMonth::February => {
+                if leap {
+                    29
+                } else {
+                    28
+                }
+            }
+            GregorianMonth::March => 31,
+            GregorianMonth::April => 30,
+            GregorianMonth::May => 31,
+            GregorianMonth::June => 30,
+            GregorianMonth::July => 31,
+            GregorianMonth::August => 31,
+            GregorianMonth::September => 30,
+            GregorianMonth::October => 31,
+            GregorianMonth::November => 30,
+            GregorianMonth::December => 31,
         }
     }
 }
@@ -50,52 +65,26 @@ impl TryFrom<u8> for GregorianMonth {
 pub struct Gregorian(CommonDate);
 
 impl Gregorian {
-    pub fn get_month(self) -> GregorianMonth {
-        GregorianMonth::try_from(self.0.get_month()).expect("Won't allow setting invalid field")
+    pub fn year(self) -> i32 {
+        self.0.year
     }
 
-    //Arguments swapped from the original
-    pub fn nth_kday(
-        self,
-        nz: NonZero<i16>,
-        k: CommonDayOfWeek,
-    ) -> Result<FixedDate, CalendarError> {
-        let n = nz.get();
-        if n > 0 {
-            Ok(FixedDate::try_from(
-                k.before(FixedDate::from(self))? + (7 * n as i64),
-            )?)
-        } else {
-            Ok(FixedDate::try_from(
-                k.after(FixedDate::from(self))? + (7 * n as i64),
-            )?)
-        }
+    pub fn month(self) -> GregorianMonth {
+        GregorianMonth::from_u8(self.0.month).expect("Will not allow setting invalid value.")
     }
 
-    fn is_leap(g_year: i32) -> bool {
+    pub fn day(self) -> u8 {
+        self.0.day
+    }
+
+    pub fn is_leap(g_year: i32) -> bool {
         let m4 = g_year.modulus(4);
         let m400 = g_year.modulus(400);
         m4 == 0 && m400 != 100 && m400 != 200 && m400 != 300
     }
 
-    pub fn new_year(g_year: i16) -> FixedDate {
-        FixedDate::from(Gregorian(CommonDate::new(
-            g_year,
-            GregorianMonth::January as u8,
-            1,
-        )))
-    }
-
-    pub fn year_end(g_year: i16) -> FixedDate {
-        FixedDate::from(Gregorian(CommonDate::new(
-            g_year,
-            GregorianMonth::December as u8,
-            31,
-        )))
-    }
-
-    pub fn year_and_ord_day_from_fixed(date: FixedDate) -> (i32, u16) {
-        let d0 = date - Gregorian::epoch();
+    pub fn ordinal_from_fixed_generic_unchecked(date: i64, epoch: i64) -> OrdinalDate {
+        let d0 = date - epoch;
         let n400 = d0.div_euclid((400 * 365) + 100 - 3);
         let d1 = d0.modulus((400 * 365) + 100 - 3);
         let n100 = d1.div_euclid((365 * 100) + 25 - 1);
@@ -105,103 +94,35 @@ impl Gregorian {
         let n1 = d3.div_euclid(365);
         let year = (400 * n400) + (100 * n100) + (4 * n4) + n1;
         if n100 == 4 || n1 == 4 {
-            (year as i32, 366)
+            OrdinalDate {
+                year: year as i32,
+                day_of_year: 366,
+            }
         } else {
-            ((year + 1) as i32, (d3.modulus(365) + 1) as u16)
+            OrdinalDate {
+                year: (year + 1) as i32,
+                day_of_year: (d3.modulus(365) + 1) as u16,
+            }
         }
     }
-}
 
-impl Epoch for Gregorian {
-    fn epoch() -> FixedDate {
-        FixedDate::from(FixedMoment::from(RataDie::from(1)))
-    }
-}
-
-impl ValidCommonDate for Gregorian {
-    fn is_valid(date: CommonDate) -> bool {
-        let month = date.get_month();
-        let day = date.get_day();
-        let year = date.get_year();
-        match GregorianMonth::try_from(month) {
-            Err(_) => false,
-            Ok(month) => match month {
-                GregorianMonth::January => day >= 1 && day <= 31,
-                GregorianMonth::February => {
-                    if Gregorian::is_leap(year) {
-                        day >= 1 && day <= 29
-                    } else {
-                        day >= 1 && day <= 28
-                    }
-                }
-                GregorianMonth::March => day >= 1 && day <= 31,
-                GregorianMonth::April => day >= 1 && day <= 30,
-                GregorianMonth::May => day >= 1 && day <= 31,
-                GregorianMonth::June => day >= 1 && day <= 30,
-                GregorianMonth::July => day >= 1 && day <= 31,
-                GregorianMonth::August => day >= 1 && day <= 31,
-                GregorianMonth::September => day >= 1 && day <= 30,
-                GregorianMonth::October => day >= 1 && day <= 31,
-                GregorianMonth::November => day >= 1 && day <= 30,
-                GregorianMonth::December => day >= 1 && day <= 31,
+    pub fn from_fixed_generic_unchecked<T: Fn(i32) -> bool>(
+        date: i64,
+        epoch: i64,
+        is_leap: &T,
+    ) -> CommonDate {
+        let ord = Gregorian::ordinal_from_fixed_generic_unchecked(date, epoch);
+        let year = ord.year;
+        let prior_days: i32 = (ord.day_of_year as i32) - 1; //Modification
+        let march1 = Gregorian::to_fixed_generic_unchecked(
+            CommonDate {
+                year,
+                month: GregorianMonth::March as u8,
+                day: 1,
             },
-        }
-    }
-}
-
-impl From<Gregorian> for CommonDate {
-    fn from(date: Gregorian) -> CommonDate {
-        return date.0;
-    }
-}
-
-impl TryFrom<CommonDate> for Gregorian {
-    type Error = CalendarError;
-    fn try_from(date: CommonDate) -> Result<Gregorian, CalendarError> {
-        if Gregorian::is_valid(date) {
-            Ok(Gregorian(date))
-        } else {
-            Err(CalendarError::OutOfBounds)
-        }
-    }
-}
-
-impl From<Gregorian> for FixedDate {
-    fn from(date: Gregorian) -> FixedDate {
-        let year = date.0.get_year() as i64;
-        let month = date.0.get_month() as i64;
-        let day = date.0.get_day() as i64;
-
-        let offset_e = Gregorian::epoch() - FixedDate::from(1 as i32);
-        let offset_y = 365 * (year - 1);
-        let offset_leap =
-            (year - 1).div_euclid(4) - (year - 1).div_euclid(100) + (year - 1).div_euclid(400);
-        let offset_m = ((367 * month) - 362).div_euclid(12);
-        let offset_x = if month <= 2 {
-            0
-        } else if Gregorian::is_leap(year as i32) {
-            -1
-        } else {
-            -2
-        };
-        let offset_d = day;
-
-        let result = offset_e + offset_y + offset_leap + offset_m + offset_x + offset_d;
-        FixedDate::try_from(result as i64).expect("CommonDate enforces year limits")
-    }
-}
-
-impl TryFrom<FixedDate> for Gregorian {
-    type Error = CalendarError;
-    fn try_from(date: FixedDate) -> Result<Gregorian, Self::Error> {
-        let (year, ord_day) = Gregorian::year_and_ord_day_from_fixed(date);
-
-        let prior_days: i32 = (ord_day as i32) - 1; //Modification
-        let march1 = FixedDate::from(Gregorian(CommonDate::try_new(
-            year,
-            GregorianMonth::March as u8,
-            1,
-        )?));
+            epoch,
+            &is_leap,
+        );
         let correction: i32 = if date < march1 {
             0
         } else if Gregorian::is_leap(year) {
@@ -209,44 +130,173 @@ impl TryFrom<FixedDate> for Gregorian {
         } else {
             2
         };
-        let month = (12 * (prior_days + correction) + 373).div_euclid(367);
-        let day = date - FixedDate::from(Gregorian(CommonDate::try_new(year, month as u8, 1)?)) + 1;
-        Ok(Gregorian(CommonDate::try_new(
-            year as i32,
-            month as u8,
-            day as u8,
-        )?))
+        let month = (12 * (prior_days + correction) + 373).div_euclid(367) as u8;
+        let month_start = Gregorian::to_fixed_generic_unchecked(
+            CommonDate {
+                year,
+                month,
+                day: 1,
+            },
+            epoch,
+            &is_leap,
+        );
+        let day = ((date - month_start) as u8) + 1;
+        debug_assert!(day > 0);
+        CommonDate { year, month, day }
+    }
+
+    pub fn to_fixed_generic_unchecked<T: Fn(i32) -> bool>(
+        date: CommonDate,
+        epoch: i64,
+        is_leap: &T,
+    ) -> i64 {
+        let year = date.year as i64;
+        let month = date.month as i64;
+        let day = date.day as i64;
+
+        let offset_e = epoch - 1;
+        let offset_y = 365 * (year - 1);
+        let offset_leap =
+            (year - 1).div_euclid(4) - (year - 1).div_euclid(100) + (year - 1).div_euclid(400);
+        let offset_m = ((367 * month) - 362).div_euclid(12);
+        let offset_x = if month <= 2 {
+            0
+        } else if is_leap(date.year) {
+            -1
+        } else {
+            -2
+        };
+        let offset_d = day;
+
+        offset_e + offset_y + offset_leap + offset_m + offset_x + offset_d
+    }
+
+    pub fn new_year(g_year: i16) -> Fixed {
+        Gregorian(CommonDate {
+            year: g_year as i32,
+            month: GregorianMonth::January as u8,
+            day: 1,
+        })
+        .to_fixed()
+    }
+
+    pub fn year_end(g_year: i16) -> Fixed {
+        Gregorian(CommonDate {
+            year: g_year as i32,
+            month: GregorianMonth::December as u8,
+            day: 31,
+        })
+        .to_fixed()
+    }
+
+    //Arguments swapped from the original
+    pub fn nth_kday(self, nz: NonZero<i16>, k: Weekday) -> Result<Fixed, CalendarError> {
+        let n = nz.get();
+        if n > 0 {
+            Ok(k.before(self.to_fixed())?.checked_add(7 * n as i64)?)
+        } else {
+            Ok(k.after(self.to_fixed())?.checked_add(7 * n as i64)?)
+        }
+    }
+}
+
+impl CalculatedBounds for Gregorian {}
+
+impl Epoch for Gregorian {
+    fn epoch() -> Fixed {
+        RataDie::new(GREGORIAN_EPOCH_RD).to_fixed()
+    }
+}
+
+impl FromFixed for Gregorian {
+    fn from_fixed(date: Fixed) -> Gregorian {
+        let result = Gregorian::from_fixed_generic_unchecked(
+            date.get_day_i(),
+            Gregorian::epoch().get_day_i(),
+            &Gregorian::is_leap,
+        );
+        Gregorian(result)
+    }
+}
+
+impl ToFixed for Gregorian {
+    fn to_fixed(self) -> Fixed {
+        let result = Gregorian::to_fixed_generic_unchecked(
+            self.0,
+            Gregorian::epoch().get_day_i(),
+            &Gregorian::is_leap,
+        );
+        Fixed::cast_new(result).expect("TODO: verify")
+    }
+}
+
+impl ToCommonDate for Gregorian {
+    fn to_common_date(self) -> CommonDate {
+        self.0
+    }
+}
+
+impl TryFromCommonDate for Gregorian {
+    fn try_from_common_date(date: CommonDate) -> Result<Self, CalendarError> {
+        let month_opt = GregorianMonth::from_u8(date.month);
+        if month_opt.is_none() {
+            Err(CalendarError::InvalidMonth)
+        } else if date.day < 1 {
+            Err(CalendarError::InvalidDay)
+        } else if date.day > month_opt.unwrap().length(Gregorian::is_leap(date.year)) {
+            Err(CalendarError::InvalidDay)
+        } else {
+            let e = Gregorian(date);
+            if e < Gregorian::effective_min() || e > Gregorian::effective_max() {
+                Err(CalendarError::OutOfBounds)
+            } else {
+                Ok(e)
+            }
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::calendar::common::MAX_YEARS;
+    use crate::common::math::EFFECTIVE_MAX;
+    use crate::day_cycle::week::Weekday;
     use proptest::proptest;
+    use std::num::NonZero;
+    const MAX_YEARS: i32 = (EFFECTIVE_MAX / 365.25) as i32;
 
     #[test]
     fn us_canada_labor_day() {
-        let lbd = Gregorian::try_from(CommonDate::new(2024, 9, 2)).unwrap();
-        let start = Gregorian::try_from(CommonDate::new(2024, 9, 1)).unwrap();
+        let lbd = Gregorian::try_from_common_date(CommonDate {
+            year: 2024,
+            month: 9,
+            day: 2,
+        })
+        .unwrap();
+        let start = Gregorian::try_from_common_date(CommonDate {
+            year: 2024,
+            month: 9,
+            day: 1,
+        })
+        .unwrap();
         let finish = start
-            .nth_kday(NonZero::new(1).unwrap(), CommonDayOfWeek::Monday)
+            .nth_kday(NonZero::new(1).unwrap(), Weekday::Monday)
             .unwrap();
-        assert_eq!(lbd, Gregorian::try_from(finish).unwrap());
+        assert_eq!(lbd, Gregorian::from_fixed(finish));
     }
 
     #[test]
     fn us_memorial_day() {
-        let mmd = Gregorian::try_from(CommonDate::new(2024, 5, 27)).unwrap();
-        let start = Gregorian::try_from(CommonDate::new(2024, 6, 1)).unwrap();
+        let mmd = Gregorian::try_from_common_date(CommonDate::new(2024, 5, 27)).unwrap();
+        let start = Gregorian::try_from_common_date(CommonDate::new(2024, 6, 1)).unwrap();
         let finish = start
-            .nth_kday(NonZero::new(-1).unwrap(), CommonDayOfWeek::Monday)
+            .nth_kday(NonZero::new(-1).unwrap(), Weekday::Monday)
             .unwrap();
-        assert_eq!(mmd, Gregorian::try_from(finish).unwrap());
+        assert_eq!(mmd, Gregorian::from_fixed(finish));
     }
 
     #[test]
-    fn gregorian_notable_days() {
+    fn notable_days() {
         let dlist = [
             //Calendrical Calculations Table 1.2
             (CommonDate::new(-4713, 11, 24), -1721425), //Julian Day epoch
@@ -283,26 +333,26 @@ mod tests {
         ];
 
         for pair in dlist {
-            let d = FixedDate::from(Gregorian::try_from(pair.0).unwrap());
-            assert_eq!(i64::from(d), pair.1);
+            let d = Gregorian::try_from_common_date(pair.0).unwrap().to_fixed();
+            assert_eq!(d.get_day_i(), pair.1);
         }
     }
 
     proptest! {
         #[test]
-        fn gregorian_roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..28) {
-            let d = CommonDate::try_new(year, month as u8, day as u8).unwrap();
-            let e0 = Gregorian::try_from(d).unwrap();
-            let t = FixedDate::from(e0);
-            let e1 = Gregorian::try_from(t).unwrap();
+        fn roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..28) {
+            let d = CommonDate{ year, month: month as u8, day: day as u8 };
+            let e0 = Gregorian::try_from_common_date(d).unwrap();
+            let t = e0.to_fixed();
+            let e1 = Gregorian::from_fixed(t);
             assert_eq!(e0, e1);
         }
 
         #[test]
-        fn gregorian_year_ends(year in i16::MIN..i16::MAX) {
+        fn year_ends(year in i16::MIN..i16::MAX) {
             let new_years_eve = Gregorian::year_end(year);
             let new_years_day = Gregorian::new_year(year + 1);
-            assert_eq!(i64::from(new_years_day), i64::from(new_years_eve) + 1);
+            assert_eq!(new_years_day.get_day_i(), new_years_eve.get_day_i() + 1);
         }
     }
 }

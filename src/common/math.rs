@@ -1,4 +1,4 @@
-use crate::error::CalendarError;
+use crate::common::error::CalendarError;
 use num_traits::AsPrimitive;
 use num_traits::Bounded;
 use num_traits::Euclid;
@@ -44,6 +44,7 @@ pub trait TermNum:
     + FromPrimitive
     + AsPrimitive<f64>
     + AsPrimitive<i64>
+    + AsPrimitive<Self>
     + Euclid
     + Bounded
     + Copy
@@ -60,8 +61,8 @@ pub trait TermNum:
         self
     }
 
-    fn is_weird(self) -> bool {
-        false
+    fn is_a_number(self) -> bool {
+        true
     }
 
     fn modulus(self, other: Self) -> Self {
@@ -107,10 +108,8 @@ pub trait TermNum:
         (x * y) / x.gcd(y)
     }
 
-    fn interval_modulus(self, other: Self, another: Self) -> Self {
+    fn interval_modulus(self, a: Self, b: Self) -> Self {
         let x = self;
-        let a = other;
-        let b = another;
         if a == b {
             x
         } else {
@@ -118,9 +117,8 @@ pub trait TermNum:
         }
     }
 
-    fn adjusted_remainder(self, other: Self) -> Self {
+    fn adjusted_remainder(self, b: Self) -> Self {
         let x = self;
-        let b = other;
         let m = x.modulus(b);
         if m == Self::zero() {
             b
@@ -196,21 +194,21 @@ pub trait TermNum:
                 let q0 = Self::from_f64((x / p0).approx_floor() as f64);
                 match q0 {
                     Some(q) => a[i] = q,
-                    None => return Err(CalendarError::OutOfBounds),
+                    None => return Err(CalendarError::ImpossibleResult),
                 }
             } else if i > 0 && i < k {
                 let p1: f64 = TermNum::product(|j| b[j], |j| j < k, i).as_();
                 let q1 = Self::from_f64((x / p1).approx_floor() as f64);
                 match q1 {
                     Some(q) => a[i] = q.modulus(b[i - 1]),
-                    None => return Err(CalendarError::OutOfBounds),
+                    None => return Err(CalendarError::ImpossibleResult),
                 }
             } else if i >= k && i < n {
                 let p2: f64 = TermNum::product(|j| b[j], |j| j < i, k).as_();
                 let q2 = Self::from_f64((x * p2).approx_floor() as f64);
                 match q2 {
                     Some(q) => a[i] = q.modulus(b[i - 1]),
-                    None => return Err(CalendarError::OutOfBounds),
+                    None => return Err(CalendarError::ImpossibleResult),
                 }
             } else {
                 let p3: f64 = TermNum::product(|j| b[j], |j| j < n, k).as_();
@@ -221,12 +219,12 @@ pub trait TermNum:
                 } else if m.fract().approx_eq(1.0) {
                     a[i] = match Self::from_f64(m.ceil()) {
                         Some(m3) => m3,
-                        None => return Err(CalendarError::OutOfBounds),
+                        None => return Err(CalendarError::ImpossibleResult),
                     };
                 } else {
                     a[i] = match Self::from_f64(m) {
                         Some(m3) => m3,
-                        None => return Err(CalendarError::OutOfBounds),
+                        None => return Err(CalendarError::ImpossibleResult),
                     };
                 }
             }
@@ -279,8 +277,8 @@ impl TermNum for f64 {
         }
     }
 
-    fn is_weird(self) -> bool {
-        !self.is_finite()
+    fn is_a_number(self) -> bool {
+        !self.is_nan()
     }
 }
 
@@ -301,8 +299,8 @@ impl TermNum for f32 {
         (self as f64).modulus(other as f64) as f32
     }
 
-    fn is_weird(self) -> bool {
-        (self as f64).is_weird()
+    fn is_a_number(self) -> bool {
+        !self.is_nan()
     }
 }
 
@@ -326,6 +324,33 @@ pub trait CalendricIndex: NumAssign + Copy {
 
 impl CalendricIndex for f64 {}
 impl CalendricIndex for usize {}
+
+pub trait TermNum64: TermNum {}
+
+impl TermNum64 for f64 {}
+impl TermNum64 for i64 {}
+
+pub trait SmallNum:
+    NumAssign
+    + ToPrimitive
+    + FromPrimitive
+    + AsPrimitive<f64>
+    + AsPrimitive<i64>
+    + Copy
+    + Bounded
+    + PartialOrd
+{
+    fn to_term_num_64<T: TermNum64>(self) -> T {
+        T::from_i64(self.as_()).expect("Within range")
+    }
+}
+
+impl SmallNum for i32 {}
+impl SmallNum for i16 {}
+impl SmallNum for i8 {}
+impl SmallNum for u32 {}
+impl SmallNum for u16 {}
+impl SmallNum for u8 {}
 
 // TODO: binary search (listing 1.35)
 // TODO: inverse f (listing 1.36)

@@ -1,67 +1,70 @@
-use crate::calendar::common::CommonDate;
-use crate::calendar::common::CommonDayOfWeek;
 use crate::calendar::gregorian::Gregorian;
-use crate::epoch::fixed::Fixed;
-use crate::epoch::fixed::FixedDate;
-use crate::error::CalendarError;
-use crate::math::TermNum;
+use crate::common::bound::BoundedDayCount;
+use crate::common::date::CommonDate;
+use crate::common::date::TryFromCommonDate;
+use crate::common::error::CalendarError;
+use crate::common::math::TermNum;
+use crate::day_count::fixed::Epoch;
+use crate::day_count::fixed::Fixed;
+use crate::day_count::fixed::FromFixed;
+use crate::day_count::fixed::ToFixed;
+use crate::day_cycle::week::Weekday;
+use num_traits::FromPrimitive;
 use std::num::NonZero;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct ISO {
     year: i32,
     week: NonZero<u8>,
-    day: CommonDayOfWeek,
+    day: Weekday,
 }
 
 impl ISO {
-    fn get_year(self) -> i32 {
+    pub fn year(self) -> i32 {
         self.year
     }
 
-    fn get_week(self) -> NonZero<u8> {
+    pub fn week(self) -> NonZero<u8> {
         self.week
     }
 
-    fn get_day(self) -> CommonDayOfWeek {
+    pub fn day(self) -> Weekday {
         self.day
     }
 
-    fn is_long_year(i_year: i16) -> bool {
-        let jan1 = CommonDayOfWeek::from(Gregorian::new_year(i_year));
-        let dec31 = CommonDayOfWeek::from(Gregorian::year_end(i_year));
-        jan1 == CommonDayOfWeek::Thursday || dec31 == CommonDayOfWeek::Thursday
+    pub fn is_long_year(i_year: i16) -> bool {
+        let jan1 = Weekday::from_fixed(Gregorian::new_year(i_year));
+        let dec31 = Weekday::from_fixed(Gregorian::year_end(i_year));
+        jan1 == Weekday::Thursday || dec31 == Weekday::Thursday
     }
 
-    fn new_year(year: i32) -> Self {
+    pub fn new_year(year: i32) -> Self {
         ISO {
             year: year,
             week: NonZero::new(1).unwrap(),
-            day: CommonDayOfWeek::Monday,
+            day: Weekday::Monday,
         }
     }
-}
 
-impl TryFrom<ISO> for FixedDate {
-    type Error = CalendarError;
-    fn try_from(date: ISO) -> Result<FixedDate, Self::Error> {
-        let g = Gregorian::try_from(CommonDate::try_new(date.year - 1, 12, 28)?)?;
-        let w = NonZero::new(date.week.get() as i16).expect("TODO");
-        FixedDate::try_from(g.nth_kday(w, CommonDayOfWeek::Sunday)? + (date.day as i64))
+    pub fn try_to_fixed(self) -> Result<Fixed, CalendarError> {
+        let g = Gregorian::try_from_common_date(CommonDate::new(self.year - 1, 12, 28))?;
+        let w = NonZero::<i16>::from(self.week);
+        g.nth_kday(w, Weekday::Sunday)?.checked_add(self.day as i64)
     }
-}
 
-impl TryFrom<FixedDate> for ISO {
-    type Error = CalendarError;
-    fn try_from(date: FixedDate) -> Result<ISO, Self::Error> {
-        let approx =
-            Gregorian::year_and_ord_day_from_fixed(FixedDate::try_from(i64::from(date) - 3)?);
-        let next = Fixed::try_from(ISO::new_year(approx.0 + 1))?;
-        let year = if date >= next { approx.0 + 1 } else { approx.0 };
-        let current = Fixed::try_from(ISO::new_year(year))?;
-        let week = (date - current).div_euclid(7) + 1;
+    pub fn try_from_fixed(date: Fixed) -> Result<Self, CalendarError> {
+        let approx = Gregorian::ordinal_from_fixed_generic_unchecked(
+            date.get_day_i() - 3,
+            Gregorian::epoch().get_day_i(),
+        )
+        .year;
+        let next = ISO::new_year(approx + 1).try_to_fixed()?;
+        let year = if date >= next { approx + 1 } else { approx };
+        let current = ISO::new_year(year).try_to_fixed()?;
+        let week = (date.get_day_i() - current.get_day_i()).div_euclid(7) + 1;
         debug_assert!(week < 55 && week > 0);
-        let day = CommonDayOfWeek::from(i64::from(date).adjusted_remainder(7));
+        let day = Weekday::from_u8(date.get_day_i().adjusted_remainder(7) as u8)
+            .expect("In range due to adjusted remainder.");
         Ok(ISO {
             year,
             week: NonZero::new(week as u8).unwrap(),
@@ -73,11 +76,20 @@ impl TryFrom<FixedDate> for ISO {
 #[cfg(test)]
 mod tests {
     use super::*;
+    // use crate::common::bound::EffectiveBound;
 
     #[test]
     fn week_of_impl() {
-        let g = FixedDate::from(Gregorian::try_from(CommonDate::new(2025, 5, 15)).unwrap());
-        let i = ISO::try_from(g).unwrap();
-        assert_eq!(i.get_week().get(), 20);
+        let g = Gregorian::try_from_common_date(CommonDate::new(2025, 5, 15))
+            .unwrap()
+            .to_fixed();
+        let i = ISO::try_from_fixed(g).unwrap();
+        assert_eq!(i.week().get(), 20);
     }
+
+    // #[test]
+    // fn bounds() {
+    //     assert!(ISO::try_from_fixed(Fixed::effective_min()).is_ok());
+    //     assert!(ISO::try_from_fixed(Fixed::effective_max()).is_ok());
+    // }
 }
