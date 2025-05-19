@@ -1,9 +1,7 @@
 use crate::common::bound::BoundedDayCount;
-use crate::common::bound::EffectiveBound;
 use crate::common::date::CommonDate;
 use crate::common::date::OrdinalDate;
-use crate::common::date::ToCommonDate;
-use crate::common::date::TryFromCommonDate;
+use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::fixed::CalculatedBounds;
@@ -239,14 +237,17 @@ impl ToFixed for Gregorian {
     }
 }
 
-impl ToCommonDate for Gregorian {
+impl ToFromCommonDate for Gregorian {
     fn to_common_date(self) -> CommonDate {
         self.0
     }
-}
 
-impl TryFromCommonDate for Gregorian {
-    fn try_from_common_date(date: CommonDate) -> Result<Self, CalendarError> {
+    fn from_common_date_unchecked(date: CommonDate) -> Self {
+        debug_assert!(Self::in_effective_bounds(date) && Self::valid_month_day(date).is_ok());
+        Self(date)
+    }
+
+    fn valid_month_day(date: CommonDate) -> Result<(), CalendarError> {
         let month_opt = GregorianMonth::from_u8(date.month);
         if month_opt.is_none() {
             Err(CalendarError::InvalidMonth)
@@ -255,12 +256,7 @@ impl TryFromCommonDate for Gregorian {
         } else if date.day > month_opt.unwrap().length(Gregorian::is_leap(date.year)) {
             Err(CalendarError::InvalidDay)
         } else {
-            let e = Gregorian(date);
-            if e < Gregorian::effective_min() || e > Gregorian::effective_max() {
-                Err(CalendarError::OutOfBounds)
-            } else {
-                Ok(e)
-            }
+            Ok(())
         }
     }
 }
@@ -379,6 +375,50 @@ mod tests {
             let start_sum_kday = g_start.nth_kday(w, Weekday::Sunday).unwrap().checked_add(146097.0).unwrap();
             let end_kday = g_end.nth_kday(w, Weekday::Sunday).unwrap();
             assert_eq!(start_sum_kday, end_kday);
+        }
+
+        #[test]
+        fn invalid_common(year in -MAX_YEARS..MAX_YEARS, month in 13..u8::MAX, day in 32..u8::MAX) {
+            let d_list = [
+                CommonDate{ year, month, day },
+                CommonDate{ year, month: 1, day},
+                CommonDate{ year, month, day: 1 },
+                CommonDate{ year, month: 1, day: 0},
+                CommonDate{ year, month: 0, day: 1 }
+            ];
+            for d in d_list {
+                assert!(Gregorian::try_from_common_date(d).is_err());
+            }
+        }
+
+        #[test]
+        fn consistent_order(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, t1 in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+            let f0 = Fixed::checked_new(t0).unwrap();
+            let f1 = Fixed::checked_new(t1).unwrap();
+            let d0 = Gregorian::from_fixed(f0);
+            let d1 = Gregorian::from_fixed(f1);
+            let c0 = d0.to_common_date();
+            let c1 = d1.to_common_date();
+            assert_eq!(f0 < f1, (d0 < d1) && (c0 < c1));
+            assert_eq!(f0 <= f1, (d0 <= d1) && (c0 <= c1));
+            assert_eq!(f0 == f1, (d0 == d1) && (c0 == c1));
+            assert_eq!(f0 >= f1, (d0 >= d1) && (c0 >= c1));
+            assert_eq!(f0 > f1, (d0 > d1) && (c0 > c1));
+        }
+
+        #[test]
+        fn consistent_order_small(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, diff in i8::MIN..i8::MAX) {
+            let f0 = Fixed::checked_new(t0).unwrap();
+            let f1 = Fixed::checked_new(t0 + (diff as f64)).unwrap();
+            let d0 = Gregorian::from_fixed(f0);
+            let d1 = Gregorian::from_fixed(f1);
+            let c0 = d0.to_common_date();
+            let c1 = d1.to_common_date();
+            assert_eq!(f0 < f1, (d0 < d1) && (c0 < c1));
+            assert_eq!(f0 <= f1, (d0 <= d1) && (c0 <= c1));
+            assert_eq!(f0 == f1, (d0 == d1) && (c0 == c1));
+            assert_eq!(f0 >= f1, (d0 >= d1) && (c0 >= c1));
+            assert_eq!(f0 > f1, (d0 > d1) && (c0 > c1));
         }
     }
 }

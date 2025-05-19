@@ -2,13 +2,14 @@ use crate::calendar::julian::Julian;
 use crate::calendar::julian::JulianMonth;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
-use crate::common::date::ToCommonDate;
+use crate::common::date::ToFromCommonDate;
 use crate::common::math::TermNum;
 use crate::day_count::fixed::CalculatedBounds;
 use crate::day_count::fixed::Epoch;
 use crate::day_count::fixed::Fixed;
 use crate::day_count::fixed::FromFixed;
 use crate::day_count::fixed::ToFixed;
+use std::cmp::Ordering;
 use std::num::NonZero;
 
 #[allow(unused_imports)] //FromPrimitive is needed for derive
@@ -41,7 +42,7 @@ impl RomanMonth {
     }
 }
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Roman {
     year: i32,
     month: RomanMonth,
@@ -177,6 +178,37 @@ impl Roman {
     }
 }
 
+impl PartialOrd for Roman {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if self == other {
+            Some(Ordering::Equal)
+        } else if self
+            .year
+            .partial_cmp(&other.year)
+            .unwrap_or(Ordering::Equal)
+            != Ordering::Equal
+        {
+            self.year.partial_cmp(&other.year)
+        } else if self
+            .month
+            .partial_cmp(&other.month)
+            .unwrap_or(Ordering::Equal)
+            != Ordering::Equal
+        {
+            self.month.partial_cmp(&other.month)
+        } else if self
+            .event
+            .partial_cmp(&other.event)
+            .unwrap_or(Ordering::Equal)
+            != Ordering::Equal
+        {
+            self.event.partial_cmp(&other.event)
+        } else {
+            other.count.partial_cmp(&self.count) //Intentionally reversed, "count" decreases with time
+        }
+    }
+}
+
 impl CalculatedBounds for Roman {}
 
 impl FromFixed for Roman {
@@ -203,7 +235,7 @@ impl ToFixed for Roman {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::date::TryFromCommonDate;
+    use crate::common::date::ToFromCommonDate;
     use crate::common::math::EFFECTIVE_MAX;
     use crate::common::math::EFFECTIVE_MIN;
     use crate::day_count::rd::RataDie;
@@ -233,6 +265,32 @@ mod tests {
         fn auc_roundtrip(t in i16::MIN..i16::MAX) {
             prop_assume!(t != 0);
             assert_eq!(t as i32, Roman::julian_year_from_auc(Roman::auc_year_from_julian(NonZero::new(t as i32).unwrap())).get());
+        }
+
+        #[test]
+        fn consistent_order(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, t1 in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+            let f0 = Fixed::checked_new(t0).unwrap();
+            let f1 = Fixed::checked_new(t1).unwrap();
+            let d0 = Roman::from_fixed(f0);
+            let d1 = Roman::from_fixed(f1);
+            assert_eq!(f0 < f1, d0 < d1);
+            assert_eq!(f0 <= f1, d0 <= d1);
+            assert_eq!(f0 == f1, d0 == d1);
+            assert_eq!(f0 >= f1, d0 >= d1);
+            assert_eq!(f0 > f1, d0 > d1);
+        }
+
+        #[test]
+        fn consistent_order_small(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, diff in i8::MIN..i8::MAX) {
+            let f0 = Fixed::checked_new(t0).unwrap();
+            let f1 = Fixed::checked_new(t0 + (diff as f64)).unwrap();
+            let d0 = Roman::from_fixed(f0);
+            let d1 = Roman::from_fixed(f1);
+            assert_eq!(f0 < f1, d0 < d1);
+            assert_eq!(f0 <= f1, d0 <= d1);
+            assert_eq!(f0 == f1, d0 == d1);
+            assert_eq!(f0 >= f1, d0 >= d1);
+            assert_eq!(f0 > f1, d0 > d1);
         }
     }
 }

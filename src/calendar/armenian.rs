@@ -1,9 +1,7 @@
 use crate::calendar::egyptian::Egyptian;
 use crate::common::bound::BoundedDayCount;
-use crate::common::bound::EffectiveBound;
 use crate::common::date::CommonDate;
-use crate::common::date::ToCommonDate;
-use crate::common::date::TryFromCommonDate;
+use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::day_count::fixed::CalculatedBounds;
 use crate::day_count::fixed::Epoch;
@@ -78,28 +76,18 @@ impl ToFixed for Armenian {
     }
 }
 
-impl ToCommonDate for Armenian {
+impl ToFromCommonDate for Armenian {
     fn to_common_date(self) -> CommonDate {
         self.0
     }
-}
 
-impl TryFromCommonDate for Armenian {
-    fn try_from_common_date(date: CommonDate) -> Result<Self, CalendarError> {
-        if date.month > 13 {
-            Err(CalendarError::InvalidMonth)
-        } else if date.month < 13 && date.day > 30 {
-            Err(CalendarError::InvalidDay)
-        } else if date.month == 13 && date.day > 5 {
-            Err(CalendarError::InvalidDay)
-        } else {
-            let e = Armenian(date);
-            if e < Armenian::effective_min() || e > Armenian::effective_max() {
-                Err(CalendarError::OutOfBounds)
-            } else {
-                Ok(e)
-            }
-        }
+    fn from_common_date_unchecked(date: CommonDate) -> Self {
+        debug_assert!(Self::in_effective_bounds(date) && Self::valid_month_day(date).is_ok());
+        Self(date)
+    }
+
+    fn valid_month_day(date: CommonDate) -> Result<(), CalendarError> {
+        Egyptian::valid_month_day(date)
     }
 }
 
@@ -107,6 +95,7 @@ impl TryFromCommonDate for Armenian {
 mod tests {
     use super::*;
     use crate::common::math::EFFECTIVE_MAX;
+    use crate::common::math::EFFECTIVE_MIN;
     use proptest::proptest;
     const MAX_YEARS: i32 = (EFFECTIVE_MAX / 365.25) as i32;
 
@@ -154,5 +143,50 @@ mod tests {
             let diff_e = Armenian::epoch().get_day_i() - Egyptian::epoch().get_day_i();
             assert_eq!(diff_f, diff_e);
         }
+
+        #[test]
+        fn invalid_common(year in -MAX_YEARS..MAX_YEARS, month in 14..u8::MAX, day in 31..u8::MAX) {
+            let d_list = [
+                CommonDate{ year, month, day },
+                CommonDate{ year, month: 1, day},
+                CommonDate{ year, month, day: 1 },
+                CommonDate{ year, month: 1, day: 0},
+                CommonDate{ year, month: 0, day: 1 }
+            ];
+            for d in d_list {
+                assert!(Armenian::try_from_common_date(d).is_err());
+            }
+        }
+
+        #[test]
+        fn consistent_order(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, t1 in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+            let f0 = Fixed::checked_new(t0).unwrap();
+            let f1 = Fixed::checked_new(t1).unwrap();
+            let d0 = Armenian::from_fixed(f0);
+            let d1 = Armenian::from_fixed(f1);
+            let c0 = d0.to_common_date();
+            let c1 = d1.to_common_date();
+            assert_eq!(f0 < f1, (d0 < d1) && (c0 < c1));
+            assert_eq!(f0 <= f1, (d0 <= d1) && (c0 <= c1));
+            assert_eq!(f0 == f1, (d0 == d1) && (c0 == c1));
+            assert_eq!(f0 >= f1, (d0 >= d1) && (c0 >= c1));
+            assert_eq!(f0 > f1, (d0 > d1) && (c0 > c1));
+        }
+
+        #[test]
+        fn consistent_order_small(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, diff in i8::MIN..i8::MAX) {
+            let f0 = Fixed::checked_new(t0).unwrap();
+            let f1 = Fixed::checked_new(t0 + (diff as f64)).unwrap();
+            let d0 = Armenian::from_fixed(f0);
+            let d1 = Armenian::from_fixed(f1);
+            let c0 = d0.to_common_date();
+            let c1 = d1.to_common_date();
+            assert_eq!(f0 < f1, (d0 < d1) && (c0 < c1));
+            assert_eq!(f0 <= f1, (d0 <= d1) && (c0 <= c1));
+            assert_eq!(f0 == f1, (d0 == d1) && (c0 == c1));
+            assert_eq!(f0 >= f1, (d0 >= d1) && (c0 >= c1));
+            assert_eq!(f0 > f1, (d0 > d1) && (c0 > c1));
+        }
+
     }
 }

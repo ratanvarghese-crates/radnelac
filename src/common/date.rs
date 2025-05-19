@@ -1,3 +1,4 @@
+use crate::common::bound::EffectiveBound;
 use crate::common::error::CalendarError;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
@@ -13,12 +14,29 @@ impl CommonDate {
     }
 }
 
-pub trait ToCommonDate {
+pub trait ToFromCommonDate: Sized + EffectiveBound {
     fn to_common_date(self) -> CommonDate;
-}
+    fn from_common_date_unchecked(d: CommonDate) -> Self;
+    fn valid_month_day(d: CommonDate) -> Result<(), CalendarError>;
 
-pub trait TryFromCommonDate: Sized {
-    fn try_from_common_date(d: CommonDate) -> Result<Self, CalendarError>;
+    fn in_effective_bounds(d: CommonDate) -> bool {
+        let min = Self::effective_min().to_common_date();
+        let max = Self::effective_max().to_common_date();
+        d >= min && d <= max
+    }
+
+    fn try_from_common_date(d: CommonDate) -> Result<Self, CalendarError> {
+        match Self::valid_month_day(d) {
+            Err(e) => Err(e),
+            Ok(_) => {
+                if Self::in_effective_bounds(d) {
+                    Ok(Self::from_common_date_unchecked(d))
+                } else {
+                    Err(CalendarError::OutOfBounds)
+                }
+            }
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]

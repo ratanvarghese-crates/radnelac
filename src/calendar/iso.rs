@@ -100,7 +100,7 @@ impl ToFixed for ISO {
 mod tests {
     use super::*;
     use crate::common::bound::EffectiveBound;
-    use crate::common::date::TryFromCommonDate;
+    use crate::common::date::ToFromCommonDate;
     use crate::common::math::EFFECTIVE_MAX;
     use crate::common::math::EFFECTIVE_MIN;
     use proptest::proptest;
