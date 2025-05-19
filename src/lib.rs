@@ -24,6 +24,7 @@ pub mod calendar {
     pub mod egyptian;
     pub mod ethiopic;
     pub mod gregorian;
+    pub mod holocene;
     pub mod iso;
     pub mod julian;
     pub mod olympiad;
