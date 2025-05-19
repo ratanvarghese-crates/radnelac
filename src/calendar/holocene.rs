@@ -14,6 +14,8 @@ use crate::day_count::fixed::ToFixed;
 
 use num_traits::FromPrimitive;
 
+const HOLOCENE_YEAR_OFFSET: i16 = -10000 + 1;
+
 pub type HoloceneMonth = GregorianMonth;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
@@ -41,7 +43,7 @@ impl CalculatedBounds for Holocene {}
 
 impl Epoch for Holocene {
     fn epoch() -> Fixed {
-        Gregorian::new_year(-10000 + 1)
+        Gregorian::new_year(HOLOCENE_YEAR_OFFSET)
     }
 }
 

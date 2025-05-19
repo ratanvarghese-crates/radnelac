@@ -3,6 +3,7 @@ use radnelac::calendar::coptic::Coptic;
 use radnelac::calendar::egyptian::Egyptian;
 use radnelac::calendar::ethiopic::Ethiopic;
 use radnelac::calendar::gregorian::Gregorian;
+use radnelac::calendar::holocene::Holocene;
 use radnelac::calendar::iso::ISO;
 use radnelac::calendar::julian::Julian;
 use radnelac::calendar::olympiad::Olympiad;
@@ -56,6 +57,7 @@ fn print_t(t_fixed: Fixed) {
     let d_coptic = Coptic::from_fixed(t_fixed);
     let d_ethiopic = Ethiopic::from_fixed(t_fixed);
     let d_iso = ISO::from_fixed(t_fixed);
+    let d_holocene = Holocene::from_fixed(t_fixed);
     let y_roman = Roman::auc_year_from_julian(d_julian.year());
     let y_olympiad = Olympiad::olympiad_from_julian_year(d_julian.year());
 
@@ -73,6 +75,7 @@ fn print_t(t_fixed: Fixed) {
     println!("{:?}", d_ethiopic);
     println!("{:?}", d_roman);
     println!("{:?}", d_iso);
+    println!("{:?}", d_holocene);
     println!("{:?} AUC", y_roman);
     println!("{:?}", y_olympiad);
 }
