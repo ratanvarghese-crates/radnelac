@@ -191,11 +191,20 @@ impl Gregorian {
 
     //Arguments swapped from the original
     pub fn nth_kday(self, nz: NonZero<i16>, k: Weekday) -> Result<Fixed, CalendarError> {
+        Fixed::cast_new(Gregorian::nth_kday_unchecked(self.0, nz, k))
+    }
+
+    pub fn nth_kday_unchecked(date: CommonDate, nz: NonZero<i16>, k: Weekday) -> i64 {
+        let x = Gregorian::to_fixed_generic_unchecked(
+            date,
+            Gregorian::epoch().get_day_i(),
+            &Gregorian::is_leap,
+        );
         let n = nz.get();
         if n > 0 {
-            Ok(k.before(self.to_fixed())?.checked_add(7 * n as i64)?)
+            k.unchecked_before(x) + (7 * n as i64)
         } else {
-            Ok(k.after(self.to_fixed())?.checked_add(7 * n as i64)?)
+            k.unchecked_after(x) + (7 * n as i64)
         }
     }
 }
@@ -260,6 +269,7 @@ impl TryFromCommonDate for Gregorian {
 mod tests {
     use super::*;
     use crate::common::math::EFFECTIVE_MAX;
+    use crate::common::math::EFFECTIVE_MIN;
     use crate::day_cycle::week::Weekday;
     use proptest::proptest;
     use std::num::NonZero;
@@ -353,6 +363,22 @@ mod tests {
             let new_years_eve = Gregorian::year_end(year);
             let new_years_day = Gregorian::new_year(year + 1);
             assert_eq!(new_years_day.get_day_i(), new_years_eve.get_day_i() + 1);
+        }
+
+        #[test]
+        fn cycle_146097(t in EFFECTIVE_MIN..(EFFECTIVE_MAX-146097.0), w in 1..55) {
+            let f_start = Fixed::checked_new(t).unwrap();
+            let f_end = Fixed::checked_new(t + 146097.0).unwrap();
+            let g_start = Gregorian::from_fixed(f_start);
+            let g_end = Gregorian::from_fixed(f_end);
+            assert_eq!(g_start.year() + 400, g_end.year());
+            assert_eq!(g_start.month(), g_end.month());
+            assert_eq!(g_start.day(), g_start.day());
+
+            let w = NonZero::new(w as i16).unwrap();
+            let start_sum_kday = g_start.nth_kday(w, Weekday::Sunday).unwrap().checked_add(146097.0).unwrap();
+            let end_kday = g_end.nth_kday(w, Weekday::Sunday).unwrap();
+            assert_eq!(start_sum_kday, end_kday);
         }
     }
 }
