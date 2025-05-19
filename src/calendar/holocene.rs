@@ -91,7 +91,7 @@ mod tests {
     use crate::common::math::EFFECTIVE_MAX;
     use crate::common::math::EFFECTIVE_MIN;
     use crate::day_count::rd::RataDie;
-    const MAX_YEARS: i32 = (EFFECTIVE_MAX / 365.25) as i32;
+    const MAX_YEARS: i32 = ((EFFECTIVE_MAX / 365.25) - 10000.0) as i32;
 
     use proptest::proptest;
 
