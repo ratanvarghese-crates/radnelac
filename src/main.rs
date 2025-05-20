@@ -8,6 +8,7 @@ use radnelac::calendar::holocene::Holocene;
 use radnelac::calendar::iso::ISO;
 use radnelac::calendar::julian::Julian;
 use radnelac::calendar::olympiad::Olympiad;
+use radnelac::calendar::positivist::Positivist;
 use radnelac::calendar::roman::Roman;
 use radnelac::common::bound::BoundedDayCount;
 use radnelac::common::bound::EffectiveBound;
@@ -61,6 +62,7 @@ fn print_t(t_fixed: Fixed) {
     let d_holocene = Holocene::from_fixed(t_fixed);
     let d_french0 = FrenchRevArith::<true>::from_fixed(t_fixed);
     let d_french1 = FrenchRevArith::<false>::from_fixed(t_fixed);
+    let d_positivist = Positivist::from_fixed(t_fixed);
     let y_roman = Roman::auc_year_from_julian(d_julian.year());
     let y_olympiad = Olympiad::olympiad_from_julian_year(d_julian.year());
 
@@ -81,6 +83,7 @@ fn print_t(t_fixed: Fixed) {
     println!("{:?}", d_holocene);
     println!("{:?} is_adjusted: {:?}", d_french0, d_french0.is_adjusted());
     println!("{:?} is_adjusted: {:?}", d_french1, d_french1.is_adjusted());
+    println!("{:?}", d_positivist);
     println!("{:?} AUC", y_roman);
     println!("{:?}", y_olympiad);
 }

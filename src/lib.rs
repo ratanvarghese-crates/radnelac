@@ -29,6 +29,7 @@ pub mod calendar {
     pub mod iso;
     pub mod julian;
     pub mod olympiad;
+    pub mod positivist;
     pub mod roman;
 }
 pub mod clock;
