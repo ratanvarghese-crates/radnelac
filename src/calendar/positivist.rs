@@ -42,7 +42,7 @@ pub enum PositivistMonth {
 // Calendier Positiviste Page 8
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
 pub enum PositivistComplementaryDay {
-    FestivalOfTheDead,
+    FestivalOfTheDead = 1,
     FestivalOfHolyWomen,
 }
 
@@ -172,6 +172,7 @@ mod tests {
     use crate::calendar::gregorian::GregorianMonth;
     use crate::common::math::EFFECTIVE_MAX;
     use crate::common::math::EFFECTIVE_MIN;
+    use crate::day_count::rd::RataDie;
     use proptest::proptest;
     const MAX_YEARS: i32 = (EFFECTIVE_MAX / 365.25) as i32;
 
@@ -194,6 +195,15 @@ mod tests {
         }
 
         #[test]
+        fn complementary_xor_weekday(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+            let t0 = RataDie::checked_new(t).unwrap().to_fixed().to_day();
+            let r0 = Positivist::from_fixed(t0);
+            let w0 = r0.weekday();
+            let s0 = r0.complementary();
+            assert_ne!(w0.is_some(), s0.is_some());
+        }
+
+        #[test]
         fn roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..13, day in 1..28) {
             let d = CommonDate::new(year, month as u8, day as u8);
             let e0 = Positivist::try_from_common_date(d).unwrap();
@@ -213,6 +223,7 @@ mod tests {
             assert_eq!(g.year(), year + 1788);
             assert_eq!(g.month(), GregorianMonth::January);
             assert_eq!(g.day(), 1);
+            assert_eq!(p.weekday().unwrap(), Weekday::Monday);
         }
 
         #[test]
@@ -220,6 +231,8 @@ mod tests {
             let d = CommonDate::new(year, 14, 1);
             let p = Positivist::try_from_common_date(d).unwrap();
             let g = Gregorian::from_fixed(p.to_fixed());
+
+            assert_eq!(p.complementary().unwrap(), PositivistComplementaryDay::FestivalOfTheDead);
             assert_eq!(g.year(), year + 1788);
             assert_eq!(g.month(), GregorianMonth::December);
             if Gregorian::is_leap(g.year()) {
@@ -228,12 +241,14 @@ mod tests {
                 let d = CommonDate::new(year, 14, 2);
                 let p = Positivist::try_from_common_date(d).unwrap();
                 let g = Gregorian::from_fixed(p.to_fixed());
+                assert_eq!(p.complementary().unwrap(), PositivistComplementaryDay::FestivalOfHolyWomen);
                 assert_eq!(g.year(), year + 1788);
                 assert_eq!(g.month(), GregorianMonth::December);
                 assert_eq!(g.day(), 31);
             } else {
                 assert_eq!(g.day(), 31);
             }
+
         }
 
         #[test]
