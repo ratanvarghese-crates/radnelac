@@ -23,6 +23,7 @@ pub mod calendar {
     pub mod coptic;
     pub mod egyptian;
     pub mod ethiopic;
+    pub mod french_rev_arith;
     pub mod gregorian;
     pub mod holocene;
     pub mod iso;
