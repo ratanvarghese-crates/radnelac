@@ -2,6 +2,7 @@ use radnelac::calendar::armenian::Armenian;
 use radnelac::calendar::coptic::Coptic;
 use radnelac::calendar::egyptian::Egyptian;
 use radnelac::calendar::ethiopic::Ethiopic;
+use radnelac::calendar::french_rev_arith::FrenchRevArith;
 use radnelac::calendar::gregorian::Gregorian;
 use radnelac::calendar::holocene::Holocene;
 use radnelac::calendar::iso::ISO;
@@ -58,6 +59,8 @@ fn print_t(t_fixed: Fixed) {
     let d_ethiopic = Ethiopic::from_fixed(t_fixed);
     let d_iso = ISO::from_fixed(t_fixed);
     let d_holocene = Holocene::from_fixed(t_fixed);
+    let d_french0 = FrenchRevArith::<true>::from_fixed(t_fixed);
+    let d_french1 = FrenchRevArith::<false>::from_fixed(t_fixed);
     let y_roman = Roman::auc_year_from_julian(d_julian.year());
     let y_olympiad = Olympiad::olympiad_from_julian_year(d_julian.year());
 
@@ -76,6 +79,8 @@ fn print_t(t_fixed: Fixed) {
     println!("{:?}", d_roman);
     println!("{:?}", d_iso);
     println!("{:?}", d_holocene);
+    println!("{:?} is_adjusted: {:?}", d_french0, d_french0.is_adjusted());
+    println!("{:?} is_adjusted: {:?}", d_french1, d_french1.is_adjusted());
     println!("{:?} AUC", y_roman);
     println!("{:?}", y_olympiad);
 }

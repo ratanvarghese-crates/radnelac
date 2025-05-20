@@ -62,6 +62,10 @@ pub enum Sansculottide {
 pub struct FrenchRevArith<const L: bool>(CommonDate);
 
 impl<const L: bool> FrenchRevArith<L> {
+    pub fn is_adjusted(self) -> bool {
+        L
+    }
+
     pub fn year(self) -> i32 {
         self.0.year
     }
@@ -261,6 +265,12 @@ mod tests {
                 CommonDate::new(8, FrenchRevMonth::Brumaire as u8, 18),
                 CommonDate::new(8, FrenchRevMonth::Brumaire as u8, 18 + 1), //Supposed to be 18
                 CommonDate::new(1799, 11, 9),
+            ),
+            // Paris Commune
+            (
+                CommonDate::new(79, FrenchRevMonth::Floreal as u8, 16),
+                CommonDate::new(79, FrenchRevMonth::Floreal as u8, 16),
+                CommonDate::new(1871, 5, 6),
             ),
         ];
         for pair in event_list {
