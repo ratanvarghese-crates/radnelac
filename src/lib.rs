@@ -32,5 +32,6 @@ pub mod calendar {
     pub mod olympiad;
     pub mod positivist;
     pub mod roman;
+    pub mod symmetry;
 }
 pub mod clock;

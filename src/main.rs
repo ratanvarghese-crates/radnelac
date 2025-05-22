@@ -1,5 +1,6 @@
 use radnelac::calendar::armenian::Armenian;
 use radnelac::calendar::coptic::Coptic;
+use radnelac::calendar::cotsworth::Cotsworth;
 use radnelac::calendar::egyptian::Egyptian;
 use radnelac::calendar::ethiopic::Ethiopic;
 use radnelac::calendar::french_rev_arith::FrenchRevArith;
@@ -10,6 +11,10 @@ use radnelac::calendar::julian::Julian;
 use radnelac::calendar::olympiad::Olympiad;
 use radnelac::calendar::positivist::Positivist;
 use radnelac::calendar::roman::Roman;
+use radnelac::calendar::symmetry::Symmetry010;
+use radnelac::calendar::symmetry::Symmetry010Solstice;
+use radnelac::calendar::symmetry::Symmetry454;
+use radnelac::calendar::symmetry::Symmetry454Solstice;
 use radnelac::common::bound::BoundedDayCount;
 use radnelac::common::bound::EffectiveBound;
 use radnelac::day_count::fixed::Fixed;
@@ -63,6 +68,11 @@ fn print_t(t_fixed: Fixed) {
     let d_french0 = FrenchRevArith::<true>::from_fixed(t_fixed);
     let d_french1 = FrenchRevArith::<false>::from_fixed(t_fixed);
     let d_positivist = Positivist::from_fixed(t_fixed);
+    let d_cotsworth = Cotsworth::from_fixed(t_fixed);
+    let d_symmetry454 = Symmetry454::from_fixed(t_fixed);
+    let d_symmetry010 = Symmetry010::from_fixed(t_fixed);
+    let d_symmetry454s = Symmetry454Solstice::from_fixed(t_fixed);
+    let d_symmetry010s = Symmetry010Solstice::from_fixed(t_fixed);
     let y_roman = Roman::auc_year_from_julian(d_julian.year());
     let y_olympiad = Olympiad::olympiad_from_julian_year(d_julian.year());
 
@@ -84,6 +94,11 @@ fn print_t(t_fixed: Fixed) {
     println!("{:?} is_adjusted: {:?}", d_french0, d_french0.is_adjusted());
     println!("{:?} is_adjusted: {:?}", d_french1, d_french1.is_adjusted());
     println!("{:?}", d_positivist);
+    println!("{:?}", d_cotsworth);
+    println!("{:?} mode: {:?}", d_symmetry454, d_symmetry454.mode());
+    println!("{:?} mode: {:?}", d_symmetry010, d_symmetry010.mode());
+    println!("{:?} mode: {:?}", d_symmetry454s, d_symmetry454s.mode());
+    println!("{:?} mode: {:?}", d_symmetry010s, d_symmetry010s.mode());
     println!("{:?} AUC", y_roman);
     println!("{:?}", y_olympiad);
 }
