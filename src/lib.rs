@@ -21,6 +21,7 @@ pub mod day_cycle {
 pub mod calendar {
     pub mod armenian;
     pub mod coptic;
+    pub mod cotsworth;
     pub mod egyptian;
     pub mod ethiopic;
     pub mod french_rev_arith;
