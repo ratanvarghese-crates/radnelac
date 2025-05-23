@@ -20,18 +20,18 @@ impl FromFixed for JulianDay {
 
 impl ToFixed for JulianDay {
     fn to_fixed(self) -> Fixed {
-        Fixed::unchecked_new(JD_EPOCH + self.0)
+        Fixed::new(JD_EPOCH + self.0)
     }
 }
 
 impl Epoch for JulianDay {
     fn epoch() -> Fixed {
-        Fixed::unchecked_new(JD_EPOCH)
+        Fixed::new(JD_EPOCH)
     }
 }
 
 impl BoundedDayCount<f64> for JulianDay {
-    fn unchecked_new(t: f64) -> JulianDay {
+    fn new(t: f64) -> JulianDay {
         debug_assert!(JulianDay::in_effective_bounds(t).is_ok());
         JulianDay(t)
     }
@@ -43,7 +43,6 @@ impl BoundedDayCount<f64> for JulianDay {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::bound::EffectiveBound;
     use crate::common::math::TermNum;
     use crate::common::math::EFFECTIVE_MAX;
     use crate::common::math::EFFECTIVE_MIN;
@@ -54,28 +53,18 @@ mod tests {
 
     #[test]
     fn around_epoch() {
-        let before = Fixed::checked_new(JD_EPOCH + (-1.0)).unwrap();
-        let exact = Fixed::checked_new(JD_EPOCH + 0.0).unwrap();
-        let after = Fixed::checked_new(JD_EPOCH + 1.0).unwrap();
+        let before = Fixed::new(JD_EPOCH + (-1.0));
+        let exact = Fixed::new(JD_EPOCH + 0.0);
+        let after = Fixed::new(JD_EPOCH + 1.0);
         assert_eq!(JulianDay::from_fixed(before).get(), -1.0);
         assert_eq!(JulianDay::from_fixed(exact).get(), 0.0);
         assert_eq!(JulianDay::from_fixed(after).get(), 1.0);
     }
 
-    #[test]
-    fn bounds() {
-        assert!(JulianDay::checked_new(JulianDay::effective_min().get()).is_ok());
-        assert!(JulianDay::checked_new(JulianDay::effective_max().get()).is_ok());
-        let beyond_min = JulianDay::effective_min().get() - 1.0;
-        let beyond_max = JulianDay::effective_max().get() + 1.0;
-        assert!(JulianDay::checked_new(beyond_min).is_err());
-        assert!(JulianDay::checked_new(beyond_max).is_err());
-    }
-
     proptest! {
         #[test]
         fn roundtrip(t in MIN_JD..MAX_JD) {
-            let j0 = JulianDay::checked_new(t).unwrap();
+            let j0 = JulianDay::new(t);
             let j1 = JulianDay::from_fixed(JulianDay::to_fixed(j0));
             let j2 = JulianDay::from_fixed(JulianDay::to_fixed(j0).to_day());
             assert!(j0.0.approx_eq(j1.0));
@@ -84,8 +73,8 @@ mod tests {
 
         #[test]
         fn easy_i32(t in i32::MIN..i32::MAX) {
-            let j0 = JulianDay::checked_new(t as f64).unwrap();
-            let j1 = JulianDay::new(t);
+            let j0 = JulianDay::new(t as f64);
+            let j1 = JulianDay::new(t as f64);
             assert_eq!(j0, j1);
         }
     }

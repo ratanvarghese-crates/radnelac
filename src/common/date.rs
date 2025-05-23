@@ -28,13 +28,7 @@ pub trait ToFromCommonDate: Sized + EffectiveBound {
     fn try_from_common_date(d: CommonDate) -> Result<Self, CalendarError> {
         match Self::valid_month_day(d) {
             Err(e) => Err(e),
-            Ok(_) => {
-                if Self::in_effective_bounds(d) {
-                    Ok(Self::from_common_date_unchecked(d))
-                } else {
-                    Err(CalendarError::OutOfBounds)
-                }
-            }
+            Ok(_) => Ok(Self::from_common_date_unchecked(d)),
         }
     }
 }

@@ -177,7 +177,7 @@ impl<const L: bool> ToFixed for FrenchRevArith<L> {
             FrenchRevArith::<L>::epoch().get_day_i(),
             L,
         );
-        Fixed::cast_new(result).expect("TODO: verify")
+        Fixed::cast_new(result)
     }
 }
 
@@ -338,7 +338,7 @@ mod tests {
 
         #[test]
         fn sansculottide_xor_weekday(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
-            let t0 = RataDie::checked_new(t).unwrap().to_fixed().to_day();
+            let t0 = RataDie::new(t).to_fixed().to_day();
             let r0 = FrenchRevArith::<true>::from_fixed(t0);
             let w0 = r0.weekday();
             let s0 = r0.sansculottide();
@@ -351,7 +351,7 @@ mod tests {
 
         #[test]
         fn roundtrip(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
-            let t0 = RataDie::checked_new(t).unwrap().to_fixed().to_day();
+            let t0 = RataDie::new(t).to_fixed().to_day();
             let r0 = FrenchRevArith::<true>::from_fixed(t0);
             let t1 = r0.to_fixed();
             assert_eq!(t0, t1);
@@ -377,8 +377,8 @@ mod tests {
 
         #[test]
         fn consistent_order(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, t1 in EFFECTIVE_MIN..EFFECTIVE_MAX) {
-            let f0 = Fixed::checked_new(t0).unwrap();
-            let f1 = Fixed::checked_new(t1).unwrap();
+            let f0 = Fixed::new(t0);
+            let f1 = Fixed::new(t1);
             let d0 = FrenchRevArith::<true>::from_fixed(f0);
             let d1 = FrenchRevArith::<true>::from_fixed(f1);
             let c0 = d0.to_common_date();
@@ -402,8 +402,8 @@ mod tests {
 
         #[test]
         fn consistent_order_small(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, diff in i8::MIN..i8::MAX) {
-            let f0 = Fixed::checked_new(t0).unwrap();
-            let f1 = Fixed::checked_new(t0 + (diff as f64)).unwrap();
+            let f0 = Fixed::new(t0);
+            let f1 = Fixed::new(t0 + (diff as f64));
             let d0 = FrenchRevArith::<true>::from_fixed(f0);
             let d1 = FrenchRevArith::<true>::from_fixed(f1);
             let c0 = d0.to_common_date();

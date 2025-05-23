@@ -55,7 +55,7 @@ impl CalculatedBounds for Armenian {}
 
 impl Epoch for Armenian {
     fn epoch() -> Fixed {
-        RataDie::new(ARMENIAN_EPOCH_RD).to_fixed()
+        RataDie::new(ARMENIAN_EPOCH_RD as f64).to_fixed()
     }
 }
 
@@ -72,7 +72,7 @@ impl ToFixed for Armenian {
     fn to_fixed(self) -> Fixed {
         // Deliberately diverging from Calendrical Calculations to avoid crossing bounds checks
         let e = Egyptian::to_fixed_generic_unchecked(self.0, Armenian::epoch().get_day_i());
-        Fixed::cast_new(e).expect("TODO: verify")
+        Fixed::cast_new(e)
     }
 }
 
@@ -160,8 +160,8 @@ mod tests {
 
         #[test]
         fn consistent_order(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, t1 in EFFECTIVE_MIN..EFFECTIVE_MAX) {
-            let f0 = Fixed::checked_new(t0).unwrap();
-            let f1 = Fixed::checked_new(t1).unwrap();
+            let f0 = Fixed::new(t0);
+            let f1 = Fixed::new(t1);
             let d0 = Armenian::from_fixed(f0);
             let d1 = Armenian::from_fixed(f1);
             let c0 = d0.to_common_date();
@@ -175,8 +175,8 @@ mod tests {
 
         #[test]
         fn consistent_order_small(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, diff in i8::MIN..i8::MAX) {
-            let f0 = Fixed::checked_new(t0).unwrap();
-            let f1 = Fixed::checked_new(t0 + (diff as f64)).unwrap();
+            let f0 = Fixed::new(t0);
+            let f1 = Fixed::new(t0 + (diff as f64));
             let d0 = Armenian::from_fixed(f0);
             let d1 = Armenian::from_fixed(f1);
             let c0 = d0.to_common_date();

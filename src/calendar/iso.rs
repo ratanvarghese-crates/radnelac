@@ -92,7 +92,7 @@ impl FromFixed for ISO {
 impl ToFixed for ISO {
     fn to_fixed(self) -> Fixed {
         let result = ISO::to_fixed_unchecked(self.year, self.week, self.day);
-        Fixed::cast_new(result).expect("TODO: verify")
+        Fixed::cast_new(result)
     }
 }
 
@@ -117,14 +117,14 @@ mod tests {
 
     #[test]
     fn bounds_actually_work() {
-        assert!(ISO::from_fixed(Fixed::effective_min()) < ISO::from_fixed(Fixed::new(0)));
-        assert!(ISO::from_fixed(Fixed::effective_max()) > ISO::from_fixed(Fixed::new(0)));
+        assert!(ISO::from_fixed(Fixed::effective_min()) < ISO::from_fixed(Fixed::cast_new(0)));
+        assert!(ISO::from_fixed(Fixed::effective_max()) > ISO::from_fixed(Fixed::cast_new(0)));
     }
 
     proptest! {
         #[test]
         fn roundtrip(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
-            let f0 = Fixed::checked_new(t).unwrap().to_day();
+            let f0 = Fixed::new(t).to_day();
             let i = ISO::from_fixed(f0);
             let f1 = i.to_fixed();
             assert_eq!(f0, f1);

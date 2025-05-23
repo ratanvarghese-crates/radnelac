@@ -32,7 +32,7 @@ impl EffectiveBound for Fixed {
 }
 
 impl BoundedDayCount<f64> for Fixed {
-    fn unchecked_new(t: f64) -> Fixed {
+    fn new(t: f64) -> Fixed {
         debug_assert!(Fixed::in_effective_bounds(t).is_ok());
         Fixed(t)
     }
@@ -83,7 +83,7 @@ mod tests {
             EFFECTIVE_MIN - 1.0,
         ];
         for x in weird_values {
-            assert!(Fixed::checked_new(x).is_err());
+            assert!(Fixed::in_effective_bounds(x).is_err());
         }
     }
 
@@ -91,18 +91,18 @@ mod tests {
     fn accept_ok() {
         let ok_values = [EFFECTIVE_MAX, EFFECTIVE_MIN, 0.0, -0.0, EFFECTIVE_EPSILON];
         for x in ok_values {
-            assert!(Fixed::checked_new(x).is_ok());
+            assert!(Fixed::in_effective_bounds(x).is_ok());
         }
     }
 
     #[test]
     fn comparisons() {
         let f_min = Fixed::effective_min();
-        let f_mbig = Fixed::checked_new(-100000.0 * 365.25).unwrap();
-        let f_m1 = Fixed::checked_new(-1.0).unwrap();
-        let f_0 = Fixed::checked_new(0.0).unwrap();
-        let f_p1 = Fixed::checked_new(1.0).unwrap();
-        let f_pbig = Fixed::checked_new(100000.0 * 365.25).unwrap();
+        let f_mbig = Fixed::new(-100000.0 * 365.25);
+        let f_m1 = Fixed::new(-1.0);
+        let f_0 = Fixed::new(0.0);
+        let f_p1 = Fixed::new(1.0);
+        let f_pbig = Fixed::new(100000.0 * 365.25);
         let f_max = Fixed::effective_max();
         assert!(f_min < f_mbig);
         assert!(f_mbig < f_m1);
@@ -115,21 +115,21 @@ mod tests {
     proptest! {
         #[test]
         fn easy_i32(t in i32::MIN..i32::MAX) {
-            let f: f64 = Fixed::new(t).get();
+            let f: f64 = Fixed::new(t as f64).get();
             assert_eq!(f, t as f64);
         }
 
         #[test]
         fn time_of_day(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
-            let f = Fixed::checked_new(t).unwrap().to_time_of_day().get();
+            let f = Fixed::new(t).to_time_of_day().get();
             assert!(f <= 1.0 && f >= 0.0);
         }
 
         #[test]
         fn day(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
-            let f = Fixed::checked_new(t).unwrap().to_day().get();
+            let f = Fixed::new(t).to_day().get();
             assert!(f <= (t + 1.0) && f >= (t - 1.0));
-            let d = Fixed::checked_new(t).unwrap().get_day_i();
+            let d = Fixed::new(t).get_day_i();
             assert_eq!(d as f64, f);
         }
     }

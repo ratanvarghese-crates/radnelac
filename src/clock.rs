@@ -12,22 +12,14 @@ impl TimeOfDay {
         self.0
     }
 
-    pub fn unchecked_new(t: f64) -> Self {
+    pub fn new(t: f64) -> Self {
         TimeOfDay(t)
-    }
-
-    pub fn checked_new(t: f64) -> Result<Self, CalendarError> {
-        if t < 0.0 || t > 1.0 {
-            Err(CalendarError::OutOfBounds)
-        } else {
-            Ok(Self::unchecked_new(t))
-        }
     }
 }
 
 impl FromFixed for TimeOfDay {
     fn from_fixed(t: Fixed) -> TimeOfDay {
-        TimeOfDay::unchecked_new(t.get().modulus(1.0))
+        TimeOfDay::new(t.get().modulus(1.0))
     }
 }
 
@@ -83,7 +75,7 @@ impl From<ClockTime> for TimeOfDay {
             clock.seconds as f64,
         ];
         let b = [24.0, 60.0, 60.0];
-        TimeOfDay::unchecked_new(TermNum::from_mixed_radix(&a, &b, 0).expect("Inputs are valid"))
+        TimeOfDay::new(TermNum::from_mixed_radix(&a, &b, 0).expect("Inputs are valid"))
     }
 }
 
@@ -113,7 +105,7 @@ mod tests {
 
     #[test]
     fn time() {
-        let j0: JulianDay = JulianDay::checked_new(0.0).unwrap();
+        let j0: JulianDay = JulianDay::new(0.0);
         assert_eq!(TimeOfDay::from_fixed(j0.to_fixed()).0, 0.5);
     }
 
@@ -121,27 +113,27 @@ mod tests {
     fn obvious_clock_times() {
         assert_eq!(
             TimeOfDay::from(ClockTime::set(0, 0, 0.0).unwrap()),
-            TimeOfDay::checked_new(0.0).unwrap()
+            TimeOfDay::new(0.0)
         );
         assert_eq!(
             TimeOfDay::from(ClockTime::set(0, 0, 1.0).unwrap()),
-            TimeOfDay::checked_new(1.0 / (24.0 * 60.0 * 60.0)).unwrap()
+            TimeOfDay::new(1.0 / (24.0 * 60.0 * 60.0))
         );
         assert_eq!(
             TimeOfDay::from(ClockTime::set(0, 1, 0.0).unwrap()),
-            TimeOfDay::checked_new(1.0 / (24.0 * 60.0)).unwrap()
+            TimeOfDay::new(1.0 / (24.0 * 60.0))
         );
         assert_eq!(
             TimeOfDay::from(ClockTime::set(6, 0, 0.0).unwrap()),
-            TimeOfDay::checked_new(0.25).unwrap()
+            TimeOfDay::new(0.25)
         );
         assert_eq!(
             TimeOfDay::from(ClockTime::set(12, 0, 0.0).unwrap()),
-            TimeOfDay::checked_new(0.5).unwrap()
+            TimeOfDay::new(0.5)
         );
         assert_eq!(
             TimeOfDay::from(ClockTime::set(18, 0, 0.0).unwrap()),
-            TimeOfDay::checked_new(0.75).unwrap()
+            TimeOfDay::new(0.75)
         );
     }
 
@@ -159,7 +151,7 @@ mod tests {
 
         #[test]
         fn clock_time_from_moment(x in EFFECTIVE_MIN..EFFECTIVE_MAX) {
-            let t = TimeOfDay::from_fixed(Fixed::checked_new(x).unwrap());
+            let t = TimeOfDay::from_fixed(Fixed::new(x));
             let c = ClockTime::try_from(t).unwrap();
             check_fields(c.hours, c.minutes, c.seconds).unwrap();
         }

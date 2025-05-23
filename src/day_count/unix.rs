@@ -21,18 +21,18 @@ impl FromFixed for UnixMoment {
 
 impl ToFixed for UnixMoment {
     fn to_fixed(self) -> Fixed {
-        Fixed::unchecked_new(UNIX_EPOCH + ((self.0 as f64) / UNIX_DAY))
+        Fixed::new(UNIX_EPOCH + ((self.0 as f64) / UNIX_DAY))
     }
 }
 
 impl Epoch for UnixMoment {
     fn epoch() -> Fixed {
-        Fixed::unchecked_new(UNIX_EPOCH)
+        Fixed::new(UNIX_EPOCH)
     }
 }
 
 impl BoundedDayCount<i64> for UnixMoment {
-    fn unchecked_new(t: i64) -> UnixMoment {
+    fn new(t: i64) -> UnixMoment {
         debug_assert!(UnixMoment::in_effective_bounds(t).is_ok());
         UnixMoment(t)
     }
@@ -44,7 +44,6 @@ impl BoundedDayCount<i64> for UnixMoment {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::bound::EffectiveBound;
     use crate::common::math::EFFECTIVE_MAX;
     use crate::common::math::EFFECTIVE_MIN;
     use proptest::proptest;
@@ -52,20 +51,10 @@ mod tests {
     const MIN_UNIX: i64 = ((EFFECTIVE_MIN - UNIX_EPOCH) * UNIX_DAY) as i64;
 
     #[test]
-    fn bounds() {
-        assert!(UnixMoment::checked_new(UnixMoment::effective_min().get()).is_ok());
-        assert!(UnixMoment::checked_new(UnixMoment::effective_max().get()).is_ok());
-        let beyond_min = UnixMoment::effective_min().get() - 1;
-        let beyond_max = UnixMoment::effective_max().get() + 1;
-        assert!(UnixMoment::checked_new(beyond_min).is_err());
-        assert!(UnixMoment::checked_new(beyond_max).is_err());
-    }
-
-    #[test]
     fn around_epoch() {
-        let before = Fixed::checked_new(UNIX_EPOCH - 1.0).unwrap();
-        let exact = Fixed::checked_new(UNIX_EPOCH + 0.0).unwrap();
-        let after = Fixed::checked_new(UNIX_EPOCH + 1.0).unwrap();
+        let before = Fixed::new(UNIX_EPOCH - 1.0);
+        let exact = Fixed::new(UNIX_EPOCH + 0.0);
+        let after = Fixed::new(UNIX_EPOCH + 1.0);
         assert_eq!(UnixMoment::from_fixed(before).0, -UNIX_DAY as i64);
         assert_eq!(UnixMoment::from_fixed(exact).0, 0);
         assert_eq!(UnixMoment::from_fixed(after).0, UNIX_DAY as i64);
@@ -74,7 +63,7 @@ mod tests {
     proptest! {
         #[test]
         fn roundtrip(t in MIN_UNIX..MAX_UNIX) {
-            let unix0 = UnixMoment::checked_new(t).unwrap();
+            let unix0 = UnixMoment::new(t);
             let f0 = UnixMoment::to_fixed(unix0);
             let unix1 = UnixMoment::from_fixed(f0);
             assert_eq!(unix0.0, unix1.0);

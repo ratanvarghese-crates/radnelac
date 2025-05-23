@@ -1,6 +1,5 @@
 use crate::common::bound::BoundedCycle;
 use crate::common::bound::BoundedDayCount;
-use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::fixed::Epoch;
 use crate::day_count::fixed::Fixed;
@@ -72,11 +71,11 @@ impl Akan {
 
     pub fn unchecked_on_or_before(self, date: Fixed) -> i64 {
         let date = date.get_day_i();
-        let diff = Akan::from_fixed(Fixed::new(0)).name_difference(self) as i64;
+        let diff = Akan::from_fixed(Fixed::cast_new(0)).name_difference(self) as i64;
         diff.interval_modulus(date, date - 42)
     }
 
-    pub fn on_or_before(self, date: Fixed) -> Result<Fixed, CalendarError> {
+    pub fn on_or_before(self, date: Fixed) -> Fixed {
         Fixed::cast_new(self.unchecked_on_or_before(date))
     }
 }
@@ -99,7 +98,7 @@ impl FromPrimitive for Akan {
 
 impl Epoch for Akan {
     fn epoch() -> Fixed {
-        Fixed::unchecked_new(CYCLE_START as f64)
+        Fixed::new(CYCLE_START as f64)
     }
 }
 
@@ -115,7 +114,7 @@ mod tests {
         #[test]
         fn akan_stem_and_weekday(x in (EFFECTIVE_MIN+42.0)..(EFFECTIVE_MAX-42.0)) {
             //https://en.wikipedia.org/wiki/Akan_calendar
-            let f = Fixed::checked_new(x).unwrap();
+            let f = Fixed::new(x);
             let w = Weekday::from_fixed(f);
             let a = Akan::from_fixed(f).stem();
             let expected_a = match w {
@@ -132,9 +131,9 @@ mod tests {
 
         #[test]
         fn akan_day_repeats(x in EFFECTIVE_MIN..(EFFECTIVE_MAX - 42.0), d in 1..41) {
-            let f1 = Fixed::checked_new(x).unwrap();
-            let f2 = Fixed::checked_new(x + (d as f64)).unwrap();
-            let f3 = Fixed::checked_new(x + 42.0).unwrap();
+            let f1 = Fixed::new(x);
+            let f2 = Fixed::new(x + (d as f64));
+            let f3 = Fixed::new(x + 42.0);
             let a1 = Akan::from_fixed(f1);
             let a2 = Akan::from_fixed(f2);
             let a3 = Akan::from_fixed(f3);
@@ -142,16 +141,16 @@ mod tests {
             assert_eq!(a1, a3);
             assert_eq!(a2.name_difference(a1), (42 - d) as i16);
             assert_eq!(a3.name_difference(a1), 42);
-            assert_eq!(a1.on_or_before(f1).unwrap().to_day(), f1.to_day());
-            assert_eq!(a1.on_or_before(f2).unwrap().to_day(), f1.to_day());
+            assert_eq!(a1.on_or_before(f1).to_day(), f1.to_day());
+            assert_eq!(a1.on_or_before(f2).to_day(), f1.to_day());
         }
 
         #[test]
         fn akan_prefix_stem_repeats(x in EFFECTIVE_MIN..(EFFECTIVE_MAX - 7.0), d in 1.0..5.0) {
-            let a1 = Akan::from_fixed(Fixed::checked_new(x).unwrap());
-            let a2 = Akan::from_fixed(Fixed::checked_new(x + d).unwrap());
-            let a3 = Akan::from_fixed(Fixed::checked_new(x + 6.0).unwrap());
-            let a4 = Akan::from_fixed(Fixed::checked_new(x + 7.0).unwrap());
+            let a1 = Akan::from_fixed(Fixed::new(x));
+            let a2 = Akan::from_fixed(Fixed::new(x + d));
+            let a3 = Akan::from_fixed(Fixed::new(x + 6.0));
+            let a4 = Akan::from_fixed(Fixed::new(x + 7.0));
             assert_ne!(a1.prefix(), a2.prefix());
             assert_eq!(a1.prefix(), a3.prefix());
             assert_ne!(a1.prefix(), a4.prefix());
@@ -162,8 +161,8 @@ mod tests {
 
         #[test]
         fn prefix_stem_sequence(x in EFFECTIVE_MIN..EFFECTIVE_MAX) {
-            let f0 = Fixed::checked_new(x).unwrap();
-            let f1 = Fixed::checked_new(x + 1.0).unwrap();
+            let f0 = Fixed::new(x);
+            let f1 = Fixed::new(x + 1.0);
             let a0 = Akan::from_fixed(f0);
             let a1 = Akan::from_fixed(f1);
             let p0 = a0.prefix();

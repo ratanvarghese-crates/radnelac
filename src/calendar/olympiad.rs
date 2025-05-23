@@ -13,7 +13,7 @@ impl Olympiad {
     pub fn julian_year_from_olympiad(self) -> NonZero<i32> {
         let years = OLYMPIAD_START + 4 * (self.cycle - 1) + self.year - 1;
         let result = if years < 0 { years } else { years + 1 };
-        NonZero::new(result).unwrap()
+        NonZero::new(result).expect("Prevented by if")
     }
 
     pub fn olympiad_from_julian_year(j: NonZero<i32>) -> Self {

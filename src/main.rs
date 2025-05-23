@@ -44,7 +44,7 @@ fn print_today() {
         Ok(n) => n.as_secs(),
         Err(_) => panic!("SystemTime before UNIX_EPOCH"),
     };
-    let t_unix = UnixMoment::checked_new(t_system as i64).unwrap();
+    let t_unix = UnixMoment::new(t_system as i64);
     let t_fixed = t_unix.to_fixed();
     print_t(t_fixed);
 }

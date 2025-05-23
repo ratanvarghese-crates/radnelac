@@ -212,7 +212,7 @@ impl Gregorian {
     }
 
     //Arguments swapped from the original
-    pub fn nth_kday(self, nz: NonZero<i16>, k: Weekday) -> Result<Fixed, CalendarError> {
+    pub fn nth_kday(self, nz: NonZero<i16>, k: Weekday) -> Fixed {
         Fixed::cast_new(Gregorian::nth_kday_unchecked(self.0, nz, k))
     }
 
@@ -235,7 +235,7 @@ impl CalculatedBounds for Gregorian {}
 
 impl Epoch for Gregorian {
     fn epoch() -> Fixed {
-        RataDie::new(GREGORIAN_EPOCH_RD).to_fixed()
+        RataDie::new(GREGORIAN_EPOCH_RD as f64).to_fixed()
     }
 }
 
@@ -257,7 +257,7 @@ impl ToFixed for Gregorian {
             Gregorian::epoch().get_day_i(),
             &Gregorian::is_leap,
         );
-        Fixed::cast_new(result).expect("TODO: verify")
+        Fixed::cast_new(result)
     }
 }
 
@@ -309,9 +309,7 @@ mod tests {
             day: 1,
         })
         .unwrap();
-        let finish = start
-            .nth_kday(NonZero::new(1).unwrap(), Weekday::Monday)
-            .unwrap();
+        let finish = start.nth_kday(NonZero::new(1).unwrap(), Weekday::Monday);
         assert_eq!(lbd, Gregorian::from_fixed(finish));
     }
 
@@ -319,9 +317,7 @@ mod tests {
     fn us_memorial_day() {
         let mmd = Gregorian::try_from_common_date(CommonDate::new(2024, 5, 27)).unwrap();
         let start = Gregorian::try_from_common_date(CommonDate::new(2024, 6, 1)).unwrap();
-        let finish = start
-            .nth_kday(NonZero::new(-1).unwrap(), Weekday::Monday)
-            .unwrap();
+        let finish = start.nth_kday(NonZero::new(-1).unwrap(), Weekday::Monday);
         assert_eq!(mmd, Gregorian::from_fixed(finish));
     }
 
@@ -401,8 +397,8 @@ mod tests {
 
         #[test]
         fn cycle_146097(t in EFFECTIVE_MIN..(EFFECTIVE_MAX-146097.0), w in 1..55) {
-            let f_start = Fixed::checked_new(t).unwrap();
-            let f_end = Fixed::checked_new(t + 146097.0).unwrap();
+            let f_start = Fixed::new(t);
+            let f_end = Fixed::new(t + 146097.0);
             let g_start = Gregorian::from_fixed(f_start);
             let g_end = Gregorian::from_fixed(f_end);
             assert_eq!(g_start.year() + 400, g_end.year());
@@ -410,8 +406,8 @@ mod tests {
             assert_eq!(g_start.day(), g_start.day());
 
             let w = NonZero::new(w as i16).unwrap();
-            let start_sum_kday = g_start.nth_kday(w, Weekday::Sunday).unwrap().checked_add(146097.0).unwrap();
-            let end_kday = g_end.nth_kday(w, Weekday::Sunday).unwrap();
+            let start_sum_kday = Fixed::new(g_start.nth_kday(w, Weekday::Sunday).get() + 146097.0);
+            let end_kday = g_end.nth_kday(w, Weekday::Sunday);
             assert_eq!(start_sum_kday, end_kday);
         }
 
@@ -431,8 +427,8 @@ mod tests {
 
         #[test]
         fn consistent_order(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, t1 in EFFECTIVE_MIN..EFFECTIVE_MAX) {
-            let f0 = Fixed::checked_new(t0).unwrap();
-            let f1 = Fixed::checked_new(t1).unwrap();
+            let f0 = Fixed::new(t0);
+            let f1 = Fixed::new(t1);
             let d0 = Gregorian::from_fixed(f0);
             let d1 = Gregorian::from_fixed(f1);
             let c0 = d0.to_common_date();
@@ -446,8 +442,8 @@ mod tests {
 
         #[test]
         fn consistent_order_small(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, diff in i8::MIN..i8::MAX) {
-            let f0 = Fixed::checked_new(t0).unwrap();
-            let f1 = Fixed::checked_new(t0 + (diff as f64)).unwrap();
+            let f0 = Fixed::new(t0);
+            let f1 = Fixed::new(t0 + (diff as f64));
             let d0 = Gregorian::from_fixed(f0);
             let d1 = Gregorian::from_fixed(f1);
             let c0 = d0.to_common_date();
