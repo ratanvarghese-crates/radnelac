@@ -2,7 +2,6 @@
 
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::gregorian::GregorianMonth;
-use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
@@ -88,6 +87,7 @@ impl ToFromCommonDate for Holocene {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::common::bound::BoundedDayCount;
 
     use crate::common::math::EFFECTIVE_MAX;
     use crate::common::math::EFFECTIVE_MIN;

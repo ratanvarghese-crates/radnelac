@@ -4,7 +4,6 @@ use crate::common::date::CommonDate;
 use crate::common::date::ToFromCommonDate;
 use crate::common::math::TermNum;
 use crate::day_count::fixed::CalculatedBounds;
-use crate::day_count::fixed::Epoch;
 use crate::day_count::fixed::Fixed;
 use crate::day_count::fixed::FromFixed;
 use crate::day_count::fixed::ToFixed;
