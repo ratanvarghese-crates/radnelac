@@ -69,25 +69,6 @@ impl Coptic {
     pub fn is_leap(year: i32) -> bool {
         year.modulus(4) == 3
     }
-
-    pub fn from_fixed_generic_unchecked(date: i64, epoch: i64) -> CommonDate {
-        let year = (4 * (date - epoch) + 1463).div_euclid(1461) as i32;
-        let year_start = Coptic::to_fixed_generic_unchecked(CommonDate::new(year, 1, 1), epoch);
-        let month = ((date - year_start).div_euclid(30) + 1) as u8;
-        let month_start =
-            Coptic::to_fixed_generic_unchecked(CommonDate::new(year, month, 1), epoch);
-
-        let day = (date - month_start + 1) as u8;
-        CommonDate::new(year, month, day)
-    }
-
-    pub fn to_fixed_generic_unchecked(date: CommonDate, epoch: i64) -> i64 {
-        let year = date.year as i64;
-        let month = date.month as i64;
-        let day = date.day as i64;
-
-        epoch - 1 + (365 * (year - 1)) + year.div_euclid(4) + (30 * (month - 1)) + day
-    }
 }
 
 impl CalculatedBounds for Coptic {}
@@ -101,20 +82,28 @@ impl Epoch for Coptic {
 }
 
 impl FromFixed for Coptic {
-    fn from_fixed(date: Fixed) -> Coptic {
-        Coptic(Coptic::from_fixed_generic_unchecked(
-            date.get_day_i(),
-            Coptic::epoch().get_day_i(),
-        ))
+    fn from_fixed(fixed_date: Fixed) -> Coptic {
+        let date = fixed_date.get_day_i();
+        let epoch = Coptic::epoch().get_day_i();
+        let year = (4 * (date - epoch) + 1463).div_euclid(1461) as i32;
+        let year_start = Coptic::to_fixed(Coptic(CommonDate::new(year, 1, 1)));
+        let month = ((date - year_start.get_day_i()).div_euclid(30) + 1) as u8;
+        let month_start = Coptic::to_fixed(Coptic(CommonDate::new(year, month, 1)));
+
+        let day = (date - month_start.get_day_i() + 1) as u8;
+        Coptic(CommonDate::new(year, month, day))
     }
 }
 
 impl ToFixed for Coptic {
     fn to_fixed(self) -> Fixed {
-        Fixed::cast_new(Coptic::to_fixed_generic_unchecked(
-            self.0,
-            Coptic::epoch().get_day_i(),
-        ))
+        let year = self.0.year as i64;
+        let month = self.0.month as i64;
+        let day = self.0.day as i64;
+        let epoch = Coptic::epoch().get_day_i();
+        Fixed::cast_new(
+            epoch - 1 + (365 * (year - 1)) + year.div_euclid(4) + (30 * (month - 1)) + day,
+        )
     }
 }
 
@@ -124,7 +113,7 @@ impl ToFromCommonDate for Coptic {
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
-        debug_assert!(Self::in_effective_bounds(date) && Self::valid_month_day(date).is_ok());
+        debug_assert!(Self::valid_month_day(date).is_ok());
         Self(date)
     }
 

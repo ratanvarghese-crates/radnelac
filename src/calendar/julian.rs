@@ -44,80 +44,6 @@ impl Julian {
         }
     }
 
-    pub fn from_fixed_generic_unchecked<T: Fn(i32) -> bool>(
-        date: i64,
-        epoch: i64,
-        is_leap: &T,
-    ) -> CommonDate {
-        let approx = ((4 * (date - epoch)) + 1464).div_euclid(1461);
-        let year = if approx <= 0 { approx - 1 } else { approx } as i32;
-        let year_start = Julian::to_fixed_generic_unchecked(
-            CommonDate {
-                year,
-                month: JulianMonth::January as u8,
-                day: 1,
-            },
-            epoch,
-            &is_leap,
-        );
-        let prior_days = date - year_start;
-        let march1 = Julian::to_fixed_generic_unchecked(
-            CommonDate {
-                year,
-                month: JulianMonth::March as u8,
-                day: 1,
-            },
-            epoch,
-            &is_leap,
-        );
-        let correction = if date < march1 {
-            0
-        } else if is_leap(year) {
-            1
-        } else {
-            2
-        };
-        let month = (12 * (prior_days + correction) + 373).div_euclid(367) as u8;
-        let month_start = Julian::to_fixed_generic_unchecked(
-            CommonDate {
-                year,
-                month,
-                day: 1,
-            },
-            epoch,
-            &is_leap,
-        );
-        let day = ((date - month_start) as u8) + 1;
-        debug_assert!(day > 0);
-        CommonDate { year, month, day }
-    }
-
-    pub fn to_fixed_generic_unchecked<T: Fn(i32) -> bool>(
-        date: CommonDate,
-        epoch: i64,
-        is_leap: &T,
-    ) -> i64 {
-        let year = date.year;
-        let month = date.month as i64;
-        let day = date.day as i64;
-
-        let y = if year < 0 { year + 1 } else { year } as i64;
-
-        let offset_e = epoch - 1;
-        let offset_y = 365 * (y - 1);
-        let offset_leap = (y - 1).div_euclid(4);
-        let offset_m = ((367 * month) - 362).div_euclid(12);
-        let offset_x = if month <= 2 {
-            0
-        } else if is_leap(year) {
-            -1
-        } else {
-            -2
-        };
-        let offset_d = day;
-        offset_e + offset_y + offset_leap + offset_m + offset_x + offset_d
-    }
-
     pub fn new_year(g_year: NonZero<i16>) -> Fixed {
         Julian(CommonDate {
             year: g_year.get() as i32,
@@ -146,24 +72,52 @@ impl Epoch for Julian {
 }
 
 impl FromFixed for Julian {
-    fn from_fixed(date: Fixed) -> Julian {
-        let result = Julian::from_fixed_generic_unchecked(
-            date.get_day_i(),
-            Julian::epoch().get_day_i(),
-            &Julian::is_leap,
-        );
-        Julian(result)
+    fn from_fixed(fixed_date: Fixed) -> Julian {
+        let date = fixed_date.get_day_i();
+        let epoch = Julian::epoch().get_day_i();
+        let approx = ((4 * (date - epoch)) + 1464).div_euclid(1461);
+        let year = if approx <= 0 { approx - 1 } else { approx } as i32;
+        let year_start = Julian(CommonDate::new(year, 1, 1)).to_fixed().get_day_i();
+        let prior_days = date - year_start;
+        let march1 = Julian(CommonDate::new(year, 3, 1)).to_fixed().get_day_i();
+        let correction = if date < march1 {
+            0
+        } else if Julian::is_leap(year) {
+            1
+        } else {
+            2
+        };
+        let month = (12 * (prior_days + correction) + 373).div_euclid(367) as u8;
+        let month_start = Julian(CommonDate::new(year, month, 1))
+            .to_fixed()
+            .get_day_i();
+        let day = ((date - month_start) as u8) + 1;
+        debug_assert!(day > 0);
+        Julian(CommonDate { year, month, day })
     }
 }
 
 impl ToFixed for Julian {
     fn to_fixed(self) -> Fixed {
-        let result = Julian::to_fixed_generic_unchecked(
-            self.0,
-            Julian::epoch().get_day_i(),
-            &Julian::is_leap,
-        );
-        Fixed::cast_new(result)
+        let year = self.0.year;
+        let month = self.0.month as i64;
+        let day = self.0.day as i64;
+
+        let y = if year < 0 { year + 1 } else { year } as i64;
+
+        let offset_e = Julian::epoch().get_day_i() - 1;
+        let offset_y = 365 * (y - 1);
+        let offset_leap = (y - 1).div_euclid(4);
+        let offset_m = ((367 * month) - 362).div_euclid(12);
+        let offset_x = if month <= 2 {
+            0
+        } else if Julian::is_leap(year) {
+            -1
+        } else {
+            -2
+        };
+        let offset_d = day;
+        Fixed::cast_new(offset_e + offset_y + offset_leap + offset_m + offset_x + offset_d)
     }
 }
 
@@ -173,7 +127,7 @@ impl ToFromCommonDate for Julian {
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
-        debug_assert!(Self::in_effective_bounds(date) && Self::valid_month_day(date).is_ok());
+        debug_assert!(Self::valid_month_day(date).is_ok());
         Self(date)
     }
 

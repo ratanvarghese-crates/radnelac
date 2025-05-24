@@ -61,18 +61,17 @@ impl Epoch for Armenian {
 
 impl FromFixed for Armenian {
     fn from_fixed(date: Fixed) -> Armenian {
-        // Deliberately diverging from Calendrical Calculations to avoid crossing bounds checks
-        let e =
-            Egyptian::from_fixed_generic_unchecked(date.get_day_i(), Armenian::epoch().get_day_i());
-        Armenian(e)
+        let f = Fixed::new(date.get() + Egyptian::epoch().get() - Armenian::epoch().get());
+        Armenian::try_from_common_date(Egyptian::from_fixed(f).to_common_date())
+            .expect("Same month/day validity")
     }
 }
 
 impl ToFixed for Armenian {
     fn to_fixed(self) -> Fixed {
-        // Deliberately diverging from Calendrical Calculations to avoid crossing bounds checks
-        let e = Egyptian::to_fixed_generic_unchecked(self.0, Armenian::epoch().get_day_i());
-        Fixed::cast_new(e)
+        let e =
+            Egyptian::try_from_common_date(self.to_common_date()).expect("Same month/day validity");
+        Fixed::new(Armenian::epoch().get() + e.to_fixed().get() - Egyptian::epoch().get())
     }
 }
 
@@ -82,7 +81,7 @@ impl ToFromCommonDate for Armenian {
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
-        debug_assert!(Self::in_effective_bounds(date) && Self::valid_month_day(date).is_ok());
+        debug_assert!(Self::valid_month_day(date).is_ok());
         Self(date)
     }
 
@@ -139,8 +138,8 @@ mod tests {
             let e = Egyptian::try_from_common_date(d).unwrap();
             let fa = a.to_fixed();
             let fe = e.to_fixed();
-            let diff_f = fa.get_day_i() - fe.get_day_i();
-            let diff_e = Armenian::epoch().get_day_i() - Egyptian::epoch().get_day_i();
+            let diff_f = fa.get() - fe.get();
+            let diff_e = Armenian::epoch().get() - Egyptian::epoch().get();
             assert_eq!(diff_f, diff_e);
         }
 

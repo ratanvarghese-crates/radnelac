@@ -113,40 +113,6 @@ impl<const L: bool> FrenchRevArith<L> {
             5
         }
     }
-
-    pub fn from_fixed_generic_unchecked(date: i64, epoch: i64, adj_leap: bool) -> CommonDate {
-        let approx = ((4000 * (date - epoch + 2)).div_euclid(1460969) + 1) as i32;
-        let approx_start =
-            Self::to_fixed_generic_unchecked(CommonDate::new(approx, 1, 1), epoch, adj_leap);
-        let year = if date < approx_start {
-            approx - 1
-        } else {
-            approx
-        };
-        let year_start =
-            Self::to_fixed_generic_unchecked(CommonDate::new(year, 1, 1), epoch, adj_leap);
-        let month = (1 + (date - year_start).div_euclid(30)) as u8;
-        let month_start =
-            Self::to_fixed_generic_unchecked(CommonDate::new(year, month, 1), epoch, adj_leap);
-        let day = (1 + date - month_start) as u8;
-        CommonDate::new(year, month, day)
-    }
-
-    pub fn to_fixed_generic_unchecked(date: CommonDate, epoch: i64, adj_leap: bool) -> i64 {
-        let year = date.year as i64;
-        let month = date.month as i64;
-        let day = date.day as i64;
-        let y_adj = if adj_leap { 1 } else { 0 };
-
-        let offset_e = epoch - 1;
-        let offset_y = 365 * (year - 1);
-        let offset_leap = (year + y_adj - 1).div_euclid(4) - (year + y_adj - 1).div_euclid(100)
-            + (year + y_adj - 1).div_euclid(400)
-            - (year + y_adj - 1).div_euclid(4000);
-        let offset_m = 30 * (month - 1);
-        let offset_d = day;
-        offset_e + offset_y + offset_leap + offset_m + offset_d
-    }
 }
 
 impl<const L: bool> CalculatedBounds for FrenchRevArith<L> {}
@@ -154,30 +120,46 @@ impl<const L: bool> CalculatedBounds for FrenchRevArith<L> {}
 impl<const L: bool> Epoch for FrenchRevArith<L> {
     fn epoch() -> Fixed {
         Gregorian::try_from_common_date(FRENCH_EPOCH_GREGORIAN)
-            .expect("Epoch known to be in range")
+            .expect("Epoch known to be valid")
             .to_fixed()
     }
 }
 
 impl<const L: bool> FromFixed for FrenchRevArith<L> {
-    fn from_fixed(date: Fixed) -> FrenchRevArith<L> {
-        let result = FrenchRevArith::<L>::from_fixed_generic_unchecked(
-            date.get_day_i(),
-            FrenchRevArith::<L>::epoch().get_day_i(),
-            L,
-        );
-        FrenchRevArith(result)
+    fn from_fixed(fixed_date: Fixed) -> FrenchRevArith<L> {
+        let date = fixed_date.get_day_i();
+        let epoch = Self::epoch().get_day_i();
+        let approx = ((4000 * (date - epoch + 2)).div_euclid(1460969) + 1) as i32;
+        let approx_start = Self(CommonDate::new(approx, 1, 1)).to_fixed().get_day_i();
+        let year = if date < approx_start {
+            approx - 1
+        } else {
+            approx
+        };
+        let year_start = Self(CommonDate::new(year, 1, 1)).to_fixed().get_day_i();
+        let month = (1 + (date - year_start).div_euclid(30)) as u8;
+        let month_start = Self(CommonDate::new(year, month, 1)).to_fixed().get_day_i();
+        let day = (1 + date - month_start) as u8;
+
+        FrenchRevArith(CommonDate::new(year, month, day))
     }
 }
 
 impl<const L: bool> ToFixed for FrenchRevArith<L> {
     fn to_fixed(self) -> Fixed {
-        let result = FrenchRevArith::<L>::to_fixed_generic_unchecked(
-            self.0,
-            FrenchRevArith::<L>::epoch().get_day_i(),
-            L,
-        );
-        Fixed::cast_new(result)
+        let year = self.0.year as i64;
+        let month = self.0.month as i64;
+        let day = self.0.day as i64;
+        let y_adj = if L { 1 } else { 0 };
+
+        let offset_e = Self::epoch().get_day_i() - 1;
+        let offset_y = 365 * (year - 1);
+        let offset_leap = (year + y_adj - 1).div_euclid(4) - (year + y_adj - 1).div_euclid(100)
+            + (year + y_adj - 1).div_euclid(400)
+            - (year + y_adj - 1).div_euclid(4000);
+        let offset_m = 30 * (month - 1);
+        let offset_d = day;
+        Fixed::cast_new(offset_e + offset_y + offset_leap + offset_m + offset_d)
     }
 }
 
@@ -187,7 +169,7 @@ impl<const L: bool> ToFromCommonDate for FrenchRevArith<L> {
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
-        debug_assert!(Self::in_effective_bounds(date) && Self::valid_month_day(date).is_ok());
+        debug_assert!(Self::valid_month_day(date).is_ok());
         Self(date)
     }
 

@@ -14,7 +14,7 @@ use crate::day_count::fixed::ToFixed;
 
 use num_traits::FromPrimitive;
 
-const HOLOCENE_YEAR_OFFSET: i16 = -10000 + 1;
+const HOLOCENE_YEAR_OFFSET: i16 = -10000;
 
 pub type HoloceneMonth = GregorianMonth;
 
@@ -43,29 +43,30 @@ impl CalculatedBounds for Holocene {}
 
 impl Epoch for Holocene {
     fn epoch() -> Fixed {
-        Gregorian::new_year(HOLOCENE_YEAR_OFFSET)
+        Gregorian::new_year(HOLOCENE_YEAR_OFFSET + 1)
     }
 }
 
 impl FromFixed for Holocene {
     fn from_fixed(date: Fixed) -> Holocene {
-        let result = Gregorian::from_fixed_generic_unchecked(
-            date.get_day_i(),
-            Holocene::epoch().get_day_i(),
-            &Holocene::is_leap,
-        );
-        Holocene(result)
+        let result = Gregorian::from_fixed(date).to_common_date();
+        Holocene(CommonDate::new(
+            result.year - (HOLOCENE_YEAR_OFFSET as i32),
+            result.month,
+            result.day,
+        ))
     }
 }
 
 impl ToFixed for Holocene {
     fn to_fixed(self) -> Fixed {
-        let result = Gregorian::to_fixed_generic_unchecked(
-            self.0,
-            Holocene::epoch().get_day_i(),
-            &Holocene::is_leap,
-        );
-        Fixed::cast_new(result)
+        let g = Gregorian::try_from_common_date(CommonDate::new(
+            self.0.year + (HOLOCENE_YEAR_OFFSET as i32),
+            self.0.month,
+            self.0.day,
+        ))
+        .expect("Same month/day rules");
+        g.to_fixed()
     }
 }
 
@@ -75,7 +76,7 @@ impl ToFromCommonDate for Holocene {
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
-        debug_assert!(Self::in_effective_bounds(date) && Self::valid_month_day(date).is_ok());
+        debug_assert!(Self::valid_month_day(date).is_ok());
         Self(date)
     }
 

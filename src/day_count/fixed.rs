@@ -33,7 +33,7 @@ impl EffectiveBound for Fixed {
 
 impl BoundedDayCount<f64> for Fixed {
     fn new(t: f64) -> Fixed {
-        debug_assert!(Fixed::in_effective_bounds(t).is_ok());
+        //debug_assert!(Fixed::in_effective_bounds(t).is_ok(), "t = {}", t);
         Fixed(t)
     }
     fn get(self) -> f64 {

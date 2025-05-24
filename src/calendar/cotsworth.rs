@@ -86,38 +86,6 @@ impl Cotsworth {
             1
         }
     }
-
-    pub fn from_fixed_unchecked(date: i64) -> CommonDate {
-        let ord =
-            Gregorian::ordinal_from_fixed_generic_unchecked(date, Gregorian::epoch().get_day_i());
-        const LEAP_DAY_ORD: u16 = (6 * 28) + 1;
-        match (ord.day_of_year, Cotsworth::is_leap(ord.year)) {
-            (366, true) => CommonDate::new(ord.year, 13, 29),
-            (365, false) => CommonDate::new(ord.year, 13, 29),
-            (LEAP_DAY_ORD, true) => CommonDate::new(ord.year, 6, 29),
-            (doy, is_leap) => {
-                let correction = if doy <= (6 * 28) || !is_leap { 0 } else { 1 };
-                let month = ((((doy - correction) - 1) as i64).div_euclid(28) + 1) as u8;
-                let day = ((doy - correction) as i64).adjusted_remainder(28) as u8;
-                CommonDate::new(ord.year, month, day)
-            }
-        }
-    }
-
-    pub fn to_fixed_unchecked(date: CommonDate) -> i64 {
-        let offset_y = Gregorian::to_fixed_generic_unchecked(
-            CommonDate::new(date.year, 1, 1),
-            Gregorian::epoch().get_day_i(),
-            &Gregorian::is_leap,
-        ) - 1;
-        let approx_m = ((date.month as i64) - 1) * 28;
-        let offset_m = if date.month > 6 && Cotsworth::is_leap(date.year) {
-            approx_m + 1
-        } else {
-            approx_m
-        };
-        offset_y + offset_m + (date.day as i64)
-    }
 }
 
 impl CalculatedBounds for Cotsworth {}
@@ -129,16 +97,38 @@ impl Epoch for Cotsworth {
 }
 
 impl FromFixed for Cotsworth {
-    fn from_fixed(date: Fixed) -> Cotsworth {
-        let result = Cotsworth::from_fixed_unchecked(date.get_day_i());
+    fn from_fixed(fixed_date: Fixed) -> Cotsworth {
+        let ord = Gregorian::ordinal_from_fixed(fixed_date);
+        const LEAP_DAY_ORD: u16 = (6 * 28) + 1;
+        let result = match (ord.day_of_year, Cotsworth::is_leap(ord.year)) {
+            (366, true) => CommonDate::new(ord.year, 13, 29),
+            (365, false) => CommonDate::new(ord.year, 13, 29),
+            (LEAP_DAY_ORD, true) => CommonDate::new(ord.year, 6, 29),
+            (doy, is_leap) => {
+                let correction = if doy <= (6 * 28) || !is_leap { 0 } else { 1 };
+                let month = ((((doy - correction) - 1) as i64).div_euclid(28) + 1) as u8;
+                let day = ((doy - correction) as i64).adjusted_remainder(28) as u8;
+                CommonDate::new(ord.year, month, day)
+            }
+        };
         Cotsworth(result)
     }
 }
 
 impl ToFixed for Cotsworth {
     fn to_fixed(self) -> Fixed {
-        let result = Cotsworth::to_fixed_unchecked(self.0);
-        Fixed::cast_new(result)
+        let offset_y = Gregorian::try_from_common_date(CommonDate::new(self.0.year, 1, 1))
+            .expect("month 1, day 1 should always be a valid Gregorian date")
+            .to_fixed()
+            .get_day_i()
+            - 1;
+        let approx_m = ((self.0.month as i64) - 1) * 28;
+        let offset_m = if self.0.month > 6 && Cotsworth::is_leap(self.0.year) {
+            approx_m + 1
+        } else {
+            approx_m
+        };
+        Fixed::cast_new(offset_y + offset_m + (self.0.day as i64))
     }
 }
 
@@ -148,7 +138,7 @@ impl ToFromCommonDate for Cotsworth {
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
-        debug_assert!(Self::in_effective_bounds(date) && Self::valid_month_day(date).is_ok());
+        debug_assert!(Self::valid_month_day(date).is_ok());
         Self(date)
     }
 

@@ -90,26 +90,6 @@ impl Roman {
         }
     }
 
-    pub fn to_fixed_unchecked(self) -> i64 {
-        let jld = match self.event {
-            RomanMonthlyEvent::Kalends => 1,
-            RomanMonthlyEvent::Nones => self.month.nones_of_month(),
-            RomanMonthlyEvent::Ides => self.month.ides_of_month(),
-        };
-        let jlc = CommonDate::new(self.year, self.month as u8, jld);
-        let j =
-            Julian::to_fixed_generic_unchecked(jlc, Julian::epoch().get_day_i(), &Julian::is_leap);
-        let c = self.count as i64;
-        let do_lp = Julian::is_leap(self.year)
-            && self.month == RomanMonth::March
-            && self.event == RomanMonthlyEvent::Kalends
-            && self.count <= 16
-            && self.count >= 6;
-        let lp0 = if do_lp { 0 } else { 1 };
-        let lp1 = if self.leap { 1 } else { 0 };
-        j - c + lp0 + lp1
-    }
-
     pub fn from_julian_unchecked(j_cdate: CommonDate, date: i64) -> (i32, u8, u8, u8, bool) {
         let month = (j_cdate.month as i64).adjusted_remainder(12) as u8;
         let year = j_cdate.year;
@@ -131,7 +111,8 @@ impl Roman {
             count: 1,
             leap: false,
         }
-        .to_fixed_unchecked();
+        .to_fixed()
+        .get_day_i();
         if day == 1 {
             (year, month, RomanMonthlyEvent::Kalends as u8, 1, false)
         } else if day <= month_r.nones_of_month() {
@@ -227,8 +208,25 @@ impl FromFixed for Roman {
 
 impl ToFixed for Roman {
     fn to_fixed(self) -> Fixed {
-        let result = self.to_fixed_unchecked();
-        Fixed::cast_new(result)
+        let jld = match self.event {
+            RomanMonthlyEvent::Kalends => 1,
+            RomanMonthlyEvent::Nones => self.month.nones_of_month(),
+            RomanMonthlyEvent::Ides => self.month.ides_of_month(),
+        };
+        let jlc = CommonDate::new(self.year, self.month as u8, jld);
+        let j = Julian::try_from_common_date(jlc)
+            .expect("Month/day in range")
+            .to_fixed()
+            .get_day_i();
+        let c = self.count as i64;
+        let do_lp = Julian::is_leap(self.year)
+            && self.month == RomanMonth::March
+            && self.event == RomanMonthlyEvent::Kalends
+            && self.count <= 16
+            && self.count >= 6;
+        let lp0 = if do_lp { 0 } else { 1 };
+        let lp1 = if self.leap { 1 } else { 0 };
+        Fixed::cast_new(j - c + lp0 + lp1)
     }
 }
 

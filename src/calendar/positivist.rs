@@ -96,27 +96,6 @@ impl Positivist {
             1
         }
     }
-
-    pub fn from_fixed_unchecked(date: i64) -> CommonDate {
-        let ord =
-            Gregorian::ordinal_from_fixed_generic_unchecked(date, Gregorian::epoch().get_day_i());
-        let year = ord.year - (POSITIVIST_YEAR_OFFSET as i32);
-        let month = (((ord.day_of_year - 1) as i64).div_euclid(28) + 1) as u8;
-        let day = (ord.day_of_year as i64).adjusted_remainder(28) as u8;
-        debug_assert!(day > 0 && day < 29);
-        CommonDate::new(year, month, day)
-    }
-
-    pub fn to_fixed_unchecked(date: CommonDate) -> i64 {
-        let y = date.year + (POSITIVIST_YEAR_OFFSET as i32);
-        let offset_y = Gregorian::to_fixed_generic_unchecked(
-            CommonDate::new(y, 1, 1),
-            Gregorian::epoch().get_day_i(),
-            &Gregorian::is_leap,
-        ) - 1;
-        let offset_m = ((date.month as i64) - 1) * 28;
-        offset_y + offset_m + (date.day as i64)
-    }
 }
 
 impl CalculatedBounds for Positivist {}
@@ -129,15 +108,25 @@ impl Epoch for Positivist {
 
 impl FromFixed for Positivist {
     fn from_fixed(date: Fixed) -> Positivist {
-        let result = Positivist::from_fixed_unchecked(date.get_day_i());
-        Positivist(result)
+        let ord = Gregorian::ordinal_from_fixed(date);
+        let year = ord.year - (POSITIVIST_YEAR_OFFSET as i32);
+        let month = (((ord.day_of_year - 1) as i64).div_euclid(28) + 1) as u8;
+        let day = (ord.day_of_year as i64).adjusted_remainder(28) as u8;
+        debug_assert!(day > 0 && day < 29);
+        Positivist(CommonDate::new(year, month, day))
     }
 }
 
 impl ToFixed for Positivist {
     fn to_fixed(self) -> Fixed {
-        let result = Positivist::to_fixed_unchecked(self.0);
-        Fixed::cast_new(result)
+        let y = self.0.year + (POSITIVIST_YEAR_OFFSET as i32);
+        let offset_y = Gregorian::try_from_common_date(CommonDate::new(y, 1, 1))
+            .expect("month 1, day 1 is always valid for Gregorian")
+            .to_fixed()
+            .get_day_i()
+            - 1;
+        let offset_m = ((self.0.month as i64) - 1) * 28;
+        Fixed::cast_new(offset_y + offset_m + (self.0.day as i64))
     }
 }
 
@@ -147,7 +136,7 @@ impl ToFromCommonDate for Positivist {
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
-        debug_assert!(Self::in_effective_bounds(date) && Self::valid_month_day(date).is_ok());
+        debug_assert!(Self::valid_month_day(date).is_ok());
         Self(date)
     }
 

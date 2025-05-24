@@ -1,6 +1,7 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
+use crate::common::date::ToFromCommonDate;
 use crate::common::math::TermNum;
 use crate::day_count::fixed::CalculatedBounds;
 use crate::day_count::fixed::Epoch;
@@ -44,54 +45,59 @@ impl ISO {
             day: Weekday::Monday,
         }
     }
+}
 
-    pub fn to_fixed_unchecked(year: i32, week: NonZero<u8>, day: Weekday) -> i64 {
-        let g = CommonDate::new(year - 1, 12, 28);
-        let w = NonZero::<i16>::from(week);
-        //Calendrical Calculations stores "day" as 7 for Sunday, as per ISO.
-        //However since we have an unambiguous enum, we can save such details for a
-        //formatting function. We also adjust "from_fixed_unchecked"
-        let day_i = (day as i64).adjusted_remainder(7);
-        Gregorian::nth_kday_unchecked(g, w, Weekday::Sunday) + (day_i)
-    }
+impl CalculatedBounds for ISO {}
 
-    pub fn from_fixed_unchecked(date: i64) -> (i32, NonZero<u8>, Weekday) {
-        let approx = Gregorian::ordinal_from_fixed_generic_unchecked(
-            date - 3,
-            Gregorian::epoch().get_day_i(),
-        )
-        .year;
-        let next =
-            ISO::to_fixed_unchecked(approx + 1, NonZero::<u8>::new(1).unwrap(), Weekday::Monday);
-        let year = if date >= next { approx + 1 } else { approx };
-        let current =
-            ISO::to_fixed_unchecked(year, NonZero::<u8>::new(1).unwrap(), Weekday::Monday);
+impl FromFixed for ISO {
+    fn from_fixed(fixed_date: Fixed) -> ISO {
+        let date = fixed_date.get_day_i();
+        let approx = Gregorian::ordinal_from_fixed(Fixed::cast_new(date - 3)).year;
+        let next = ISO {
+            year: approx + 1,
+            week: NonZero::<u8>::new(1).unwrap(),
+            day: Weekday::Monday,
+        }
+        .to_fixed();
+        let year = if date >= next.get_day_i() {
+            approx + 1
+        } else {
+            approx
+        };
+        let current = ISO {
+            year: year,
+            week: NonZero::<u8>::new(1).unwrap(),
+            day: Weekday::Monday,
+        }
+        .to_fixed()
+        .get_day_i();
         let week = (date - current).div_euclid(7) + 1;
         debug_assert!(week < 55 && week > 0);
         //Calendrical Calculations stores "day" as 7 for Sunday, as per ISO.
         //However since we have an unambiguous enum, we can save such details for a
         //formatting function. We also adjust "to_fixed_unchecked"
         let day = Weekday::from_u8(date.modulus(7) as u8).expect("In range due to modulus.");
-        (year, NonZero::new(week as u8).unwrap(), day)
-    }
-}
-
-impl CalculatedBounds for ISO {}
-
-impl FromFixed for ISO {
-    fn from_fixed(date: Fixed) -> ISO {
-        let result = ISO::from_fixed_unchecked(date.get_day_i());
         ISO {
-            year: result.0,
-            week: result.1,
-            day: result.2,
+            year: year,
+            week: NonZero::new(week as u8).unwrap(),
+            day: day,
         }
     }
 }
 
 impl ToFixed for ISO {
     fn to_fixed(self) -> Fixed {
-        let result = ISO::to_fixed_unchecked(self.year, self.week, self.day);
+        let g = CommonDate::new(self.year - 1, 12, 28);
+        let w = NonZero::<i16>::from(self.week);
+        //Calendrical Calculations stores "day" as 7 for Sunday, as per ISO.
+        //However since we have an unambiguous enum, we can save such details for a
+        //formatting function. We also adjust "from_fixed_unchecked"
+        let day_i = (self.day as i64).adjusted_remainder(7);
+        let result = Gregorian::try_from_common_date(g)
+            .expect("month 12, day 28 is always valid for Gregorian")
+            .nth_kday(w, Weekday::Sunday)
+            .get_day_i()
+            + day_i;
         Fixed::cast_new(result)
     }
 }

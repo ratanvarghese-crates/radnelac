@@ -81,7 +81,9 @@ impl Gregorian {
         m4 == 0 && m400 != 100 && m400 != 200 && m400 != 300
     }
 
-    pub fn ordinal_from_fixed_generic_unchecked(date: i64, epoch: i64) -> OrdinalDate {
+    pub fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        let date = fixed_date.get_day_i();
+        let epoch = Gregorian::epoch().get_day_i();
         let d0 = date - epoch;
         let n400 = d0.div_euclid((400 * 365) + 100 - 3);
         let d1 = d0.modulus((400 * 365) + 100 - 3);
@@ -104,7 +106,7 @@ impl Gregorian {
         }
     }
 
-    pub fn ordinal_from_common_unchecked(date: CommonDate) -> OrdinalDate {
+    pub fn ordinal_from_common(date: CommonDate) -> OrdinalDate {
         let month = date.month as i16;
         let day = date.day as i16;
         let correction = if month > 2 {
@@ -123,74 +125,13 @@ impl Gregorian {
         }
     }
 
-    pub fn from_fixed_generic_unchecked<T: Fn(i32) -> bool>(
-        date: i64,
-        epoch: i64,
-        is_leap: &T,
-    ) -> CommonDate {
-        let ord = Gregorian::ordinal_from_fixed_generic_unchecked(date, epoch);
-        let year = ord.year;
-        let prior_days: i32 = (ord.day_of_year as i32) - 1; //Modification
-        let march1 = Gregorian::to_fixed_generic_unchecked(
-            CommonDate {
-                year,
-                month: GregorianMonth::March as u8,
-                day: 1,
-            },
-            epoch,
-            &is_leap,
-        );
-        let correction: i32 = if date < march1 {
-            0
-        } else if Gregorian::is_leap(year) {
-            1
-        } else {
-            2
-        };
-        let month = (12 * (prior_days + correction) + 373).div_euclid(367) as u8;
-        let month_start = Gregorian::to_fixed_generic_unchecked(
-            CommonDate {
-                year,
-                month,
-                day: 1,
-            },
-            epoch,
-            &is_leap,
-        );
-        let day = ((date - month_start) as u8) + 1;
-        debug_assert!(day > 0);
-        CommonDate { year, month, day }
-    }
-
-    pub fn prior_elapsed_days(year: i32, epoch: i64) -> i64 {
+    pub fn prior_elapsed_days(year: i32) -> i64 {
         let year = year as i64;
-        let offset_e = epoch - 1;
+        let offset_e = Gregorian::epoch().get_day_i() - 1;
         let offset_y = 365 * (year - 1);
         let offset_leap =
             (year - 1).div_euclid(4) - (year - 1).div_euclid(100) + (year - 1).div_euclid(400);
         offset_e + offset_y + offset_leap
-    }
-
-    pub fn to_fixed_generic_unchecked<T: Fn(i32) -> bool>(
-        date: CommonDate,
-        epoch: i64,
-        is_leap: &T,
-    ) -> i64 {
-        let month = date.month as i64;
-        let day = date.day as i64;
-
-        let offset_prior = Gregorian::prior_elapsed_days(date.year, epoch);
-        let offset_m = ((367 * month) - 362).div_euclid(12);
-        let offset_x = if month <= 2 {
-            0
-        } else if is_leap(date.year) {
-            -1
-        } else {
-            -2
-        };
-        let offset_d = day;
-
-        offset_prior + offset_m + offset_x + offset_d
     }
 
     pub fn new_year(g_year: i16) -> Fixed {
@@ -213,21 +154,15 @@ impl Gregorian {
 
     //Arguments swapped from the original
     pub fn nth_kday(self, nz: NonZero<i16>, k: Weekday) -> Fixed {
-        Fixed::cast_new(Gregorian::nth_kday_unchecked(self.0, nz, k))
-    }
-
-    pub fn nth_kday_unchecked(date: CommonDate, nz: NonZero<i16>, k: Weekday) -> i64 {
-        let x = Gregorian::to_fixed_generic_unchecked(
-            date,
-            Gregorian::epoch().get_day_i(),
-            &Gregorian::is_leap,
-        );
+        let x = self.to_fixed().get_day_i();
         let n = nz.get();
-        if n > 0 {
+        let result = if n > 0 {
             k.unchecked_before(x) + (7 * n as i64)
         } else {
             k.unchecked_after(x) + (7 * n as i64)
-        }
+        };
+
+        Fixed::cast_new(result)
     }
 }
 
@@ -241,23 +176,41 @@ impl Epoch for Gregorian {
 
 impl FromFixed for Gregorian {
     fn from_fixed(date: Fixed) -> Gregorian {
-        let result = Gregorian::from_fixed_generic_unchecked(
-            date.get_day_i(),
-            Gregorian::epoch().get_day_i(),
-            &Gregorian::is_leap,
-        );
-        Gregorian(result)
+        let ord = Gregorian::ordinal_from_fixed(date);
+        let year = ord.year;
+        let prior_days: i32 = (ord.day_of_year as i32) - 1; //Modification
+        let march1 = Gregorian(CommonDate::new(year, 3, 1)).to_fixed();
+        let correction: i32 = if date < march1 {
+            0
+        } else if Gregorian::is_leap(year) {
+            1
+        } else {
+            2
+        };
+        let month = (12 * (prior_days + correction) + 373).div_euclid(367) as u8;
+        let month_start = Gregorian(CommonDate::new(year, month, 1)).to_fixed();
+        let day = ((date.get_day_i() - month_start.get_day_i()) as u8) + 1;
+        debug_assert!(day > 0);
+        Gregorian(CommonDate { year, month, day })
     }
 }
 
 impl ToFixed for Gregorian {
     fn to_fixed(self) -> Fixed {
-        let result = Gregorian::to_fixed_generic_unchecked(
-            self.0,
-            Gregorian::epoch().get_day_i(),
-            &Gregorian::is_leap,
-        );
-        Fixed::cast_new(result)
+        let month = self.0.month as i64;
+        let day = self.0.day as i64;
+
+        let offset_prior = Gregorian::prior_elapsed_days(self.0.year);
+        let offset_m = ((367 * month) - 362).div_euclid(12);
+        let offset_x = if month <= 2 {
+            0
+        } else if Gregorian::is_leap(self.0.year) {
+            -1
+        } else {
+            -2
+        };
+        let offset_d = day;
+        Fixed::cast_new(offset_prior + offset_m + offset_x + offset_d)
     }
 }
 
@@ -267,7 +220,7 @@ impl ToFromCommonDate for Gregorian {
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
-        debug_assert!(Self::in_effective_bounds(date) && Self::valid_month_day(date).is_ok());
+        debug_assert!(Self::valid_month_day(date).is_ok());
         Self(date)
     }
 
@@ -324,14 +277,14 @@ mod tests {
     #[test]
     fn prior_elapsed_days() {
         // https://kalendis.free.nf/Symmetry454-Arithmetic.pdf
-        let count = Gregorian::prior_elapsed_days(2009, Gregorian::epoch().get_day_i());
+        let count = Gregorian::prior_elapsed_days(2009);
         assert_eq!(count, 733407);
     }
 
     #[test]
     fn ordinal_from_common() {
         // https://kalendis.free.nf/Symmetry454-Arithmetic.pdf
-        let ord = Gregorian::ordinal_from_common_unchecked(CommonDate::new(2009, 7, 14));
+        let ord = Gregorian::ordinal_from_common(CommonDate::new(2009, 7, 14));
         assert_eq!(ord.day_of_year, 195);
     }
 

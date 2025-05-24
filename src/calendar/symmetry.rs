@@ -133,12 +133,6 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
         Self::days_before_month(sym_month) + (sym_day as u16)
     }
 
-    pub fn to_fixed_unchecked(sym: CommonDate, epoch: i64) -> i64 {
-        let new_year_day = Self::new_year_day_unchecked(sym.year, epoch);
-        let day_of_year = Self::day_of_year(sym.month, sym.day) as i64;
-        new_year_day + day_of_year - 1
-    }
-
     fn year_from_fixed(fixed: i64, epoch: i64) -> (i32, i64) {
         // Very tempting to cut "corners here" to avoid floating point.
         // But the notice at the top of the file reminds us to "stick to the script"
@@ -172,27 +166,6 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
         }
     }
 
-    pub fn from_fixed_unchecked(fixed: i64, epoch: i64) -> CommonDate {
-        let (sym_year, start_of_year) = Self::year_from_fixed(fixed, epoch);
-        let day_of_year = (fixed - start_of_year + 1) as u16;
-        // Thank Ferris for div_ceil
-        let week_of_year = day_of_year.div_ceil(7);
-        debug_assert!(week_of_year > 0 && week_of_year < 54);
-        let quarter = (4 * week_of_year).div_ceil(53);
-        debug_assert!(quarter > 0 && quarter < 5);
-        let day_of_quarter = day_of_year - (91 * (quarter - 1));
-        let week_of_quarter = day_of_quarter.div_ceil(7);
-        let month_of_quarter = if T {
-            (2 * week_of_quarter).div_ceil(9)
-        } else {
-            (2 * day_of_quarter).div_ceil(61)
-        };
-        let sym_month = (3 * (quarter - 1) + month_of_quarter) as u8;
-        // Skipping optionals
-        let sym_day = (day_of_year - Self::days_before_month(sym_month)) as u8;
-        CommonDate::new(sym_year, sym_month, sym_day)
-    }
-
     pub fn days_in_month(month: SymmetryMonth) -> u8 {
         let sym_month = month as i64;
         if sym_month == 13 {
@@ -214,16 +187,34 @@ impl<const T: bool, const U: bool> Epoch for Symmetry<T, U> {
 }
 
 impl<const T: bool, const U: bool> FromFixed for Symmetry<T, U> {
-    fn from_fixed(date: Fixed) -> Symmetry<T, U> {
-        let result = Self::from_fixed_unchecked(date.get_day_i(), Self::epoch().get_day_i());
-        Self(result)
+    fn from_fixed(fixed_date: Fixed) -> Symmetry<T, U> {
+        let date = fixed_date.get_day_i();
+        let (sym_year, start_of_year) = Self::year_from_fixed(date, Self::epoch().get_day_i());
+        let day_of_year = (date - start_of_year + 1) as u16;
+        // Thank Ferris for div_ceil
+        let week_of_year = day_of_year.div_ceil(7);
+        debug_assert!(week_of_year > 0 && week_of_year < 54);
+        let quarter = (4 * week_of_year).div_ceil(53);
+        debug_assert!(quarter > 0 && quarter < 5);
+        let day_of_quarter = day_of_year - (91 * (quarter - 1));
+        let week_of_quarter = day_of_quarter.div_ceil(7);
+        let month_of_quarter = if T {
+            (2 * week_of_quarter).div_ceil(9)
+        } else {
+            (2 * day_of_quarter).div_ceil(61)
+        };
+        let sym_month = (3 * (quarter - 1) + month_of_quarter) as u8;
+        // Skipping optionals
+        let sym_day = (day_of_year - Self::days_before_month(sym_month)) as u8;
+        Self(CommonDate::new(sym_year, sym_month, sym_day))
     }
 }
 
 impl<const T: bool, const U: bool> ToFixed for Symmetry<T, U> {
     fn to_fixed(self) -> Fixed {
-        let result = Self::to_fixed_unchecked(self.0, Self::epoch().get_day_i());
-        Fixed::cast_new(result)
+        let new_year_day = Self::new_year_day_unchecked(self.0.year, Self::epoch().get_day_i());
+        let day_of_year = Self::day_of_year(self.0.month, self.0.day) as i64;
+        Fixed::cast_new(new_year_day + day_of_year - 1)
     }
 }
 
@@ -233,7 +224,7 @@ impl<const T: bool, const U: bool> ToFromCommonDate for Symmetry<T, U> {
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
-        debug_assert!(Self::in_effective_bounds(date) && Self::valid_month_day(date).is_ok());
+        debug_assert!(Self::valid_month_day(date).is_ok());
         Self(date)
     }
 
@@ -308,12 +299,35 @@ mod tests {
     }
 
     #[test]
-    fn to_fixed_unchecked() {
-        let d = CommonDate::new(2009, 4, 5);
-        assert_eq!(Symmetry454::to_fixed_unchecked(d, 1), 733500);
-        assert_eq!(Symmetry010::to_fixed_unchecked(d, 1), 733500);
-        assert_eq!(Symmetry454Solstice::to_fixed_unchecked(d, 1), 733500);
-        assert_eq!(Symmetry010Solstice::to_fixed_unchecked(d, 1), 733500);
+    fn to_fixed() {
+        assert_eq!(
+            Symmetry454::try_from_common_date(CommonDate::new(2009, 4, 5))
+                .unwrap()
+                .to_fixed()
+                .get_day_i(),
+            733500
+        );
+        assert_eq!(
+            Symmetry010::try_from_common_date(CommonDate::new(2009, 4, 5))
+                .unwrap()
+                .to_fixed()
+                .get_day_i(),
+            733500
+        );
+        assert_eq!(
+            Symmetry454Solstice::try_from_common_date(CommonDate::new(2009, 4, 5))
+                .unwrap()
+                .to_fixed()
+                .get_day_i(),
+            733500
+        );
+        assert_eq!(
+            Symmetry010Solstice::try_from_common_date(CommonDate::new(2009, 4, 5))
+                .unwrap()
+                .to_fixed()
+                .get_day_i(),
+            733500
+        );
     }
 
     #[test]

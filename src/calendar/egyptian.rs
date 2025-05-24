@@ -49,26 +49,6 @@ impl Egyptian {
     pub fn day(self) -> u8 {
         self.0.day
     }
-
-    pub fn from_fixed_generic_unchecked(date: i64, epoch: i64) -> CommonDate {
-        let days = date - epoch;
-        let year = days.div_euclid(365) + 1;
-        let month = days.modulus(365).div_euclid(30) + 1;
-        let day = days - (365 * (year - 1)) - (30 * (month - 1)) + 1;
-        CommonDate {
-            year: year as i32,
-            month: month as u8,
-            day: day as u8,
-        }
-    }
-
-    pub fn to_fixed_generic_unchecked(date: CommonDate, epoch: i64) -> i64 {
-        let year = date.year as i64;
-        let month = date.month as i64;
-        let day = date.day as i64;
-        let offset = (365 * (year - 1)) + (30 * (month - 1)) + day - 1;
-        (epoch as i64) + offset
-    }
 }
 
 impl CalculatedBounds for Egyptian {}
@@ -81,19 +61,25 @@ impl Epoch for Egyptian {
 
 impl FromFixed for Egyptian {
     fn from_fixed(date: Fixed) -> Egyptian {
-        Egyptian(Egyptian::from_fixed_generic_unchecked(
-            date.get_day_i(),
-            Egyptian::epoch().get_day_i(),
-        ))
+        let days = date.get_day_i() - Egyptian::epoch().get_day_i();
+        let year = days.div_euclid(365) + 1;
+        let month = days.modulus(365).div_euclid(30) + 1;
+        let day = days - (365 * (year - 1)) - (30 * (month - 1)) + 1;
+        Egyptian(CommonDate {
+            year: year as i32,
+            month: month as u8,
+            day: day as u8,
+        })
     }
 }
 
 impl ToFixed for Egyptian {
     fn to_fixed(self) -> Fixed {
-        Fixed::cast_new(Egyptian::to_fixed_generic_unchecked(
-            self.0,
-            Egyptian::epoch().get_day_i(),
-        ))
+        let year = self.0.year as i64;
+        let month = self.0.month as i64;
+        let day = self.0.day as i64;
+        let offset = (365 * (year - 1)) + (30 * (month - 1)) + day - 1;
+        Fixed::cast_new(Egyptian::epoch().get_day_i() + offset)
     }
 }
 
@@ -103,7 +89,7 @@ impl ToFromCommonDate for Egyptian {
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
-        debug_assert!(Self::in_effective_bounds(date) && Self::valid_month_day(date).is_ok());
+        debug_assert!(Self::valid_month_day(date).is_ok());
         Self(date)
     }
 

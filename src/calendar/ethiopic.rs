@@ -84,18 +84,17 @@ impl Epoch for Ethiopic {
 
 impl FromFixed for Ethiopic {
     fn from_fixed(date: Fixed) -> Ethiopic {
-        // Deliberately diverging from Calendrical Calculations to avoid crossing bounds checks
-        let e =
-            Coptic::from_fixed_generic_unchecked(date.get_day_i(), Ethiopic::epoch().get_day_i());
-        Ethiopic(e)
+        let f = Fixed::new(date.get() + Coptic::epoch().get() - Ethiopic::epoch().get());
+        Ethiopic::try_from_common_date(Coptic::from_fixed(f).to_common_date())
+            .expect("Same month/day validity")
     }
 }
 
 impl ToFixed for Ethiopic {
     fn to_fixed(self) -> Fixed {
-        // Deliberately diverging from Calendrical Calculations to avoid crossing bounds checks
-        let e = Coptic::to_fixed_generic_unchecked(self.0, Ethiopic::epoch().get_day_i());
-        Fixed::cast_new(e)
+        let e =
+            Coptic::try_from_common_date(self.to_common_date()).expect("Same month/day validity");
+        Fixed::new(Ethiopic::epoch().get() + e.to_fixed().get() - Coptic::epoch().get())
     }
 }
 
@@ -105,7 +104,7 @@ impl ToFromCommonDate for Ethiopic {
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
-        debug_assert!(Self::in_effective_bounds(date) && Self::valid_month_day(date).is_ok());
+        debug_assert!(Self::valid_month_day(date).is_ok());
         Self(date)
     }
 
