@@ -44,13 +44,13 @@ impl BoundedDayCount<f64> for ModifiedJulianDay {
 mod tests {
     use super::*;
     use crate::common::math::TermNum;
-    use crate::common::math::EFFECTIVE_MAX;
-    use crate::common::math::EFFECTIVE_MIN;
+    use crate::day_count::fixed::FIXED_MAX;
+    use crate::day_count::fixed::FIXED_MIN;
     use crate::day_count::fixed::Fixed;
     use crate::day_count::jd::JulianDay;
     use proptest::proptest;
-    const MAX_JD: f64 = EFFECTIVE_MAX - MJD_EPOCH;
-    const MIN_JD: f64 = EFFECTIVE_MIN - MJD_EPOCH;
+    const MAX_JD: f64 = FIXED_MAX - MJD_EPOCH;
+    const MIN_JD: f64 = FIXED_MIN - MJD_EPOCH;
 
     #[test]
     fn around_epoch() {
@@ -80,7 +80,7 @@ mod tests {
         }
 
         #[test]
-        fn from_jd(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+        fn from_jd(t in FIXED_MIN..FIXED_MAX) {
             let x = Fixed::new(t);
             let j0 = JulianDay::from_fixed(x);
             let mjd0 = ModifiedJulianDay::from_fixed(x);

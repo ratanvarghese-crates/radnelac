@@ -232,12 +232,19 @@ impl ToFixed for Roman {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::common::bound::EffectiveBound;
     use crate::common::date::ToFromCommonDate;
-    use crate::common::math::EFFECTIVE_MAX;
-    use crate::common::math::EFFECTIVE_MIN;
+    use crate::day_count::fixed::FIXED_MAX;
+    use crate::day_count::fixed::FIXED_MIN;
     use crate::day_count::rd::RataDie;
     use proptest::prop_assume;
     use proptest::proptest;
+
+    #[test]
+    fn bounds_actually_work() {
+        assert!(Roman::from_fixed(Fixed::effective_min()) < Roman::from_fixed(Fixed::cast_new(0)));
+        assert!(Roman::from_fixed(Fixed::effective_max()) > Roman::from_fixed(Fixed::cast_new(0)));
+    }
 
     #[test]
     fn ides_of_march() {
@@ -251,7 +258,7 @@ mod tests {
 
     proptest! {
         #[test]
-        fn roundtrip(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+        fn roundtrip(t in FIXED_MIN..FIXED_MAX) {
             let t0 = RataDie::new(t).to_fixed().to_day();
             let r = Roman::from_fixed(t0);
             let t1 = r.to_fixed();
@@ -265,7 +272,7 @@ mod tests {
         }
 
         #[test]
-        fn consistent_order(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, t1 in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+        fn consistent_order(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
             let f0 = Fixed::new(t0);
             let f1 = Fixed::new(t1);
             let d0 = Roman::from_fixed(f0);
@@ -278,7 +285,7 @@ mod tests {
         }
 
         #[test]
-        fn consistent_order_small(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, diff in i8::MIN..i8::MAX) {
+        fn consistent_order_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
             let f0 = Fixed::new(t0);
             let f1 = Fixed::new(t0 + (diff as f64));
             let d0 = Roman::from_fixed(f0);

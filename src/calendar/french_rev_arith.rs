@@ -192,11 +192,32 @@ impl<const L: bool> ToFromCommonDate for FrenchRevArith<L> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::math::EFFECTIVE_MAX;
-    use crate::common::math::EFFECTIVE_MIN;
+    use crate::common::bound::EffectiveBound;
+    use crate::day_count::fixed::FIXED_MAX;
+    use crate::day_count::fixed::FIXED_MIN;
     use crate::day_count::rd::RataDie;
     use proptest::proptest;
-    const MAX_YEARS: i32 = (EFFECTIVE_MAX / 365.25) as i32;
+    const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
+
+    #[test]
+    fn bounds_actually_work() {
+        assert!(
+            FrenchRevArith::<true>::from_fixed(Fixed::effective_min())
+                < FrenchRevArith::<true>::from_fixed(Fixed::cast_new(0))
+        );
+        assert!(
+            FrenchRevArith::<true>::from_fixed(Fixed::effective_max())
+                > FrenchRevArith::<true>::from_fixed(Fixed::cast_new(0))
+        );
+        assert!(
+            FrenchRevArith::<false>::from_fixed(Fixed::effective_min())
+                < FrenchRevArith::<false>::from_fixed(Fixed::cast_new(0))
+        );
+        assert!(
+            FrenchRevArith::<false>::from_fixed(Fixed::effective_max())
+                > FrenchRevArith::<false>::from_fixed(Fixed::cast_new(0))
+        );
+    }
 
     #[test]
     fn leaps() {
@@ -319,7 +340,7 @@ mod tests {
         }
 
         #[test]
-        fn sansculottide_xor_weekday(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+        fn sansculottide_xor_weekday(t in FIXED_MIN..FIXED_MAX) {
             let t0 = RataDie::new(t).to_fixed().to_day();
             let r0 = FrenchRevArith::<true>::from_fixed(t0);
             let w0 = r0.weekday();
@@ -332,7 +353,7 @@ mod tests {
         }
 
         #[test]
-        fn roundtrip(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+        fn roundtrip(t in FIXED_MIN..FIXED_MAX) {
             let t0 = RataDie::new(t).to_fixed().to_day();
             let r0 = FrenchRevArith::<true>::from_fixed(t0);
             let t1 = r0.to_fixed();
@@ -358,7 +379,7 @@ mod tests {
         }
 
         #[test]
-        fn consistent_order(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, t1 in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+        fn consistent_order(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
             let f0 = Fixed::new(t0);
             let f1 = Fixed::new(t1);
             let d0 = FrenchRevArith::<true>::from_fixed(f0);
@@ -383,7 +404,7 @@ mod tests {
         }
 
         #[test]
-        fn consistent_order_small(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, diff in i8::MIN..i8::MAX) {
+        fn consistent_order_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
             let f0 = Fixed::new(t0);
             let f1 = Fixed::new(t0 + (diff as f64));
             let d0 = FrenchRevArith::<true>::from_fixed(f0);

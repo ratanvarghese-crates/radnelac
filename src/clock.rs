@@ -97,8 +97,8 @@ impl TryFrom<TimeOfDay> for ClockTime {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::math::EFFECTIVE_MAX;
-    use crate::common::math::EFFECTIVE_MIN;
+    use crate::day_count::fixed::FIXED_MAX;
+    use crate::day_count::fixed::FIXED_MIN;
     use crate::day_count::fixed::ToFixed;
     use crate::day_count::jd::JulianDay;
     use proptest::proptest;
@@ -150,7 +150,7 @@ mod tests {
         }
 
         #[test]
-        fn clock_time_from_moment(x in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+        fn clock_time_from_moment(x in FIXED_MIN..FIXED_MAX) {
             let t = TimeOfDay::from_fixed(Fixed::new(x));
             let c = ClockTime::try_from(t).unwrap();
             check_fields(c.hours, c.minutes, c.seconds).unwrap();

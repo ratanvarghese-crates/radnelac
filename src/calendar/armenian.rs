@@ -93,10 +93,21 @@ impl ToFromCommonDate for Armenian {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::math::EFFECTIVE_MAX;
-    use crate::common::math::EFFECTIVE_MIN;
+    use crate::common::bound::EffectiveBound;
+    use crate::day_count::fixed::FIXED_MAX;
+    use crate::day_count::fixed::FIXED_MIN;
     use proptest::proptest;
-    const MAX_YEARS: i32 = (EFFECTIVE_MAX / 365.25) as i32;
+    const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
+
+    #[test]
+    fn bounds_actually_work() {
+        assert!(
+            Armenian::from_fixed(Fixed::effective_min()) < Armenian::from_fixed(Fixed::cast_new(0))
+        );
+        assert!(
+            Armenian::from_fixed(Fixed::effective_max()) > Armenian::from_fixed(Fixed::cast_new(0))
+        );
+    }
 
     proptest! {
         #[test]
@@ -158,7 +169,7 @@ mod tests {
         }
 
         #[test]
-        fn consistent_order(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, t1 in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+        fn consistent_order(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
             let f0 = Fixed::new(t0);
             let f1 = Fixed::new(t1);
             let d0 = Armenian::from_fixed(f0);
@@ -173,7 +184,7 @@ mod tests {
         }
 
         #[test]
-        fn consistent_order_small(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, diff in i8::MIN..i8::MAX) {
+        fn consistent_order_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
             let f0 = Fixed::new(t0);
             let f1 = Fixed::new(t0 + (diff as f64));
             let d0 = Armenian::from_fixed(f0);

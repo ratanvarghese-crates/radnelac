@@ -44,11 +44,11 @@ impl BoundedDayCount<i64> for UnixMoment {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::math::EFFECTIVE_MAX;
-    use crate::common::math::EFFECTIVE_MIN;
+    use crate::day_count::fixed::FIXED_MAX;
+    use crate::day_count::fixed::FIXED_MIN;
     use proptest::proptest;
-    const MAX_UNIX: i64 = ((EFFECTIVE_MAX - UNIX_EPOCH) * UNIX_DAY) as i64;
-    const MIN_UNIX: i64 = ((EFFECTIVE_MIN - UNIX_EPOCH) * UNIX_DAY) as i64;
+    const MAX_UNIX: i64 = ((FIXED_MAX - UNIX_EPOCH) * UNIX_DAY) as i64;
+    const MIN_UNIX: i64 = ((FIXED_MIN - UNIX_EPOCH) * UNIX_DAY) as i64;
 
     #[test]
     fn around_epoch() {

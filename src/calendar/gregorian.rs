@@ -241,12 +241,25 @@ impl ToFromCommonDate for Gregorian {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::math::EFFECTIVE_MAX;
-    use crate::common::math::EFFECTIVE_MIN;
+    use crate::common::bound::EffectiveBound;
+    use crate::day_count::fixed::FIXED_MAX;
+    use crate::day_count::fixed::FIXED_MIN;
     use crate::day_cycle::week::Weekday;
     use proptest::proptest;
     use std::num::NonZero;
-    const MAX_YEARS: i32 = (EFFECTIVE_MAX / 365.25) as i32;
+    const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
+
+    #[test]
+    fn bounds_actually_work() {
+        assert!(
+            Gregorian::from_fixed(Fixed::effective_min())
+                < Gregorian::from_fixed(Fixed::cast_new(0))
+        );
+        assert!(
+            Gregorian::from_fixed(Fixed::effective_max())
+                > Gregorian::from_fixed(Fixed::cast_new(0))
+        );
+    }
 
     #[test]
     fn us_canada_labor_day() {
@@ -349,7 +362,7 @@ mod tests {
         }
 
         #[test]
-        fn cycle_146097(t in EFFECTIVE_MIN..(EFFECTIVE_MAX-146097.0), w in 1..55) {
+        fn cycle_146097(t in FIXED_MIN..(FIXED_MAX-146097.0), w in 1..55) {
             let f_start = Fixed::new(t);
             let f_end = Fixed::new(t + 146097.0);
             let g_start = Gregorian::from_fixed(f_start);
@@ -379,7 +392,7 @@ mod tests {
         }
 
         #[test]
-        fn consistent_order(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, t1 in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+        fn consistent_order(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
             let f0 = Fixed::new(t0);
             let f1 = Fixed::new(t1);
             let d0 = Gregorian::from_fixed(f0);
@@ -394,7 +407,7 @@ mod tests {
         }
 
         #[test]
-        fn consistent_order_small(t0 in EFFECTIVE_MIN..EFFECTIVE_MAX, diff in i8::MIN..i8::MAX) {
+        fn consistent_order_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
             let f0 = Fixed::new(t0);
             let f1 = Fixed::new(t0 + (diff as f64));
             let d0 = Gregorian::from_fixed(f0);

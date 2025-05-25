@@ -43,8 +43,8 @@ impl BoundedDayCount<f64> for RataDie {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::math::EFFECTIVE_MAX;
-    use crate::common::math::EFFECTIVE_MIN;
+    use crate::day_count::fixed::FIXED_MAX;
+    use crate::day_count::fixed::FIXED_MIN;
     use proptest::proptest;
 
     #[test]
@@ -54,7 +54,7 @@ mod tests {
 
     proptest! {
         #[test]
-        fn roundtrip(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+        fn roundtrip(t in FIXED_MIN..FIXED_MAX) {
             let rd0 = RataDie::new(t);
             let f0 = rd0.to_fixed();
             let rd1 = RataDie::from_fixed(f0);

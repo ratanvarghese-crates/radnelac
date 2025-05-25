@@ -4,6 +4,10 @@ use crate::common::math::TermNum;
 use crate::common::math::EFFECTIVE_MAX;
 use crate::common::math::EFFECTIVE_MIN;
 
+const FIXED_MAX_SCALE: f64 = 2048.0;
+pub const FIXED_MAX: f64 = (EFFECTIVE_MAX * (FIXED_MAX_SCALE - 1.0)) / FIXED_MAX_SCALE;
+pub const FIXED_MIN: f64 = (EFFECTIVE_MIN * (FIXED_MAX_SCALE - 1.0)) / FIXED_MAX_SCALE;
+
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct Fixed(f64);
 
@@ -23,17 +27,24 @@ impl Fixed {
 
 impl EffectiveBound for Fixed {
     fn effective_min() -> Fixed {
-        Fixed(EFFECTIVE_MIN)
+        Fixed(FIXED_MIN)
     }
 
     fn effective_max() -> Fixed {
-        Fixed(EFFECTIVE_MAX)
+        Fixed(FIXED_MAX)
     }
 }
 
 impl BoundedDayCount<f64> for Fixed {
     fn new(t: f64) -> Fixed {
-        //debug_assert!(Fixed::in_effective_bounds(t).is_ok(), "t = {}", t);
+        //It's expected to go beyond the FIXED_MAX/FIXED_MIN for intermediate results
+        //of calculations. However going beyond EFFECTIVE_MAX/EFFECTIVE_MIN is
+        //probably a bug.
+        debug_assert!(
+            Fixed::almost_in_effective_bounds(t, FIXED_MAX / FIXED_MAX_SCALE).is_ok(),
+            "t = {}",
+            t
+        );
         Fixed(t)
     }
     fn get(self) -> f64 {
@@ -69,9 +80,15 @@ impl<T: CalculatedBounds> EffectiveBound for T {
 mod tests {
     use super::*;
     use crate::common::math::EFFECTIVE_EPSILON;
-    use crate::common::math::EFFECTIVE_MAX;
-    use crate::common::math::EFFECTIVE_MIN;
+    use crate::day_count::fixed::FIXED_MAX;
+    use crate::day_count::fixed::FIXED_MIN;
     use proptest::proptest;
+
+    #[test]
+    fn bounds_propeties() {
+        assert!(FIXED_MAX < EFFECTIVE_MAX && FIXED_MAX > (EFFECTIVE_MAX / 2.0));
+        assert!(FIXED_MIN > EFFECTIVE_MIN && FIXED_MIN < (EFFECTIVE_MIN / 2.0));
+    }
 
     #[test]
     fn reject_weird() {
@@ -79,8 +96,8 @@ mod tests {
             f64::NAN,
             f64::INFINITY,
             f64::NEG_INFINITY,
-            EFFECTIVE_MAX + 1.0,
-            EFFECTIVE_MIN - 1.0,
+            FIXED_MAX + 1.0,
+            FIXED_MIN - 1.0,
         ];
         for x in weird_values {
             assert!(Fixed::in_effective_bounds(x).is_err());
@@ -89,7 +106,7 @@ mod tests {
 
     #[test]
     fn accept_ok() {
-        let ok_values = [EFFECTIVE_MAX, EFFECTIVE_MIN, 0.0, -0.0, EFFECTIVE_EPSILON];
+        let ok_values = [FIXED_MAX, FIXED_MIN, 0.0, -0.0, EFFECTIVE_EPSILON];
         for x in ok_values {
             assert!(Fixed::in_effective_bounds(x).is_ok());
         }
@@ -120,13 +137,13 @@ mod tests {
         }
 
         #[test]
-        fn time_of_day(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+        fn time_of_day(t in FIXED_MIN..FIXED_MAX) {
             let f = Fixed::new(t).to_time_of_day().get();
             assert!(f <= 1.0 && f >= 0.0);
         }
 
         #[test]
-        fn day(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+        fn day(t in FIXED_MIN..FIXED_MAX) {
             let f = Fixed::new(t).to_day().get();
             assert!(f <= (t + 1.0) && f >= (t - 1.0));
             let d = Fixed::new(t).get_day_i();

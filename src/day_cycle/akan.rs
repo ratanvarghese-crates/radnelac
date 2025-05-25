@@ -105,14 +105,14 @@ impl Epoch for Akan {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::math::EFFECTIVE_MAX;
-    use crate::common::math::EFFECTIVE_MIN;
+    use crate::day_count::fixed::FIXED_MAX;
+    use crate::day_count::fixed::FIXED_MIN;
     use crate::day_cycle::week::Weekday;
     use proptest::proptest;
 
     proptest! {
         #[test]
-        fn akan_stem_and_weekday(x in (EFFECTIVE_MIN+42.0)..(EFFECTIVE_MAX-42.0)) {
+        fn akan_stem_and_weekday(x in (FIXED_MIN+42.0)..(FIXED_MAX-42.0)) {
             //https://en.wikipedia.org/wiki/Akan_calendar
             let f = Fixed::new(x);
             let w = Weekday::from_fixed(f);
@@ -130,7 +130,7 @@ mod tests {
         }
 
         #[test]
-        fn akan_day_repeats(x in EFFECTIVE_MIN..(EFFECTIVE_MAX - 42.0), d in 1..41) {
+        fn akan_day_repeats(x in FIXED_MIN..(FIXED_MAX - 42.0), d in 1..41) {
             let f1 = Fixed::new(x);
             let f2 = Fixed::new(x + (d as f64));
             let f3 = Fixed::new(x + 42.0);
@@ -146,7 +146,7 @@ mod tests {
         }
 
         #[test]
-        fn akan_prefix_stem_repeats(x in EFFECTIVE_MIN..(EFFECTIVE_MAX - 7.0), d in 1.0..5.0) {
+        fn akan_prefix_stem_repeats(x in FIXED_MIN..(FIXED_MAX - 7.0), d in 1.0..5.0) {
             let a1 = Akan::from_fixed(Fixed::new(x));
             let a2 = Akan::from_fixed(Fixed::new(x + d));
             let a3 = Akan::from_fixed(Fixed::new(x + 6.0));
@@ -160,7 +160,7 @@ mod tests {
         }
 
         #[test]
-        fn prefix_stem_sequence(x in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+        fn prefix_stem_sequence(x in FIXED_MIN..FIXED_MAX) {
             let f0 = Fixed::new(x);
             let f1 = Fixed::new(x + 1.0);
             let a0 = Akan::from_fixed(f0);

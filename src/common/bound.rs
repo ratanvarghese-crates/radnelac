@@ -13,10 +13,10 @@ pub trait BoundedDayCount<T: TermNum64>: EffectiveBound {
     fn new(t: T) -> Self;
     fn get(self) -> T;
 
-    fn in_effective_bounds(t: T) -> Result<(), CalendarError> {
+    fn almost_in_effective_bounds(t: T, dt: T) -> Result<(), CalendarError> {
         if t.is_a_number() {
-            let min = Self::effective_min().get();
-            let max = Self::effective_max().get();
+            let min = Self::effective_min().get() - dt;
+            let max = Self::effective_max().get() + dt;
             if t >= min && t <= max {
                 Ok(())
             } else {
@@ -25,6 +25,10 @@ pub trait BoundedDayCount<T: TermNum64>: EffectiveBound {
         } else {
             Err(CalendarError::EncounteredNaN)
         }
+    }
+
+    fn in_effective_bounds(t: T) -> Result<(), CalendarError> {
+        Self::almost_in_effective_bounds(t, T::zero())
     }
 
     fn cast_new<U: AsPrimitive<T>>(t: U) -> Self {

@@ -70,13 +70,13 @@ impl Weekday {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::math::EFFECTIVE_MAX;
-    use crate::common::math::EFFECTIVE_MIN;
+    use crate::day_count::fixed::FIXED_MAX;
+    use crate::day_count::fixed::FIXED_MIN;
     use proptest::proptest;
 
     proptest! {
         #[test]
-        fn day_of_week_sequence(x in (EFFECTIVE_MIN+14.0)..(EFFECTIVE_MAX - 14.0)) {
+        fn day_of_week_sequence(x in (FIXED_MIN+14.0)..(FIXED_MAX - 14.0)) {
             let w = Weekday::Sunday;
             let d0 = w.on_or_before(Fixed::new(x));
             let d1 = Fixed::new(d0.get() + 1.0);
@@ -95,7 +95,7 @@ mod tests {
         }
 
         #[test]
-        fn day_of_week_repeats(x in EFFECTIVE_MIN..(EFFECTIVE_MAX - 7.0)) {
+        fn day_of_week_repeats(x in FIXED_MIN..(FIXED_MAX - 7.0)) {
             let f1 = Fixed::new(x);
             let a1 = Weekday::from_fixed(f1);
             let a2 = Weekday::from_fixed(Fixed::new(f1.get() + 1.0));
@@ -105,7 +105,7 @@ mod tests {
         }
 
         #[test]
-        fn day_of_week_on_or_before(x1 in (EFFECTIVE_MIN+14.0)..EFFECTIVE_MAX, w in 0..6) {
+        fn day_of_week_on_or_before(x1 in (FIXED_MIN+14.0)..FIXED_MAX, w in 0..6) {
             let w = Weekday::from_i64(w as i64).unwrap();
             let d1 = w.on_or_before(Fixed::new(x1));
             let d2 = w.on_or_before(d1);
@@ -118,7 +118,7 @@ mod tests {
         }
 
         #[test]
-        fn day_of_week_nearby(x1 in (EFFECTIVE_MIN+14.0)..(EFFECTIVE_MAX-14.0), w in 0..6) {
+        fn day_of_week_nearby(x1 in (FIXED_MIN+14.0)..(FIXED_MAX-14.0), w in 0..6) {
             let w = Weekday::from_i64(w as i64).unwrap();
             let f0 = Fixed::cast_new(x1 as i64);
             let f1 = w.on_or_before(f0);

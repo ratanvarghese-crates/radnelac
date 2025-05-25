@@ -106,10 +106,10 @@ mod tests {
     use super::*;
     use crate::common::bound::EffectiveBound;
     use crate::common::date::ToFromCommonDate;
-    use crate::common::math::EFFECTIVE_MAX;
-    use crate::common::math::EFFECTIVE_MIN;
+    use crate::day_count::fixed::FIXED_MAX;
+    use crate::day_count::fixed::FIXED_MIN;
     use proptest::proptest;
-    const MAX_YEARS: i32 = (EFFECTIVE_MAX / 365.25) as i32;
+    const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 
     #[test]
     fn week_of_impl() {
@@ -128,7 +128,7 @@ mod tests {
 
     proptest! {
         #[test]
-        fn roundtrip(t in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+        fn roundtrip(t in FIXED_MIN..FIXED_MAX) {
             let f0 = Fixed::new(t).to_day();
             let i = ISO::from_fixed(f0);
             let f1 = i.to_fixed();
