@@ -44,6 +44,15 @@ impl Julian {
         }
     }
 
+    pub fn prior_elapsed_days(year: i32) -> i64 {
+        let y = if year < 0 { year + 1 } else { year } as i64;
+
+        let offset_e = Julian::epoch().get_day_i() - 1;
+        let offset_y = 365 * (y - 1);
+        let offset_leap = (y - 1).div_euclid(4);
+        offset_e + offset_y + offset_leap
+    }
+
     pub fn new_year(g_year: NonZero<i16>) -> Fixed {
         Julian(CommonDate {
             year: g_year.get() as i32,
@@ -103,11 +112,7 @@ impl ToFixed for Julian {
         let month = self.0.month as i64;
         let day = self.0.day as i64;
 
-        let y = if year < 0 { year + 1 } else { year } as i64;
-
-        let offset_e = Julian::epoch().get_day_i() - 1;
-        let offset_y = 365 * (y - 1);
-        let offset_leap = (y - 1).div_euclid(4);
+        let offset_prior = Julian::prior_elapsed_days(year);
         let offset_m = ((367 * month) - 362).div_euclid(12);
         let offset_x = if month <= 2 {
             0
@@ -117,7 +122,7 @@ impl ToFixed for Julian {
             -2
         };
         let offset_d = day;
-        Fixed::cast_new(offset_e + offset_y + offset_leap + offset_m + offset_x + offset_d)
+        Fixed::cast_new(offset_prior + offset_m + offset_x + offset_d)
     }
 }
 
