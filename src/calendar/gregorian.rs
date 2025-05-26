@@ -106,11 +106,11 @@ impl Gregorian {
         }
     }
 
-    pub fn ordinal_from_common(date: CommonDate) -> OrdinalDate {
-        let month = date.month as i16;
-        let day = date.day as i16;
-        let correction = if month > 2 {
-            if Gregorian::is_leap(date.year) {
+    pub fn to_ordinal(self) -> OrdinalDate {
+        let month = self.0.month as i16;
+        let day = self.0.day as i16;
+        let correction = if month > (GregorianMonth::February as i16) {
+            if Gregorian::is_leap(self.0.year) {
                 -1
             } else {
                 -2
@@ -120,7 +120,7 @@ impl Gregorian {
         };
         let ordinal_day = ((367 * month) - 362).div_euclid(12) + day + correction;
         OrdinalDate {
-            year: date.year,
+            year: self.0.year,
             day_of_year: ordinal_day as u16,
         }
     }
@@ -297,7 +297,8 @@ mod tests {
     #[test]
     fn ordinal_from_common() {
         // https://kalendis.free.nf/Symmetry454-Arithmetic.pdf
-        let ord = Gregorian::ordinal_from_common(CommonDate::new(2009, 7, 14));
+        let g = Gregorian::try_from_common_date(CommonDate::new(2009, 7, 14)).unwrap();
+        let ord = g.to_ordinal();
         assert_eq!(ord.day_of_year, 195);
     }
 
