@@ -162,26 +162,11 @@ impl PartialOrd for Roman {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         if self == other {
             Some(Ordering::Equal)
-        } else if self
-            .year
-            .partial_cmp(&other.year)
-            .unwrap_or(Ordering::Equal)
-            != Ordering::Equal
-        {
+        } else if self.year != other.year {
             self.year.partial_cmp(&other.year)
-        } else if self
-            .month
-            .partial_cmp(&other.month)
-            .unwrap_or(Ordering::Equal)
-            != Ordering::Equal
-        {
+        } else if self.month != other.month {
             self.month.partial_cmp(&other.month)
-        } else if self
-            .event
-            .partial_cmp(&other.event)
-            .unwrap_or(Ordering::Equal)
-            != Ordering::Equal
-        {
+        } else if self.event != other.event {
             self.event.partial_cmp(&other.event)
         } else {
             other.count.partial_cmp(&self.count) //Intentionally reversed, "count" decreases with time
