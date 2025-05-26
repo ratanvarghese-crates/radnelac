@@ -25,9 +25,9 @@ impl FromFixed for TimeOfDay {
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct ClockTime {
-    hours: u8,
-    minutes: u8,
-    seconds: f32,
+    pub hours: u8,
+    pub minutes: u8,
+    pub seconds: f32,
 }
 
 fn check_fields(hours: u8, minutes: u8, seconds: f32) -> Result<(), CalendarError> {
@@ -97,9 +97,9 @@ impl TryFrom<TimeOfDay> for ClockTime {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::day_count::fixed::ToFixed;
     use crate::day_count::fixed::FIXED_MAX;
     use crate::day_count::fixed::FIXED_MIN;
-    use crate::day_count::fixed::ToFixed;
     use crate::day_count::jd::JulianDay;
     use proptest::proptest;
 
