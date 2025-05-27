@@ -8,12 +8,23 @@ use crate::day_count::fixed::FromFixed;
 pub struct TimeOfDay(f64);
 
 impl TimeOfDay {
+    pub fn new(t: f64) -> Self {
+        TimeOfDay(t)
+    }
+
     pub fn get(self) -> f64 {
         self.0
     }
 
-    pub fn new(t: f64) -> Self {
-        TimeOfDay(t)
+    pub fn new_from_clock(clock: ClockTime) -> TimeOfDay {
+        let a = [
+            0.0,
+            clock.hours as f64,
+            clock.minutes as f64,
+            clock.seconds as f64,
+        ];
+        let b = [24.0, 60.0, 60.0];
+        TimeOfDay::new(TermNum::from_mixed_radix(&a, &b, 0).expect("Inputs are valid"))
     }
 }
 
@@ -44,6 +55,18 @@ fn check_fields(hours: u8, minutes: u8, seconds: f32) -> Result<(), CalendarErro
 }
 
 impl ClockTime {
+    pub fn new(t: TimeOfDay) -> ClockTime {
+        let b = [24.0, 60.0, 60.0];
+        let mut a = [0.0, 0.0, 0.0, 0.0];
+        TermNum::to_mixed_radix(t.0, &b, 0, &mut a)
+            .expect("Valid inputs, other failures are impossible.");
+        ClockTime {
+            hours: a[1] as u8,
+            minutes: a[2] as u8,
+            seconds: a[3] as f32,
+        }
+    }
+
     pub fn set(hours: u8, minutes: u8, seconds: f32) -> Result<ClockTime, CalendarError> {
         match check_fields(hours, minutes, seconds) {
             Ok(()) => Ok(ClockTime {
@@ -63,19 +86,6 @@ impl Default for ClockTime {
             minutes: 0,
             seconds: 0.0,
         }
-    }
-}
-
-impl From<ClockTime> for TimeOfDay {
-    fn from(clock: ClockTime) -> TimeOfDay {
-        let a = [
-            0.0,
-            clock.hours as f64,
-            clock.minutes as f64,
-            clock.seconds as f64,
-        ];
-        let b = [24.0, 60.0, 60.0];
-        TimeOfDay::new(TermNum::from_mixed_radix(&a, &b, 0).expect("Inputs are valid"))
     }
 }
 
@@ -112,27 +122,27 @@ mod tests {
     #[test]
     fn obvious_clock_times() {
         assert_eq!(
-            TimeOfDay::from(ClockTime::set(0, 0, 0.0).unwrap()),
+            TimeOfDay::new_from_clock(ClockTime::set(0, 0, 0.0).unwrap()),
             TimeOfDay::new(0.0)
         );
         assert_eq!(
-            TimeOfDay::from(ClockTime::set(0, 0, 1.0).unwrap()),
+            TimeOfDay::new_from_clock(ClockTime::set(0, 0, 1.0).unwrap()),
             TimeOfDay::new(1.0 / (24.0 * 60.0 * 60.0))
         );
         assert_eq!(
-            TimeOfDay::from(ClockTime::set(0, 1, 0.0).unwrap()),
+            TimeOfDay::new_from_clock(ClockTime::set(0, 1, 0.0).unwrap()),
             TimeOfDay::new(1.0 / (24.0 * 60.0))
         );
         assert_eq!(
-            TimeOfDay::from(ClockTime::set(6, 0, 0.0).unwrap()),
+            TimeOfDay::new_from_clock(ClockTime::set(6, 0, 0.0).unwrap()),
             TimeOfDay::new(0.25)
         );
         assert_eq!(
-            TimeOfDay::from(ClockTime::set(12, 0, 0.0).unwrap()),
+            TimeOfDay::new_from_clock(ClockTime::set(12, 0, 0.0).unwrap()),
             TimeOfDay::new(0.5)
         );
         assert_eq!(
-            TimeOfDay::from(ClockTime::set(18, 0, 0.0).unwrap()),
+            TimeOfDay::new_from_clock(ClockTime::set(18, 0, 0.0).unwrap()),
             TimeOfDay::new(0.75)
         );
     }
@@ -144,7 +154,7 @@ mod tests {
             let minutes = amn as u8;
             let seconds = asc as f32;
             let c0 = ClockTime { hours, minutes, seconds };
-            let t = TimeOfDay::from(c0);
+            let t = TimeOfDay::new_from_clock(c0);
             let c1 = ClockTime::try_from(t).unwrap();
             assert_eq!(c0, c1);
         }
