@@ -144,6 +144,8 @@ impl ToFromCommonDate for Julian {
             Err(CalendarError::InvalidDay)
         } else if date.day > month_opt.unwrap().length(Julian::is_leap(date.year)) {
             Err(CalendarError::InvalidDay)
+        } else if date.year == 0 {
+            Err(CalendarError::InvalidYear)
         } else {
             Ok(())
         }
@@ -220,6 +222,7 @@ mod tests {
     proptest! {
         #[test]
         fn julian_roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..28) {
+            prop_assume!(year != 0);
             let d = CommonDate::new(year, month as u8, day as u8);
             let e0 = Julian::try_from_common_date(d).unwrap();
             let t = e0.to_fixed();

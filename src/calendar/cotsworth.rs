@@ -105,7 +105,7 @@ impl FromFixed for Cotsworth {
             (365, false) => CommonDate::new(ord.year, 13, 29),
             (LEAP_DAY_ORD, true) => CommonDate::new(ord.year, 6, 29),
             (doy, is_leap) => {
-                let correction = if doy <= (6 * 28) || !is_leap { 0 } else { 1 };
+                let correction = if doy < LEAP_DAY_ORD || !is_leap { 0 } else { 1 };
                 let month = ((((doy - correction) - 1) as i64).div_euclid(28) + 1) as u8;
                 let day = ((doy - correction) as i64).adjusted_remainder(28) as u8;
                 CommonDate::new(ord.year, month, day)
