@@ -33,5 +33,6 @@ pub mod calendar {
     pub mod positivist;
     pub mod roman;
     pub mod symmetry;
+    pub mod tranquility;
 }
 pub mod clock;
