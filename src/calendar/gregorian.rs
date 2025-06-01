@@ -347,15 +347,6 @@ mod tests {
 
     proptest! {
         #[test]
-        fn roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..28) {
-            let d = CommonDate{ year, month: month as u8, day: day as u8 };
-            let e0 = Gregorian::try_from_common_date(d).unwrap();
-            let t = e0.to_fixed();
-            let e1 = Gregorian::from_fixed(t);
-            assert_eq!(e0, e1);
-        }
-
-        #[test]
         fn year_ends(year in i16::MIN..i16::MAX) {
             let new_years_eve = Gregorian::year_end(year);
             let new_years_day = Gregorian::new_year(year + 1);

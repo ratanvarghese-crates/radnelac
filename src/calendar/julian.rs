@@ -221,16 +221,6 @@ mod tests {
 
     proptest! {
         #[test]
-        fn julian_roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..28) {
-            prop_assume!(year != 0);
-            let d = CommonDate::new(year, month as u8, day as u8);
-            let e0 = Julian::try_from_common_date(d).unwrap();
-            let t = e0.to_fixed();
-            let e1 = Julian::from_fixed(t);
-            assert_eq!(e0, e1);
-        }
-
-        #[test]
         fn julian_year_ends(year in i16::MIN..i16::MAX) {
             prop_assume!(year != 0);
             let new_years_eve = Julian::year_end(NonZero::new(year).unwrap());

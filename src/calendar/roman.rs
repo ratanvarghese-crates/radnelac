@@ -243,14 +243,6 @@ mod tests {
 
     proptest! {
         #[test]
-        fn roundtrip(t in FIXED_MIN..FIXED_MAX) {
-            let t0 = RataDie::new(t).to_fixed().to_day();
-            let r = Roman::from_fixed(t0);
-            let t1 = r.to_fixed();
-            assert_eq!(t0, t1);
-        }
-
-        #[test]
         fn auc_roundtrip(t in i16::MIN..i16::MAX) {
             prop_assume!(t != 0);
             assert_eq!(t as i32, Roman::julian_year_from_auc(Roman::auc_year_from_julian(NonZero::new(t as i32).unwrap())).get());

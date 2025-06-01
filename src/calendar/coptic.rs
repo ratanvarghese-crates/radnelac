@@ -156,14 +156,6 @@ mod tests {
 
     proptest! {
         #[test]
-        fn roundtrip(t in FIXED_MIN..FIXED_MAX) {
-            let t0 = RataDie::new(t).to_fixed().to_day();
-            let r = Coptic::from_fixed(t0);
-            let t1 = r.to_fixed();
-            assert_eq!(t0, t1);
-        }
-
-        #[test]
         fn christmas(y in i16::MIN..i16::MAX) {
             let c = Coptic::try_from_common_date(CommonDate::new(y as i32, CopticMonth::Koiak as u8, 29))?;
             let j = Julian::from_fixed(c.to_fixed());

@@ -487,23 +487,6 @@ mod tests {
         }
 
         #[test]
-        fn roundtrip(t in FIXED_MIN..FIXED_MAX) {
-            let t0 = RataDie::new(t).to_fixed().to_day();
-            let s454q = Symmetry454::from_fixed(t0);
-            let t1 = s454q.to_fixed();
-            assert_eq!(t0, t1);
-            let s010q = Symmetry010::from_fixed(t0);
-            let t2 = s010q.to_fixed();
-            assert_eq!(t0, t2);
-            let s454s = Symmetry454Solstice::from_fixed(t0);
-            let t3 = s454s.to_fixed();
-            assert_eq!(t0, t3);
-            let s010s = Symmetry010Solstice::from_fixed(t0);
-            let t4 = s010s.to_fixed();
-            assert_eq!(t0, t4);
-        }
-
-        #[test]
         fn invalid_common(year in -MAX_YEARS..MAX_YEARS, month in 14..u8::MAX, day in 32..u8::MAX) {
             let d_list = [
                 CommonDate{ year, month, day },

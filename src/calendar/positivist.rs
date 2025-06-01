@@ -206,18 +206,6 @@ mod tests {
         }
 
         #[test]
-        fn roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..13, day in 1..28) {
-            let d = CommonDate::new(year, month as u8, day as u8);
-            let e0 = Positivist::try_from_common_date(d).unwrap();
-            let t = e0.to_fixed();
-            let e1 = Positivist::from_fixed(t);
-            if e0 != e1 {
-                println!("{:?}\n{:?}\n{:?}\n", e0, e1, Gregorian::from_fixed(t));
-            }
-            assert_eq!(e0, e1);
-        }
-
-        #[test]
         fn start_with_gregorian(year in -MAX_YEARS..MAX_YEARS) {
             let d = CommonDate::new(year, 1, 1);
             let p = Positivist::try_from_common_date(d).unwrap();

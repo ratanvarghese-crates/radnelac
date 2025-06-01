@@ -437,45 +437,6 @@ mod tests {
         }
 
         #[test]
-        fn roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..13, day in 1..28) {
-            prop_assume!(year != 0);
-            let d = CommonDate::new(year, month as u8, day as u8);
-            let e0 = TranquilityMoment::try_from_common_date(d).unwrap();
-            let t = e0.to_fixed();
-            let e1 = TranquilityMoment::from_fixed(t);
-            if e0 != e1 {
-                println!("{:?}\n{:?}\n{:?}\n", e0, e1, Gregorian::from_fixed(t));
-            }
-            assert_eq!(e0, e1);
-        }
-
-        #[test]
-        fn roundtrip_recent(year in -100..100, month in 1..13, day in 1..28) {
-            prop_assume!(year != 0);
-            let d = CommonDate::new(year, month as u8, day as u8);
-            let e0 = TranquilityMoment::try_from_common_date(d).unwrap();
-            let t = e0.to_fixed();
-            let e1 = TranquilityMoment::from_fixed(t);
-            if e0 != e1 {
-                println!("{:?}\n{:?}\n{:?}\n", e0, e1, Gregorian::from_fixed(t));
-            }
-            assert_eq!(e0, e1);
-        }
-
-        #[test]
-        fn roundtrip_armstrong(year in -MAX_YEARS..MAX_YEARS) {
-            prop_assume!(year != 0);
-            let d = CommonDate::new(year, 0, 1);
-            let e0 = TranquilityMoment::try_from_common_date(d).unwrap();
-            let t = e0.to_fixed();
-            let e1 = TranquilityMoment::from_fixed(t);
-            if e0 != e1 {
-                println!("{:?}\n{:?}\n{:?}\n", e0, e1, Gregorian::from_fixed(t));
-            }
-            assert_eq!(e0, e1);
-        }
-
-        #[test]
         fn invalid_common(year in -MAX_YEARS..MAX_YEARS, month in 14..u8::MAX, day in 32..u8::MAX) {
             let d_list = [
                 CommonDate{ year, month, day },

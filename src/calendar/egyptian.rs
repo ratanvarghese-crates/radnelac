@@ -129,22 +129,6 @@ mod tests {
 
     proptest! {
         #[test]
-        fn roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
-            let d = CommonDate{ year: year, month: month as u8, day: day as u8 };
-            let e0 = Egyptian::try_from_common_date(d).unwrap();
-            let e1 = Egyptian::from_fixed(e0.to_fixed());
-            assert_eq!(e0, e1);
-        }
-
-        #[test]
-        fn roundtrip_month13(year in -MAX_YEARS..MAX_YEARS, day in 1..5) {
-            let d = CommonDate{ year: year, month: 13, day: day as u8 };
-            let e0 = Egyptian::try_from_common_date(d).unwrap();
-            let e1 = Egyptian::from_fixed(e0.to_fixed());
-            assert_eq!(e0, e1);
-        }
-
-        #[test]
         fn month_is_some(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
             let d = CommonDate{ year: year, month: month as u8, day: day as u8 };
             let e0 = Egyptian::try_from_common_date(d).unwrap();

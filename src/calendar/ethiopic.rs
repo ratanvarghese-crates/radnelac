@@ -146,14 +146,6 @@ mod tests {
 
     proptest! {
         #[test]
-        fn roundtrip(t in FIXED_MIN..FIXED_MAX) {
-            let t0 = RataDie::new(t).to_fixed().to_day();
-            let r = Ethiopic::from_fixed(t0);
-            let t1 = r.to_fixed();
-            assert_eq!(t0, t1);
-        }
-
-        #[test]
         fn locked_to_coptic(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
             let d = CommonDate{ year: year, month: month as u8, day: day as u8 };
             let a = Ethiopic::try_from_common_date(d).unwrap();

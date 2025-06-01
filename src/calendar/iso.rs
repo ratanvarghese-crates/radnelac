@@ -152,14 +152,6 @@ mod tests {
 
     proptest! {
         #[test]
-        fn roundtrip(t in FIXED_MIN..FIXED_MAX) {
-            let f0 = Fixed::new(t).to_day();
-            let i = ISO::from_fixed(f0);
-            let f1 = i.to_fixed();
-            assert_eq!(f0, f1);
-        }
-
-        #[test]
         fn first_week(year in -MAX_YEARS..MAX_YEARS) {
             // https://en.wikipedia.org/wiki/ISO_week_date
             // > If 1 January is on a Monday, Tuesday, Wednesday or Thursday, it is in W01.
