@@ -9,9 +9,10 @@ use crate::day_count::FromFixed;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
 use num_traits::FromPrimitive;
+use std::cmp::Ordering;
 use std::num::NonZero;
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct ISO {
     year: i32,
     week: NonZero<u8>,
@@ -46,6 +47,22 @@ impl ISO {
     }
 }
 
+impl PartialOrd for ISO {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if self == other {
+            Some(Ordering::Equal)
+        } else if self.year != other.year {
+            self.year.partial_cmp(&other.year)
+        } else if self.week != other.week {
+            self.week.partial_cmp(&other.week)
+        } else {
+            let self_day = (self.day as i64).adjusted_remainder(7);
+            let other_day = (other.day as i64).adjusted_remainder(7);
+            self_day.partial_cmp(&other_day)
+        }
+    }
+}
+
 impl CalculatedBounds for ISO {}
 
 impl FromFixed for ISO {
@@ -73,8 +90,8 @@ impl FromFixed for ISO {
         let week = (date - current).div_euclid(7) + 1;
         debug_assert!(week < 55 && week > 0);
         //Calendrical Calculations stores "day" as 7 for Sunday, as per ISO.
-        //However since we have an unambiguous enum, we can save such details for a
-        //formatting function. We also adjust "to_fixed_unchecked"
+        //However since we have an unambiguous enum, we can save such details for
+        //functions that need it. We also adjust "to_fixed_unchecked"
         let day = Weekday::from_u8(date.modulus(7) as u8).expect("In range due to modulus.");
         ISO {
             year: year,
@@ -89,8 +106,8 @@ impl ToFixed for ISO {
         let g = CommonDate::new(self.year - 1, 12, 28);
         let w = NonZero::<i16>::from(self.week);
         //Calendrical Calculations stores "day" as 7 for Sunday, as per ISO.
-        //However since we have an unambiguous enum, we can save such details for a
-        //formatting function. We also adjust "from_fixed_unchecked"
+        //However since we have an unambiguous enum, we can save such details for
+        //functions that need it. We also adjust "from_fixed_unchecked"
         let day_i = (self.day as i64).adjusted_remainder(7);
         let result = Gregorian::try_from_common_date(g)
             .expect("month 12, day 28 is always valid for Gregorian")
@@ -124,6 +141,13 @@ mod tests {
     fn bounds_actually_work() {
         assert!(ISO::from_fixed(Fixed::effective_min()) < ISO::from_fixed(Fixed::cast_new(0)));
         assert!(ISO::from_fixed(Fixed::effective_max()) > ISO::from_fixed(Fixed::cast_new(0)));
+    }
+
+    #[test]
+    fn epoch() {
+        let i0 = ISO::from_fixed(Fixed::cast_new(0));
+        let i1 = ISO::from_fixed(Fixed::cast_new(-1));
+        assert!(i0 > i1, "i0: {:?}, i1: {:?}", i0, i1);
     }
 
     proptest! {
