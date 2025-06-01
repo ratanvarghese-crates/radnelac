@@ -1,8 +1,8 @@
 use crate::common::bound::BoundedDayCount;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
-use crate::day_count::fixed::Fixed;
-use crate::day_count::fixed::FromFixed;
+use crate::day_count::Fixed;
+use crate::day_count::FromFixed;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct TimeOfDay(f64);
@@ -107,10 +107,10 @@ impl TryFrom<TimeOfDay> for ClockTime {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::day_count::fixed::ToFixed;
-    use crate::day_count::fixed::FIXED_MAX;
-    use crate::day_count::fixed::FIXED_MIN;
-    use crate::day_count::jd::JulianDay;
+    use crate::day_count::ToFixed;
+    use crate::day_count::FIXED_MAX;
+    use crate::day_count::FIXED_MIN;
+    use crate::day_count::JulianDay;
     use proptest::proptest;
 
     #[test]

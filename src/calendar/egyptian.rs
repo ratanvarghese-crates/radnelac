@@ -3,12 +3,12 @@ use crate::common::date::CommonDate;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
-use crate::day_count::fixed::CalculatedBounds;
-use crate::day_count::fixed::Epoch;
-use crate::day_count::fixed::Fixed;
-use crate::day_count::fixed::FromFixed;
-use crate::day_count::fixed::ToFixed;
-use crate::day_count::jd::JulianDay;
+use crate::day_count::CalculatedBounds;
+use crate::day_count::Epoch;
+use crate::day_count::Fixed;
+use crate::day_count::FromFixed;
+use crate::day_count::ToFixed;
+use crate::day_count::JulianDay;
 #[allow(unused_imports)] //FromPrimitive is needed for derive
 use num_traits::FromPrimitive;
 
@@ -112,8 +112,8 @@ impl ToFromCommonDate for Egyptian {
 mod tests {
     use super::*;
     use crate::common::bound::EffectiveBound;
-    use crate::day_count::fixed::FIXED_MAX;
-    use crate::day_count::fixed::FIXED_MIN;
+    use crate::day_count::FIXED_MAX;
+    use crate::day_count::FIXED_MIN;
     use proptest::proptest;
     const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 

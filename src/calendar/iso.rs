@@ -3,11 +3,11 @@ use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
 use crate::common::date::ToFromCommonDate;
 use crate::common::math::TermNum;
-use crate::day_count::fixed::CalculatedBounds;
-use crate::day_count::fixed::Fixed;
-use crate::day_count::fixed::FromFixed;
-use crate::day_count::fixed::ToFixed;
-use crate::day_cycle::week::Weekday;
+use crate::day_count::CalculatedBounds;
+use crate::day_count::Fixed;
+use crate::day_count::FromFixed;
+use crate::day_count::ToFixed;
+use crate::day_cycle::Weekday;
 use num_traits::FromPrimitive;
 use std::num::NonZero;
 
@@ -106,8 +106,8 @@ mod tests {
     use super::*;
     use crate::common::bound::EffectiveBound;
     use crate::common::date::ToFromCommonDate;
-    use crate::day_count::fixed::FIXED_MAX;
-    use crate::day_count::fixed::FIXED_MIN;
+    use crate::day_count::FIXED_MAX;
+    use crate::day_count::FIXED_MIN;
     use proptest::proptest;
     const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 

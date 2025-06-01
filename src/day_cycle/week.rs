@@ -1,7 +1,7 @@
 use crate::common::bound::BoundedCycle;
 use crate::common::bound::BoundedDayCount;
-use crate::day_count::fixed::Fixed;
-use crate::day_count::fixed::FromFixed;
+use crate::day_count::Fixed;
+use crate::day_count::FromFixed;
 #[allow(unused_imports)] //FromPrimitive is needed for derive
 use num_traits::FromPrimitive;
 
@@ -70,8 +70,8 @@ impl Weekday {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::day_count::fixed::FIXED_MAX;
-    use crate::day_count::fixed::FIXED_MIN;
+    use crate::day_count::FIXED_MAX;
+    use crate::day_count::FIXED_MIN;
     use proptest::proptest;
 
     proptest! {

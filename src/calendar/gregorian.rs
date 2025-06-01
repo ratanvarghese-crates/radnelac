@@ -4,13 +4,13 @@ use crate::common::date::OrdinalDate;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
-use crate::day_count::fixed::CalculatedBounds;
-use crate::day_count::fixed::Epoch;
-use crate::day_count::fixed::Fixed;
-use crate::day_count::fixed::FromFixed;
-use crate::day_count::fixed::ToFixed;
-use crate::day_count::rd::RataDie;
-use crate::day_cycle::week::Weekday;
+use crate::day_count::CalculatedBounds;
+use crate::day_count::Epoch;
+use crate::day_count::Fixed;
+use crate::day_count::FromFixed;
+use crate::day_count::ToFixed;
+use crate::day_count::RataDie;
+use crate::day_cycle::Weekday;
 use std::num::NonZero;
 
 #[allow(unused_imports)] //FromPrimitive is needed for derive
@@ -242,9 +242,9 @@ impl ToFromCommonDate for Gregorian {
 mod tests {
     use super::*;
     use crate::common::bound::EffectiveBound;
-    use crate::day_count::fixed::FIXED_MAX;
-    use crate::day_count::fixed::FIXED_MIN;
-    use crate::day_cycle::week::Weekday;
+    use crate::day_count::FIXED_MAX;
+    use crate::day_count::FIXED_MIN;
+    use crate::day_cycle::Weekday;
     use proptest::proptest;
     use std::num::NonZero;
     const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;

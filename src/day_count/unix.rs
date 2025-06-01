@@ -1,9 +1,9 @@
 use crate::common::bound::BoundedDayCount;
-use crate::day_count::fixed::CalculatedBounds;
-use crate::day_count::fixed::Epoch;
-use crate::day_count::fixed::Fixed;
-use crate::day_count::fixed::FromFixed;
-use crate::day_count::fixed::ToFixed;
+use crate::day_count::CalculatedBounds;
+use crate::day_count::Epoch;
+use crate::day_count::Fixed;
+use crate::day_count::FromFixed;
+use crate::day_count::ToFixed;
 
 const UNIX_EPOCH: f64 = 719163.0;
 const UNIX_DAY: f64 = 24.0 * 60.0 * 60.0;
@@ -44,8 +44,8 @@ impl BoundedDayCount<i64> for UnixMoment {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::day_count::fixed::FIXED_MAX;
-    use crate::day_count::fixed::FIXED_MIN;
+    use crate::day_count::FIXED_MAX;
+    use crate::day_count::FIXED_MIN;
     use proptest::proptest;
     const MAX_UNIX: i64 = ((FIXED_MAX - UNIX_EPOCH) * UNIX_DAY) as i64;
     const MIN_UNIX: i64 = ((FIXED_MIN - UNIX_EPOCH) * UNIX_DAY) as i64;

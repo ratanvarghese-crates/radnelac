@@ -5,11 +5,11 @@ use crate::calendar::gregorian::GregorianMonth;
 use crate::common::date::CommonDate;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
-use crate::day_count::fixed::CalculatedBounds;
-use crate::day_count::fixed::Epoch;
-use crate::day_count::fixed::Fixed;
-use crate::day_count::fixed::FromFixed;
-use crate::day_count::fixed::ToFixed;
+use crate::day_count::CalculatedBounds;
+use crate::day_count::Epoch;
+use crate::day_count::Fixed;
+use crate::day_count::FromFixed;
+use crate::day_count::ToFixed;
 
 use num_traits::FromPrimitive;
 
@@ -90,9 +90,9 @@ mod tests {
     use crate::common::bound::BoundedDayCount;
     use crate::common::bound::EffectiveBound;
 
-    use crate::day_count::fixed::FIXED_MAX;
-    use crate::day_count::fixed::FIXED_MIN;
-    use crate::day_count::rd::RataDie;
+    use crate::day_count::FIXED_MAX;
+    use crate::day_count::FIXED_MIN;
+    use crate::day_count::RataDie;
     const MAX_YEARS: i32 = ((FIXED_MAX / 365.25) - 10000.0) as i32;
 
     use proptest::proptest;

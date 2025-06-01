@@ -80,8 +80,8 @@ impl<T: CalculatedBounds> EffectiveBound for T {
 mod tests {
     use super::*;
     use crate::common::math::EFFECTIVE_EPSILON;
-    use crate::day_count::fixed::FIXED_MAX;
-    use crate::day_count::fixed::FIXED_MIN;
+    use crate::day_count::FIXED_MAX;
+    use crate::day_count::FIXED_MIN;
     use proptest::proptest;
 
     #[test]
