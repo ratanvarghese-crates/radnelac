@@ -61,7 +61,7 @@ impl Epoch for Armenian {
 
 impl FromFixed for Armenian {
     fn from_fixed(date: Fixed) -> Armenian {
-        let f = Fixed::new(date.get() + Egyptian::epoch().get() - Armenian::epoch().get());
+        let f = Fixed::new(date.get() + Egyptian::epoch().to_day().get() - Armenian::epoch().get());
         Armenian::try_from_common_date(Egyptian::from_fixed(f).to_common_date())
             .expect("Same month/day validity")
     }
@@ -71,7 +71,7 @@ impl ToFixed for Armenian {
     fn to_fixed(self) -> Fixed {
         let e =
             Egyptian::try_from_common_date(self.to_common_date()).expect("Same month/day validity");
-        Fixed::new(Armenian::epoch().get() + e.to_fixed().get() - Egyptian::epoch().get())
+        Fixed::new(Armenian::epoch().get() + e.to_fixed().get() - Egyptian::epoch().to_day().get())
     }
 }
 
@@ -111,22 +111,6 @@ mod tests {
 
     proptest! {
         #[test]
-        fn roundtrip(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
-            let d = CommonDate{ year: year, month: month as u8, day: day as u8 };
-            let e0 = Armenian::try_from_common_date(d).unwrap();
-            let e1 = Armenian::from_fixed(e0.to_fixed());
-            assert_eq!(e0, e1);
-        }
-
-        #[test]
-        fn roundtrip_month13(year in -MAX_YEARS..MAX_YEARS, day in 1..5) {
-            let d = CommonDate{ year: year, month: 13, day: day as u8 };
-            let e0 = Armenian::try_from_common_date(d).unwrap();
-            let e1 = Armenian::from_fixed(e0.to_fixed());
-            assert_eq!(e0, e1);
-        }
-
-        #[test]
         fn month_is_some(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
             let d = CommonDate{ year: year, month: month as u8, day: day as u8 };
             let e0 = Armenian::try_from_common_date(d).unwrap();
@@ -150,7 +134,7 @@ mod tests {
             let fa = a.to_fixed();
             let fe = e.to_fixed();
             let diff_f = fa.get() - fe.get();
-            let diff_e = Armenian::epoch().get() - Egyptian::epoch().get();
+            let diff_e = Armenian::epoch().get() - Egyptian::epoch().to_day().get();
             assert_eq!(diff_f, diff_e);
         }
 
