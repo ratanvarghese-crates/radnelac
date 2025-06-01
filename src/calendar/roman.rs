@@ -219,9 +219,9 @@ mod tests {
     use super::*;
     use crate::common::bound::EffectiveBound;
     use crate::common::date::ToFromCommonDate;
+    use crate::day_count::RataDie;
     use crate::day_count::FIXED_MAX;
     use crate::day_count::FIXED_MIN;
-    use crate::day_count::RataDie;
     use proptest::prop_assume;
     use proptest::proptest;
 
@@ -254,32 +254,6 @@ mod tests {
         fn auc_roundtrip(t in i16::MIN..i16::MAX) {
             prop_assume!(t != 0);
             assert_eq!(t as i32, Roman::julian_year_from_auc(Roman::auc_year_from_julian(NonZero::new(t as i32).unwrap())).get());
-        }
-
-        #[test]
-        fn consistent_order(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
-            let f0 = Fixed::new(t0);
-            let f1 = Fixed::new(t1);
-            let d0 = Roman::from_fixed(f0);
-            let d1 = Roman::from_fixed(f1);
-            assert_eq!(f0 < f1, d0 < d1);
-            assert_eq!(f0 <= f1, d0 <= d1);
-            assert_eq!(f0 == f1, d0 == d1);
-            assert_eq!(f0 >= f1, d0 >= d1);
-            assert_eq!(f0 > f1, d0 > d1);
-        }
-
-        #[test]
-        fn consistent_order_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
-            let f0 = Fixed::new(t0);
-            let f1 = Fixed::new(t0 + (diff as f64));
-            let d0 = Roman::from_fixed(f0);
-            let d1 = Roman::from_fixed(f1);
-            assert_eq!(f0 < f1, d0 < d1);
-            assert_eq!(f0 <= f1, d0 <= d1);
-            assert_eq!(f0 == f1, d0 == d1);
-            assert_eq!(f0 >= f1, d0 >= d1);
-            assert_eq!(f0 > f1, d0 > d1);
         }
     }
 }

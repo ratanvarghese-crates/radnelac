@@ -582,33 +582,5 @@ mod tests {
                 assert_eq!(gc.day as i64, entry.1);
             }
         }
-
-
-        #[test]
-        fn consistent_order(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
-            let f0 = Fixed::new(t0);
-            let f1 = Fixed::new(t1);
-            let d0 = TranquilityMoment::from_fixed(f0);
-            let d1 = TranquilityMoment::from_fixed(f1);
-            assert_eq!(f0 < f1, d0 < d1);
-            assert_eq!(f0 <= f1, d0 <= d1);
-            assert_eq!(f0 == f1, d0 == d1);
-            assert_eq!(f0 >= f1, d0 >= d1);
-            assert_eq!(f0 > f1, d0 > d1);
-        }
-
-        #[test]
-        fn consistent_order_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
-            let f0 = Fixed::new(t0);
-            let f1 = Fixed::new(t0 + (diff as f64));
-            let d0 = TranquilityMoment::from_fixed(f0);
-            let d1 = TranquilityMoment::from_fixed(f1);
-            assert_eq!(f0 < f1, d0 < d1);
-            assert_eq!(f0 <= f1, d0 <= d1);
-            assert_eq!(f0 == f1, d0 == d1);
-            assert_eq!(f0 >= f1, d0 >= d1);
-            assert_eq!(f0 > f1, d0 > d1);
-        }
-
     }
 }

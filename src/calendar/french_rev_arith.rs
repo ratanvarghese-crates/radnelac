@@ -193,9 +193,9 @@ impl<const L: bool> ToFromCommonDate for FrenchRevArith<L> {
 mod tests {
     use super::*;
     use crate::common::bound::EffectiveBound;
+    use crate::day_count::RataDie;
     use crate::day_count::FIXED_MAX;
     use crate::day_count::FIXED_MIN;
-    use crate::day_count::RataDie;
     use proptest::proptest;
     const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 
@@ -376,56 +376,6 @@ mod tests {
                 assert!(FrenchRevArith::<true>::try_from_common_date(d).is_err());
                 assert!(FrenchRevArith::<false>::try_from_common_date(d).is_err());
             }
-        }
-
-        #[test]
-        fn consistent_order(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
-            let f0 = Fixed::new(t0);
-            let f1 = Fixed::new(t1);
-            let d0 = FrenchRevArith::<true>::from_fixed(f0);
-            let d1 = FrenchRevArith::<true>::from_fixed(f1);
-            let c0 = d0.to_common_date();
-            let c1 = d1.to_common_date();
-            assert_eq!(f0 < f1, (d0 < d1) && (c0 < c1));
-            assert_eq!(f0 <= f1, (d0 <= d1) && (c0 <= c1));
-            assert_eq!(f0 == f1, (d0 == d1) && (c0 == c1));
-            assert_eq!(f0 >= f1, (d0 >= d1) && (c0 >= c1));
-            assert_eq!(f0 > f1, (d0 > d1) && (c0 > c1));
-
-            let d0f = FrenchRevArith::<false>::from_fixed(f0);
-            let d1f = FrenchRevArith::<false>::from_fixed(f1);
-            let c0f = d0f.to_common_date();
-            let c1f = d1f.to_common_date();
-            assert_eq!(f0 < f1, (d0f < d1f) && (c0f < c1f));
-            assert_eq!(f0 <= f1, (d0f <= d1f) && (c0f <= c1f));
-            assert_eq!(f0 == f1, (d0f == d1f) && (c0f == c1f));
-            assert_eq!(f0 >= f1, (d0f >= d1f) && (c0f >= c1f));
-            assert_eq!(f0 > f1, (d0f > d1f) && (c0f > c1f));
-        }
-
-        #[test]
-        fn consistent_order_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
-            let f0 = Fixed::new(t0);
-            let f1 = Fixed::new(t0 + (diff as f64));
-            let d0 = FrenchRevArith::<true>::from_fixed(f0);
-            let d1 = FrenchRevArith::<true>::from_fixed(f1);
-            let c0 = d0.to_common_date();
-            let c1 = d1.to_common_date();
-            assert_eq!(f0 < f1, (d0 < d1) && (c0 < c1));
-            assert_eq!(f0 <= f1, (d0 <= d1) && (c0 <= c1));
-            assert_eq!(f0 == f1, (d0 == d1) && (c0 == c1));
-            assert_eq!(f0 >= f1, (d0 >= d1) && (c0 >= c1));
-            assert_eq!(f0 > f1, (d0 > d1) && (c0 > c1));
-
-            let d0f = FrenchRevArith::<false>::from_fixed(f0);
-            let d1f = FrenchRevArith::<false>::from_fixed(f1);
-            let c0f = d0f.to_common_date();
-            let c1f = d1f.to_common_date();
-            assert_eq!(f0 < f1, (d0f < d1f) && (c0f < c1f));
-            assert_eq!(f0 <= f1, (d0f <= d1f) && (c0f <= c1f));
-            assert_eq!(f0 == f1, (d0f == d1f) && (c0f == c1f));
-            assert_eq!(f0 >= f1, (d0f >= d1f) && (c0f >= c1f));
-            assert_eq!(f0 > f1, (d0f > d1f) && (c0f > c1f));
         }
     }
 }

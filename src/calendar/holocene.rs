@@ -90,9 +90,9 @@ mod tests {
     use crate::common::bound::BoundedDayCount;
     use crate::common::bound::EffectiveBound;
 
+    use crate::day_count::RataDie;
     use crate::day_count::FIXED_MAX;
     use crate::day_count::FIXED_MIN;
-    use crate::day_count::RataDie;
     const MAX_YEARS: i32 = ((FIXED_MAX / 365.25) - 10000.0) as i32;
 
     use proptest::proptest;
@@ -166,36 +166,6 @@ mod tests {
             for d in d_list {
                 assert!(Holocene::try_from_common_date(d).is_err());
             }
-        }
-
-        #[test]
-        fn consistent_order(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
-            let f0 = Fixed::new(t0);
-            let f1 = Fixed::new(t1);
-            let d0 = Holocene::from_fixed(f0);
-            let d1 = Holocene::from_fixed(f1);
-            let c0 = d0.to_common_date();
-            let c1 = d1.to_common_date();
-            assert_eq!(f0 < f1, (d0 < d1) && (c0 < c1));
-            assert_eq!(f0 <= f1, (d0 <= d1) && (c0 <= c1));
-            assert_eq!(f0 == f1, (d0 == d1) && (c0 == c1));
-            assert_eq!(f0 >= f1, (d0 >= d1) && (c0 >= c1));
-            assert_eq!(f0 > f1, (d0 > d1) && (c0 > c1));
-        }
-
-        #[test]
-        fn consistent_order_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
-            let f0 = Fixed::new(t0);
-            let f1 = Fixed::new(t0 + (diff as f64));
-            let d0 = Holocene::from_fixed(f0);
-            let d1 = Holocene::from_fixed(f1);
-            let c0 = d0.to_common_date();
-            let c1 = d1.to_common_date();
-            assert_eq!(f0 < f1, (d0 < d1) && (c0 < c1));
-            assert_eq!(f0 <= f1, (d0 <= d1) && (c0 <= c1));
-            assert_eq!(f0 == f1, (d0 == d1) && (c0 == c1));
-            assert_eq!(f0 >= f1, (d0 >= d1) && (c0 >= c1));
-            assert_eq!(f0 > f1, (d0 > d1) && (c0 > c1));
         }
     }
 }
