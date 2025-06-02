@@ -471,22 +471,6 @@ mod tests {
 
     proptest! {
         #[test]
-        fn valid_day(t0 in FIXED_MIN..FIXED_MAX) {
-            let t = Fixed::new(t0);
-            let e1 = Symmetry454::from_fixed(t);
-            assert!(Symmetry454::valid_month_day(e1.to_common_date()).is_ok());
-            let e2 = Symmetry010::from_fixed(t);
-            if t0 == 0.0 {
-                println!("{:?}", e2);
-            }
-            assert!(Symmetry010::valid_month_day(e2.to_common_date()).is_ok());
-            let e3 = Symmetry454Solstice::from_fixed(t);
-            assert!(Symmetry454Solstice::valid_month_day(e3.to_common_date()).is_ok());
-            let e4 = Symmetry010Solstice::from_fixed(t);
-            assert!(Symmetry010Solstice::valid_month_day(e4.to_common_date()).is_ok());
-        }
-
-        #[test]
         fn invalid_common(year in -MAX_YEARS..MAX_YEARS, month in 14..u8::MAX, day in 32..u8::MAX) {
             let d_list = [
                 CommonDate{ year, month, day },

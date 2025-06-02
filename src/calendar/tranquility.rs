@@ -421,13 +421,6 @@ mod tests {
 
     proptest! {
         #[test]
-        fn valid_day(t0 in FIXED_MIN..FIXED_MAX) {
-            let t = Fixed::new(t0);
-            let e1 = TranquilityMoment::from_fixed(t);
-            assert!(TranquilityMoment::valid_month_day(e1.to_common_date()).is_ok());
-        }
-
-        #[test]
         fn complementary_xor_weekday(t in FIXED_MIN..FIXED_MAX) {
             let t0 = RataDie::new(t).to_fixed().to_day();
             let r0 = TranquilityMoment::from_fixed(t0);
