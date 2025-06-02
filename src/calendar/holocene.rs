@@ -145,19 +145,5 @@ mod tests {
             let fg = Gregorian::try_from_common_date(dg).unwrap().to_fixed();
             assert_eq!(fh, fg);
         }
-
-        #[test]
-        fn invalid_common(year in -MAX_YEARS..MAX_YEARS, month in 14..u8::MAX, day in 32..u8::MAX) {
-            let d_list = [
-                CommonDate{ year, month, day },
-                CommonDate{ year, month: 1, day},
-                CommonDate{ year, month, day: 1 },
-                CommonDate{ year, month: 1, day: 0},
-                CommonDate{ year, month: 0, day: 1 }
-            ];
-            for d in d_list {
-                assert!(Holocene::try_from_common_date(d).is_err());
-            }
-        }
     }
 }

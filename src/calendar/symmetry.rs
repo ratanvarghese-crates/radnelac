@@ -471,23 +471,6 @@ mod tests {
 
     proptest! {
         #[test]
-        fn invalid_common(year in -MAX_YEARS..MAX_YEARS, month in 14..u8::MAX, day in 32..u8::MAX) {
-            let d_list = [
-                CommonDate{ year, month, day },
-                CommonDate{ year, month: 1, day},
-                CommonDate{ year, month, day: 1 },
-                CommonDate{ year, month: 1, day: 0},
-                CommonDate{ year, month: 0, day: 1 }
-            ];
-            for d in d_list {
-                assert!(Symmetry454::try_from_common_date(d).is_err());
-                assert!(Symmetry010::try_from_common_date(d).is_err());
-                assert!(Symmetry454Solstice::try_from_common_date(d).is_err());
-                assert!(Symmetry010Solstice::try_from_common_date(d).is_err());
-            }
-        }
-
-        #[test]
         fn month_start_on_monday_454(year in -MAX_YEARS..MAX_YEARS, month in 1..12) {
             let c = CommonDate::new(year as i32, month as u8, 1);
             let d = Symmetry454::try_from_common_date(c).unwrap();

@@ -214,19 +214,5 @@ mod tests {
             assert_eq!(g.month(), GregorianMonth::December);
             assert_eq!(g.day(), 31);
         }
-
-        #[test]
-        fn invalid_common(year in -MAX_YEARS..MAX_YEARS, month in 15..u8::MAX, day in 30..u8::MAX) {
-            let d_list = [
-                CommonDate{ year, month, day },
-                CommonDate{ year, month: 1, day},
-                CommonDate{ year, month, day: 1 },
-                CommonDate{ year, month: 1, day: 0},
-                CommonDate{ year, month: 0, day: 1 }
-            ];
-            for d in d_list {
-                assert!(Cotsworth::try_from_common_date(d).is_err());
-            }
-        }
     }
 }

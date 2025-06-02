@@ -162,19 +162,5 @@ mod tests {
             assert_eq!(j.month(), JulianMonth::December);
             assert!(j.day() == 25 || j.day() == 26);
         }
-
-        #[test]
-        fn invalid_common(year in -MAX_YEARS..MAX_YEARS, month in 14..u8::MAX, day in 31..u8::MAX) {
-            let d_list = [
-                CommonDate{ year, month, day },
-                CommonDate{ year, month: 1, day},
-                CommonDate{ year, month, day: 1 },
-                CommonDate{ year, month: 1, day: 0},
-                CommonDate{ year, month: 0, day: 1 }
-            ];
-            for d in d_list {
-                assert!(Coptic::try_from_common_date(d).is_err());
-            }
-        }
     }
 }

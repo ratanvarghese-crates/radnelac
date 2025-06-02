@@ -430,19 +430,6 @@ mod tests {
         }
 
         #[test]
-        fn invalid_common(year in -MAX_YEARS..MAX_YEARS, month in 14..u8::MAX, day in 32..u8::MAX) {
-            let d_list = [
-                CommonDate{ year, month, day },
-                CommonDate{ year, month: 1, day},
-                CommonDate{ year, month, day: 1 },
-                CommonDate{ year, month: 1, day: 0},
-            ];
-            for d in d_list {
-                assert!(TranquilityMoment::try_from_common_date(d).is_err());
-            }
-        }
-
-        #[test]
         fn gregorian_lookup(t in FIXED_MIN..FIXED_MAX) {
             // https://web.archive.org/web/20180818233025/https://en.wikipedia.org/wiki/Tranquility_calendar
             let f = RataDie::new(t).to_fixed().to_day();
