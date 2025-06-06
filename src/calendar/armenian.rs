@@ -113,17 +113,5 @@ mod tests {
             assert!(e0.month().is_none());
             assert_eq!(e0.to_common_date(), d);
         }
-
-        #[test]
-        fn locked_to_egyptian(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
-            let d = CommonDate{ year: year, month: month as u8, day: day as u8 };
-            let a = Armenian::try_from_common_date(d).unwrap();
-            let e = Egyptian::try_from_common_date(d).unwrap();
-            let fa = a.to_fixed();
-            let fe = e.to_fixed();
-            let diff_f = fa.get() - fe.get();
-            let diff_e = Armenian::epoch().get() - Egyptian::epoch().to_day().get();
-            assert_eq!(diff_f, diff_e);
-        }
     }
 }

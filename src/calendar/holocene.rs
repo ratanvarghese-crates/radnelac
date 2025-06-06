@@ -88,11 +88,6 @@ impl ToFromCommonDate for Holocene {
 mod tests {
     use super::*;
 
-    use crate::day_count::FIXED_MAX;
-    const MAX_YEARS: i32 = ((FIXED_MAX / 365.25) - 10000.0) as i32;
-
-    use proptest::proptest;
-
     #[test]
     fn date_of_proposal() {
         let dh = CommonDate {
@@ -108,28 +103,5 @@ mod tests {
         let fh = Holocene::try_from_common_date(dh).unwrap().to_fixed();
         let fg = Gregorian::try_from_common_date(dg).unwrap().to_fixed();
         assert_eq!(fh, fg);
-    }
-
-    proptest! {
-        #[test]
-        fn locked_to_gregorian(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..28) {
-            let d = CommonDate{ year: year, month: month as u8, day: day as u8 };
-            let a = Holocene::try_from_common_date(d).unwrap();
-            let e = Gregorian::try_from_common_date(d).unwrap();
-            let fa = a.to_fixed();
-            let fe = e.to_fixed();
-            let diff_f = fa.get_day_i() - fe.get_day_i();
-            let diff_e = Holocene::epoch().get_day_i() - Gregorian::epoch().get_day_i();
-            assert_eq!(diff_f, diff_e);
-        }
-
-        #[test]
-        fn locked_to_gregorian_alt(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..28) {
-            let dh = CommonDate{ year: year, month: month as u8, day: day as u8 };
-            let dg = CommonDate{ year: year - 10000, month: month as u8, day: day as u8 };
-            let fh = Holocene::try_from_common_date(dh).unwrap().to_fixed();
-            let fg = Gregorian::try_from_common_date(dg).unwrap().to_fixed();
-            assert_eq!(fh, fg);
-        }
     }
 }

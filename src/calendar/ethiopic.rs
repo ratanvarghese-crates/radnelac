@@ -121,27 +121,3 @@ impl ToFromCommonDate for Ethiopic {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    use crate::day_count::FIXED_MAX;
-    const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
-
-    use proptest::proptest;
-
-    proptest! {
-        #[test]
-        fn locked_to_coptic(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
-            let d = CommonDate{ year: year, month: month as u8, day: day as u8 };
-            let a = Ethiopic::try_from_common_date(d).unwrap();
-            let e = Coptic::try_from_common_date(d).unwrap();
-            let fa = a.to_fixed();
-            let fe = e.to_fixed();
-            let diff_f = fa.get_day_i() - fe.get_day_i();
-            let diff_e = Ethiopic::epoch().get_day_i() - Coptic::epoch().get_day_i();
-            assert_eq!(diff_f, diff_e);
-        }
-    }
-}

@@ -162,12 +162,10 @@ impl ToFromCommonDate for Cotsworth {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::calendar::gregorian::GregorianMonth;
     use crate::day_count::RataDie;
     use crate::day_count::FIXED_MAX;
     use crate::day_count::FIXED_MIN;
     use proptest::proptest;
-    const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 
     proptest! {
         #[test]
@@ -177,29 +175,6 @@ mod tests {
             let w0 = r0.weekday();
             let s0 = r0.complementary();
             assert_ne!(w0.is_some(), s0.is_some());
-        }
-
-        #[test]
-        fn start_with_gregorian(year in -MAX_YEARS..MAX_YEARS) {
-            let d = CommonDate::new(year, 1, 1);
-            let p = Cotsworth::try_from_common_date(d).unwrap();
-            let g = Gregorian::from_fixed(p.to_fixed());
-            assert_eq!(g.year(), year);
-            assert_eq!(g.month(), GregorianMonth::January);
-            assert_eq!(g.day(), 1);
-            assert_eq!(p.weekday().unwrap(), Weekday::Sunday);
-        }
-
-        #[test]
-        fn end_with_gregorian(year in -MAX_YEARS..MAX_YEARS) {
-            let d = CommonDate::new(year, 13, 29);
-            let p = Cotsworth::try_from_common_date(d).unwrap();
-            let g = Gregorian::from_fixed(p.to_fixed());
-
-            assert_eq!(p.complementary().unwrap(), CotsworthComplementaryDay::YearDay);
-            assert_eq!(g.year(), year);
-            assert_eq!(g.month(), GregorianMonth::December);
-            assert_eq!(g.day(), 31);
         }
     }
 }

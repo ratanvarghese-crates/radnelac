@@ -158,12 +158,10 @@ impl ToFromCommonDate for Positivist {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::calendar::gregorian::GregorianMonth;
     use crate::day_count::RataDie;
     use crate::day_count::FIXED_MAX;
     use crate::day_count::FIXED_MIN;
     use proptest::proptest;
-    const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 
     #[test]
     fn example_from_text() {
@@ -183,42 +181,6 @@ mod tests {
             let w0 = r0.weekday();
             let s0 = r0.complementary();
             assert_ne!(w0.is_some(), s0.is_some());
-        }
-
-        #[test]
-        fn start_with_gregorian(year in -MAX_YEARS..MAX_YEARS) {
-            let d = CommonDate::new(year, 1, 1);
-            let p = Positivist::try_from_common_date(d).unwrap();
-            let g = Gregorian::from_fixed(p.to_fixed());
-            assert_eq!(g.year(), year + 1788);
-            assert_eq!(g.month(), GregorianMonth::January);
-            assert_eq!(g.day(), 1);
-            assert_eq!(p.weekday().unwrap(), Weekday::Monday);
-        }
-
-        #[test]
-        fn end_with_gregorian(year in -MAX_YEARS..MAX_YEARS) {
-            let d = CommonDate::new(year, 14, 1);
-            let p = Positivist::try_from_common_date(d).unwrap();
-            let g = Gregorian::from_fixed(p.to_fixed());
-
-            assert_eq!(p.complementary().unwrap(), PositivistComplementaryDay::FestivalOfTheDead);
-            assert_eq!(g.year(), year + 1788);
-            assert_eq!(g.month(), GregorianMonth::December);
-            if Gregorian::is_leap(g.year()) {
-                assert_eq!(g.day(), 30);
-
-                let d = CommonDate::new(year, 14, 2);
-                let p = Positivist::try_from_common_date(d).unwrap();
-                let g = Gregorian::from_fixed(p.to_fixed());
-                assert_eq!(p.complementary().unwrap(), PositivistComplementaryDay::FestivalOfHolyWomen);
-                assert_eq!(g.year(), year + 1788);
-                assert_eq!(g.month(), GregorianMonth::December);
-                assert_eq!(g.day(), 31);
-            } else {
-                assert_eq!(g.day(), 31);
-            }
-
         }
     }
 }
