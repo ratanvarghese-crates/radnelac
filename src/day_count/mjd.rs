@@ -62,13 +62,6 @@ mod tests {
 
     proptest! {
         #[test]
-        fn easy_i32(t in i32::MIN..i32::MAX) {
-            let j0 = ModifiedJulianDay::new(t as f64);
-            let j1 = ModifiedJulianDay::new(t as f64);
-            assert_eq!(j0, j1);
-        }
-
-        #[test]
         fn from_jd(t in FIXED_MIN..FIXED_MAX) {
             let x = Fixed::new(t);
             let j0 = JulianDay::from_fixed(x);

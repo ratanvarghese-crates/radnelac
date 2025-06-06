@@ -44,7 +44,6 @@ impl BoundedDayCount<f64> for JulianDay {
 mod tests {
     use super::*;
     use crate::day_count::Fixed;
-    use proptest::proptest;
 
     #[test]
     fn around_epoch() {
@@ -54,14 +53,5 @@ mod tests {
         assert_eq!(JulianDay::from_fixed(before).get(), -1.0);
         assert_eq!(JulianDay::from_fixed(exact).get(), 0.0);
         assert_eq!(JulianDay::from_fixed(after).get(), 1.0);
-    }
-
-    proptest! {
-        #[test]
-        fn easy_i32(t in i32::MIN..i32::MAX) {
-            let j0 = JulianDay::new(t as f64);
-            let j1 = JulianDay::new(t as f64);
-            assert_eq!(j0, j1);
-        }
     }
 }

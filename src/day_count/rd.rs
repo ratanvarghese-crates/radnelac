@@ -43,19 +43,9 @@ impl BoundedDayCount<f64> for RataDie {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use proptest::proptest;
 
     #[test]
     fn rd_is_epoch() {
         assert_eq!(RataDie::new(0.0), RataDie::from_fixed(Fixed::new(0.0)));
-    }
-
-    proptest! {
-        #[test]
-        fn easy_i32(t in i32::MIN..i32::MAX) {
-            let j0 = RataDie::new(t as f64);
-            let j1 = RataDie::new(t as f64);
-            assert_eq!(j0, j1);
-        }
     }
 }

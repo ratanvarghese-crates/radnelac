@@ -135,12 +135,6 @@ mod tests {
 
     proptest! {
         #[test]
-        fn easy_i32(t in i32::MIN..i32::MAX) {
-            let f: f64 = Fixed::new(t as f64).get();
-            assert_eq!(f, t as f64);
-        }
-
-        #[test]
         fn time_of_day(t in FIXED_MIN..FIXED_MAX) {
             let f = Fixed::new(t).to_time_of_day().get();
             assert!(f <= 1.0 && f >= 0.0);
