@@ -121,10 +121,8 @@ impl ToFixed for ISO {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::bound::EffectiveBound;
     use crate::common::date::ToFromCommonDate;
     use crate::day_count::FIXED_MAX;
-    use crate::day_count::FIXED_MIN;
     use proptest::proptest;
     const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 

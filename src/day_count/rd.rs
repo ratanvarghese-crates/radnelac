@@ -43,8 +43,6 @@ impl BoundedDayCount<f64> for RataDie {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::day_count::FIXED_MAX;
-    use crate::day_count::FIXED_MIN;
     use proptest::proptest;
 
     #[test]
