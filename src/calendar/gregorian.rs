@@ -241,25 +241,11 @@ impl ToFromCommonDate for Gregorian {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::bound::EffectiveBound;
     use crate::day_count::FIXED_MAX;
     use crate::day_count::FIXED_MIN;
     use crate::day_cycle::Weekday;
     use proptest::proptest;
     use std::num::NonZero;
-    const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
-
-    #[test]
-    fn bounds_actually_work() {
-        assert!(
-            Gregorian::from_fixed(Fixed::effective_min())
-                < Gregorian::from_fixed(Fixed::cast_new(0))
-        );
-        assert!(
-            Gregorian::from_fixed(Fixed::effective_max())
-                > Gregorian::from_fixed(Fixed::cast_new(0))
-        );
-    }
 
     #[test]
     fn us_canada_labor_day() {

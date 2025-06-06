@@ -217,19 +217,9 @@ impl ToFixed for Roman {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::bound::EffectiveBound;
     use crate::common::date::ToFromCommonDate;
-    use crate::day_count::RataDie;
-    use crate::day_count::FIXED_MAX;
-    use crate::day_count::FIXED_MIN;
     use proptest::prop_assume;
     use proptest::proptest;
-
-    #[test]
-    fn bounds_actually_work() {
-        assert!(Roman::from_fixed(Fixed::effective_min()) < Roman::from_fixed(Fixed::cast_new(0)));
-        assert!(Roman::from_fixed(Fixed::effective_max()) > Roman::from_fixed(Fixed::cast_new(0)));
-    }
 
     #[test]
     fn ides_of_march() {

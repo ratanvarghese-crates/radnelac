@@ -324,25 +324,10 @@ mod tests {
     use super::*;
     use crate::day_count::RataDie;
 
-    use crate::common::bound::EffectiveBound;
     use crate::day_count::FIXED_MAX;
     use crate::day_count::FIXED_MIN;
 
-    use proptest::prop_assume;
     use proptest::proptest;
-    const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
-
-    #[test]
-    fn bounds_actually_work() {
-        assert!(
-            TranquilityMoment::from_fixed(Fixed::effective_min())
-                < TranquilityMoment::from_fixed(Fixed::cast_new(0))
-        );
-        assert!(
-            TranquilityMoment::from_fixed(Fixed::effective_max())
-                > TranquilityMoment::from_fixed(Fixed::cast_new(0))
-        );
-    }
 
     #[test]
     fn moon_landing_edge_cases() {

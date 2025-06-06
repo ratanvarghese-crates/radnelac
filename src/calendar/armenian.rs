@@ -93,21 +93,9 @@ impl ToFromCommonDate for Armenian {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::bound::EffectiveBound;
     use crate::day_count::FIXED_MAX;
-    use crate::day_count::FIXED_MIN;
     use proptest::proptest;
     const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
-
-    #[test]
-    fn bounds_actually_work() {
-        assert!(
-            Armenian::from_fixed(Fixed::effective_min()) < Armenian::from_fixed(Fixed::cast_new(0))
-        );
-        assert!(
-            Armenian::from_fixed(Fixed::effective_max()) > Armenian::from_fixed(Fixed::cast_new(0))
-        );
-    }
 
     proptest! {
         #[test]

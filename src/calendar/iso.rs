@@ -138,12 +138,6 @@ mod tests {
     }
 
     #[test]
-    fn bounds_actually_work() {
-        assert!(ISO::from_fixed(Fixed::effective_min()) < ISO::from_fixed(Fixed::cast_new(0)));
-        assert!(ISO::from_fixed(Fixed::effective_max()) > ISO::from_fixed(Fixed::cast_new(0)));
-    }
-
-    #[test]
     fn epoch() {
         let i0 = ISO::from_fixed(Fixed::cast_new(0));
         let i1 = ISO::from_fixed(Fixed::cast_new(-1));

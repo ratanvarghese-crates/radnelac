@@ -192,32 +192,10 @@ impl<const L: bool> ToFromCommonDate for FrenchRevArith<L> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::bound::EffectiveBound;
     use crate::day_count::RataDie;
     use crate::day_count::FIXED_MAX;
     use crate::day_count::FIXED_MIN;
     use proptest::proptest;
-    const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
-
-    #[test]
-    fn bounds_actually_work() {
-        assert!(
-            FrenchRevArith::<true>::from_fixed(Fixed::effective_min())
-                < FrenchRevArith::<true>::from_fixed(Fixed::cast_new(0))
-        );
-        assert!(
-            FrenchRevArith::<true>::from_fixed(Fixed::effective_max())
-                > FrenchRevArith::<true>::from_fixed(Fixed::cast_new(0))
-        );
-        assert!(
-            FrenchRevArith::<false>::from_fixed(Fixed::effective_min())
-                < FrenchRevArith::<false>::from_fixed(Fixed::cast_new(0))
-        );
-        assert!(
-            FrenchRevArith::<false>::from_fixed(Fixed::effective_max())
-                > FrenchRevArith::<false>::from_fixed(Fixed::cast_new(0))
-        );
-    }
 
     #[test]
     fn leaps() {

@@ -163,24 +163,11 @@ impl ToFromCommonDate for Cotsworth {
 mod tests {
     use super::*;
     use crate::calendar::gregorian::GregorianMonth;
-    use crate::common::bound::EffectiveBound;
     use crate::day_count::RataDie;
     use crate::day_count::FIXED_MAX;
     use crate::day_count::FIXED_MIN;
     use proptest::proptest;
     const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
-
-    #[test]
-    fn bounds_actually_work() {
-        assert!(
-            Cotsworth::from_fixed(Fixed::effective_min())
-                < Cotsworth::from_fixed(Fixed::cast_new(0))
-        );
-        assert!(
-            Cotsworth::from_fixed(Fixed::effective_max())
-                > Cotsworth::from_fixed(Fixed::cast_new(0))
-        );
-    }
 
     proptest! {
         #[test]

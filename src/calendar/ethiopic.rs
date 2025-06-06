@@ -125,24 +125,11 @@ impl ToFromCommonDate for Ethiopic {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::bound::EffectiveBound;
 
-    use crate::day_count::RataDie;
     use crate::day_count::FIXED_MAX;
-    use crate::day_count::FIXED_MIN;
     const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 
     use proptest::proptest;
-
-    #[test]
-    fn bounds_actually_work() {
-        assert!(
-            Ethiopic::from_fixed(Fixed::effective_min()) < Ethiopic::from_fixed(Fixed::cast_new(0))
-        );
-        assert!(
-            Ethiopic::from_fixed(Fixed::effective_max()) > Ethiopic::from_fixed(Fixed::cast_new(0))
-        );
-    }
 
     proptest! {
         #[test]

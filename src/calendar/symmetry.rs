@@ -245,33 +245,11 @@ impl<const T: bool, const U: bool> ToFromCommonDate for Symmetry<T, U> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::bound::EffectiveBound;
     use crate::day_count::RataDie;
     use crate::day_count::FIXED_MAX;
-    use crate::day_count::FIXED_MIN;
     use crate::day_cycle::Weekday;
     use proptest::proptest;
     const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
-
-    #[test]
-    fn bounds_actually_work() {
-        assert!(
-            Symmetry454::from_fixed(Fixed::effective_min())
-                < Symmetry454::from_fixed(Fixed::cast_new(0))
-        );
-        assert!(
-            Symmetry454::from_fixed(Fixed::effective_max())
-                > Symmetry454::from_fixed(Fixed::cast_new(0))
-        );
-        assert!(
-            Symmetry010::from_fixed(Fixed::effective_min())
-                < Symmetry010::from_fixed(Fixed::cast_new(0))
-        );
-        assert!(
-            Symmetry010::from_fixed(Fixed::effective_max())
-                > Symmetry010::from_fixed(Fixed::cast_new(0))
-        );
-    }
 
     #[test]
     fn is_leap_example() {

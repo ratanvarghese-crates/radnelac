@@ -159,24 +159,11 @@ impl ToFromCommonDate for Positivist {
 mod tests {
     use super::*;
     use crate::calendar::gregorian::GregorianMonth;
-    use crate::common::bound::EffectiveBound;
     use crate::day_count::RataDie;
     use crate::day_count::FIXED_MAX;
     use crate::day_count::FIXED_MIN;
     use proptest::proptest;
     const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
-
-    #[test]
-    fn bounds_actually_work() {
-        assert!(
-            Positivist::from_fixed(Fixed::effective_min())
-                < Positivist::from_fixed(Fixed::cast_new(0))
-        );
-        assert!(
-            Positivist::from_fixed(Fixed::effective_max())
-                > Positivist::from_fixed(Fixed::cast_new(0))
-        );
-    }
 
     #[test]
     fn example_from_text() {

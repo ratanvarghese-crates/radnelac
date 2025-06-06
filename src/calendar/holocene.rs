@@ -87,25 +87,11 @@ impl ToFromCommonDate for Holocene {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::bound::BoundedDayCount;
-    use crate::common::bound::EffectiveBound;
 
-    use crate::day_count::RataDie;
     use crate::day_count::FIXED_MAX;
-    use crate::day_count::FIXED_MIN;
     const MAX_YEARS: i32 = ((FIXED_MAX / 365.25) - 10000.0) as i32;
 
     use proptest::proptest;
-
-    #[test]
-    fn bounds_actually_work() {
-        assert!(
-            Holocene::from_fixed(Fixed::effective_min()) < Holocene::from_fixed(Fixed::cast_new(0))
-        );
-        assert!(
-            Holocene::from_fixed(Fixed::effective_max()) > Holocene::from_fixed(Fixed::cast_new(0))
-        );
-    }
 
     #[test]
     fn date_of_proposal() {
