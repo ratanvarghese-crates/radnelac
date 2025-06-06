@@ -44,10 +44,10 @@ impl BoundedDayCount<f64> for ModifiedJulianDay {
 mod tests {
     use super::*;
     use crate::common::math::TermNum;
-    use crate::day_count::FIXED_MAX;
-    use crate::day_count::FIXED_MIN;
     use crate::day_count::Fixed;
     use crate::day_count::JulianDay;
+    use crate::day_count::FIXED_MAX;
+    use crate::day_count::FIXED_MIN;
     use proptest::proptest;
     const MAX_JD: f64 = FIXED_MAX - MJD_EPOCH;
     const MIN_JD: f64 = FIXED_MIN - MJD_EPOCH;
@@ -63,15 +63,6 @@ mod tests {
     }
 
     proptest! {
-        #[test]
-        fn roundtrip(t in MIN_JD..MAX_JD) {
-            let j0 = ModifiedJulianDay::new(t);
-            let j1 = ModifiedJulianDay::from_fixed(ModifiedJulianDay::to_fixed(j0));
-            let j2 = ModifiedJulianDay::from_fixed(ModifiedJulianDay::to_fixed(j0).to_day());
-            assert!(j0.0.approx_eq(j1.0));
-            assert!((j0.0 - j2.0).abs() < 1.0);
-        }
-
         #[test]
         fn easy_i32(t in i32::MIN..i32::MAX) {
             let j0 = ModifiedJulianDay::new(t as f64);

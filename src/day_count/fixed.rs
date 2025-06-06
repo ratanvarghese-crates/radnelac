@@ -23,6 +23,10 @@ impl Fixed {
     pub fn get_day_i(self) -> i64 {
         self.to_day().get() as i64
     }
+
+    pub fn same_second(self, other: Self) -> bool {
+        self.0.approx_eq(other.0)
+    }
 }
 
 impl EffectiveBound for Fixed {

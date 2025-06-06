@@ -54,14 +54,6 @@ mod tests {
 
     proptest! {
         #[test]
-        fn roundtrip(t in FIXED_MIN..FIXED_MAX) {
-            let rd0 = RataDie::new(t);
-            let f0 = rd0.to_fixed();
-            let rd1 = RataDie::from_fixed(f0);
-            assert_eq!(rd0.0, rd1.0);
-        }
-
-        #[test]
         fn easy_i32(t in i32::MIN..i32::MAX) {
             let j0 = RataDie::new(t as f64);
             let j1 = RataDie::new(t as f64);

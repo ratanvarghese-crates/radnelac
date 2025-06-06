@@ -44,11 +44,6 @@ impl BoundedDayCount<i64> for UnixMoment {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::day_count::FIXED_MAX;
-    use crate::day_count::FIXED_MIN;
-    use proptest::proptest;
-    const MAX_UNIX: i64 = ((FIXED_MAX - UNIX_EPOCH) * UNIX_DAY) as i64;
-    const MIN_UNIX: i64 = ((FIXED_MIN - UNIX_EPOCH) * UNIX_DAY) as i64;
 
     #[test]
     fn around_epoch() {
@@ -58,15 +53,5 @@ mod tests {
         assert_eq!(UnixMoment::from_fixed(before).0, -UNIX_DAY as i64);
         assert_eq!(UnixMoment::from_fixed(exact).0, 0);
         assert_eq!(UnixMoment::from_fixed(after).0, UNIX_DAY as i64);
-    }
-
-    proptest! {
-        #[test]
-        fn roundtrip(t in MIN_UNIX..MAX_UNIX) {
-            let unix0 = UnixMoment::new(t);
-            let f0 = UnixMoment::to_fixed(unix0);
-            let unix1 = UnixMoment::from_fixed(f0);
-            assert_eq!(unix0.0, unix1.0);
-        }
     }
 }

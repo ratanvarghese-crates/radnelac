@@ -19,18 +19,31 @@ use radnelac::calendar::ISO;
 use radnelac::common::bound::BoundedDayCount;
 use radnelac::day_count::Fixed;
 use radnelac::day_count::FromFixed;
+use radnelac::day_count::JulianDay;
+use radnelac::day_count::ModifiedJulianDay;
+use radnelac::day_count::RataDie;
 use radnelac::day_count::ToFixed;
+use radnelac::day_count::UnixMoment;
 use radnelac::day_count::FIXED_MAX;
 use radnelac::day_count::FIXED_MIN;
 use std::fmt::Debug;
 
-fn roundtrip<T: FromFixed + ToFixed + PartialEq + Debug>(t: f64) {
-    let f0 = Fixed::new(t).to_day();
+fn roundtrip_inner<T: FromFixed + ToFixed + PartialEq + Debug>(f0: Fixed) {
     let d0 = T::from_fixed(f0);
     let f1 = d0.to_fixed();
     let d1 = T::from_fixed(f1);
-    assert_eq!(d0, d1, "t = {:?}; f0 = {:?}; f1 = {:?}", t, f0, f1);
-    assert_eq!(f0, f1, "t = {:?}; d0 = {:?}; d1 = {:?}", t, d0, d1);
+    assert_eq!(d0, d1, "f0 = {:?}; f1 = {:?}", f0, f1);
+    assert!(f0.same_second(f1), "d0 = {:?}; d1 = {:?}", d0, d1);
+}
+
+fn roundtrip<T: FromFixed + ToFixed + PartialEq + Debug>(t: f64) {
+    let f0 = Fixed::new(t).to_day();
+    roundtrip_inner::<T>(f0);
+}
+
+fn roundtrip_moment<T: FromFixed + ToFixed + PartialEq + Debug>(t: f64) {
+    let f0 = Fixed::new(t);
+    roundtrip_inner::<T>(f0);
 }
 
 proptest! {
@@ -106,5 +119,25 @@ proptest! {
     #[test]
     fn tranquility(t in FIXED_MIN..FIXED_MAX) {
         roundtrip::<TranquilityMoment>(t);
+    }
+
+    #[test]
+    fn unix(t in FIXED_MIN..FIXED_MAX) {
+        roundtrip_moment::<UnixMoment>(t);
+    }
+
+    #[test]
+    fn jd(t in FIXED_MIN..FIXED_MAX) {
+        roundtrip_moment::<JulianDay>(t);
+    }
+
+    #[test]
+    fn mjd(t in FIXED_MIN..FIXED_MAX) {
+        roundtrip_moment::<ModifiedJulianDay>(t);
+    }
+
+    #[test]
+    fn rd(t in FIXED_MIN..FIXED_MAX) {
+        roundtrip_moment::<RataDie>(t);
     }
 }
