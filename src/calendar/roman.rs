@@ -2,6 +2,7 @@ use crate::calendar::julian::Julian;
 use crate::calendar::julian::JulianMonth;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
+use crate::common::date::HasLeapYears;
 use crate::common::date::ToFromCommonDate;
 use crate::common::math::TermNum;
 use crate::day_count::CalculatedBounds;
@@ -168,8 +169,11 @@ impl PartialOrd for Roman {
             self.month.partial_cmp(&other.month)
         } else if self.event != other.event {
             self.event.partial_cmp(&other.event)
-        } else {
+        } else if self.count != other.count {
             other.count.partial_cmp(&self.count) //Intentionally reversed, "count" decreases with time
+        } else {
+            // "the second sixth day before the kalends of March"
+            (self.leap as u8).partial_cmp(&(other.leap as u8))
         }
     }
 }
@@ -220,6 +224,22 @@ mod tests {
     use crate::common::date::ToFromCommonDate;
     use proptest::prop_assume;
     use proptest::proptest;
+
+    #[test]
+    fn second_sixth_day_before_kalends_of_march() {
+        let j24 = Julian::try_from_common_date(CommonDate::new(4, 2, 24)).unwrap();
+        let j25 = Julian::try_from_common_date(CommonDate::new(4, 2, 25)).unwrap();
+        let f24 = j24.to_fixed();
+        let f25 = j25.to_fixed();
+        let r24 = Roman::from_fixed(f24);
+        let r25 = Roman::from_fixed(f25);
+        assert_eq!(r24.year(), r25.year());
+        assert_eq!(r24.month(), r25.month());
+        assert_eq!(r24.event(), r25.event());
+        assert_eq!(r24.count(), r25.count());
+        assert!(!r24.leap() && r25.leap());
+        assert!(r24 < r25);
+    }
 
     #[test]
     fn ides_of_march() {
