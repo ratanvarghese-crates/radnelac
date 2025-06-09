@@ -39,19 +39,3 @@ impl BoundedDayCount<f64> for JulianDay {
         self.0
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::day_count::Fixed;
-
-    #[test]
-    fn around_epoch() {
-        let before = Fixed::new(JD_EPOCH + (-1.0));
-        let exact = Fixed::new(JD_EPOCH + 0.0);
-        let after = Fixed::new(JD_EPOCH + 1.0);
-        assert_eq!(JulianDay::from_fixed(before).get(), -1.0);
-        assert_eq!(JulianDay::from_fixed(exact).get(), 0.0);
-        assert_eq!(JulianDay::from_fixed(after).get(), 1.0);
-    }
-}

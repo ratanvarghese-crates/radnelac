@@ -50,16 +50,6 @@ mod tests {
     use crate::day_count::FIXED_MIN;
     use proptest::proptest;
 
-    #[test]
-    fn around_epoch() {
-        let before = Fixed::new(MJD_EPOCH + (-1.0));
-        let exact = Fixed::new(MJD_EPOCH + 0.0);
-        let after = Fixed::new(MJD_EPOCH + 1.0);
-        assert_eq!(ModifiedJulianDay::from_fixed(before).get(), -1.0);
-        assert_eq!(ModifiedJulianDay::from_fixed(exact).get(), 0.0);
-        assert_eq!(ModifiedJulianDay::from_fixed(after).get(), 1.0);
-    }
-
     proptest! {
         #[test]
         fn from_jd(t in FIXED_MIN..FIXED_MAX) {

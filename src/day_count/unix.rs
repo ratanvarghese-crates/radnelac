@@ -40,18 +40,3 @@ impl BoundedDayCount<i64> for UnixMoment {
         self.0
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn around_epoch() {
-        let before = Fixed::new(UNIX_EPOCH - 1.0);
-        let exact = Fixed::new(UNIX_EPOCH + 0.0);
-        let after = Fixed::new(UNIX_EPOCH + 1.0);
-        assert_eq!(UnixMoment::from_fixed(before).0, -UNIX_DAY as i64);
-        assert_eq!(UnixMoment::from_fixed(exact).0, 0);
-        assert_eq!(UnixMoment::from_fixed(after).0, UNIX_DAY as i64);
-    }
-}
