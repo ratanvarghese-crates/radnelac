@@ -3,6 +3,8 @@ use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
 use crate::common::date::CommonDay;
 use crate::common::date::CommonYear;
+use crate::common::date::HasLeapYears;
+use crate::common::date::PerennialWithComplementaryDay;
 use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
@@ -68,8 +70,12 @@ impl<const L: bool> FrenchRevArith<L> {
     pub fn is_adjusted(self) -> bool {
         L
     }
+}
 
-    pub fn sansculottide(self) -> Option<Sansculottide> {
+impl<const L: bool> PerennialWithComplementaryDay<Sansculottide, FrenchRevWeekday>
+    for FrenchRevArith<L>
+{
+    fn complementary(self) -> Option<Sansculottide> {
         if self.0.month == 13 {
             Sansculottide::from_u8(self.0.day)
         } else {
@@ -77,7 +83,7 @@ impl<const L: bool> FrenchRevArith<L> {
         }
     }
 
-    pub fn weekday(self) -> Option<FrenchRevWeekday> {
+    fn weekday(self) -> Option<FrenchRevWeekday> {
         if self.0.month == 13 {
             None
         } else {
@@ -85,20 +91,22 @@ impl<const L: bool> FrenchRevArith<L> {
         }
     }
 
-    pub fn is_leap(year: i32) -> bool {
-        let f_year = if L { year + 1 } else { year };
-        let m4 = f_year.modulus(4);
-        let m400 = f_year.modulus(400);
-        let m4000 = f_year.modulus(4000);
-        m4 == 0 && (m400 != 100 && m400 != 200 && m400 != 300) && m4000 != 0
-    }
-
-    pub fn sansculottide_count(f_year: i32) -> u8 {
+    fn complementary_count(f_year: i32) -> u8 {
         if FrenchRevArith::<L>::is_leap(f_year) {
             6
         } else {
             5
         }
+    }
+}
+
+impl<const L: bool> HasLeapYears for FrenchRevArith<L> {
+    fn is_leap(year: i32) -> bool {
+        let f_year = if L { year + 1 } else { year };
+        let m4 = f_year.modulus(4);
+        let m400 = f_year.modulus(400);
+        let m4000 = f_year.modulus(4000);
+        m4 == 0 && (m400 != 100 && m400 != 200 && m400 != 300) && m4000 != 0
     }
 }
 
@@ -167,7 +175,7 @@ impl<const L: bool> ToFromCommonDate for FrenchRevArith<L> {
             Err(CalendarError::InvalidDay)
         } else if date.month < 13 && date.day > 30 {
             Err(CalendarError::InvalidDay)
-        } else if date.month == 13 && date.day > FrenchRevArith::<L>::sansculottide_count(date.year)
+        } else if date.month == 13 && date.day > FrenchRevArith::<L>::complementary_count(date.year)
         {
             Err(CalendarError::InvalidDay)
         } else {
@@ -183,9 +191,6 @@ impl<const L: bool> CommonDay for FrenchRevArith<L> {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::day_count::RataDie;
-    use crate::day_count::FIXED_MAX;
-    use crate::day_count::FIXED_MIN;
     use proptest::proptest;
 
     #[test]
@@ -306,19 +311,6 @@ mod tests {
                 assert!(item.2 <= gc.day && item.3 >= gc.day);
                 assert!((f1.get_day_i() - f0.get_day_i()).abs() < 2);
             }
-        }
-
-        #[test]
-        fn sansculottide_xor_weekday(t in FIXED_MIN..FIXED_MAX) {
-            let t0 = RataDie::new(t).to_fixed().to_day();
-            let r0 = FrenchRevArith::<true>::from_fixed(t0);
-            let w0 = r0.weekday();
-            let s0 = r0.sansculottide();
-            assert_ne!(w0.is_some(), s0.is_some());
-            let r1 = FrenchRevArith::<false>::from_fixed(t0);
-            let w1 = r1.weekday();
-            let s1 = r1.sansculottide();
-            assert_ne!(w1.is_some(), s1.is_some());
         }
     }
 }

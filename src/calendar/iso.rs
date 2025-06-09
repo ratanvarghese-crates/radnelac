@@ -121,6 +121,7 @@ impl ToFixed for ISO {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::common::date::HasLeapYears;
     use crate::common::date::ToFromCommonDate;
     use crate::day_count::FIXED_MAX;
     use proptest::proptest;

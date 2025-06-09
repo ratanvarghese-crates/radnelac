@@ -3,6 +3,7 @@ use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
 use crate::common::date::CommonDay;
 use crate::common::date::GuaranteedMonth;
+use crate::common::date::HasLeapYears;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
@@ -27,15 +28,6 @@ pub struct Julian(CommonDate);
 impl Julian {
     pub fn year(self) -> NonZero<i32> {
         NonZero::new(self.0.year).expect("Will not be assigned zero")
-    }
-
-    pub fn is_leap(j_year: i32) -> bool {
-        let m4 = j_year.modulus(4);
-        if j_year > 0 {
-            m4 == 0
-        } else {
-            m4 == 3
-        }
     }
 
     pub fn prior_elapsed_days(year: i32) -> i64 {
@@ -63,6 +55,17 @@ impl Julian {
             day: 31,
         })
         .to_fixed()
+    }
+}
+
+impl HasLeapYears for Julian {
+    fn is_leap(j_year: i32) -> bool {
+        let m4 = j_year.modulus(4);
+        if j_year > 0 {
+            m4 == 0
+        } else {
+            m4 == 3
+        }
     }
 }
 

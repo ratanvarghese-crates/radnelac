@@ -3,6 +3,7 @@ use crate::common::date::CommonDate;
 use crate::common::date::CommonDay;
 use crate::common::date::CommonYear;
 use crate::common::date::GuaranteedMonth;
+use crate::common::date::HasLeapYears;
 use crate::common::date::OrdinalDate;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
@@ -68,12 +69,6 @@ pub struct Gregorian(CommonDate);
 impl Gregorian {
     pub fn month(self) -> GregorianMonth {
         GregorianMonth::from_u8(self.0.month).expect("Will not allow setting invalid value.")
-    }
-
-    pub fn is_leap(g_year: i32) -> bool {
-        let m4 = g_year.modulus(4);
-        let m400 = g_year.modulus(400);
-        m4 == 0 && m400 != 100 && m400 != 200 && m400 != 300
     }
 
     pub fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
@@ -158,6 +153,14 @@ impl Gregorian {
         };
 
         Fixed::cast_new(result)
+    }
+}
+
+impl HasLeapYears for Gregorian {
+    fn is_leap(g_year: i32) -> bool {
+        let m4 = g_year.modulus(4);
+        let m400 = g_year.modulus(400);
+        m4 == 0 && m400 != 100 && m400 != 200 && m400 != 300
     }
 }
 

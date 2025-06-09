@@ -6,6 +6,7 @@ use crate::common::date::CommonDate;
 use crate::common::date::CommonDay;
 use crate::common::date::CommonYear;
 use crate::common::date::GuaranteedMonth;
+use crate::common::date::HasLeapYears;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::day_count::CalculatedBounds;
@@ -21,8 +22,8 @@ pub type HoloceneMonth = GregorianMonth;
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Holocene(CommonDate);
 
-impl Holocene {
-    pub fn is_leap(h_year: i32) -> bool {
+impl HasLeapYears for Holocene {
+    fn is_leap(h_year: i32) -> bool {
         Gregorian::is_leap(h_year) //10000 is divisible by 400, so it's ok
     }
 }

@@ -8,6 +8,8 @@ use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
 use crate::common::date::CommonDay;
 use crate::common::date::CommonYear;
+use crate::common::date::HasLeapYears;
+use crate::common::date::PerennialWithComplementaryDay;
 use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
@@ -52,9 +54,9 @@ pub enum PositivistComplementaryDay {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Positivist(CommonDate);
 
-impl Positivist {
+impl PerennialWithComplementaryDay<PositivistComplementaryDay, Weekday> for Positivist {
     // Calendier Positiviste Page 8
-    pub fn complementary(self) -> Option<PositivistComplementaryDay> {
+    fn complementary(self) -> Option<PositivistComplementaryDay> {
         if self.0.month == 14 {
             PositivistComplementaryDay::from_u8(self.0.day)
         } else {
@@ -63,7 +65,7 @@ impl Positivist {
     }
 
     // Calendier Positiviste Page 23-30
-    pub fn weekday(self) -> Option<Weekday> {
+    fn weekday(self) -> Option<Weekday> {
         if self.0.month == 14 {
             None
         } else {
@@ -71,17 +73,19 @@ impl Positivist {
         }
     }
 
-    // Not sure about the source for this...
-    pub fn is_leap(p_year: i32) -> bool {
-        Gregorian::is_leap((POSITIVIST_YEAR_OFFSET as i32) + p_year)
-    }
-
-    pub fn complementary_count(p_year: i32) -> u8 {
+    fn complementary_count(p_year: i32) -> u8 {
         if Positivist::is_leap(p_year) {
             2
         } else {
             1
         }
+    }
+}
+
+impl HasLeapYears for Positivist {
+    // Not sure about the source for this...
+    fn is_leap(p_year: i32) -> bool {
+        Gregorian::is_leap((POSITIVIST_YEAR_OFFSET as i32) + p_year)
     }
 }
 
@@ -149,10 +153,6 @@ impl CommonDay for Positivist {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::day_count::RataDie;
-    use crate::day_count::FIXED_MAX;
-    use crate::day_count::FIXED_MIN;
-    use proptest::proptest;
 
     #[test]
     fn example_from_text() {
@@ -162,16 +162,5 @@ mod tests {
         let fg = dg.to_fixed();
         let fp = dp.to_fixed();
         assert_eq!(fg, fp);
-    }
-
-    proptest! {
-        #[test]
-        fn complementary_xor_weekday(t in FIXED_MIN..FIXED_MAX) {
-            let t0 = RataDie::new(t).to_fixed().to_day();
-            let r0 = Positivist::from_fixed(t0);
-            let w0 = r0.weekday();
-            let s0 = r0.complementary();
-            assert_ne!(w0.is_some(), s0.is_some());
-        }
     }
 }

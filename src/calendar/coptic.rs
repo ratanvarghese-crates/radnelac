@@ -4,6 +4,7 @@ use crate::common::date::CommonDate;
 use crate::common::date::CommonDay;
 use crate::common::date::CommonYear;
 use crate::common::date::GuaranteedMonth;
+use crate::common::date::HasLeapYears;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
@@ -56,8 +57,8 @@ impl CopticMonth {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Coptic(CommonDate);
 
-impl Coptic {
-    pub fn is_leap(year: i32) -> bool {
+impl HasLeapYears for Coptic {
+    fn is_leap(year: i32) -> bool {
         year.modulus(4) == 3
     }
 }

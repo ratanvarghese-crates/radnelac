@@ -9,6 +9,7 @@ use radnelac::calendar::Holocene;
 use radnelac::calendar::Positivist;
 use radnelac::common::bound::BoundedDayCount;
 use radnelac::common::date::CommonDate;
+use radnelac::common::date::HasLeapYears;
 use radnelac::common::date::ToFromCommonDate;
 use radnelac::day_count::Epoch;
 use radnelac::day_count::ToFixed;

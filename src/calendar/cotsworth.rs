@@ -9,6 +9,8 @@ use crate::common::date::CommonDate;
 use crate::common::date::CommonDay;
 use crate::common::date::CommonYear;
 use crate::common::date::GuaranteedMonth;
+use crate::common::date::HasLeapYears;
+use crate::common::date::PerennialWithComplementaryDay;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
@@ -47,8 +49,8 @@ pub enum CotsworthComplementaryDay {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Cotsworth(CommonDate);
 
-impl Cotsworth {
-    pub fn complementary(self) -> Option<CotsworthComplementaryDay> {
+impl PerennialWithComplementaryDay<CotsworthComplementaryDay, Weekday> for Cotsworth {
+    fn complementary(self) -> Option<CotsworthComplementaryDay> {
         if self.0.day == 29 && self.0.month == (CotsworthMonth::December as u8) {
             Some(CotsworthComplementaryDay::YearDay)
         } else if self.0.day == 29 && self.0.month == (CotsworthMonth::June as u8) {
@@ -58,7 +60,7 @@ impl Cotsworth {
         }
     }
 
-    pub fn weekday(self) -> Option<Weekday> {
+    fn weekday(self) -> Option<Weekday> {
         if self.complementary().is_some() {
             None
         } else {
@@ -66,16 +68,18 @@ impl Cotsworth {
         }
     }
 
-    pub fn is_leap(c_year: i32) -> bool {
-        Gregorian::is_leap(c_year)
-    }
-
-    pub fn complementary_count(p_year: i32) -> u8 {
+    fn complementary_count(p_year: i32) -> u8 {
         if Cotsworth::is_leap(p_year) {
             2
         } else {
             1
         }
+    }
+}
+
+impl HasLeapYears for Cotsworth {
+    fn is_leap(c_year: i32) -> bool {
+        Gregorian::is_leap(c_year)
     }
 }
 
@@ -153,23 +157,3 @@ impl ToFromCommonDate for Cotsworth {
 impl CommonYear for Cotsworth {}
 impl GuaranteedMonth<CotsworthMonth> for Cotsworth {}
 impl CommonDay for Cotsworth {}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::day_count::RataDie;
-    use crate::day_count::FIXED_MAX;
-    use crate::day_count::FIXED_MIN;
-    use proptest::proptest;
-
-    proptest! {
-        #[test]
-        fn complementary_xor_weekday(t in FIXED_MIN..FIXED_MAX) {
-            let t0 = RataDie::new(t).to_fixed().to_day();
-            let r0 = Cotsworth::from_fixed(t0);
-            let w0 = r0.weekday();
-            let s0 = r0.complementary();
-            assert_ne!(w0.is_some(), s0.is_some());
-        }
-    }
-}

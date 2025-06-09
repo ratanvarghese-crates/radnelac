@@ -57,6 +57,7 @@ pub mod calendar {
     pub use coptic::Coptic;
     pub use coptic::CopticMonth;
     pub use cotsworth::Cotsworth;
+    pub use cotsworth::CotsworthComplementaryDay;
     pub use cotsworth::CotsworthMonth;
     pub use egyptian::Egyptian;
     pub use egyptian::EgyptianMonth;
@@ -64,6 +65,8 @@ pub mod calendar {
     pub use ethiopic::EthiopicMonth;
     pub use french_rev_arith::FrenchRevArith;
     pub use french_rev_arith::FrenchRevMonth;
+    pub use french_rev_arith::FrenchRevWeekday;
+    pub use french_rev_arith::Sansculottide;
     pub use gregorian::Gregorian;
     pub use gregorian::GregorianMonth;
     pub use holocene::Holocene;
@@ -73,6 +76,7 @@ pub mod calendar {
     pub use julian::JulianMonth;
     pub use olympiad::Olympiad;
     pub use positivist::Positivist;
+    pub use positivist::PositivistComplementaryDay;
     pub use positivist::PositivistMonth;
     pub use roman::Roman;
     pub use symmetry::Symmetry010;
@@ -80,6 +84,7 @@ pub mod calendar {
     pub use symmetry::Symmetry454;
     pub use symmetry::Symmetry454Solstice;
     pub use symmetry::SymmetryMonth;
+    pub use tranquility::TranquilityComplementaryDay;
     pub use tranquility::TranquilityMoment;
     pub use tranquility::TranquilityMonth;
 }

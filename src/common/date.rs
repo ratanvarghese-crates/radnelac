@@ -2,6 +2,16 @@ use crate::common::bound::EffectiveBound;
 use crate::common::error::CalendarError;
 use num_traits::FromPrimitive;
 
+pub trait PerennialWithComplementaryDay<T, U> {
+    fn complementary(self) -> Option<T>;
+    fn weekday(self) -> Option<U>;
+    fn complementary_count(year: i32) -> u8;
+}
+
+pub trait HasLeapYears {
+    fn is_leap(year: i32) -> bool;
+}
+
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct CommonDate {
     pub year: i32,

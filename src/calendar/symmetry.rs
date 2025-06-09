@@ -21,6 +21,7 @@ use crate::common::date::CommonDate;
 use crate::common::date::CommonDay;
 use crate::common::date::CommonYear;
 use crate::common::date::GuaranteedMonth;
+use crate::common::date::HasLeapYears;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::day_count::CalculatedBounds;
@@ -89,12 +90,6 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
 
     pub fn mode(self) -> (bool, bool) {
         (T, U)
-    }
-
-    pub fn is_leap(sym_year: i32) -> bool {
-        let p = Self::params();
-        let sym_year = sym_year as i64;
-        ((p.L * sym_year) + p.K).modulus(p.C) < p.L
     }
 
     pub fn new_year_day_unchecked(sym_year: i32, sym_epoch: i64) -> i64 {
@@ -166,6 +161,14 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
         } else {
             (30 + sym_month.modulus(3).div_euclid(2)) as u8
         }
+    }
+}
+
+impl<const T: bool, const U: bool> HasLeapYears for Symmetry<T, U> {
+    fn is_leap(sym_year: i32) -> bool {
+        let p = Self::params();
+        let sym_year = sym_year as i64;
+        ((p.L * sym_year) + p.K).modulus(p.C) < p.L
     }
 }
 

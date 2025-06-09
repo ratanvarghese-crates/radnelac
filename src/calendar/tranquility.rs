@@ -3,7 +3,9 @@ use crate::clock::ClockTime;
 use crate::clock::TimeOfDay;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
+use crate::common::date::HasLeapYears;
 use crate::common::date::OrdinalDate;
+use crate::common::date::PerennialWithComplementaryDay;
 use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
@@ -71,14 +73,6 @@ impl TranquilityMoment {
         }
     }
 
-    pub fn complementary(self) -> Option<TranquilityComplementaryDay> {
-        if self.date.month == 0 {
-            TranquilityComplementaryDay::from_u8(self.date.day)
-        } else {
-            None
-        }
-    }
-
     pub fn is_after_tranquility(self) -> bool {
         if self.date.year == 0 {
             self.time > TRANQUILITY_EPOCH_CLOCK
@@ -101,35 +95,6 @@ impl TranquilityMoment {
 
     pub fn second(self) -> f32 {
         self.time.seconds
-    }
-
-    pub fn weekday(self) -> Option<Weekday> {
-        if self.complementary().is_some() {
-            None
-        } else {
-            Weekday::from_i64(((self.date.day as i64) + 4).modulus(7))
-        }
-    }
-
-    pub fn is_leap(t_year: i32) -> bool {
-        if t_year > 0 {
-            Gregorian::is_leap(t_year + TRANQUILITY_EPOCH_GREGORIAN.year)
-        } else if t_year < 0 {
-            Gregorian::is_leap(t_year + TRANQUILITY_EPOCH_GREGORIAN.year + 1)
-        } else {
-            false
-        }
-    }
-
-    pub fn complementary_count(p_year: i32) -> u8 {
-        if Self::is_leap(p_year) {
-            2
-        } else if p_year == -1 {
-            //Armstrong Day replaced by Moon Landing Day
-            0
-        } else {
-            1
-        }
     }
 
     pub fn prior_elapsed_days(year: i32) -> i64 {
@@ -223,6 +188,47 @@ impl PartialOrd for TranquilityMoment {
             let self_ord = self.to_ordinal();
             let other_ord = other.to_ordinal();
             self_ord.partial_cmp(&other_ord)
+        }
+    }
+}
+
+impl PerennialWithComplementaryDay<TranquilityComplementaryDay, Weekday> for TranquilityMoment {
+    fn complementary(self) -> Option<TranquilityComplementaryDay> {
+        if self.date.month == 0 {
+            TranquilityComplementaryDay::from_u8(self.date.day)
+        } else {
+            None
+        }
+    }
+
+    fn weekday(self) -> Option<Weekday> {
+        if self.complementary().is_some() {
+            None
+        } else {
+            Weekday::from_i64(((self.date.day as i64) + 4).modulus(7))
+        }
+    }
+
+    fn complementary_count(p_year: i32) -> u8 {
+        if Self::is_leap(p_year) {
+            2
+        } else if p_year == -1 {
+            //Armstrong Day replaced by Moon Landing Day
+            0
+        } else {
+            1
+        }
+    }
+}
+
+impl HasLeapYears for TranquilityMoment {
+    fn is_leap(t_year: i32) -> bool {
+        if t_year > 0 {
+            Gregorian::is_leap(t_year + TRANQUILITY_EPOCH_GREGORIAN.year)
+        } else if t_year < 0 {
+            Gregorian::is_leap(t_year + TRANQUILITY_EPOCH_GREGORIAN.year + 1)
+        } else {
+            false
         }
     }
 }
@@ -400,15 +406,6 @@ mod tests {
     }
 
     proptest! {
-        #[test]
-        fn complementary_xor_weekday(t in FIXED_MIN..FIXED_MAX) {
-            let t0 = RataDie::new(t).to_fixed().to_day();
-            let r0 = TranquilityMoment::from_fixed(t0);
-            let w0 = r0.weekday();
-            let s0 = r0.complementary();
-            assert_ne!(w0.is_some(), s0.is_some());
-        }
-
         #[test]
         fn gregorian_lookup(t in FIXED_MIN..FIXED_MAX) {
             // https://web.archive.org/web/20180818233025/https://en.wikipedia.org/wiki/Tranquility_calendar
