@@ -1,5 +1,6 @@
 use crate::common::bound::EffectiveBound;
 use crate::common::error::CalendarError;
+use num_traits::FromPrimitive;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct CommonDate {
@@ -30,6 +31,36 @@ pub trait ToFromCommonDate: Sized + EffectiveBound {
             Err(e) => Err(e),
             Ok(_) => Ok(Self::from_common_date_unchecked(d)),
         }
+    }
+}
+
+pub trait CommonYear: ToFromCommonDate {
+    fn year(self) -> i32 {
+        self.to_common_date().year
+    }
+}
+
+pub trait TryMonth<T: FromPrimitive>: ToFromCommonDate {
+    fn try_month(self) -> Option<T> {
+        T::from_u8(self.to_common_date().month)
+    }
+}
+
+pub trait GuaranteedMonth<T: FromPrimitive>: ToFromCommonDate {
+    fn month(self) -> T {
+        T::from_u8(self.to_common_date().month).expect("Will not allow setting invalid value.")
+    }
+}
+
+impl<T: FromPrimitive, U: GuaranteedMonth<T>> TryMonth<T> for U {
+    fn try_month(self) -> Option<T> {
+        Some(self.month())
+    }
+}
+
+pub trait CommonDay: ToFromCommonDate {
+    fn day(self) -> u8 {
+        self.to_common_date().day
     }
 }
 

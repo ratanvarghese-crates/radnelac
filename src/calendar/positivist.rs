@@ -6,7 +6,10 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
+use crate::common::date::CommonDay;
+use crate::common::date::CommonYear;
 use crate::common::date::ToFromCommonDate;
+use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::CalculatedBounds;
@@ -50,22 +53,6 @@ pub enum PositivistComplementaryDay {
 pub struct Positivist(CommonDate);
 
 impl Positivist {
-    pub fn year(self) -> i32 {
-        self.0.year
-    }
-
-    pub fn month(self) -> Option<PositivistMonth> {
-        if self.0.month == 14 {
-            None
-        } else {
-            PositivistMonth::from_u8(self.0.month)
-        }
-    }
-
-    pub fn day(self) -> u8 {
-        self.0.day
-    }
-
     // Calendier Positiviste Page 8
     pub fn complementary(self) -> Option<PositivistComplementaryDay> {
         if self.0.month == 14 {
@@ -154,6 +141,10 @@ impl ToFromCommonDate for Positivist {
         }
     }
 }
+
+impl CommonYear for Positivist {}
+impl TryMonth<PositivistMonth> for Positivist {}
+impl CommonDay for Positivist {}
 
 #[cfg(test)]
 mod tests {

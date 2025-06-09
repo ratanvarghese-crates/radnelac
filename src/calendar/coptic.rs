@@ -1,6 +1,9 @@
 use crate::calendar::julian::Julian;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
+use crate::common::date::CommonDay;
+use crate::common::date::CommonYear;
+use crate::common::date::GuaranteedMonth;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
@@ -54,18 +57,6 @@ impl CopticMonth {
 pub struct Coptic(CommonDate);
 
 impl Coptic {
-    pub fn year(self) -> i32 {
-        self.0.year
-    }
-
-    pub fn month(self) -> CopticMonth {
-        CopticMonth::from_u8(self.0.month).expect("Will not allow setting invalid value.")
-    }
-
-    pub fn day(self) -> u8 {
-        self.0.day
-    }
-
     pub fn is_leap(year: i32) -> bool {
         year.modulus(4) == 3
     }
@@ -130,6 +121,10 @@ impl ToFromCommonDate for Coptic {
         }
     }
 }
+
+impl CommonYear for Coptic {}
+impl GuaranteedMonth<CopticMonth> for Coptic {}
+impl CommonDay for Coptic {}
 
 #[cfg(test)]
 mod tests {

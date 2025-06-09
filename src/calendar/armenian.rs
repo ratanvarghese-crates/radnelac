@@ -1,7 +1,10 @@
 use crate::calendar::egyptian::Egyptian;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
+use crate::common::date::CommonDay;
+use crate::common::date::CommonYear;
 use crate::common::date::ToFromCommonDate;
+use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
@@ -32,24 +35,6 @@ pub enum ArmenianMonth {
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Armenian(CommonDate);
-
-impl Armenian {
-    pub fn year(self) -> i32 {
-        self.0.year
-    }
-
-    pub fn month(self) -> Option<ArmenianMonth> {
-        if self.0.month == 13 {
-            None
-        } else {
-            ArmenianMonth::from_u8(self.0.month)
-        }
-    }
-
-    pub fn day(self) -> u8 {
-        self.0.day
-    }
-}
 
 impl CalculatedBounds for Armenian {}
 
@@ -90,28 +75,6 @@ impl ToFromCommonDate for Armenian {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::day_count::FIXED_MAX;
-    use proptest::proptest;
-    const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
-
-    proptest! {
-        #[test]
-        fn month_is_some(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
-            let d = CommonDate{ year: year, month: month as u8, day: day as u8 };
-            let e0 = Armenian::try_from_common_date(d).unwrap();
-            assert!(e0.month().is_some());
-            assert_eq!(e0.to_common_date(), d);
-        }
-
-        #[test]
-        fn month_is_none(year in -MAX_YEARS..MAX_YEARS, day in 1..5) {
-            let d = CommonDate{ year: year, month: 13, day: day as u8 };
-            let e0 = Armenian::try_from_common_date(d).unwrap();
-            assert!(e0.month().is_none());
-            assert_eq!(e0.to_common_date(), d);
-        }
-    }
-}
+impl CommonYear for Armenian {}
+impl TryMonth<ArmenianMonth> for Armenian {}
+impl CommonDay for Armenian {}

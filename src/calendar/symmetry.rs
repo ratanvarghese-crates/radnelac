@@ -18,6 +18,9 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
+use crate::common::date::CommonDay;
+use crate::common::date::CommonYear;
+use crate::common::date::GuaranteedMonth;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::day_count::CalculatedBounds;
@@ -86,18 +89,6 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
 
     pub fn mode(self) -> (bool, bool) {
         (T, U)
-    }
-
-    pub fn year(self) -> i32 {
-        self.0.year
-    }
-
-    pub fn month(self) -> SymmetryMonth {
-        SymmetryMonth::from_u8(self.0.month).expect("Will not allow setting invalid value.")
-    }
-
-    pub fn day(self) -> u8 {
-        self.0.day
     }
 
     pub fn is_leap(sym_year: i32) -> bool {
@@ -241,6 +232,10 @@ impl<const T: bool, const U: bool> ToFromCommonDate for Symmetry<T, U> {
         }
     }
 }
+
+impl<const T: bool, const U: bool> CommonYear for Symmetry<T, U> {}
+impl<const T: bool, const U: bool> GuaranteedMonth<SymmetryMonth> for Symmetry<T, U> {}
+impl<const T: bool, const U: bool> CommonDay for Symmetry<T, U> {}
 
 #[cfg(test)]
 mod tests {

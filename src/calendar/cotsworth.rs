@@ -6,6 +6,9 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
+use crate::common::date::CommonDay;
+use crate::common::date::CommonYear;
+use crate::common::date::GuaranteedMonth;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
@@ -45,18 +48,6 @@ pub enum CotsworthComplementaryDay {
 pub struct Cotsworth(CommonDate);
 
 impl Cotsworth {
-    pub fn year(self) -> i32 {
-        self.0.year
-    }
-
-    pub fn month(self) -> CotsworthMonth {
-        CotsworthMonth::from_u8(self.0.month).expect("Will not allow setting invalid value.")
-    }
-
-    pub fn day(self) -> u8 {
-        self.0.day
-    }
-
     pub fn complementary(self) -> Option<CotsworthComplementaryDay> {
         if self.0.day == 29 && self.0.month == (CotsworthMonth::December as u8) {
             Some(CotsworthComplementaryDay::YearDay)
@@ -158,6 +149,10 @@ impl ToFromCommonDate for Cotsworth {
         }
     }
 }
+
+impl CommonYear for Cotsworth {}
+impl GuaranteedMonth<CotsworthMonth> for Cotsworth {}
+impl CommonDay for Cotsworth {}
 
 #[cfg(test)]
 mod tests {

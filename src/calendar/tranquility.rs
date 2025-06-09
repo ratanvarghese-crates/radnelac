@@ -5,6 +5,7 @@ use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
 use crate::common::date::OrdinalDate;
 use crate::common::date::ToFromCommonDate;
+use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::CalculatedBounds;
@@ -67,14 +68,6 @@ impl TranquilityMoment {
             None
         } else {
             Some(self.date.year)
-        }
-    }
-
-    pub fn month(self) -> Option<TranquilityMonth> {
-        if self.date.month == 0 {
-            None
-        } else {
-            TranquilityMonth::from_u8(self.date.month)
         }
     }
 
@@ -319,6 +312,8 @@ impl ToFromCommonDate for TranquilityMoment {
     }
 }
 
+impl TryMonth<TranquilityMonth> for TranquilityMoment {}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -421,8 +416,8 @@ mod tests {
             let g = Gregorian::from_fixed(f);
             let gc = g.to_common_date();
             let q = TranquilityMoment::from_fixed(f);
-            if q.month().is_some() {
-                let qm = q.month().unwrap();
+            if q.try_month().is_some() {
+                let qm = q.try_month().unwrap();
                 let entry = match qm {
                     TranquilityMonth::Archimedes => ((7, 21), (8, 17)),
                     TranquilityMonth::Brahe => ((8, 18), (9, 14)),
@@ -469,8 +464,8 @@ mod tests {
             let g = Gregorian::from_fixed(f);
             let gc = g.to_common_date();
             let q = TranquilityMoment::from_fixed(f);
-            if q.month().is_some() {
-                let qm = q.month().unwrap();
+            if q.try_month().is_some() {
+                let qm = q.try_month().unwrap();
                 let entry = match qm {
                     TranquilityMonth::Archimedes => ((7, 21), (8, 17)),
                     TranquilityMonth::Brahe => ((8, 18), (9, 14)),

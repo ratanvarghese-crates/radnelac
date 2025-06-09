@@ -1,7 +1,10 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
+use crate::common::date::CommonDay;
+use crate::common::date::CommonYear;
 use crate::common::date::ToFromCommonDate;
+use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::CalculatedBounds;
@@ -64,22 +67,6 @@ pub struct FrenchRevArith<const L: bool>(CommonDate);
 impl<const L: bool> FrenchRevArith<L> {
     pub fn is_adjusted(self) -> bool {
         L
-    }
-
-    pub fn year(self) -> i32 {
-        self.0.year
-    }
-
-    pub fn month(self) -> Option<FrenchRevMonth> {
-        if self.0.month == 13 {
-            None
-        } else {
-            FrenchRevMonth::from_u8(self.0.month)
-        }
-    }
-
-    pub fn day(self) -> u8 {
-        self.0.day
     }
 
     pub fn sansculottide(self) -> Option<Sansculottide> {
@@ -188,6 +175,10 @@ impl<const L: bool> ToFromCommonDate for FrenchRevArith<L> {
         }
     }
 }
+
+impl<const L: bool> CommonYear for FrenchRevArith<L> {}
+impl<const L: bool> TryMonth<FrenchRevMonth> for FrenchRevArith<L> {}
+impl<const L: bool> CommonDay for FrenchRevArith<L> {}
 
 #[cfg(test)]
 mod tests {

@@ -1,6 +1,8 @@
 use crate::calendar::gregorian::GregorianMonth;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
+use crate::common::date::CommonDay;
+use crate::common::date::GuaranteedMonth;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
@@ -25,14 +27,6 @@ pub struct Julian(CommonDate);
 impl Julian {
     pub fn year(self) -> NonZero<i32> {
         NonZero::new(self.0.year).expect("Will not be assigned zero")
-    }
-
-    pub fn month(self) -> GregorianMonth {
-        JulianMonth::from_u8(self.0.month).expect("Will not allow setting invalid value.")
-    }
-
-    pub fn day(self) -> u8 {
-        self.0.day
     }
 
     pub fn is_leap(j_year: i32) -> bool {
@@ -151,6 +145,9 @@ impl ToFromCommonDate for Julian {
         }
     }
 }
+
+impl GuaranteedMonth<JulianMonth> for Julian {}
+impl CommonDay for Julian {}
 
 #[cfg(test)]
 mod tests {

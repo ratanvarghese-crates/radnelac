@@ -3,6 +3,9 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::gregorian::GregorianMonth;
 use crate::common::date::CommonDate;
+use crate::common::date::CommonDay;
+use crate::common::date::CommonYear;
+use crate::common::date::GuaranteedMonth;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::day_count::CalculatedBounds;
@@ -10,8 +13,6 @@ use crate::day_count::Epoch;
 use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
 use crate::day_count::ToFixed;
-
-use num_traits::FromPrimitive;
 
 const HOLOCENE_YEAR_OFFSET: i16 = -10000;
 
@@ -21,18 +22,6 @@ pub type HoloceneMonth = GregorianMonth;
 pub struct Holocene(CommonDate);
 
 impl Holocene {
-    pub fn year(self) -> i32 {
-        self.0.year
-    }
-
-    pub fn month(self) -> HoloceneMonth {
-        HoloceneMonth::from_u8(self.0.month).expect("Will not allow setting invalid value.")
-    }
-
-    pub fn day(self) -> u8 {
-        self.0.day
-    }
-
     pub fn is_leap(h_year: i32) -> bool {
         Gregorian::is_leap(h_year) //10000 is divisible by 400, so it's ok
     }
@@ -83,6 +72,10 @@ impl ToFromCommonDate for Holocene {
         Gregorian::valid_month_day(date)
     }
 }
+
+impl CommonYear for Holocene {}
+impl GuaranteedMonth<HoloceneMonth> for Holocene {}
+impl CommonDay for Holocene {}
 
 #[cfg(test)]
 mod tests {

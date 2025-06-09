@@ -2,6 +2,9 @@ use crate::calendar::coptic::Coptic;
 use crate::calendar::julian::Julian;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
+use crate::common::date::CommonDay;
+use crate::common::date::CommonYear;
+use crate::common::date::GuaranteedMonth;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
@@ -55,18 +58,6 @@ impl EthiopicMonth {
 pub struct Ethiopic(CommonDate);
 
 impl Ethiopic {
-    pub fn year(self) -> i32 {
-        self.0.year
-    }
-
-    pub fn month(self) -> EthiopicMonth {
-        EthiopicMonth::from_u8(self.0.month).expect("Will not allow setting invalid value.")
-    }
-
-    pub fn day(self) -> u8 {
-        self.0.day
-    }
-
     pub fn is_leap(year: i32) -> bool {
         year.modulus(4) == 3
     }
@@ -121,3 +112,7 @@ impl ToFromCommonDate for Ethiopic {
         }
     }
 }
+
+impl CommonYear for Ethiopic {}
+impl GuaranteedMonth<EthiopicMonth> for Ethiopic {}
+impl CommonDay for Ethiopic {}
