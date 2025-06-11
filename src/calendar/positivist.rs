@@ -1,6 +1,6 @@
 // http://positivists.org/calendar.html
 // https://gallica.bnf.fr/ark:/12148/bpt6k21868f/f42.planchecontact
-// https://books.google.ca/books?id=S_BRAAAAMAAJ&printsec=frontcover&source=gbs_ge_summary_r&cad=0#v=onepage&q&f=false
+// https://books.google.ca/books?id=S_BRAAAAMAAJ
 
 // Calendier Positiviste Page 52-53
 use crate::calendar::gregorian::Gregorian;
