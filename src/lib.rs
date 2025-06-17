@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate num_derive;
 
+pub mod clock;
 pub mod common {
     pub mod bound;
     pub mod date;
@@ -88,4 +89,7 @@ pub mod calendar {
     pub use tranquility::TranquilityMoment;
     pub use tranquility::TranquilityMonth;
 }
-pub mod clock;
+pub mod display {
+    pub mod common;
+    pub mod gregorian;
+}

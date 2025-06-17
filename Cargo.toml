@@ -6,6 +6,8 @@ edition = "2024"
 [dependencies]
 num-traits = "0.2"
 num-derive = "0.4"
+itoa = "1.0"
+convert_case = "0.8"
 
 [dev-dependencies]
 proptest = "1.6.0"
