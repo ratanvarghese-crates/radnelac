@@ -138,7 +138,7 @@ mod tests {
         #[test]
         fn christmas(y in i16::MIN..i16::MAX) {
             let c = Coptic::try_from_common_date(CommonDate::new(y as i32, CopticMonth::Koiak as u8, 29))?;
-            let j = Julian::from_fixed(c.to_fixed());
+            let j = c.convert::<Julian>();
             assert_eq!(j.month(), JulianMonth::December);
             assert!(j.day() == 25 || j.day() == 26);
         }

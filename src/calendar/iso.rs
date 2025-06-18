@@ -198,9 +198,7 @@ mod tests {
                     month: target.0,
                     day: target.1,
                 }).unwrap();
-                let i1 = ISO::from_fixed(g1.to_fixed());
-                let i2 = ISO::from_fixed(g2.to_fixed());
-                assert_eq!(i1.week().get(), i2.week().get());
+                assert_eq!(g1.convert::<ISO>().week(), g2.convert::<ISO>().week());
             }
         }
     }

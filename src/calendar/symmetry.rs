@@ -450,11 +450,9 @@ mod tests {
         fn month_start_on_monday_454(year in -MAX_YEARS..MAX_YEARS, month in 1..12) {
             let c = CommonDate::new(year as i32, month as u8, 1);
             let d = Symmetry454::try_from_common_date(c).unwrap();
-            let w = Weekday::from_fixed(d.to_fixed());
-            assert_eq!(w, Weekday::Monday);
+            assert_eq!(d.convert::<Weekday>(), Weekday::Monday);
             let d = Symmetry454Solstice::try_from_common_date(c).unwrap();
-            let w = Weekday::from_fixed(d.to_fixed());
-            assert_eq!(w, Weekday::Monday);
+            assert_eq!(d.convert::<Weekday>(), Weekday::Monday);
         }
 
         #[test]
@@ -462,44 +460,36 @@ mod tests {
             let m = SymmetryMonth::from_i32(month).unwrap();
             let c = CommonDate::new(year as i32, month as u8, Symmetry454::days_in_month(m));
             let d = Symmetry454::try_from_common_date(c).unwrap();
-            let w = Weekday::from_fixed(d.to_fixed());
-            assert_eq!(w, Weekday::Sunday);
+            assert_eq!(d.convert::<Weekday>(), Weekday::Sunday);
             let d = Symmetry454Solstice::try_from_common_date(c).unwrap();
-            let w = Weekday::from_fixed(d.to_fixed());
-            assert_eq!(w, Weekday::Sunday);
+            assert_eq!(d.convert::<Weekday>(), Weekday::Sunday);
         }
 
         #[test]
         fn no_friday_13_454(year in -MAX_YEARS..MAX_YEARS, month in 1..12) {
             let c = CommonDate::new(year as i32, month as u8, 13);
             let d = Symmetry454::try_from_common_date(c).unwrap();
-            let w = Weekday::from_fixed(d.to_fixed());
-            assert_ne!(w, Weekday::Friday);
+            assert_ne!(d.convert::<Weekday>(), Weekday::Friday);
             let d = Symmetry454Solstice::try_from_common_date(c).unwrap();
-            let w = Weekday::from_fixed(d.to_fixed());
-            assert_ne!(w, Weekday::Friday);
+            assert_ne!(d.convert::<Weekday>(), Weekday::Friday);
         }
 
         #[test]
         fn year_start_on_monday_010(year in -MAX_YEARS..MAX_YEARS) {
             let c = CommonDate::new(year as i32, 1, 1);
             let d = Symmetry010::try_from_common_date(c).unwrap();
-            let w = Weekday::from_fixed(d.to_fixed());
-            assert_eq!(w, Weekday::Monday);
+            assert_eq!(d.convert::<Weekday>(), Weekday::Monday);
             let d = Symmetry010Solstice::try_from_common_date(c).unwrap();
-            let w = Weekday::from_fixed(d.to_fixed());
-            assert_eq!(w, Weekday::Monday);
+            assert_eq!(d.convert::<Weekday>(), Weekday::Monday);
         }
 
         #[test]
         fn no_friday_13_010(year in -MAX_YEARS..MAX_YEARS, month in 1..12) {
             let c = CommonDate::new(year as i32, month as u8, 13);
             let d = Symmetry010::try_from_common_date(c).unwrap();
-            let w = Weekday::from_fixed(d.to_fixed());
-            assert_ne!(w, Weekday::Friday);
+            assert_ne!(d.convert::<Weekday>(), Weekday::Friday);
             let d = Symmetry010Solstice::try_from_common_date(c).unwrap();
-            let w = Weekday::from_fixed(d.to_fixed());
-            assert_ne!(w, Weekday::Friday);
+            assert_ne!(d.convert::<Weekday>(), Weekday::Friday);
         }
     }
 }

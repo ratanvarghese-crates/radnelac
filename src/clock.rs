@@ -107,16 +107,16 @@ impl TryFrom<TimeOfDay> for ClockTime {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::day_count::JulianDay;
     use crate::day_count::ToFixed;
     use crate::day_count::FIXED_MAX;
     use crate::day_count::FIXED_MIN;
-    use crate::day_count::JulianDay;
     use proptest::proptest;
 
     #[test]
     fn time() {
         let j0: JulianDay = JulianDay::new(0.0);
-        assert_eq!(TimeOfDay::from_fixed(j0.to_fixed()).0, 0.5);
+        assert_eq!(j0.convert::<TimeOfDay>().0, 0.5);
     }
 
     #[test]

@@ -62,6 +62,9 @@ pub trait FromFixed: Copy + Clone {
 
 pub trait ToFixed: Copy + Clone {
     fn to_fixed(self) -> Fixed;
+    fn convert<T: FromFixed>(self) -> T {
+        T::from_fixed(self.to_fixed())
+    }
 }
 
 pub trait Epoch: FromFixed {
