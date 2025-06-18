@@ -136,7 +136,15 @@ pub fn fmt_string(root: &str, opt: DisplayOptions) -> String {
         }
     } else {
         result.push_str(&cased_root);
-        result.truncate(opt.width.unwrap_or(cased_root.len()));
+        let max_len = opt.width.unwrap_or(cased_root.len());
+        if cased_root.len() > max_len {
+            let max_idx = cased_root
+                .char_indices()
+                .map(|x| x.0)
+                .rfind(|x| *x <= max_len)
+                .unwrap_or(0);
+            result.truncate(max_idx);
+        }
     }
     result
 }
@@ -379,5 +387,29 @@ mod tests {
             locale: Locale::en_CA,
         };
         assert_eq!(fmt_string("January", opt_0), "Jan");
+    }
+
+    #[test]
+    fn trunc_text_unicode() {
+        let opt_0 = DisplayOptions {
+            width: Some(1),
+            align: None,
+            padding: None,
+            case: None,
+            sign: Sign::Never,
+            locale: Locale::en_CA,
+        };
+        assert_eq!(fmt_string("😀", opt_0), "");
+        assert_eq!(fmt_string("😀😂", opt_0), "");
+        let opt_1 = DisplayOptions {
+            width: Some(4),
+            align: None,
+            padding: None,
+            case: None,
+            sign: Sign::Never,
+            locale: Locale::en_CA,
+        };
+        assert_eq!(fmt_string("😀", opt_1), "😀");
+        assert_eq!(fmt_string("😀😂", opt_1), "😀");
     }
 }
