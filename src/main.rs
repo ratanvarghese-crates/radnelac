@@ -90,12 +90,12 @@ fn print_t(t_fixed: Fixed) {
     println!("{:?}", d_egyptian);
     println!("{:?}", d_armenian);
     println!("{} ({:?})", d_gregorian, d_gregorian);
-    println!("{:?}", d_julian);
+    println!("{} ({:?})", d_julian, d_julian);
     println!("{:?}", d_coptic);
     println!("{:?}", d_ethiopic);
     println!("{:?}", d_roman);
     println!("{:?}", d_iso);
-    println!("{:?}", d_holocene);
+    println!("{} ({:?})", d_holocene, d_holocene);
     println!("{:?} is_adjusted: {:?}", d_french0, d_french0.is_adjusted());
     println!("{:?} is_adjusted: {:?}", d_french1, d_french1.is_adjusted());
     println!("{:?}", d_positivist);

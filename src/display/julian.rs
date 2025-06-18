@@ -1,4 +1,4 @@
-use crate::calendar::Gregorian;
+use crate::calendar::Julian;
 use crate::clock::TimeOfDay;
 use crate::common::date::CommonDate;
 use crate::common::date::ToFromCommonDate;
@@ -17,9 +17,9 @@ use crate::display::common::NumericContent;
 use crate::display::common::Sign;
 use crate::display::common::TextContent;
 use std::fmt;
-//use crate::calendar::GregorianMonth;
+//use crate::calendar::JulianMonth;
 
-impl DisplayItem for Gregorian {
+impl DisplayItem for Julian {
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
             NumericContent::Month | NumericContent::DayOfMonth | NumericContent::Year => {
@@ -73,16 +73,16 @@ impl DisplayItem for Gregorian {
             }
             TextContent::EraName => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("Before Common Era", opt)
+                    fmt_string("Before Christ", opt)
                 } else {
-                    fmt_string("Common Era", opt)
+                    fmt_string("Anno Domini", opt)
                 }
             }
             TextContent::EraAbbreviation => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("BCE", opt)
+                    fmt_string("BC", opt)
                 } else {
-                    fmt_string("CE", opt)
+                    fmt_string("AD", opt)
                 }
             }
             TextContent::ComplementaryDayName => String::from(""),
@@ -90,7 +90,7 @@ impl DisplayItem for Gregorian {
     }
 }
 
-impl fmt::Display for Gregorian {
+impl fmt::Display for Julian {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         const O3: DisplayOptions = DisplayOptions {
             width: Some(3),

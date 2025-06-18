@@ -93,5 +93,7 @@ pub mod display {
     pub mod clock;
     pub mod common;
     pub mod gregorian;
+    pub mod holocene;
+    pub mod julian;
     pub mod week;
 }
