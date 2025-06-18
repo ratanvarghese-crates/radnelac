@@ -1,17 +1,13 @@
 use crate::calendar::Gregorian;
-use crate::clock::ClockTime;
 use crate::clock::TimeOfDay;
-use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
 use crate::common::date::ToFromCommonDate;
-use crate::common::math::TermNum;
-use crate::day_count::Epoch;
-use crate::day_count::FromFixed;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
+use crate::display::common::fmt_days_since_epoch;
 use crate::display::common::fmt_number;
+use crate::display::common::fmt_seconds_since_epoch;
 use crate::display::common::fmt_string;
-use crate::display::common::Case;
 use crate::display::common::Content;
 use crate::display::common::DisplayItem;
 use crate::display::common::DisplayOptions;
@@ -26,37 +22,19 @@ use std::fmt;
 impl DisplayItem for Gregorian {
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
-            NumericContent::Month => fmt_number(self.to_common_date().month as i16, opt),
-            NumericContent::DayOfWeek => fmt_number(self.convert::<Weekday>() as i16, opt),
-            NumericContent::DayOfMonth => fmt_number(self.to_common_date().day as i16, opt),
-            NumericContent::Hour1to12 => fmt_number(
-                (ClockTime::new(self.convert::<TimeOfDay>()).hours as i64).adjusted_remainder(12),
-                opt,
-            ),
-            NumericContent::Hour0to23 => fmt_number(
-                ClockTime::new(self.convert::<TimeOfDay>()).hours as i16,
-                opt,
-            ),
-            NumericContent::Minute => fmt_number(
-                ClockTime::new(self.convert::<TimeOfDay>()).minutes as i16,
-                opt,
-            ),
-            NumericContent::Second => fmt_number(
-                ClockTime::new(self.convert::<TimeOfDay>()).seconds as i16,
-                opt,
-            ),
-            NumericContent::SecondsSinceEpoch => fmt_number(
-                ((self.to_fixed().get() - Gregorian::epoch().get()) * (24.0 * 60.0 * 60.0)) as i16,
-                opt,
-            ),
-            NumericContent::Year => fmt_number(self.to_common_date().year, opt),
+            NumericContent::Month | NumericContent::DayOfMonth | NumericContent::Year => {
+                self.to_common_date().fmt_numeric(n, opt)
+            }
+            NumericContent::DayOfWeek => self.convert::<Weekday>().fmt_numeric(n, opt),
+            NumericContent::Hour1to12
+            | NumericContent::Hour0to23
+            | NumericContent::Minute
+            | NumericContent::Second => self.convert::<TimeOfDay>().fmt_numeric(n, opt),
+            NumericContent::SecondsSinceEpoch => fmt_seconds_since_epoch(*self, opt),
             NumericContent::Quarter => {
                 fmt_number(((self.to_common_date().month as i16) / 4) + 1, opt)
             }
-            NumericContent::DaysSinceEpoch => fmt_number(
-                self.to_fixed().get_day_i() - Gregorian::epoch().get_day_i(),
-                opt,
-            ),
+            NumericContent::DaysSinceEpoch => fmt_days_since_epoch(*self, opt),
             NumericContent::ComplementaryDay => String::from(""),
             NumericContent::WeekOfYear => {
                 let today = self.to_fixed();
@@ -89,32 +67,9 @@ impl DisplayItem for Gregorian {
                 let name = MONTHS[self.to_common_date().month as usize - 1];
                 fmt_string(name, opt)
             }
-            TextContent::DayOfWeekName => {
-                const DAYS: [&str; 7] = [
-                    "Sunday",
-                    "Monday",
-                    "Tuesday",
-                    "Wednesday",
-                    "Thursday",
-                    "Friday",
-                    "Saturday",
-                ];
-                let name = DAYS[self.convert::<Weekday>() as usize];
-                fmt_string(name, opt)
-            }
-            TextContent::HalfDayName => {
-                if self.convert::<TimeOfDay>() < TimeOfDay::new(0.5) {
-                    fmt_string("Ante Meridiem", opt)
-                } else {
-                    fmt_string("Post Meridiem", opt)
-                }
-            }
-            TextContent::HalfDayAbbrev => {
-                if self.convert::<TimeOfDay>() < TimeOfDay::new(0.5) {
-                    fmt_string("AM", opt)
-                } else {
-                    fmt_string("PM", opt)
-                }
+            TextContent::DayOfWeekName => self.convert::<Weekday>().fmt_text(t, opt),
+            TextContent::HalfDayName | TextContent::HalfDayAbbrev => {
+                self.convert::<TimeOfDay>().fmt_text(t, opt)
             }
             TextContent::EraName => {
                 if self.to_common_date().year < 0 {

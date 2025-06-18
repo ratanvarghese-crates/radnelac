@@ -16,6 +16,7 @@ use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::TranquilityMoment;
 use radnelac::calendar::ISO;
+use radnelac::clock::TimeOfDay;
 use radnelac::common::bound::BoundedDayCount;
 use radnelac::common::bound::EffectiveBound;
 use radnelac::day_count::Fixed;
@@ -51,6 +52,7 @@ fn print_today() {
 }
 
 fn print_t(t_fixed: Fixed) {
+    let m_clk = TimeOfDay::from_fixed(t_fixed);
     let t_unix = UnixMoment::from_fixed(t_fixed);
     let t_jd = JulianDay::from_fixed(t_fixed);
     let t_mjd = ModifiedJulianDay::from_fixed(t_fixed);
@@ -78,11 +80,12 @@ fn print_t(t_fixed: Fixed) {
     let y_roman = Roman::auc_year_from_julian(d_julian.year());
     let y_olympiad = Olympiad::olympiad_from_julian_year(d_julian.year());
 
+    println!("{} ({:?})", m_clk, m_clk);
     println!("{:?}", t_unix);
     println!("{:?}", t_jd);
     println!("{:?}", t_mjd);
     println!("{:?}", t_rd);
-    println!("{:?}", w_week);
+    println!("{} ({:?})", w_week, w_week);
     println!("{:?}", w_akan);
     println!("{:?}", d_egyptian);
     println!("{:?}", d_armenian);

@@ -1,3 +1,7 @@
+use crate::common::bound::BoundedDayCount;
+use crate::common::date::CommonDate;
+use crate::day_count::Epoch;
+use crate::day_count::ToFixed;
 use convert_case;
 use convert_case::Casing;
 use num_traits::NumAssign;
@@ -171,6 +175,31 @@ pub fn fmt_number<T: itoa::Integer + NumAssign + Signed + PartialOrd>(
     }
     joined.push_str(root);
     fmt_string(&joined, opt)
+}
+
+pub fn fmt_days_since_epoch<T: Epoch + ToFixed>(t: T, opt: DisplayOptions) -> String {
+    fmt_number(t.to_fixed().get_day_i() - T::epoch().get_day_i(), opt)
+}
+
+pub fn fmt_seconds_since_epoch<T: Epoch + ToFixed>(t: T, opt: DisplayOptions) -> String {
+    fmt_number(
+        ((t.to_fixed().get() - T::epoch().get()) * (24.0 * 60.0 * 60.0)) as i16,
+        opt,
+    )
+}
+
+impl DisplayItem for CommonDate {
+    fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
+        match n {
+            NumericContent::Month => fmt_number(self.month as i16, opt),
+            NumericContent::DayOfMonth => fmt_number(self.day as i16, opt),
+            NumericContent::Year => fmt_number(self.year, opt),
+            _ => String::from(""),
+        }
+    }
+    fn fmt_text(&self, _t: TextContent, _opt: DisplayOptions) -> String {
+        String::from("")
+    }
 }
 
 mod tests {
