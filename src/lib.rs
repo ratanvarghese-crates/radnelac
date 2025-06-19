@@ -90,6 +90,7 @@ pub mod calendar {
     pub use tranquility::TranquilityMonth;
 }
 pub mod display {
+    pub mod akan;
     pub mod clock;
     pub mod common;
     pub mod gregorian;
