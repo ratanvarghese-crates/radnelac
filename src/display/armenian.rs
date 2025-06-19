@@ -1,4 +1,4 @@
-use crate::calendar::Egyptian;
+use crate::calendar::Armenian;
 use crate::clock::TimeOfDay;
 use crate::common::date::CommonDate;
 use crate::common::date::ToFromCommonDate;
@@ -20,7 +20,7 @@ use crate::display::common::TextContent;
 
 use crate::display::common::DisplayOptions;
 
-impl DisplayItem for Egyptian {
+impl DisplayItem for Armenian {
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
             NumericContent::Month | NumericContent::DayOfMonth | NumericContent::Year => {
@@ -41,10 +41,7 @@ impl DisplayItem for Egyptian {
                 }
             }
             NumericContent::DaysSinceEpoch => fmt_days_since_epoch(*self, opt),
-            NumericContent::ComplementaryDay => match self.complementary() {
-                Some(d) => fmt_number(d as i16, opt),
-                None => "".to_string(),
-            },
+            NumericContent::ComplementaryDay => "".to_string(),
             NumericContent::WeekOfYear => {
                 let today = self.to_fixed();
                 let start =
@@ -56,21 +53,22 @@ impl DisplayItem for Egyptian {
         }
     }
     fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String {
+        //https://en.wikipedia.org/wiki/Armenian_calendar
         match t {
             TextContent::MonthName => {
                 const MONTHS: [&str; 12] = [
-                    "Thoth",
-                    "Phaophi",
-                    "Athyr",
-                    "Choiak",
-                    "Tybi",
-                    "Mechir",
-                    "Phamenoth",
-                    "Pharmuthi",
-                    "Pachon",
-                    "Payni",
-                    "Epiphi",
-                    "Mesori",
+                    "Nawasard",
+                    "Hoṙi",
+                    "Sahmi",
+                    "Trē",
+                    "Kʿałocʿ",
+                    "Aracʿ",
+                    "Mehekan",
+                    "Areg",
+                    "Ahekan",
+                    "Mareri",
+                    "Margacʿ",
+                    "Hroticʿ",
                 ];
                 let m = self.to_common_date().month;
                 if m > 12 {
@@ -80,44 +78,68 @@ impl DisplayItem for Egyptian {
                     fmt_string(name, opt)
                 }
             }
-            TextContent::DayOfMonthName => fmt_string("", opt),
+            TextContent::DayOfMonthName => {
+                const DAYS: [&str; 30] = [
+                    "Areg",
+                    "Hrand",
+                    "Aram",
+                    "Margar",
+                    "Ahrank’",
+                    "Mazdeł",
+                    "Astłik",
+                    "Mihr",
+                    "Jopaber",
+                    "Murç",
+                    "Erezhan",
+                    "Ani",
+                    "Parkhar",
+                    "Vanat",
+                    "Aramazd",
+                    "Mani",
+                    "Asak",
+                    "Masis",
+                    "Anahit",
+                    "Aragats",
+                    "Gorgor",
+                    "Kordvik",
+                    "Tsmak",
+                    "Lusnak",
+                    "Tsrōn",
+                    "Npat",
+                    "Vahagn",
+                    "Sim",
+                    "Varag",
+                    "Gišeravar",
+                ];
+                match self.day_name() {
+                    Some(d) => fmt_string(DAYS[d as usize - 1], opt),
+                    None => fmt_string("", opt),
+                }
+            }
             TextContent::DayOfWeekName => self.convert::<Weekday>().fmt_text(t, opt),
             TextContent::HalfDayName | TextContent::HalfDayAbbrev => {
                 self.convert::<TimeOfDay>().fmt_text(t, opt)
             }
             TextContent::EraName => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("Before Nabonassar Era", opt)
+                    fmt_string("Before Armenian Era", opt)
                 } else {
-                    fmt_string("Nabonassar Era", opt)
+                    fmt_string("Armenian Era", opt)
                 }
             }
             TextContent::EraAbbreviation => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("BNE", opt)
+                    fmt_string("BAE", opt)
                 } else {
-                    fmt_string("NE", opt)
+                    fmt_string("AE", opt)
                 }
             }
-            TextContent::ComplementaryDayName => {
-                // https://helda.helsinki.fi/server/api/core/bitstreams/4ed34849-903b-416b-97d6-a9a76eb1fb1d/content
-                const DAYS: [&str; 5] = [
-                    "Birth of Osiris",
-                    "Birth of Horus",
-                    "Birth of Seth",
-                    "Birth of Isis",
-                    "Birth of Nephthys",
-                ];
-                match self.complementary() {
-                    Some(d) => fmt_string(DAYS[d as usize - 1], opt),
-                    None => fmt_string("", opt),
-                }
-            }
+            TextContent::ComplementaryDayName => fmt_string("", opt),
         }
     }
 }
 
-impl fmt::Display for Egyptian {
+impl fmt::Display for Armenian {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         const O: DisplayOptions = DisplayOptions {
             width: None,
@@ -127,12 +149,15 @@ impl fmt::Display for Egyptian {
             sign: Sign::Never,
             locale: Locale::en_CA,
         };
-        const ITEMS: [Item<'_>; 8] = [
+        const ITEMS: [Item<'_>; 11] = [
             Item::new(Content::Text(TextContent::MonthName), O),
             Item::new(Content::Text(TextContent::ComplementaryDayName), O),
             Item::new(Content::Literal(" "), O),
+            Item::new(Content::Text(TextContent::DayOfMonthName), O),
+            Item::new(Content::Literal(" "), O),
+            Item::new(Content::Literal("("), O),
             Item::new(Content::Numeric(NumericContent::DayOfMonth), O),
-            Item::new(Content::Literal(", "), O),
+            Item::new(Content::Literal("), "), O),
             Item::new(Content::Numeric(NumericContent::Year), O),
             Item::new(Content::Literal(" "), O),
             Item::new(Content::Text(TextContent::EraName), O),

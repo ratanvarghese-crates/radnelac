@@ -33,8 +33,53 @@ pub enum ArmenianMonth {
     Hrotich,
 }
 
+//https://en.wikipedia.org/wiki/Armenian_calendar
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+pub enum ArmenianDaysOfMonth {
+    Areg = 1,
+    Hrand,
+    Aram,
+    Margar,
+    Ahrank,
+    Mazdel,
+    Astlik,
+    Mihr,
+    Jopaber,
+    Murc,
+    Erezhan,
+    Ani,
+    Parkhar,
+    Vanat,
+    Aramazd,
+    Mani,
+    Asak,
+    Masis,
+    Anahit,
+    Aragats,
+    Gorgor,
+    Kordvik,
+    Tsmak,
+    Lusnak,
+    Tsron,
+    Npat,
+    Vahagn,
+    Sim,
+    Varag,
+    Giseravar,
+}
+
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Armenian(CommonDate);
+
+impl Armenian {
+    pub fn day_name(self) -> Option<ArmenianDaysOfMonth> {
+        if self.0.year == 13 {
+            None
+        } else {
+            ArmenianDaysOfMonth::from_u8(self.0.day)
+        }
+    }
+}
 
 impl CalculatedBounds for Armenian {}
 

@@ -67,6 +67,7 @@ impl DisplayItem for Julian {
                 let name = MONTHS[self.to_common_date().month as usize - 1];
                 fmt_string(name, opt)
             }
+            TextContent::DayOfMonthName => fmt_string("", opt),
             TextContent::DayOfWeekName => self.convert::<Weekday>().fmt_text(t, opt),
             TextContent::HalfDayName | TextContent::HalfDayAbbrev => {
                 self.convert::<TimeOfDay>().fmt_text(t, opt)

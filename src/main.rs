@@ -88,7 +88,7 @@ fn print_t(t_fixed: Fixed) {
     println!("{} ({:?})", w_week, w_week);
     println!("{} ({:?})", w_akan, w_akan);
     println!("{} ({:?})", d_egyptian, d_egyptian);
-    println!("{:?}", d_armenian);
+    println!("{} ({:?})", d_armenian, d_armenian);
     println!("{} ({:?})", d_gregorian, d_gregorian);
     println!("{} ({:?})", d_julian, d_julian);
     println!("{:?}", d_coptic);

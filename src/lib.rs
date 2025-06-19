@@ -92,6 +92,7 @@ pub mod calendar {
 }
 pub mod display {
     pub mod akan;
+    pub mod armenian;
     pub mod clock;
     pub mod common;
     pub mod egyptian;

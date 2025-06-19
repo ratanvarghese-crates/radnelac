@@ -27,6 +27,7 @@ pub enum NumericContent {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub enum TextContent {
     MonthName,
+    DayOfMonthName,
     DayOfWeekName,
     HalfDayName,
     HalfDayAbbrev,
