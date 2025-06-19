@@ -33,8 +33,27 @@ pub enum EgyptianMonth {
     Mesori,
 }
 
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+pub enum EgyptianDaysUponTheYear {
+    BirthOfOsiris = 1,
+    BirthOfHorus,
+    BirthOfSeth,
+    BirthOfIsis,
+    BirthOfNephthys,
+}
+
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Egyptian(CommonDate);
+
+impl Egyptian {
+    pub fn complementary(self) -> Option<EgyptianDaysUponTheYear> {
+        if self.0.month == 13 {
+            EgyptianDaysUponTheYear::from_u8(self.0.day)
+        } else {
+            None
+        }
+    }
+}
 
 impl CalculatedBounds for Egyptian {}
 

@@ -61,6 +61,7 @@ pub mod calendar {
     pub use cotsworth::CotsworthComplementaryDay;
     pub use cotsworth::CotsworthMonth;
     pub use egyptian::Egyptian;
+    pub use egyptian::EgyptianDaysUponTheYear;
     pub use egyptian::EgyptianMonth;
     pub use ethiopic::Ethiopic;
     pub use ethiopic::EthiopicMonth;
@@ -93,6 +94,7 @@ pub mod display {
     pub mod akan;
     pub mod clock;
     pub mod common;
+    pub mod egyptian;
     pub mod gregorian;
     pub mod holocene;
     pub mod julian;
