@@ -95,7 +95,9 @@ pub mod display {
     pub mod armenian;
     pub mod clock;
     pub mod common;
+    pub mod coptic;
     pub mod egyptian;
+    pub mod ethiopic;
     pub mod gregorian;
     pub mod holocene;
     pub mod julian;
