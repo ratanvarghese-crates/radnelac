@@ -7,6 +7,7 @@ use crate::common::date::CommonDay;
 use crate::common::date::CommonYear;
 use crate::common::date::GuaranteedMonth;
 use crate::common::date::HasLeapYears;
+use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::day_count::CalculatedBounds;
@@ -14,6 +15,7 @@ use crate::day_count::Epoch;
 use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
 use crate::day_count::ToFixed;
+use std::num::NonZero;
 
 const HOLOCENE_YEAR_OFFSET: i16 = -10000;
 
@@ -71,6 +73,12 @@ impl ToFromCommonDate for Holocene {
 
     fn valid_month_day(date: CommonDate) -> Result<(), CalendarError> {
         Gregorian::valid_month_day(date)
+    }
+}
+
+impl Quarter for Holocene {
+    fn quarter(self) -> NonZero<u8> {
+        NonZero::new(((self.to_common_date().month - 1) / 3) + 1).expect("(m-1)/3 > -1")
     }
 }
 

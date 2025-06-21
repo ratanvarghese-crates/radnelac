@@ -3,6 +3,7 @@ use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
 use crate::common::date::CommonDay;
 use crate::common::date::CommonYear;
+use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
@@ -14,6 +15,7 @@ use crate::day_count::RataDie;
 use crate::day_count::ToFixed;
 #[allow(unused_imports)] //FromPrimitive is needed for derive
 use num_traits::FromPrimitive;
+use std::num::NonZero;
 
 const ARMENIAN_EPOCH_RD: i32 = 201443;
 
@@ -117,6 +119,17 @@ impl ToFromCommonDate for Armenian {
 
     fn valid_month_day(date: CommonDate) -> Result<(), CalendarError> {
         Egyptian::valid_month_day(date)
+    }
+}
+
+impl Quarter for Armenian {
+    fn quarter(self) -> NonZero<u8> {
+        let m = self.to_common_date().month as u8;
+        if m == 13 {
+            NonZero::new(4 as u8).expect("4 != 0")
+        } else {
+            NonZero::new(((m - 1) / 3) + 1).expect("(m - 1) / 3 > -1")
+        }
     }
 }
 

@@ -10,6 +10,7 @@ use crate::common::date::CommonDay;
 use crate::common::date::CommonYear;
 use crate::common::date::HasLeapYears;
 use crate::common::date::PerennialWithComplementaryDay;
+use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
@@ -20,6 +21,7 @@ use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
+use std::num::NonZero;
 
 #[allow(unused_imports)] //FromPrimitive is needed for derive
 use num_traits::FromPrimitive;
@@ -142,6 +144,17 @@ impl ToFromCommonDate for Positivist {
             Err(CalendarError::InvalidDay)
         } else {
             Ok(())
+        }
+    }
+}
+
+impl Quarter for Positivist {
+    fn quarter(self) -> NonZero<u8> {
+        let m = self.to_common_date().month;
+        if m == 13 || m == 14 {
+            NonZero::new(4 as u8).expect("4 != 0")
+        } else {
+            NonZero::new(((m - 1) / 3) + 1).expect("(m-1)/3 > -1")
         }
     }
 }

@@ -2,6 +2,7 @@ use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
 use crate::common::date::CommonDay;
 use crate::common::date::CommonYear;
+use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
@@ -14,6 +15,7 @@ use crate::day_count::JulianDay;
 use crate::day_count::ToFixed;
 #[allow(unused_imports)] //FromPrimitive is needed for derive
 use num_traits::FromPrimitive;
+use std::num::NonZero;
 
 const NABONASSAR_ERA_JD: i32 = 1448638;
 
@@ -108,6 +110,17 @@ impl ToFromCommonDate for Egyptian {
             Err(CalendarError::InvalidDay)
         } else {
             Ok(())
+        }
+    }
+}
+
+impl Quarter for Egyptian {
+    fn quarter(self) -> NonZero<u8> {
+        let m = self.to_common_date().month as u8;
+        if m == 13 {
+            NonZero::new(4 as u8).expect("4 != 0")
+        } else {
+            NonZero::new(((m - 1) / 3) + 1).expect("(m - 1) / 3 > -1")
         }
     }
 }

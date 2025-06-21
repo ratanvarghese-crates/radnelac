@@ -3,6 +3,7 @@ use crate::calendar::julian::JulianMonth;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
 use crate::common::date::HasLeapYears;
+use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::math::TermNum;
 use crate::day_count::CalculatedBounds;
@@ -212,6 +213,12 @@ impl ToFixed for Roman {
         let lp0 = if do_lp { 0 } else { 1 };
         let lp1 = if self.leap { 1 } else { 0 };
         Fixed::cast_new(j - c + lp0 + lp1)
+    }
+}
+
+impl Quarter for Roman {
+    fn quarter(self) -> NonZero<u8> {
+        NonZero::new((((self.month() as u8) - 1) / 3) + 1).expect("m/4 > -1")
     }
 }
 

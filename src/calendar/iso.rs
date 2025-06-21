@@ -1,6 +1,7 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
+use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::math::TermNum;
 use crate::day_count::CalculatedBounds;
@@ -115,6 +116,12 @@ impl ToFixed for ISO {
             .get_day_i()
             + day_i;
         Fixed::cast_new(result)
+    }
+}
+
+impl Quarter for ISO {
+    fn quarter(self) -> NonZero<u8> {
+        NonZero::new(((self.week().get() - 1) / 14) + 1).expect("(m - 1)/14 > -1")
     }
 }
 

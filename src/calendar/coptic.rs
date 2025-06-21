@@ -5,6 +5,7 @@ use crate::common::date::CommonDay;
 use crate::common::date::CommonYear;
 use crate::common::date::GuaranteedMonth;
 use crate::common::date::HasLeapYears;
+use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
@@ -15,6 +16,7 @@ use crate::day_count::FromFixed;
 use crate::day_count::ToFixed;
 #[allow(unused_imports)] //FromPrimitive is needed for derive
 use num_traits::FromPrimitive;
+use std::num::NonZero;
 
 const COPTIC_EPOCH_JULIAN: CommonDate = CommonDate {
     year: 284,
@@ -119,6 +121,17 @@ impl ToFromCommonDate for Coptic {
             Err(CalendarError::InvalidDay)
         } else {
             Ok(())
+        }
+    }
+}
+
+impl Quarter for Coptic {
+    fn quarter(self) -> NonZero<u8> {
+        let m = self.to_common_date().month;
+        if m == 13 {
+            NonZero::new(4 as u8).expect("4 != 0")
+        } else {
+            NonZero::new(((m - 1) / 3) + 1).expect("(m-1)/3 > -1")
         }
     }
 }

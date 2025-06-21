@@ -22,6 +22,7 @@ use crate::common::date::CommonDay;
 use crate::common::date::CommonYear;
 use crate::common::date::GuaranteedMonth;
 use crate::common::date::HasLeapYears;
+use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::day_count::CalculatedBounds;
@@ -29,6 +30,7 @@ use crate::day_count::Epoch;
 use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
 use crate::day_count::ToFixed;
+use std::num::NonZero;
 
 use crate::common::math::TermNum;
 
@@ -232,6 +234,17 @@ impl<const T: bool, const U: bool> ToFromCommonDate for Symmetry<T, U> {
             Err(CalendarError::InvalidDay)
         } else {
             Ok(())
+        }
+    }
+}
+
+impl<const T: bool, const U: bool> Quarter for Symmetry<T, U> {
+    fn quarter(self) -> NonZero<u8> {
+        let m = self.to_common_date().month;
+        if m == 13 {
+            NonZero::new(4 as u8).expect("4 != 0")
+        } else {
+            NonZero::new(((m - 1) / 3) + 1).expect("(m-1)/3 > -1")
         }
     }
 }

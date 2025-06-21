@@ -5,6 +5,7 @@ use crate::common::date::CommonYear;
 use crate::common::date::GuaranteedMonth;
 use crate::common::date::HasLeapYears;
 use crate::common::date::OrdinalDate;
+use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
@@ -233,6 +234,12 @@ impl ToFromCommonDate for Gregorian {
         } else {
             Ok(())
         }
+    }
+}
+
+impl Quarter for Gregorian {
+    fn quarter(self) -> NonZero<u8> {
+        NonZero::new(((self.to_common_date().month - 1) / 3) + 1).expect("(m-1)/3 > -1")
     }
 }
 

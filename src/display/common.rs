@@ -1,5 +1,6 @@
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
+use crate::common::date::Quarter;
 use crate::day_count::Epoch;
 use crate::day_count::ToFixed;
 use convert_case;
@@ -187,6 +188,10 @@ pub fn fmt_seconds_since_epoch<T: Epoch + ToFixed>(t: T, opt: DisplayOptions) ->
         ((t.to_fixed().get() - T::epoch().get()) * (24.0 * 60.0 * 60.0)) as i16,
         opt,
     )
+}
+
+pub fn fmt_quarter<T: Quarter>(t: T, opt: DisplayOptions) -> String {
+    fmt_number(t.quarter().get() as i16, opt)
 }
 
 impl DisplayItem for CommonDate {

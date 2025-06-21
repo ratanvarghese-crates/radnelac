@@ -6,6 +6,7 @@ use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
 use crate::display::common::fmt_days_since_epoch;
 use crate::display::common::fmt_number;
+use crate::display::common::fmt_quarter;
 use crate::display::common::fmt_seconds_since_epoch;
 use crate::display::common::fmt_string;
 use crate::display::common::Content;
@@ -32,14 +33,7 @@ impl DisplayItem for Egyptian {
             | NumericContent::Minute
             | NumericContent::Second => self.convert::<TimeOfDay>().fmt_numeric(n, opt),
             NumericContent::SecondsSinceEpoch => fmt_seconds_since_epoch(*self, opt),
-            NumericContent::Quarter => {
-                let m = self.to_common_date().month as i16;
-                if m == 13 {
-                    fmt_number(4, opt)
-                } else {
-                    fmt_number((m / 4) + 1, opt)
-                }
-            }
+            NumericContent::Quarter => fmt_quarter(*self, opt),
             NumericContent::DaysSinceEpoch => fmt_days_since_epoch(*self, opt),
             NumericContent::ComplementaryDay => match self.complementary() {
                 Some(d) => fmt_number(d as i16, opt),

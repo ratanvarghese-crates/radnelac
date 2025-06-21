@@ -6,6 +6,7 @@ use crate::common::date::CommonDate;
 use crate::common::date::HasLeapYears;
 use crate::common::date::OrdinalDate;
 use crate::common::date::PerennialWithComplementaryDay;
+use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
@@ -19,6 +20,7 @@ use crate::day_cycle::Weekday;
 #[allow(unused_imports)] //FromPrimitive is needed for derive
 use num_traits::FromPrimitive;
 use std::cmp::Ordering;
+use std::num::NonZero;
 
 const TRANQUILITY_EPOCH_GREGORIAN: CommonDate = CommonDate {
     year: 1969,
@@ -314,6 +316,24 @@ impl ToFromCommonDate for TranquilityMoment {
             Err(CalendarError::InvalidYear)
         } else {
             Ok(())
+        }
+    }
+}
+
+impl Quarter for TranquilityMoment {
+    fn quarter(self) -> NonZero<u8> {
+        let m = self.to_common_date().month;
+        if m == 0 {
+            let d = self.to_common_date().day;
+            if d == 2 {
+                NonZero::new(3 as u8).expect("2 != 0")
+            } else {
+                NonZero::new(4 as u8).expect("4 != 0")
+            }
+        } else if m == 13 {
+            NonZero::new(4 as u8).expect("4 != 0")
+        } else {
+            NonZero::new(((m - 1) / 3) + 1).expect("(m - 1)/3 > -1")
         }
     }
 }

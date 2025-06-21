@@ -1,6 +1,7 @@
 use crate::common::bound::EffectiveBound;
 use crate::common::error::CalendarError;
 use num_traits::FromPrimitive;
+use std::num::NonZero;
 
 pub trait PerennialWithComplementaryDay<T, U> {
     fn complementary(self) -> Option<T>;
@@ -72,6 +73,10 @@ pub trait CommonDay: ToFromCommonDate {
     fn day(self) -> u8 {
         self.to_common_date().day
     }
+}
+
+pub trait Quarter {
+    fn quarter(self) -> NonZero<u8>;
 }
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
