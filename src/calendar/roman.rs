@@ -44,15 +44,15 @@ impl RomanMonth {
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Roman {
-    year: i32,
+    year: NonZero<i32>,
     month: RomanMonth,
     event: RomanMonthlyEvent,
-    count: u8,
+    count: NonZero<u8>,
     leap: bool,
 }
 
 impl Roman {
-    pub fn year(self) -> i32 {
+    pub fn year(self) -> NonZero<i32> {
         self.year
     }
 
@@ -64,7 +64,7 @@ impl Roman {
         self.event
     }
 
-    pub fn count(self) -> u8 {
+    pub fn count(self) -> NonZero<u8> {
         self.count
     }
 
@@ -87,74 +87,6 @@ impl Roman {
             NonZero::new(a_year - YEAR_ROME_FOUNDED_JULIAN + 1).expect("Checked by if")
         } else {
             NonZero::new(a_year - YEAR_ROME_FOUNDED_JULIAN).expect("Checked by if")
-        }
-    }
-
-    pub fn from_julian_unchecked(j_cdate: CommonDate, date: i64) -> (i32, u8, u8, u8, bool) {
-        let month = (j_cdate.month as i64).adjusted_remainder(12) as u8;
-        let year = j_cdate.year;
-        let day = j_cdate.day;
-        let month1 = (month as i64 + 1).adjusted_remainder(12) as u8;
-        let year1 = if month1 != 1 {
-            year
-        } else if year != -1 {
-            year + 1
-        } else {
-            1
-        };
-        let month_r = RomanMonth::from_u8(month).expect("Kept in range by adjusted_remainder");
-        let month1_r = RomanMonth::from_u8(month1).expect("Kept in range by adjusted_remainder");
-        let kalends1 = Roman {
-            year: year1,
-            month: month1_r,
-            event: RomanMonthlyEvent::Kalends,
-            count: 1,
-            leap: false,
-        }
-        .to_fixed()
-        .get_day_i();
-        if day == 1 {
-            (year, month, RomanMonthlyEvent::Kalends as u8, 1, false)
-        } else if day <= month_r.nones_of_month() {
-            (
-                year,
-                month,
-                RomanMonthlyEvent::Nones as u8,
-                month_r.nones_of_month() - day + 1,
-                false,
-            )
-        } else if day <= month_r.ides_of_month() {
-            (
-                year,
-                month,
-                RomanMonthlyEvent::Ides as u8,
-                month_r.ides_of_month() - day + 1,
-                false,
-            )
-        } else if month_r != RomanMonth::February || !Julian::is_leap(year) {
-            (
-                year1,
-                month1,
-                RomanMonthlyEvent::Kalends as u8,
-                ((kalends1 - date) + 1) as u8,
-                false,
-            )
-        } else if day < 25 {
-            (
-                year,
-                RomanMonth::March as u8,
-                RomanMonthlyEvent::Kalends as u8,
-                (30 - day) as u8,
-                false,
-            )
-        } else {
-            (
-                year,
-                RomanMonth::March as u8,
-                RomanMonthlyEvent::Kalends as u8,
-                (31 - day) as u8,
-                day == 25,
-            )
         }
     }
 }
@@ -182,14 +114,79 @@ impl CalculatedBounds for Roman {}
 
 impl FromFixed for Roman {
     fn from_fixed(date: Fixed) -> Roman {
-        let j_cdate = Julian::from_fixed(date).to_common_date();
-        let r_fields = Roman::from_julian_unchecked(j_cdate, date.get_day_i());
-        Roman {
-            year: r_fields.0,
-            month: RomanMonth::from_u8(r_fields.1).expect("TODO: verify"),
-            event: RomanMonthlyEvent::from_u8(r_fields.2).expect("TODO: verify"),
-            count: r_fields.3,
-            leap: r_fields.4,
+        let j = Julian::from_fixed(date);
+        let j_cdate = j.to_common_date();
+        let month = (j_cdate.month as i64).adjusted_remainder(12) as u8;
+        let year = j_cdate.year;
+        let day = j_cdate.day;
+        let month1 = (month as i64 + 1).adjusted_remainder(12) as u8;
+        let year1 = if month1 != 1 {
+            year
+        } else if year != -1 {
+            year + 1
+        } else {
+            1
+        };
+        let month_r = RomanMonth::from_u8(month).expect("Kept in range by adjusted_remainder");
+        let month1_r = RomanMonth::from_u8(month1).expect("Kept in range by adjusted_remainder");
+        let kalends1 = Roman {
+            year: NonZero::new(year1).expect("From Julian date"),
+            month: month1_r,
+            event: RomanMonthlyEvent::Kalends,
+            count: NonZero::new(1).expect("1 != 0"),
+            leap: false,
+        }
+        .to_fixed()
+        .get_day_i();
+        if day == 1 {
+            Roman {
+                year: NonZero::new(year).expect("From Julian date"),
+                month: month_r,
+                event: RomanMonthlyEvent::Kalends,
+                count: NonZero::new(1).expect("1 != 0"),
+                leap: false,
+            }
+        } else if day <= month_r.nones_of_month() {
+            Roman {
+                year: NonZero::new(year).expect("From Julian date"),
+                month: month_r,
+                event: RomanMonthlyEvent::Nones,
+                count: NonZero::new(month_r.nones_of_month() - day + 1).expect("Checked in if"),
+                leap: false,
+            }
+        } else if day <= month_r.ides_of_month() {
+            Roman {
+                year: NonZero::new(year).expect("From Julian date"),
+                month: month_r,
+                event: RomanMonthlyEvent::Ides,
+                count: NonZero::new(month_r.ides_of_month() - day + 1).expect("Checked in if"),
+                leap: false,
+            }
+        } else if month_r != RomanMonth::February || !Julian::is_leap(year) {
+            Roman {
+                year: NonZero::new(year1).expect("From Julian date"),
+                month: month1_r,
+                event: RomanMonthlyEvent::Kalends,
+                count: NonZero::new(((kalends1 - date.get_day_i()) + 1) as u8)
+                    .expect("kalends1 > date"),
+                leap: false,
+            }
+        } else if day < 25 {
+            Roman {
+                year: NonZero::new(year).expect("From Julian date"),
+                month: RomanMonth::March,
+                event: RomanMonthlyEvent::Kalends,
+                count: NonZero::new((30 - day) as u8).expect("day < 25 < 30"),
+                leap: false,
+            }
+        } else {
+            Roman {
+                year: NonZero::new(year).expect("From Julian date"),
+                month: RomanMonth::March,
+                event: RomanMonthlyEvent::Kalends,
+                count: NonZero::new((31 - day) as u8).expect("days in February < 31"),
+                leap: day == 25,
+            }
         }
     }
 }
@@ -201,17 +198,17 @@ impl ToFixed for Roman {
             RomanMonthlyEvent::Nones => self.month.nones_of_month(),
             RomanMonthlyEvent::Ides => self.month.ides_of_month(),
         };
-        let jlc = CommonDate::new(self.year, self.month as u8, jld);
+        let jlc = CommonDate::new(self.year.get(), self.month as u8, jld);
         let j = Julian::try_from_common_date(jlc)
             .expect("Month/day in range")
             .to_fixed()
             .get_day_i();
-        let c = self.count as i64;
-        let do_lp = Julian::is_leap(self.year)
+        let c = self.count.get() as i64;
+        let do_lp = Julian::is_leap(self.year.get())
             && self.month == RomanMonth::March
             && self.event == RomanMonthlyEvent::Kalends
-            && self.count <= 16
-            && self.count >= 6;
+            && self.count.get() <= 16
+            && self.count.get() >= 6;
         let lp0 = if do_lp { 0 } else { 1 };
         let lp1 = if self.leap { 1 } else { 0 };
         Fixed::cast_new(j - c + lp0 + lp1)
@@ -248,7 +245,7 @@ mod tests {
         let r = Roman::from_fixed(f);
         assert_eq!(r.event, RomanMonthlyEvent::Ides);
         assert_eq!(r.month, RomanMonth::March);
-        assert_eq!(r.count, 1);
+        assert_eq!(r.count.get(), 1);
     }
 
     proptest! {

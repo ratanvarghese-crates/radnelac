@@ -93,7 +93,7 @@ fn print_t(t_fixed: Fixed) {
     println!("{} ({:?})", d_julian, d_julian);
     println!("{} ({:?})", d_coptic, d_coptic);
     println!("{} ({:?})", d_ethiopic, d_ethiopic);
-    println!("{:?}", d_roman);
+    println!("{} ({:?})", d_roman, d_roman);
     println!("{:?}", d_iso);
     println!("{} ({:?})", d_holocene, d_holocene);
     println!("{:?} is_adjusted: {:?}", d_french0, d_french0.is_adjusted());

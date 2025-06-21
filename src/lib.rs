@@ -81,6 +81,8 @@ pub mod calendar {
     pub use positivist::PositivistComplementaryDay;
     pub use positivist::PositivistMonth;
     pub use roman::Roman;
+    pub use roman::RomanMonth;
+    pub use roman::RomanMonthlyEvent;
     pub use symmetry::Symmetry010;
     pub use symmetry::Symmetry010Solstice;
     pub use symmetry::Symmetry454;
@@ -101,5 +103,6 @@ pub mod display {
     pub mod gregorian;
     pub mod holocene;
     pub mod julian;
+    pub mod roman;
     pub mod week;
 }
