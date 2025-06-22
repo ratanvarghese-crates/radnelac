@@ -83,6 +83,7 @@ pub mod calendar {
     pub use roman::Roman;
     pub use roman::RomanMonth;
     pub use roman::RomanMonthlyEvent;
+    pub use symmetry::Symmetry;
     pub use symmetry::Symmetry010;
     pub use symmetry::Symmetry010Solstice;
     pub use symmetry::Symmetry454;
@@ -98,12 +99,15 @@ pub mod display {
     pub mod clock;
     pub mod common;
     pub mod coptic;
+    pub mod cotsworth;
     pub mod egyptian;
     pub mod ethiopic;
     pub mod french_rev;
     pub mod gregorian;
     pub mod holocene;
     pub mod julian;
+    pub mod positivist;
     pub mod roman;
+    pub mod symmetry;
     pub mod week;
 }

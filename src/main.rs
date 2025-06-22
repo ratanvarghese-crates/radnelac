@@ -108,12 +108,32 @@ fn print_t(t_fixed: Fixed) {
         d_french1,
         d_french1.is_adjusted()
     );
-    println!("{:?}", d_positivist);
-    println!("{:?}", d_cotsworth);
-    println!("{:?} mode: {:?}", d_symmetry454, d_symmetry454.mode());
-    println!("{:?} mode: {:?}", d_symmetry010, d_symmetry010.mode());
-    println!("{:?} mode: {:?}", d_symmetry454s, d_symmetry454s.mode());
-    println!("{:?} mode: {:?}", d_symmetry010s, d_symmetry010s.mode());
+    println!("{} ({:?})", d_positivist, d_positivist);
+    println!("{} ({:?})", d_cotsworth, d_cotsworth);
+    println!(
+        "{} ({:?} mode: {:?})",
+        d_symmetry454,
+        d_symmetry454,
+        d_symmetry454.mode()
+    );
+    println!(
+        "{} ({:?} mode: {:?})",
+        d_symmetry010,
+        d_symmetry010,
+        d_symmetry010.mode()
+    );
+    println!(
+        "{} ({:?} mode: {:?})",
+        d_symmetry454s,
+        d_symmetry454s,
+        d_symmetry454s.mode()
+    );
+    println!(
+        "{} ({:?} mode: {:?})",
+        d_symmetry010s,
+        d_symmetry010s,
+        d_symmetry010s.mode()
+    );
     println!("{:?}", d_tranquility);
     println!("{:?} AUC", y_roman);
     println!("{:?}", y_olympiad);
