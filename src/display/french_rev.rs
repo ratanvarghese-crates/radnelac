@@ -7,7 +7,6 @@ use crate::common::date::PerennialWithComplementaryDay;
 use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::day_count::ToFixed;
-use crate::day_cycle::Weekday;
 use crate::display::common::fmt_days_since_epoch;
 use crate::display::common::fmt_number;
 use crate::display::common::fmt_quarter;
@@ -30,7 +29,10 @@ impl<const L: bool> DisplayItem for FrenchRevArith<L> {
             NumericContent::Month | NumericContent::DayOfMonth | NumericContent::Year => {
                 self.to_common_date().fmt_numeric(n, opt)
             }
-            NumericContent::DayOfWeek => self.convert::<Weekday>().fmt_numeric(n, opt),
+            NumericContent::DayOfWeek => match self.weekday() {
+                Some(d) => fmt_number(d as i8, opt),
+                None => "".to_string(),
+            },
             NumericContent::Hour1to12
             | NumericContent::Hour0to23
             | NumericContent::Minute
@@ -77,8 +79,8 @@ impl<const L: bool> DisplayItem for FrenchRevArith<L> {
             TextContent::DayOfMonthName => fmt_string("", opt),
             TextContent::DayOfWeekName => {
                 const WEEKDAYS: [&str; 10] = [
-                    "Primidi", "Duodi", "tridi", "quartidi", "quintidi", "sextidi", "septidi",
-                    "octidi", "nonidi", "décadi",
+                    "Primidi", "Duodi", "Tridi", "Quartidi", "Quintidi", "Sextidi", "Septidi",
+                    "Octidi", "Nonidi", "Décadi",
                 ];
                 let name = match self.weekday() {
                     Some(m) => WEEKDAYS[(m as usize) - 1],
@@ -144,7 +146,9 @@ impl<const L: bool> fmt::Display for FrenchRevArith<L> {
                 write!(f, "{}", self.fmt_item(item))?;
             }
         } else {
-            const ITEMS_COMMON: [Item<'_>; 7] = [
+            const ITEMS_COMMON: [Item<'_>; 9] = [
+                Item::new(Content::Text(TextContent::DayOfWeekName), O),
+                Item::new(Content::Literal(" "), O),
                 Item::new(Content::Text(TextContent::MonthName), O),
                 Item::new(Content::Literal(" "), O),
                 Item::new(Content::Numeric(NumericContent::DayOfMonth), O),
