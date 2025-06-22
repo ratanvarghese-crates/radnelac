@@ -100,6 +100,7 @@ pub mod display {
     pub mod coptic;
     pub mod egyptian;
     pub mod ethiopic;
+    pub mod french_rev;
     pub mod gregorian;
     pub mod holocene;
     pub mod julian;

@@ -96,8 +96,18 @@ fn print_t(t_fixed: Fixed) {
     println!("{} ({:?})", d_roman, d_roman);
     println!("{:?}", d_iso);
     println!("{} ({:?})", d_holocene, d_holocene);
-    println!("{:?} is_adjusted: {:?}", d_french0, d_french0.is_adjusted());
-    println!("{:?} is_adjusted: {:?}", d_french1, d_french1.is_adjusted());
+    println!(
+        "{} ({:?} mode: {:?})",
+        d_french0,
+        d_french0,
+        d_french0.is_adjusted()
+    );
+    println!(
+        "{} ({:?} mode: {:?})",
+        d_french1,
+        d_french1,
+        d_french1.is_adjusted()
+    );
     println!("{:?}", d_positivist);
     println!("{:?}", d_cotsworth);
     println!("{:?} mode: {:?}", d_symmetry454, d_symmetry454.mode());
