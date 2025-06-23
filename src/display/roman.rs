@@ -1,5 +1,6 @@
 use crate::calendar::Roman;
 use crate::calendar::RomanMonthlyEvent;
+use numerals;
 use std::fmt;
 
 impl fmt::Display for Roman {
@@ -43,9 +44,9 @@ impl fmt::Display for Roman {
             let bissextum = if self.leap() { "bissextum " } else { "" };
             write!(
                 f,
-                "ante diem {}{} {} {}, {} Ab urbe condita",
+                "ante diem {}{:X} {} {}, {} Ab urbe condita",
                 bissextum,
-                self.count(),
+                numerals::roman::Roman::from(self.count().get() as i16),
                 event_name,
                 month_name,
                 year

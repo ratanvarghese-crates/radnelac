@@ -8,6 +8,7 @@ num-traits = "0.2"
 num-derive = "0.4"
 itoa = "1.0"
 convert_case = "0.8"
+numerals = "0.1"
 
 [dev-dependencies]
 proptest = "1.6.0"

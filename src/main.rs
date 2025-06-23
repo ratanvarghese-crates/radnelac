@@ -134,7 +134,7 @@ fn print_t(t_fixed: Fixed) {
         d_symmetry010s,
         d_symmetry010s.mode()
     );
-    println!("{:?}", d_tranquility);
+    println!("{} ({:?})", d_tranquility, d_tranquility);
     println!("{:?} AUC", y_roman);
     println!("{:?}", y_olympiad);
 }

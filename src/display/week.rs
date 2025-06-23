@@ -41,7 +41,7 @@ impl DisplayItem for Weekday {
 
 impl fmt::Display for Weekday {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        const O: DisplayOptions = DisplayOptions {
+        const O: DisplayOptions = DisplayOptions { numerals: None,
             width: None,
             align: None,
             padding: None,

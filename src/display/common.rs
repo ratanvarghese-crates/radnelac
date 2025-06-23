@@ -7,6 +7,8 @@ use convert_case;
 use convert_case::Casing;
 use num_traits::NumAssign;
 use num_traits::Signed;
+use num_traits::ToPrimitive;
+use numerals::roman::Roman;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub enum NumericContent {
@@ -72,11 +74,18 @@ pub enum Locale {
 }
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+pub enum Numerals {
+    HinduArabic,
+    Roman,
+}
+
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct DisplayOptions {
     pub width: Option<usize>,
     pub align: Option<Align>,
     pub case: Option<Case>,
     pub padding: Option<char>,
+    pub numerals: Option<Numerals>,
     pub sign: Sign,
     pub locale: Locale,
 }
@@ -155,12 +164,23 @@ pub fn fmt_string(root: &str, opt: DisplayOptions) -> String {
     result
 }
 
-pub fn fmt_number<T: itoa::Integer + NumAssign + Signed + PartialOrd>(
+pub fn fmt_number<T: itoa::Integer + NumAssign + Signed + PartialOrd + ToPrimitive>(
     n: T,
     opt: DisplayOptions,
 ) -> String {
-    let mut root_buffer = itoa::Buffer::new();
-    let root = root_buffer.format(n.abs());
+    let root = match opt.numerals {
+        Some(Numerals::Roman) => {
+            if n > T::zero() && n.to_i16().is_some() {
+                format!("{:X}", Roman::from(n.to_i16().expect("Checked in if")))
+            } else {
+                "".to_string()
+            }
+        }
+        _ => {
+            let mut root_buffer = itoa::Buffer::new();
+            root_buffer.format(n.abs()).to_string()
+        }
+    };
     let prefix = match (opt.sign, n >= T::zero()) {
         (Sign::Always, true) => "+",
         (Sign::Always, false) => "-",
@@ -175,7 +195,7 @@ pub fn fmt_number<T: itoa::Integer + NumAssign + Signed + PartialOrd>(
         let padding = std::iter::repeat('0').take(pad_width).collect::<String>();
         joined.push_str(&padding);
     }
-    joined.push_str(root);
+    joined.push_str(&root);
     fmt_string(&joined, opt)
 }
 
@@ -214,6 +234,7 @@ mod tests {
     #[test]
     fn basic_number() {
         let opt_0 = DisplayOptions {
+            numerals: None,
             width: None,
             align: None,
             padding: None,
@@ -224,6 +245,7 @@ mod tests {
         assert_eq!(fmt_number(2025, opt_0), "2025");
         assert_eq!(fmt_number(-2025, opt_0), "2025");
         let opt_1 = DisplayOptions {
+            numerals: None,
             width: None,
             align: None,
             padding: None,
@@ -234,6 +256,7 @@ mod tests {
         assert_eq!(fmt_number(2025, opt_1), "+2025");
         assert_eq!(fmt_number(-2025, opt_1), "-2025");
         let opt_2 = DisplayOptions {
+            numerals: None,
             width: None,
             align: None,
             padding: None,
@@ -248,6 +271,7 @@ mod tests {
     #[test]
     fn basic_text() {
         let opt_0 = DisplayOptions {
+            numerals: None,
             width: None,
             align: None,
             padding: None,
@@ -261,6 +285,7 @@ mod tests {
     #[test]
     fn case_text() {
         let opt_0 = DisplayOptions {
+            numerals: None,
             width: None,
             align: None,
             padding: None,
@@ -270,6 +295,7 @@ mod tests {
         };
         assert_eq!(fmt_string("mAy", opt_0), "MAY");
         let opt_1 = DisplayOptions {
+            numerals: None,
             width: None,
             align: None,
             padding: None,
@@ -279,6 +305,7 @@ mod tests {
         };
         assert_eq!(fmt_string("mAy", opt_1), "may");
         let opt_2 = DisplayOptions {
+            numerals: None,
             width: None,
             align: None,
             padding: None,
@@ -288,6 +315,7 @@ mod tests {
         };
         assert_eq!(fmt_string("mAy", opt_2), "MAy");
         let opt_3 = DisplayOptions {
+            numerals: None,
             width: None,
             align: None,
             padding: None,
@@ -301,6 +329,7 @@ mod tests {
     #[test]
     fn pad_number() {
         let opt_0 = DisplayOptions {
+            numerals: None,
             width: Some(8),
             align: None,
             padding: Some('@'),
@@ -311,6 +340,7 @@ mod tests {
         assert_eq!(fmt_number(2025, opt_0), "@@@@2025");
         assert_eq!(fmt_number(-2025, opt_0), "@@@@2025");
         let opt_1 = DisplayOptions {
+            numerals: None,
             width: Some(8),
             align: None,
             padding: Some('@'),
@@ -321,6 +351,7 @@ mod tests {
         assert_eq!(fmt_number(2025, opt_1), "@@@+2025");
         assert_eq!(fmt_number(-2025, opt_1), "@@@-2025");
         let opt_2 = DisplayOptions {
+            numerals: None,
             width: Some(8),
             align: None,
             padding: Some('0'),
@@ -335,6 +366,7 @@ mod tests {
     #[test]
     fn align_number() {
         let opt_0 = DisplayOptions {
+            numerals: None,
             width: Some(8),
             align: Some(Align::Left),
             padding: Some('@'),
@@ -345,6 +377,7 @@ mod tests {
         assert_eq!(fmt_number(2025, opt_0), "@@@@2025");
         assert_eq!(fmt_number(-2025, opt_0), "@@@-2025");
         let opt_1 = DisplayOptions {
+            numerals: None,
             width: Some(8),
             align: Some(Align::Right),
             padding: Some('@'),
@@ -355,6 +388,7 @@ mod tests {
         assert_eq!(fmt_number(2025, opt_1), "2025@@@@");
         assert_eq!(fmt_number(-2025, opt_1), "-2025@@@");
         let opt_2 = DisplayOptions {
+            numerals: None,
             width: Some(8),
             align: Some(Align::Center),
             padding: Some('@'),
@@ -369,6 +403,7 @@ mod tests {
     #[test]
     fn trunc_number() {
         let opt_0 = DisplayOptions {
+            numerals: None,
             width: Some(2),
             align: None,
             padding: None,
@@ -383,6 +418,7 @@ mod tests {
     #[test]
     fn align_text() {
         let opt_0 = DisplayOptions {
+            numerals: None,
             width: Some(8),
             align: Some(Align::Left),
             padding: Some('@'),
@@ -392,6 +428,7 @@ mod tests {
         };
         assert_eq!(fmt_string("June", opt_0), "@@@@June");
         let opt_1 = DisplayOptions {
+            numerals: None,
             width: Some(8),
             align: Some(Align::Right),
             padding: Some('@'),
@@ -401,6 +438,7 @@ mod tests {
         };
         assert_eq!(fmt_string("June", opt_1), "June@@@@");
         let opt_2 = DisplayOptions {
+            numerals: None,
             width: Some(8),
             align: Some(Align::Center),
             padding: Some('@'),
@@ -414,6 +452,7 @@ mod tests {
     #[test]
     fn trunc_text() {
         let opt_0 = DisplayOptions {
+            numerals: None,
             width: Some(3),
             align: None,
             padding: None,
@@ -427,6 +466,7 @@ mod tests {
     #[test]
     fn trunc_text_unicode() {
         let opt_0 = DisplayOptions {
+            numerals: None,
             width: Some(1),
             align: None,
             padding: None,
@@ -437,6 +477,7 @@ mod tests {
         assert_eq!(fmt_string("😀", opt_0), "");
         assert_eq!(fmt_string("😀😂", opt_0), "");
         let opt_1 = DisplayOptions {
+            numerals: None,
             width: Some(4),
             align: None,
             padding: None,

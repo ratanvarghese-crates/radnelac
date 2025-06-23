@@ -114,6 +114,7 @@ impl DisplayItem for Egyptian {
 impl fmt::Display for Egyptian {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         const O: DisplayOptions = DisplayOptions {
+            numerals: None,
             width: None,
             align: None,
             padding: None,

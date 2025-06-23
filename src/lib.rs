@@ -109,5 +109,6 @@ pub mod display {
     pub mod positivist;
     pub mod roman;
     pub mod symmetry;
+    pub mod tranquility;
     pub mod week;
 }

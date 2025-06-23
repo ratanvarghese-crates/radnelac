@@ -136,6 +136,7 @@ impl DisplayItem for Armenian {
 impl fmt::Display for Armenian {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         const O: DisplayOptions = DisplayOptions {
+            numerals: None,
             width: None,
             align: None,
             padding: None,

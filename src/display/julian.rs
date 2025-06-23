@@ -93,6 +93,7 @@ impl DisplayItem for Julian {
 impl fmt::Display for Julian {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         const O3: DisplayOptions = DisplayOptions {
+            numerals: None,
             width: Some(3),
             align: None,
             padding: None,
@@ -101,6 +102,7 @@ impl fmt::Display for Julian {
             locale: Locale::en_CA,
         };
         const O: DisplayOptions = DisplayOptions {
+            numerals: None,
             width: None,
             align: None,
             padding: None,

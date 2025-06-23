@@ -93,6 +93,7 @@ impl<const T: bool, const U: bool> DisplayItem for Symmetry<T, U> {
 impl<const T: bool, const U: bool> fmt::Display for Symmetry<T, U> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         const O: DisplayOptions = DisplayOptions {
+            numerals: None,
             width: None,
             align: None,
             padding: None,

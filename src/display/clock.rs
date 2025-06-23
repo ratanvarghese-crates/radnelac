@@ -51,7 +51,7 @@ impl DisplayItem for TimeOfDay {
 }
 impl fmt::Display for TimeOfDay {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        const O: DisplayOptions = DisplayOptions {
+        const O: DisplayOptions = DisplayOptions { numerals: None,
             width: Some(2),
             align: None,
             padding: Some('0'),
