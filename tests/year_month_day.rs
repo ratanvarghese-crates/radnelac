@@ -28,9 +28,9 @@ use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::SymmetryMonth;
 use radnelac::calendar::TranquilityMoment;
 use radnelac::calendar::TranquilityMonth;
-use radnelac::common::date::CommonDate;
-use radnelac::common::date::HasLeapYears;
-use radnelac::common::date::TryMonth;
+use radnelac::date::CommonDate;
+use radnelac::date::HasLeapYears;
+use radnelac::date::TryMonth;
 use radnelac::day_count::FIXED_MAX;
 
 const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;

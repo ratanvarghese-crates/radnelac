@@ -1,8 +1,7 @@
-// TODO: Seperate EN and FR strings
-
-use crate::calendar::FrenchRevArith;
+use crate::calendar::Cotsworth;
 use crate::clock::TimeOfDay;
 use crate::common::date::CommonDay;
+use crate::common::date::GuaranteedMonth;
 use crate::common::date::PerennialWithComplementaryDay;
 use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
@@ -14,6 +13,7 @@ use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
 use crate::format::Content;
 use crate::format::DisplayItem;
+use crate::format::DisplayOptions;
 use crate::format::Item;
 use crate::format::Locale;
 use crate::format::NumericContent;
@@ -21,16 +21,14 @@ use crate::format::Sign;
 use crate::format::TextContent;
 use std::fmt;
 
-use crate::format::DisplayOptions;
-
-impl<const L: bool> DisplayItem for FrenchRevArith<L> {
+impl DisplayItem for Cotsworth {
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
             NumericContent::Month | NumericContent::DayOfMonth | NumericContent::Year => {
                 self.to_common_date().fmt_numeric(n, opt)
             }
             NumericContent::DayOfWeek => match self.weekday() {
-                Some(d) => fmt_number(d as i8, opt),
+                Some(d) => d.fmt_numeric(n, opt),
                 None => "".to_string(),
             },
             NumericContent::Hour1to12
@@ -45,9 +43,12 @@ impl<const L: bool> DisplayItem for FrenchRevArith<L> {
                 None => "".to_string(),
             },
             NumericContent::WeekOfYear => {
-                let w: i8 = match self.try_month() {
-                    Some(month) => ((((month as i8) - 1) * 30) + (self.day() as i8) - 1) / 10 + 1,
-                    None => 37,
+                let m = self.month() as i8;
+                let d = self.day() as i8;
+                let w = if d == 29 {
+                    (((m - 1) * 28) + 28) / 7 + 1
+                } else {
+                    (((m - 1) * 28) + d - 1) / 7 + 1
                 };
                 fmt_number(w, opt)
             }
@@ -56,19 +57,20 @@ impl<const L: bool> DisplayItem for FrenchRevArith<L> {
     fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String {
         match t {
             TextContent::MonthName => {
-                const MONTHS: [&str; 12] = [
-                    "Vendémiaire",
-                    "Brumaire",
-                    "Frimaire",
-                    "Nivôse",
-                    "Pluviôse",
-                    "Ventôse",
-                    "Germinal",
-                    "Floréal",
-                    "Prairial",
-                    "Messidor",
-                    "Thermidor",
-                    "Fructidor",
+                const MONTHS: [&str; 13] = [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "Sol",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December",
                 ];
                 let name = match self.try_month() {
                     Some(m) => MONTHS[(m as usize) - 1],
@@ -77,45 +79,31 @@ impl<const L: bool> DisplayItem for FrenchRevArith<L> {
                 fmt_string(name, opt)
             }
             TextContent::DayOfMonthName => fmt_string("", opt),
-            TextContent::DayOfWeekName => {
-                const WEEKDAYS: [&str; 10] = [
-                    "Primidi", "Duodi", "Tridi", "Quartidi", "Quintidi", "Sextidi", "Septidi",
-                    "Octidi", "Nonidi", "Décadi",
-                ];
-                let name = match self.weekday() {
-                    Some(m) => WEEKDAYS[(m as usize) - 1],
-                    None => "",
-                };
-                fmt_string(name, opt)
-            }
+            TextContent::DayOfWeekName => match self.weekday() {
+                Some(m) => m.fmt_text(t, opt),
+                None => fmt_string("", opt),
+            },
             TextContent::HalfDayName | TextContent::HalfDayAbbrev => {
                 self.convert::<TimeOfDay>().fmt_text(t, opt)
             }
             TextContent::EraName => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("Before Republican Era", opt)
+                    fmt_string("Before Cotsworth Era", opt)
                 } else {
-                    fmt_string("Republican Era", opt)
+                    fmt_string("Cotsworth Era", opt)
                 }
             }
             TextContent::EraAbbreviation => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("BRE", opt)
+                    fmt_string("BCE", opt)
                 } else {
-                    fmt_string("RE", opt)
+                    fmt_string("CE", opt)
                 }
             }
             TextContent::ComplementaryDayName => {
-                const SANSCULOTTIDES: [&str; 6] = [
-                    "La Fête de la Vertu",
-                    "La Fête du Génie",
-                    "La Fête du Travail",
-                    "La Fête de l'Opinion",
-                    "La Fête des Récompenses",
-                    "La Fête de la Révolution",
-                ];
+                const COMPLEMENTARY: [&str; 2] = ["Year Day", "Leap Day"];
                 let name = match self.complementary() {
-                    Some(d) => SANSCULOTTIDES[(d as usize) - 1],
+                    Some(d) => COMPLEMENTARY[(d as usize) - 1],
                     None => "",
                 };
                 fmt_string(name, opt)
@@ -124,7 +112,7 @@ impl<const L: bool> DisplayItem for FrenchRevArith<L> {
     }
 }
 
-impl<const L: bool> fmt::Display for FrenchRevArith<L> {
+impl fmt::Display for Cotsworth {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         const O: DisplayOptions = DisplayOptions {
             numerals: None,

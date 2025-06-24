@@ -1,13 +1,24 @@
 #[macro_use]
 extern crate num_derive;
 
-pub mod clock;
-pub mod common {
+pub mod clock {
+    mod clock_time;
+    mod time_of_day;
+
+    pub use clock_time::ClockTime;
+    pub use time_of_day::TimeOfDay;
+}
+mod common {
     pub mod bound;
     pub mod date;
     pub mod error;
+    pub mod format;
     pub mod math;
 }
+pub use common::bound;
+pub use common::date;
+pub use common::error;
+pub use common::format;
 pub mod day_count {
     mod fixed;
     mod jd;
@@ -94,10 +105,11 @@ pub mod calendar {
     pub use tranquility::TranquilityMonth;
 }
 pub mod display {
+    mod private;
+
     pub mod akan;
     pub mod armenian;
     pub mod clock;
-    pub mod common;
     pub mod coptic;
     pub mod cotsworth;
     pub mod egyptian;

@@ -1,24 +1,23 @@
 use crate::calendar::TranquilityComplementaryDay;
 use crate::calendar::TranquilityMoment;
 use crate::clock::TimeOfDay;
-use crate::common::date::CommonDay;
 use crate::common::date::PerennialWithComplementaryDay;
 use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::day_count::ToFixed;
-use crate::display::common::fmt_days_since_epoch;
-use crate::display::common::fmt_number;
-use crate::display::common::fmt_quarter;
-use crate::display::common::fmt_seconds_since_epoch;
-use crate::display::common::fmt_string;
-use crate::display::common::Content;
-use crate::display::common::DisplayItem;
-use crate::display::common::DisplayOptions;
-use crate::display::common::Item;
-use crate::display::common::Locale;
-use crate::display::common::NumericContent;
-use crate::display::common::Sign;
-use crate::display::common::TextContent;
+use crate::display::private::fmt_days_since_epoch;
+use crate::display::private::fmt_number;
+use crate::display::private::fmt_quarter;
+use crate::display::private::fmt_seconds_since_epoch;
+use crate::display::private::fmt_string;
+use crate::format::Content;
+use crate::format::DisplayItem;
+use crate::format::DisplayOptions;
+use crate::format::Item;
+use crate::format::Locale;
+use crate::format::NumericContent;
+use crate::format::Sign;
+use crate::format::TextContent;
 use std::fmt;
 
 impl DisplayItem for TranquilityMoment {

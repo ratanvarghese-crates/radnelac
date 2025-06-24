@@ -4,8 +4,8 @@ use num_traits::Bounded;
 use num_traits::Euclid;
 use num_traits::FromPrimitive;
 use num_traits::NumAssign;
-use num_traits::Signed;
 use num_traits::ToPrimitive;
+use num_traits::Zero;
 use std::cmp::PartialOrd;
 
 // https://en.m.wikipedia.org/wiki/Double-precision_floating-point_format
@@ -38,7 +38,6 @@ pub const EFFECTIVE_EPSILON: f64 = 0.000003814697265625;
 
 pub trait TermNum:
     NumAssign
-    + Signed
     + PartialOrd
     + ToPrimitive
     + FromPrimitive
@@ -66,16 +65,9 @@ pub trait TermNum:
     }
 
     fn modulus(self, other: Self) -> Self {
-        debug_assert!(other != Self::zero());
-        if other > Self::zero() {
-            let x = self;
-            let y = other;
-            Euclid::rem_euclid(&x, &y)
-        } else {
-            let x = -self;
-            let y = -other;
-            -Euclid::rem_euclid(&x, &y)
-        }
+        let x = self;
+        let y = other;
+        Euclid::rem_euclid(&x, &y)
     }
 
     fn approx_eq_iter<T: IntoIterator<Item = Self>>(x: T, y: T) -> bool {
@@ -88,7 +80,7 @@ pub trait TermNum:
         if self.is_zero() {
             Self::zero()
         } else {
-            self.signum()
+            Self::one()
         }
     }
 
@@ -127,7 +119,7 @@ pub trait TermNum:
         }
     }
 
-    fn sum<U: CalendricIndex>(f: impl Fn(U) -> Self, p: impl Fn(U) -> bool, k: U) -> Self {
+    fn sum<U: TermNum>(f: impl Fn(U) -> Self, p: impl Fn(U) -> bool, k: U) -> Self {
         let mut result = Self::zero();
         let mut i = k;
         while p(i) {
@@ -137,7 +129,7 @@ pub trait TermNum:
         result
     }
 
-    fn product<U: CalendricIndex>(f: impl Fn(U) -> Self, p: impl Fn(U) -> bool, k: U) -> Self {
+    fn product<U: TermNum>(f: impl Fn(U) -> Self, p: impl Fn(U) -> bool, k: U) -> Self {
         let mut result = Self::one();
         let mut i = k;
         while p(i) {
@@ -231,14 +223,90 @@ pub trait TermNum:
         }
         Ok(())
     }
+
+    fn search_min(p: impl Fn(Self) -> bool, k: Self) -> Self {
+        let mut i = k;
+        while !p(i) {
+            i += Self::one()
+        }
+        i
+    }
+
+    fn search_max(p: impl Fn(Self) -> bool, k: Self) -> Self {
+        let mut i = k - Self::one();
+        while p(i) {
+            i += Self::one()
+        }
+        i
+    }
 }
 
-impl TermNum for i64 {}
-impl TermNum for i32 {}
-impl TermNum for i16 {}
-impl TermNum for i8 {}
+impl TermNum for usize {}
+impl TermNum for u64 {}
+impl TermNum for u32 {}
+impl TermNum for u16 {}
+impl TermNum for u8 {}
+
+impl TermNum for i64 {
+    fn sign(self) -> Self {
+        if self.is_zero() {
+            Self::zero()
+        } else {
+            self.signum()
+        }
+    }
+
+    fn modulus(self, other: Self) -> Self {
+        debug_assert!(other != Self::zero());
+        if other > Self::zero() {
+            let x = self;
+            let y = other;
+            Euclid::rem_euclid(&x, &y)
+        } else {
+            let x = -self;
+            let y = -other;
+            -Euclid::rem_euclid(&x, &y)
+        }
+    }
+}
+
+macro_rules! CastFn {
+    ($n: ident, $t:ident) => {
+        fn $n(self) -> Self {
+            (self as $t).$n() as Self
+        }
+    };
+    ($n: ident, $t:ident, $u: ident) => {
+        fn $n(self, other: Self) -> $u {
+            (self as $t).$n(other as $t) as $u
+        }
+    };
+}
+
+impl TermNum for i32 {
+    CastFn!(sign, i64);
+    CastFn!(modulus, i64, Self);
+}
+
+impl TermNum for i16 {
+    CastFn!(sign, i64);
+    CastFn!(modulus, i64, Self);
+}
+
+impl TermNum for i8 {
+    CastFn!(sign, i64);
+    CastFn!(modulus, i64, Self);
+}
 
 impl TermNum for f64 {
+    fn sign(self) -> Self {
+        if self.is_zero() {
+            Self::zero()
+        } else {
+            self.signum()
+        }
+    }
+
     fn approx_eq(self, other: Self) -> bool {
         let x = self;
         let y = other;
@@ -283,74 +351,16 @@ impl TermNum for f64 {
 }
 
 impl TermNum for f32 {
-    fn approx_eq(self, other: Self) -> bool {
-        (self as f64).approx_eq(other as f64)
-    }
-
-    fn approx_floor(self) -> Self {
-        (self as f64).approx_floor() as f32
-    }
-
-    fn floor_round(self) -> Self {
-        (self as f64).floor_round() as f32
-    }
-
-    fn modulus(self, other: Self) -> Self {
-        (self as f64).modulus(other as f64) as f32
-    }
+    CastFn!(sign, f64);
+    CastFn!(modulus, f64, Self);
+    CastFn!(approx_eq, f64, bool);
+    CastFn!(approx_floor, f64);
+    CastFn!(floor_round, f64);
 
     fn is_a_number(self) -> bool {
         !self.is_nan()
     }
 }
-
-pub trait CalendricIndex: NumAssign + Copy {
-    fn search_min(p: impl Fn(Self) -> bool, k: Self) -> Self {
-        let mut i = k;
-        while !p(i) {
-            i += Self::one()
-        }
-        i
-    }
-
-    fn search_max(p: impl Fn(Self) -> bool, k: Self) -> Self {
-        let mut i = k - Self::one();
-        while p(i) {
-            i += Self::one()
-        }
-        i
-    }
-}
-
-impl CalendricIndex for f64 {}
-impl CalendricIndex for usize {}
-
-pub trait TermNum64: TermNum {}
-
-impl TermNum64 for f64 {}
-impl TermNum64 for i64 {}
-
-pub trait SmallNum:
-    NumAssign
-    + ToPrimitive
-    + FromPrimitive
-    + AsPrimitive<f64>
-    + AsPrimitive<i64>
-    + Copy
-    + Bounded
-    + PartialOrd
-{
-    fn to_term_num_64<T: TermNum64>(self) -> T {
-        T::from_i64(self.as_()).expect("Within range")
-    }
-}
-
-impl SmallNum for i32 {}
-impl SmallNum for i16 {}
-impl SmallNum for i8 {}
-impl SmallNum for u32 {}
-impl SmallNum for u16 {}
-impl SmallNum for u8 {}
 
 // TODO: binary search (listing 1.35)
 // TODO: inverse f (listing 1.36)
@@ -416,17 +426,17 @@ mod tests {
 
     #[test]
     fn search_min_sign() {
-        let y = CalendricIndex::search_min(|i| i.sign() == 1.0, -10.0);
+        let y = f64::search_min(|i| i.sign() == 1.0, -10.0);
         assert_eq!(y, 1.0);
-        let z = CalendricIndex::search_min(|i| i.sign() == 1.0, 500.0);
+        let z = f64::search_min(|i| i.sign() == 1.0, 500.0);
         assert_eq!(z, 500.0);
     }
 
     #[test]
     fn search_max_sign() {
-        let y = CalendricIndex::search_max(|i| i.sign() == -1.0, -10.0);
+        let y = f64::search_max(|i| i.sign() == -1.0, -10.0);
         assert_eq!(y, 0.0);
-        let z = CalendricIndex::search_max(|i| i.sign() == -1.0, 500.0);
+        let z = f64::search_max(|i| i.sign() == -1.0, 500.0);
         assert_eq!(z, 499.0);
     }
 

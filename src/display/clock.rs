@@ -1,18 +1,18 @@
 use crate::clock::ClockTime;
 use crate::clock::TimeOfDay;
 use crate::common::math::TermNum;
-use crate::display::common::fmt_number;
-use crate::display::common::fmt_string;
-use crate::display::common::Content;
-use crate::display::common::DisplayItem;
-use crate::display::common::Item;
-use crate::display::common::Locale;
-use crate::display::common::NumericContent;
-use crate::display::common::Sign;
+use crate::display::private::fmt_number;
+use crate::display::private::fmt_string;
+use crate::format::Content;
+use crate::format::DisplayItem;
+use crate::format::Item;
+use crate::format::Locale;
+use crate::format::NumericContent;
+use crate::format::Sign;
 
-use crate::display::common::DisplayOptions;
+use crate::format::DisplayOptions;
 
-use crate::display::common::TextContent;
+use crate::format::TextContent;
 
 use std::fmt;
 

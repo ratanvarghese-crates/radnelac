@@ -12,9 +12,9 @@ use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::TranquilityComplementaryDay;
 use radnelac::calendar::TranquilityMoment;
-use radnelac::common::bound::BoundedDayCount;
-use radnelac::common::date::CommonDate;
-use radnelac::common::date::ToFromCommonDate;
+use radnelac::bound::BoundedDayCount;
+use radnelac::date::CommonDate;
+use radnelac::date::ToFromCommonDate;
 use radnelac::day_count::FromFixed;
 use radnelac::day_count::RataDie;
 use radnelac::day_count::ToFixed;
@@ -22,7 +22,7 @@ use radnelac::day_count::FIXED_MAX;
 use radnelac::day_count::FIXED_MIN;
 use radnelac::day_cycle::Weekday;
 
-use radnelac::common::date::PerennialWithComplementaryDay;
+use radnelac::date::PerennialWithComplementaryDay;
 
 const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 

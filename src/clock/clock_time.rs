@@ -1,38 +1,6 @@
-use crate::common::bound::BoundedDayCount;
-use crate::common::error::CalendarError;
+use crate::clock::TimeOfDay;
 use crate::common::math::TermNum;
-use crate::day_count::Fixed;
-use crate::day_count::FromFixed;
-
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
-pub struct TimeOfDay(f64);
-
-impl TimeOfDay {
-    pub fn new(t: f64) -> Self {
-        TimeOfDay(t)
-    }
-
-    pub fn get(self) -> f64 {
-        self.0
-    }
-
-    pub fn new_from_clock(clock: ClockTime) -> TimeOfDay {
-        let a = [
-            0.0,
-            clock.hours as f64,
-            clock.minutes as f64,
-            clock.seconds as f64,
-        ];
-        let b = [24.0, 60.0, 60.0];
-        TimeOfDay::new(TermNum::from_mixed_radix(&a, &b, 0).expect("Inputs are valid"))
-    }
-}
-
-impl FromFixed for TimeOfDay {
-    fn from_fixed(t: Fixed) -> TimeOfDay {
-        TimeOfDay::new(t.get().modulus(1.0))
-    }
-}
+use crate::error::CalendarError;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct ClockTime {
@@ -58,7 +26,7 @@ impl ClockTime {
     pub fn new(t: TimeOfDay) -> ClockTime {
         let b = [24.0, 60.0, 60.0];
         let mut a = [0.0, 0.0, 0.0, 0.0];
-        TermNum::to_mixed_radix(t.0, &b, 0, &mut a)
+        TermNum::to_mixed_radix(t.get(), &b, 0, &mut a)
             .expect("Valid inputs, other failures are impossible.");
         ClockTime {
             hours: a[1] as u8,
@@ -95,7 +63,7 @@ impl TryFrom<TimeOfDay> for ClockTime {
     fn try_from(t: TimeOfDay) -> Result<ClockTime, CalendarError> {
         let b = [24.0, 60.0, 60.0];
         let mut a = [0.0, 0.0, 0.0, 0.0];
-        TermNum::to_mixed_radix(t.0, &b, 0, &mut a)?;
+        TermNum::to_mixed_radix(t.get(), &b, 0, &mut a)?;
         Ok(ClockTime {
             hours: a[1] as u8,
             minutes: a[2] as u8,
@@ -107,17 +75,12 @@ impl TryFrom<TimeOfDay> for ClockTime {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::day_count::JulianDay;
-    use crate::day_count::ToFixed;
+    use crate::common::bound::BoundedDayCount;
+    use crate::day_count::Fixed;
+    use crate::day_count::FromFixed;
     use crate::day_count::FIXED_MAX;
     use crate::day_count::FIXED_MIN;
     use proptest::proptest;
-
-    #[test]
-    fn time() {
-        let j0: JulianDay = JulianDay::new(0.0);
-        assert_eq!(j0.convert::<TimeOfDay>().0, 0.5);
-    }
 
     #[test]
     fn obvious_clock_times() {

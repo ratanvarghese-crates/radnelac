@@ -1,6 +1,5 @@
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
-use crate::common::math::TermNum64;
 use num_traits::AsPrimitive;
 use num_traits::FromPrimitive;
 
@@ -9,7 +8,7 @@ pub trait EffectiveBound: Copy + Clone + PartialEq + PartialOrd {
     fn effective_max() -> Self;
 }
 
-pub trait BoundedDayCount<T: TermNum64>: EffectiveBound {
+pub trait BoundedDayCount<T: TermNum>: EffectiveBound {
     fn new(t: T) -> Self;
     fn get(self) -> T;
 
