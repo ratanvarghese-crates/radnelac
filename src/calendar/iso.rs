@@ -5,6 +5,7 @@ use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::math::TermNum;
 use crate::day_count::CalculatedBounds;
+use crate::day_count::Epoch;
 use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
 use crate::day_count::ToFixed;
@@ -31,6 +32,10 @@ impl ISO {
 
     pub fn day(self) -> Weekday {
         self.day
+    }
+
+    pub fn day_num(self) -> u8 {
+        (self.day as u8).adjusted_remainder(7)
     }
 
     pub fn is_long_year(i_year: i16) -> bool {
@@ -65,6 +70,12 @@ impl PartialOrd for ISO {
 }
 
 impl CalculatedBounds for ISO {}
+
+impl Epoch for ISO {
+    fn epoch() -> Fixed {
+        Gregorian::epoch()
+    }
+}
 
 impl FromFixed for ISO {
     fn from_fixed(fixed_date: Fixed) -> ISO {

@@ -1,3 +1,5 @@
+use radnelac::bound::BoundedDayCount;
+use radnelac::bound::EffectiveBound;
 use radnelac::calendar::Armenian;
 use radnelac::calendar::Coptic;
 use radnelac::calendar::Cotsworth;
@@ -17,8 +19,6 @@ use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::TranquilityMoment;
 use radnelac::calendar::ISO;
 use radnelac::clock::TimeOfDay;
-use radnelac::bound::BoundedDayCount;
-use radnelac::bound::EffectiveBound;
 use radnelac::day_count::Fixed;
 use radnelac::day_count::FromFixed;
 use radnelac::day_count::JulianDay;
@@ -94,7 +94,7 @@ fn print_t(t_fixed: Fixed) {
     println!("{} ({:?})", d_coptic, d_coptic);
     println!("{} ({:?})", d_ethiopic, d_ethiopic);
     println!("{} ({:?})", d_roman, d_roman);
-    println!("{:?}", d_iso);
+    println!("{} ({:?})", d_iso, d_iso);
     println!("{} ({:?})", d_holocene, d_holocene);
     println!(
         "{} ({:?} mode: {:?})",

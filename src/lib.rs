@@ -117,6 +117,7 @@ pub mod display {
     pub mod french_rev;
     pub mod gregorian;
     pub mod holocene;
+    pub mod iso;
     pub mod julian;
     pub mod positivist;
     pub mod roman;
