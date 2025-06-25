@@ -114,6 +114,10 @@ impl ToFromCommonDate for Ethiopic {
             Ok(())
         }
     }
+
+    fn year_end_date(year: i32) -> CommonDate {
+        Coptic::year_end_date(year)
+    }
 }
 
 impl Quarter for Ethiopic {

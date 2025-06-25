@@ -34,7 +34,7 @@ impl CalculatedBounds for Holocene {}
 
 impl Epoch for Holocene {
     fn epoch() -> Fixed {
-        Gregorian::new_year(HOLOCENE_YEAR_OFFSET + 1)
+        Gregorian::year_start(HOLOCENE_YEAR_OFFSET + 1).to_fixed()
     }
 }
 
@@ -73,6 +73,10 @@ impl ToFromCommonDate for Holocene {
 
     fn valid_month_day(date: CommonDate) -> Result<(), CalendarError> {
         Gregorian::valid_month_day(date)
+    }
+
+    fn year_end_date(year: i32) -> CommonDate {
+        Gregorian::year_end_date(year)
     }
 }
 

@@ -184,6 +184,10 @@ impl<const L: bool> ToFromCommonDate for FrenchRevArith<L> {
             Ok(())
         }
     }
+
+    fn year_end_date(year: i32) -> CommonDate {
+        CommonDate::new(year, 13, FrenchRevArith::<L>::complementary_count(year))
+    }
 }
 
 impl<const L: bool> Quarter for FrenchRevArith<L> {

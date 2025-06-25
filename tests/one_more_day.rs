@@ -1,5 +1,6 @@
 use proptest::prop_assume;
 use proptest::proptest;
+use radnelac::bound::BoundedDayCount;
 use radnelac::calendar::Armenian;
 use radnelac::calendar::Coptic;
 use radnelac::calendar::Cotsworth;
@@ -15,7 +16,6 @@ use radnelac::calendar::Symmetry010Solstice;
 use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::TranquilityMoment;
-use radnelac::bound::BoundedDayCount;
 use radnelac::date::PerennialWithComplementaryDay;
 use radnelac::date::ToFromCommonDate;
 use radnelac::day_count::Epoch;
@@ -23,8 +23,9 @@ use radnelac::day_count::Fixed;
 use radnelac::day_count::FromFixed;
 use radnelac::day_count::FIXED_MAX;
 use radnelac::day_count::FIXED_MIN;
+use std::fmt::Debug;
 
-fn one_more_day<T: ToFromCommonDate + FromFixed>(t: f64) {
+fn one_more_day<T: ToFromCommonDate + FromFixed + Debug>(t: f64) {
     let f0 = Fixed::new(t);
     let f1 = Fixed::new(t + 1.0);
     let d0 = T::from_fixed(f0).to_common_date();
@@ -33,6 +34,8 @@ fn one_more_day<T: ToFromCommonDate + FromFixed>(t: f64) {
         assert_eq!(d1.year, d0.year + 1);
         assert_eq!(d1.month, 1);
         assert_eq!(d1.day, 1);
+        assert_eq!(d0, T::year_end_date(d0.year));
+        assert_eq!(d1, T::year_start_date(d1.year));
     } else if d0.month != d1.month {
         assert_eq!(d1.year, d0.year);
         assert_eq!(d1.month, d0.month + 1);

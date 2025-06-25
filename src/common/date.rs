@@ -30,6 +30,10 @@ pub trait ToFromCommonDate: Sized + EffectiveBound {
     fn to_common_date(self) -> CommonDate;
     fn from_common_date_unchecked(d: CommonDate) -> Self;
     fn valid_month_day(d: CommonDate) -> Result<(), CalendarError>;
+    fn year_start_date(year: i32) -> CommonDate {
+        CommonDate::new(year, 1, 1)
+    }
+    fn year_end_date(year: i32) -> CommonDate;
 
     fn in_effective_bounds(d: CommonDate) -> bool {
         let min = Self::effective_min().to_common_date();
@@ -42,6 +46,18 @@ pub trait ToFromCommonDate: Sized + EffectiveBound {
             Err(e) => Err(e),
             Ok(_) => Ok(Self::from_common_date_unchecked(d)),
         }
+    }
+
+    fn year_start(year: i16) -> Self {
+        let d = Self::year_start_date(year as i32);
+        debug_assert!(Self::in_effective_bounds(d));
+        Self::try_from_common_date(d).expect("Known to be in range")
+    }
+
+    fn year_end(year: i16) -> Self {
+        let d = Self::year_end_date(year as i32);
+        debug_assert!(Self::in_effective_bounds(d));
+        Self::try_from_common_date(d).expect("Known to be in range")
     }
 }
 

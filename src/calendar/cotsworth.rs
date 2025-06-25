@@ -154,6 +154,10 @@ impl ToFromCommonDate for Cotsworth {
             Ok(())
         }
     }
+
+    fn year_end_date(year: i32) -> CommonDate {
+        CommonDate::new(year, CotsworthMonth::December as u8, 29)
+    }
 }
 
 impl Quarter for Cotsworth {

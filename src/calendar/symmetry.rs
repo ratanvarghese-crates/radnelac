@@ -236,6 +236,15 @@ impl<const T: bool, const U: bool> ToFromCommonDate for Symmetry<T, U> {
             Ok(())
         }
     }
+
+    fn year_end_date(year: i32) -> CommonDate {
+        let m = if Self::is_leap(year) {
+            SymmetryMonth::Irvember
+        } else {
+            SymmetryMonth::December
+        };
+        CommonDate::new(year, m as u8, Self::days_in_month(m))
+    }
 }
 
 impl<const T: bool, const U: bool> Quarter for Symmetry<T, U> {

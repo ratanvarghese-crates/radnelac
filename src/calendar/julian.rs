@@ -148,6 +148,11 @@ impl ToFromCommonDate for Julian {
             Ok(())
         }
     }
+
+    fn year_end_date(year: i32) -> CommonDate {
+        let m = JulianMonth::December;
+        CommonDate::new(year, m as u8, m.length(Julian::is_leap(year)))
+    }
 }
 
 impl Quarter for Julian {
@@ -212,14 +217,10 @@ mod tests {
         }
     }
 
-    proptest! {
-        #[test]
-        fn julian_year_ends(year in i16::MIN..i16::MAX) {
-            prop_assume!(year != 0);
-            let new_years_eve = Julian::year_end(NonZero::new(year).unwrap());
-            let next_year = if year == -1 { 1 } else { year + 1 };
-            let new_years_day = Julian::new_year(NonZero::new(next_year).unwrap());
-            assert_eq!(new_years_day.get_day_i(), new_years_eve.get_day_i() + 1);
-        }
+    #[test]
+    fn cross_epoch() {
+        let new_years_eve = Julian::year_end(NonZero::new(-1).unwrap());
+        let new_years_day = Julian::new_year(NonZero::new(1).unwrap());
+        assert_eq!(new_years_day.get_day_i(), new_years_eve.get_day_i() + 1);
     }
 }

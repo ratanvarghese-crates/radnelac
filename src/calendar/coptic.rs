@@ -123,6 +123,11 @@ impl ToFromCommonDate for Coptic {
             Ok(())
         }
     }
+
+    fn year_end_date(year: i32) -> CommonDate {
+        let m = CopticMonth::Epagomene;
+        CommonDate::new(year, m as u8, m.length(Coptic::is_leap(year)))
+    }
 }
 
 impl Quarter for Coptic {

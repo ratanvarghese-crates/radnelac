@@ -120,6 +120,10 @@ impl ToFromCommonDate for Armenian {
     fn valid_month_day(date: CommonDate) -> Result<(), CalendarError> {
         Egyptian::valid_month_day(date)
     }
+
+    fn year_end_date(year: i32) -> CommonDate {
+        Egyptian::year_end_date(year)
+    }
 }
 
 impl Quarter for Armenian {

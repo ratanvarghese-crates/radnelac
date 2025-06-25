@@ -39,8 +39,8 @@ impl ISO {
     }
 
     pub fn is_long_year(i_year: i16) -> bool {
-        let jan1 = Weekday::from_fixed(Gregorian::new_year(i_year));
-        let dec31 = Weekday::from_fixed(Gregorian::year_end(i_year));
+        let jan1 = Gregorian::year_start(i_year).convert::<Weekday>();
+        let dec31 = Gregorian::year_end(i_year).convert::<Weekday>();
         jan1 == Weekday::Thursday || dec31 == Weekday::Thursday
     }
 

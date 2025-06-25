@@ -318,6 +318,10 @@ impl ToFromCommonDate for TranquilityMoment {
             Ok(())
         }
     }
+
+    fn year_end_date(year: i32) -> CommonDate {
+        CommonDate::new(year, 0, TranquilityComplementaryDay::ArmstrongDay as u8)
+    }
 }
 
 impl Quarter for TranquilityMoment {

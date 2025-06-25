@@ -125,24 +125,6 @@ impl Gregorian {
         offset_e + offset_y + offset_leap
     }
 
-    pub fn new_year(g_year: i16) -> Fixed {
-        Gregorian(CommonDate {
-            year: g_year as i32,
-            month: GregorianMonth::January as u8,
-            day: 1,
-        })
-        .to_fixed()
-    }
-
-    pub fn year_end(g_year: i16) -> Fixed {
-        Gregorian(CommonDate {
-            year: g_year as i32,
-            month: GregorianMonth::December as u8,
-            day: 31,
-        })
-        .to_fixed()
-    }
-
     //Arguments swapped from the original
     pub fn nth_kday(self, nz: NonZero<i16>, k: Weekday) -> Fixed {
         let x = self.to_fixed().get_day_i();
@@ -234,6 +216,11 @@ impl ToFromCommonDate for Gregorian {
         } else {
             Ok(())
         }
+    }
+
+    fn year_end_date(year: i32) -> CommonDate {
+        let m = GregorianMonth::December;
+        CommonDate::new(year, m as u8, m.length(Gregorian::is_leap(year)))
     }
 }
 
@@ -341,13 +328,6 @@ mod tests {
     }
 
     proptest! {
-        #[test]
-        fn year_ends(year in i16::MIN..i16::MAX) {
-            let new_years_eve = Gregorian::year_end(year);
-            let new_years_day = Gregorian::new_year(year + 1);
-            assert_eq!(new_years_day.get_day_i(), new_years_eve.get_day_i() + 1);
-        }
-
         #[test]
         fn cycle_146097(t in FIXED_MIN..(FIXED_MAX-146097.0), w in 1..55) {
             let f_start = Fixed::new(t);

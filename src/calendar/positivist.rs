@@ -95,7 +95,7 @@ impl CalculatedBounds for Positivist {}
 
 impl Epoch for Positivist {
     fn epoch() -> Fixed {
-        Gregorian::new_year(POSITIVIST_YEAR_OFFSET)
+        Gregorian::year_start(POSITIVIST_YEAR_OFFSET).to_fixed()
     }
 }
 
@@ -145,6 +145,10 @@ impl ToFromCommonDate for Positivist {
         } else {
             Ok(())
         }
+    }
+
+    fn year_end_date(year: i32) -> CommonDate {
+        CommonDate::new(year, 14, Positivist::complementary_count(year))
     }
 }
 

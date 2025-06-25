@@ -112,6 +112,10 @@ impl ToFromCommonDate for Egyptian {
             Ok(())
         }
     }
+
+    fn year_end_date(year: i32) -> CommonDate {
+        CommonDate::new(year, 13, 5)
+    }
 }
 
 impl Quarter for Egyptian {
