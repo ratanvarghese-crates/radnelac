@@ -27,6 +27,7 @@ const TRANQUILITY_EPOCH_GREGORIAN: CommonDate = CommonDate {
     month: 7,
     day: 20,
 };
+const NON_MONTH: u8 = 0;
 
 const TRANQUILITY_EPOCH_CLOCK: ClockTime = ClockTime {
     hours: 20,
@@ -196,7 +197,7 @@ impl PartialOrd for TranquilityMoment {
 
 impl PerennialWithComplementaryDay<TranquilityComplementaryDay, Weekday> for TranquilityMoment {
     fn complementary(self) -> Option<TranquilityComplementaryDay> {
-        if self.date.month == 0 {
+        if self.date.month == NON_MONTH {
             TranquilityComplementaryDay::from_u8(self.date.day)
         } else {
             None
@@ -255,10 +256,10 @@ impl FromFixed for TranquilityMoment {
             ord.year,
             TranquilityMoment::is_leap(ord.year),
         ) {
-            (_, 0, _) => CommonDate::new(0, 0, 0),
-            (365, _, false) => CommonDate::new(ord.year, 0, 1),
-            (366, _, true) => CommonDate::new(ord.year, 0, 1),
-            (AFTER_H27, _, true) => CommonDate::new(ord.year, 0, 2),
+            (_, 0, _) => CommonDate::new(0, NON_MONTH, 0),
+            (365, _, false) => CommonDate::new(ord.year, NON_MONTH, 1),
+            (366, _, true) => CommonDate::new(ord.year, NON_MONTH, 1),
+            (AFTER_H27, _, true) => CommonDate::new(ord.year, NON_MONTH, 2),
             (doy, y, is_leap) => {
                 let correction = if doy < AFTER_H27 || !is_leap { 0 } else { 1 };
                 let month = ((((doy - correction) - 1) as i64).div_euclid(28) + 1) as u8;
@@ -299,7 +300,7 @@ impl ToFromCommonDate for TranquilityMoment {
     fn valid_month_day(date: CommonDate) -> Result<(), CalendarError> {
         if date.month > 13 {
             Err(CalendarError::InvalidMonth)
-        } else if date.month == 0 {
+        } else if date.month == NON_MONTH {
             if date.day == 0 && date.year == 0 {
                 Ok(())
             } else if date.day == 1 && date.year != 0 && date.year != -1 {
@@ -320,14 +321,18 @@ impl ToFromCommonDate for TranquilityMoment {
     }
 
     fn year_end_date(year: i32) -> CommonDate {
-        CommonDate::new(year, 0, TranquilityComplementaryDay::ArmstrongDay as u8)
+        CommonDate::new(
+            year,
+            NON_MONTH,
+            TranquilityComplementaryDay::ArmstrongDay as u8,
+        )
     }
 }
 
 impl Quarter for TranquilityMoment {
     fn quarter(self) -> NonZero<u8> {
         let m = self.to_common_date().month;
-        if m == 0 {
+        if m == NON_MONTH {
             let d = self.to_common_date().day;
             if d == 2 {
                 NonZero::new(3 as u8).expect("2 != 0")

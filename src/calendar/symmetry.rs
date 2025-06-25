@@ -155,13 +155,12 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
     }
 
     pub fn days_in_month(month: SymmetryMonth) -> u8 {
-        let sym_month = month as i64;
-        if sym_month == 13 {
+        if month == SymmetryMonth::Irvember {
             7
         } else if T {
-            (28 + (7 * (sym_month.modulus(3).div_euclid(2)))) as u8
+            (28 + (7 * ((month as u8).modulus(3).div_euclid(2)))) as u8
         } else {
-            (30 + sym_month.modulus(3).div_euclid(2)) as u8
+            (30 + (month as u8).modulus(3).div_euclid(2)) as u8
         }
     }
 }
@@ -249,11 +248,9 @@ impl<const T: bool, const U: bool> ToFromCommonDate for Symmetry<T, U> {
 
 impl<const T: bool, const U: bool> Quarter for Symmetry<T, U> {
     fn quarter(self) -> NonZero<u8> {
-        let m = self.to_common_date().month;
-        if m == 13 {
-            NonZero::new(4 as u8).expect("4 != 0")
-        } else {
-            NonZero::new(((m - 1) / 3) + 1).expect("(m-1)/3 > -1")
+        match self.month() {
+            SymmetryMonth::Irvember => NonZero::new(4 as u8).unwrap(),
+            m => NonZero::new((((m as u8) - 1) / 3) + 1).expect("(m-1)/3 > -1"),
         }
     }
 }

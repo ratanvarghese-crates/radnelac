@@ -122,11 +122,10 @@ impl ToFromCommonDate for Ethiopic {
 
 impl Quarter for Ethiopic {
     fn quarter(self) -> NonZero<u8> {
-        let m = self.to_common_date().month;
-        if m == 13 {
+        if self.month() == EthiopicMonth::Paguemen {
             NonZero::new(4 as u8).expect("4 != 0")
         } else {
-            NonZero::new(((m - 1) / 3) + 1).expect("(m-1)/3 > -1")
+            NonZero::new((((self.month() as u8) - 1) / 3) + 1).expect("(m-1)/3 > -1")
         }
     }
 }

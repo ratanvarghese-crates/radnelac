@@ -27,6 +27,7 @@ use std::num::NonZero;
 use num_traits::FromPrimitive;
 
 const POSITIVIST_YEAR_OFFSET: i16 = 1789 - 1;
+const NON_MONTH: u8 = 14;
 
 // Calendier Positiviste Page 19
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
@@ -59,7 +60,7 @@ pub struct Positivist(CommonDate);
 impl PerennialWithComplementaryDay<PositivistComplementaryDay, Weekday> for Positivist {
     // Calendier Positiviste Page 8
     fn complementary(self) -> Option<PositivistComplementaryDay> {
-        if self.0.month == 14 {
+        if self.0.month == NON_MONTH {
             PositivistComplementaryDay::from_u8(self.0.day)
         } else {
             None
@@ -68,7 +69,7 @@ impl PerennialWithComplementaryDay<PositivistComplementaryDay, Weekday> for Posi
 
     // Calendier Positiviste Page 23-30
     fn weekday(self) -> Option<Weekday> {
-        if self.0.month == 14 {
+        if self.0.month == NON_MONTH {
             None
         } else {
             Weekday::from_i64((self.0.day as i64).modulus(7))
@@ -134,13 +135,13 @@ impl ToFromCommonDate for Positivist {
     }
 
     fn valid_month_day(date: CommonDate) -> Result<(), CalendarError> {
-        if date.month < 1 || date.month > 14 {
+        if date.month < 1 || date.month > NON_MONTH {
             Err(CalendarError::InvalidMonth)
         } else if date.day < 1 {
             Err(CalendarError::InvalidDay)
-        } else if date.month < 14 && date.day > 28 {
+        } else if date.month < NON_MONTH && date.day > 28 {
             Err(CalendarError::InvalidDay)
-        } else if date.month == 14 && date.day > Positivist::complementary_count(date.year) {
+        } else if date.month == NON_MONTH && date.day > Positivist::complementary_count(date.year) {
             Err(CalendarError::InvalidDay)
         } else {
             Ok(())
@@ -148,17 +149,15 @@ impl ToFromCommonDate for Positivist {
     }
 
     fn year_end_date(year: i32) -> CommonDate {
-        CommonDate::new(year, 14, Positivist::complementary_count(year))
+        CommonDate::new(year, NON_MONTH, Positivist::complementary_count(year))
     }
 }
 
 impl Quarter for Positivist {
     fn quarter(self) -> NonZero<u8> {
-        let m = self.to_common_date().month;
-        if m == 13 || m == 14 {
-            NonZero::new(4 as u8).expect("4 != 0")
-        } else {
-            NonZero::new(((m - 1) / 3) + 1).expect("(m-1)/3 > -1")
+        match self.try_month() {
+            Some(PositivistMonth::Bichat) | None => NonZero::new(4 as u8).unwrap(),
+            Some(m) => NonZero::new((((m as u8) - 1) / 3) + 1).expect("(m-1)/3 > -1"),
         }
     }
 }
