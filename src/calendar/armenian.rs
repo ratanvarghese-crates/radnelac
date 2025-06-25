@@ -18,6 +18,7 @@ use num_traits::FromPrimitive;
 use std::num::NonZero;
 
 const ARMENIAN_EPOCH_RD: i32 = 201443;
+const NON_MONTH: u8 = 13;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
 pub enum ArmenianMonth {
@@ -75,7 +76,7 @@ pub struct Armenian(CommonDate);
 
 impl Armenian {
     pub fn day_name(self) -> Option<ArmenianDaysOfMonth> {
-        if self.0.year == 13 {
+        if self.0.month == NON_MONTH {
             None
         } else {
             ArmenianDaysOfMonth::from_u8(self.0.day)
@@ -129,7 +130,7 @@ impl ToFromCommonDate for Armenian {
 impl Quarter for Armenian {
     fn quarter(self) -> NonZero<u8> {
         let m = self.to_common_date().month as u8;
-        if m == 13 {
+        if m == NON_MONTH {
             NonZero::new(4 as u8).expect("4 != 0")
         } else {
             NonZero::new(((m - 1) / 3) + 1).expect("(m - 1) / 3 > -1")
@@ -140,3 +141,27 @@ impl Quarter for Armenian {
 impl CommonYear for Armenian {}
 impl TryMonth<ArmenianMonth> for Armenian {}
 impl CommonDay for Armenian {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::day_count::FIXED_MAX;
+    use proptest::proptest;
+    const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
+    proptest! {
+        #[test]
+        fn day_names(y0 in -MAX_YEARS..MAX_YEARS, y1 in -MAX_YEARS..MAX_YEARS, m in 1..12, d in 1..30) {
+            let a0 = Armenian::try_from_common_date(CommonDate::new(y0, m as u8, d as u8)).unwrap();
+            let a1 = Armenian::try_from_common_date(CommonDate::new(y1, m as u8, d as u8)).unwrap();
+            assert_eq!(a0.day_name(), a1.day_name())
+        }
+
+        #[test]
+        fn day_names_m13(y0 in -MAX_YEARS..MAX_YEARS, y1 in -MAX_YEARS..MAX_YEARS, d in 1..5) {
+            let a0 = Armenian::try_from_common_date(CommonDate::new(y0, 13, d as u8)).unwrap();
+            let a1 = Armenian::try_from_common_date(CommonDate::new(y1, 13, d as u8)).unwrap();
+            assert!(a0.day_name().is_none());
+            assert!(a1.day_name().is_none());
+        }
+    }
+}
