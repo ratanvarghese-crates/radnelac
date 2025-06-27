@@ -1,7 +1,7 @@
 use crate::calendar::Gregorian;
 use crate::clock::TimeOfDay;
-use crate::common::date::CommonDate;
 use crate::common::date::ToFromCommonDate;
+use crate::common::date::WeekOfYear;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
 use crate::display::private::fmt_days_since_epoch;
@@ -35,14 +35,7 @@ impl DisplayItem for Gregorian {
             NumericContent::Quarter => fmt_quarter(*self, opt),
             NumericContent::DaysSinceEpoch => fmt_days_since_epoch(*self, opt),
             NumericContent::ComplementaryDay => String::from(""),
-            NumericContent::WeekOfYear => {
-                let today = self.to_fixed();
-                let start =
-                    Self::try_from_common_date(CommonDate::new(self.to_common_date().year, 1, 1))
-                        .expect("New year should be valid for any date")
-                        .to_fixed();
-                fmt_number(((today.get_day_i() - start.get_day_i()) / 7) + 1, opt)
-            }
+            NumericContent::WeekOfYear => fmt_number(self.week_of_year() as i16, opt),
         }
     }
 

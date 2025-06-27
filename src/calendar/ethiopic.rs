@@ -10,6 +10,7 @@ use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
+use crate::date::CommonWeekOfYear;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -133,3 +134,4 @@ impl Quarter for Ethiopic {
 impl CommonYear for Ethiopic {}
 impl GuaranteedMonth<EthiopicMonth> for Ethiopic {}
 impl CommonDay for Ethiopic {}
+impl CommonWeekOfYear for Ethiopic {}

@@ -25,6 +25,7 @@ use crate::common::date::HasLeapYears;
 use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
+use crate::date::CommonWeekOfYear;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -258,6 +259,7 @@ impl<const T: bool, const U: bool> Quarter for Symmetry<T, U> {
 impl<const T: bool, const U: bool> CommonYear for Symmetry<T, U> {}
 impl<const T: bool, const U: bool> GuaranteedMonth<SymmetryMonth> for Symmetry<T, U> {}
 impl<const T: bool, const U: bool> CommonDay for Symmetry<T, U> {}
+impl<const T: bool, const U: bool> CommonWeekOfYear for Symmetry<T, U> {}
 
 #[cfg(test)]
 mod tests {

@@ -9,6 +9,7 @@ use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
+use crate::date::CommonWeekOfYear;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -233,6 +234,7 @@ impl Quarter for Gregorian {
 impl CommonYear for Gregorian {}
 impl GuaranteedMonth<GregorianMonth> for Gregorian {}
 impl CommonDay for Gregorian {}
+impl CommonWeekOfYear for Gregorian {}
 
 #[cfg(test)]
 mod tests {

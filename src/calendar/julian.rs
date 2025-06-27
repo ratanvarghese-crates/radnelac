@@ -8,6 +8,8 @@ use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
+use crate::date::CommonWeekOfYear;
+use crate::date::CommonYear;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -161,8 +163,10 @@ impl Quarter for Julian {
     }
 }
 
+impl CommonYear for Julian {}
 impl GuaranteedMonth<JulianMonth> for Julian {}
 impl CommonDay for Julian {}
+impl CommonWeekOfYear for Julian {}
 
 #[cfg(test)]
 mod tests {

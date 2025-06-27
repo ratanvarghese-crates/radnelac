@@ -9,6 +9,7 @@ use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
+use crate::date::CommonWeekOfYear;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -143,6 +144,7 @@ impl Quarter for Coptic {
 impl CommonYear for Coptic {}
 impl GuaranteedMonth<CopticMonth> for Coptic {}
 impl CommonDay for Coptic {}
+impl CommonWeekOfYear for Coptic {}
 
 #[cfg(test)]
 mod tests {

@@ -7,6 +7,7 @@ use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
+use crate::date::CommonWeekOfYear;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -141,6 +142,7 @@ impl Quarter for Armenian {
 impl CommonYear for Armenian {}
 impl TryMonth<ArmenianMonth> for Armenian {}
 impl CommonDay for Armenian {}
+impl CommonWeekOfYear for Armenian {}
 
 #[cfg(test)]
 mod tests {

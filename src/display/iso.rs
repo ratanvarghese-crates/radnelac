@@ -1,5 +1,6 @@
 use crate::calendar::ISO;
 use crate::clock::TimeOfDay;
+use crate::common::date::WeekOfYear;
 use crate::day_count::ToFixed;
 use crate::display::private::fmt_days_since_epoch;
 use crate::display::private::fmt_number;
@@ -30,7 +31,7 @@ impl DisplayItem for ISO {
             NumericContent::Quarter => fmt_quarter(*self, opt),
             NumericContent::DaysSinceEpoch => fmt_days_since_epoch(*self, opt),
             NumericContent::ComplementaryDay => "".to_string(),
-            NumericContent::WeekOfYear => fmt_number(self.week().get() as i8, opt),
+            NumericContent::WeekOfYear => fmt_number(self.week_of_year() as i8, opt),
         }
     }
     fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String {

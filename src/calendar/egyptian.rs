@@ -7,6 +7,7 @@ use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
+use crate::date::CommonWeekOfYear;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -133,3 +134,4 @@ impl Quarter for Egyptian {
 impl CommonYear for Egyptian {}
 impl TryMonth<EgyptianMonth> for Egyptian {}
 impl CommonDay for Egyptian {}
+impl CommonWeekOfYear for Egyptian {}

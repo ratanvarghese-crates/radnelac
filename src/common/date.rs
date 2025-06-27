@@ -1,5 +1,6 @@
 use crate::common::bound::EffectiveBound;
 use crate::common::error::CalendarError;
+use crate::day_count::ToFixed;
 use num_traits::FromPrimitive;
 use std::num::NonZero;
 
@@ -93,6 +94,22 @@ pub trait CommonDay: ToFromCommonDate {
 
 pub trait Quarter {
     fn quarter(self) -> NonZero<u8>;
+}
+
+pub trait WeekOfYear {
+    fn week_of_year(self) -> u8;
+}
+
+pub trait CommonWeekOfYear: ToFromCommonDate + ToFixed + CommonYear {}
+impl<T: CommonWeekOfYear> WeekOfYear for T {
+    fn week_of_year(self) -> u8 {
+        let today = self.to_fixed();
+        let start = Self::try_from_common_date(Self::year_start_date(self.year()))
+            .expect("New year should be valid for any date")
+            .to_fixed();
+        let diff = today.get_day_i() - start.get_day_i();
+        (diff.div_euclid(7) + 1) as u8
+    }
 }
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]

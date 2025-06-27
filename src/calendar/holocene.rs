@@ -10,6 +10,7 @@ use crate::common::date::HasLeapYears;
 use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
+use crate::date::CommonWeekOfYear;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -89,6 +90,7 @@ impl Quarter for Holocene {
 impl CommonYear for Holocene {}
 impl GuaranteedMonth<HoloceneMonth> for Holocene {}
 impl CommonDay for Holocene {}
+impl CommonWeekOfYear for Holocene {}
 
 #[cfg(test)]
 mod tests {
