@@ -118,6 +118,7 @@ pub mod display {
     pub mod iso;
     pub mod julian;
     pub mod positivist;
+    pub mod preset_fmt;
     pub mod roman;
     pub mod symmetry;
     pub mod tranquility;

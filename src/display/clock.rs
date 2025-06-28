@@ -1,14 +1,12 @@
 use crate::clock::ClockTime;
 use crate::clock::TimeOfDay;
 use crate::common::math::TermNum;
+use crate::display::preset_fmt::PresetDisplay;
+use crate::display::preset_fmt::TIME;
 use crate::display::private::fmt_number;
 use crate::display::private::fmt_string;
-use crate::display::private::Content;
 use crate::display::private::DisplayItem;
-use crate::display::private::Item;
-use crate::display::private::Locale;
 use crate::display::private::NumericContent;
-use crate::display::private::Sign;
 
 use crate::display::private::DisplayOptions;
 
@@ -49,27 +47,11 @@ impl DisplayItem for TimeOfDay {
         }
     }
 }
+
+impl PresetDisplay for TimeOfDay {}
+
 impl fmt::Display for TimeOfDay {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        const O: DisplayOptions = DisplayOptions { numerals: None,
-            width: Some(2),
-            align: None,
-            padding: Some('0'),
-            case: None,
-            sign: Sign::Never,
-            locale: Locale::en_CA,
-        };
-
-        const ITEMS: [Item<'_>; 5] = [
-            Item::new(Content::Numeric(NumericContent::Hour0to23), O),
-            Item::new(Content::Literal(":"), O),
-            Item::new(Content::Numeric(NumericContent::Minute), O),
-            Item::new(Content::Literal(":"), O),
-            Item::new(Content::Numeric(NumericContent::Second), O),
-        ];
-        for item in ITEMS {
-            write!(f, "{}", self.fmt_item(item))?;
-        }
-        Ok(())
+        self.preset_fmt(f, TIME)
     }
 }

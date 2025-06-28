@@ -9,6 +9,7 @@ use num_traits::NumAssign;
 use num_traits::Signed;
 use num_traits::ToPrimitive;
 use numerals::roman::Roman;
+use std::cmp::max;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub enum NumericContent {
@@ -191,7 +192,8 @@ pub fn fmt_number<T: itoa::Integer + NumAssign + Signed + PartialOrd + ToPrimiti
     let mut joined = String::from(prefix);
     if opt.padding == Some('0') && opt.align.unwrap_or(Align::Left) == Align::Left {
         let non_pad_width = prefix.len() + root.len();
-        let pad_width = opt.width.unwrap_or(non_pad_width) - non_pad_width;
+        let arg_width = opt.width.unwrap_or(non_pad_width);
+        let pad_width = max(arg_width, non_pad_width) - non_pad_width;
         let padding = std::iter::repeat('0').take(pad_width).collect::<String>();
         joined.push_str(&padding);
     }

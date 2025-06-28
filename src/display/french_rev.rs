@@ -7,17 +7,16 @@ use crate::common::date::PerennialWithComplementaryDay;
 use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::day_count::ToFixed;
+use crate::display::preset_fmt::PresetDisplay;
+use crate::display::preset_fmt::LONG_COMPLEMENTARY;
+use crate::display::preset_fmt::LONG_DATE;
 use crate::display::private::fmt_days_since_epoch;
 use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
 use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
-use crate::display::private::Content;
 use crate::display::private::DisplayItem;
-use crate::display::private::Item;
-use crate::display::private::Locale;
 use crate::display::private::NumericContent;
-use crate::display::private::Sign;
 use crate::display::private::TextContent;
 use std::fmt;
 
@@ -121,44 +120,14 @@ impl<const L: bool> DisplayItem for FrenchRevArith<L> {
     }
 }
 
+impl<const L: bool> PresetDisplay for FrenchRevArith<L> {}
+
 impl<const L: bool> fmt::Display for FrenchRevArith<L> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        const O: DisplayOptions = DisplayOptions {
-            numerals: None,
-            width: None,
-            align: None,
-            padding: None,
-            case: None,
-            sign: Sign::Never,
-            locale: Locale::en_CA,
-        };
         if self.complementary().is_some() {
-            const ITEMS_COMPLEMENTARY: [Item<'_>; 5] = [
-                Item::new(Content::Text(TextContent::ComplementaryDayName), O),
-                Item::new(Content::Literal(", "), O),
-                Item::new(Content::Numeric(NumericContent::Year), O),
-                Item::new(Content::Literal(" "), O),
-                Item::new(Content::Text(TextContent::EraName), O),
-            ];
-            for item in ITEMS_COMPLEMENTARY {
-                write!(f, "{}", self.fmt_item(item))?;
-            }
+            self.preset_fmt(f, LONG_COMPLEMENTARY)
         } else {
-            const ITEMS_COMMON: [Item<'_>; 9] = [
-                Item::new(Content::Text(TextContent::DayOfWeekName), O),
-                Item::new(Content::Literal(" "), O),
-                Item::new(Content::Text(TextContent::MonthName), O),
-                Item::new(Content::Literal(" "), O),
-                Item::new(Content::Numeric(NumericContent::DayOfMonth), O),
-                Item::new(Content::Literal(", "), O),
-                Item::new(Content::Numeric(NumericContent::Year), O),
-                Item::new(Content::Literal(" "), O),
-                Item::new(Content::Text(TextContent::EraName), O),
-            ];
-            for item in ITEMS_COMMON {
-                write!(f, "{}", self.fmt_item(item))?;
-            }
+            self.preset_fmt(f, LONG_DATE)
         }
-        Ok(())
     }
 }
