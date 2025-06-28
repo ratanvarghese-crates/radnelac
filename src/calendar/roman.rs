@@ -18,7 +18,7 @@ use num_traits::FromPrimitive;
 
 const YEAR_ROME_FOUNDED_JULIAN: i32 = -753;
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum RomanMonthlyEvent {
     Kalends = 1,
     Nones,

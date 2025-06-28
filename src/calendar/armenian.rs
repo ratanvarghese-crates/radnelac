@@ -21,7 +21,7 @@ use std::num::NonZero;
 const ARMENIAN_EPOCH_RD: i32 = 201443;
 const NON_MONTH: u8 = 13;
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum ArmenianMonth {
     Nawasardi = 1,
     Hori,
@@ -38,7 +38,7 @@ pub enum ArmenianMonth {
 }
 
 //https://en.wikipedia.org/wiki/Armenian_calendar
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum ArmenianDaysOfMonth {
     Areg = 1,
     Hrand,

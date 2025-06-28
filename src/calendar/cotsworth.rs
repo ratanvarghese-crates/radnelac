@@ -15,6 +15,7 @@ use crate::common::date::Quarter;
 use crate::common::date::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
+use crate::date::ComplementaryWeekOfYear;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -25,7 +26,7 @@ use crate::day_cycle::Weekday;
 use num_traits::FromPrimitive;
 use std::num::NonZero;
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum CotsworthMonth {
     January = 1,
     February,
@@ -42,7 +43,7 @@ pub enum CotsworthMonth {
     December,
 }
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum CotsworthComplementaryDay {
     YearDay = 1,
     LeapDay,
@@ -76,6 +77,14 @@ impl PerennialWithComplementaryDay<CotsworthComplementaryDay, Weekday> for Cotsw
         } else {
             1
         }
+    }
+
+    fn days_per_week() -> u8 {
+        7
+    }
+
+    fn weeks_per_month() -> u8 {
+        4
     }
 }
 
@@ -174,3 +183,5 @@ impl Quarter for Cotsworth {
 impl CommonYear for Cotsworth {}
 impl GuaranteedMonth<CotsworthMonth> for Cotsworth {}
 impl CommonDay for Cotsworth {}
+
+impl ComplementaryWeekOfYear<CotsworthMonth, CotsworthComplementaryDay, Weekday> for Cotsworth {}

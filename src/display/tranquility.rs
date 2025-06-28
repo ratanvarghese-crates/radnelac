@@ -1,6 +1,6 @@
-use crate::calendar::TranquilityComplementaryDay;
 use crate::calendar::TranquilityMoment;
 use crate::clock::TimeOfDay;
+use crate::common::date::ComplementaryWeekOfYear;
 use crate::common::date::PerennialWithComplementaryDay;
 use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
@@ -41,18 +41,10 @@ impl DisplayItem for TranquilityMoment {
                 Some(d) => fmt_number(d as i8, opt),
                 None => "".to_string(),
             },
-            NumericContent::WeekOfYear => {
-                let w: i8 = match self.try_month() {
-                    Some(month) => ((((month as i8) - 1) * 28) + (self.day() as i8) - 1) / 7 + 1,
-                    None => match self.complementary() {
-                        Some(TranquilityComplementaryDay::MoonLandingDay) => 53,
-                        Some(TranquilityComplementaryDay::ArmstrongDay) => 53,
-                        Some(TranquilityComplementaryDay::AldrinDay) => 48,
-                        None => panic!("Non-complementary day without month"),
-                    },
-                };
-                fmt_number(w, opt)
-            }
+            NumericContent::WeekOfYear => match self.try_week_of_year() {
+                Some(w) => fmt_number(w as i8, opt),
+                None => "".to_string(),
+            },
         }
     }
     fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String {

@@ -1,4 +1,7 @@
+use num_traits::FromPrimitive;
+use num_traits::ToPrimitive;
 use proptest::proptest;
+use radnelac::bound::BoundedDayCount;
 use radnelac::calendar::Cotsworth;
 use radnelac::calendar::CotsworthComplementaryDay;
 use radnelac::calendar::FrenchRevArith;
@@ -12,7 +15,6 @@ use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::TranquilityComplementaryDay;
 use radnelac::calendar::TranquilityMoment;
-use radnelac::bound::BoundedDayCount;
 use radnelac::date::CommonDate;
 use radnelac::date::ToFromCommonDate;
 use radnelac::day_count::FromFixed;
@@ -26,7 +28,13 @@ use radnelac::date::PerennialWithComplementaryDay;
 
 const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 
-fn complementary_xor_weekday<T, U, V: PerennialWithComplementaryDay<T, U> + FromFixed>(t: f64) {
+fn complementary_xor_weekday<
+    T: FromPrimitive + ToPrimitive,
+    U: FromPrimitive + ToPrimitive,
+    V: PerennialWithComplementaryDay<T, U> + FromFixed,
+>(
+    t: f64,
+) {
     let t0 = RataDie::new(t).to_fixed().to_day();
     let r0 = V::from_fixed(t0);
     let w0 = r0.weekday();
@@ -36,8 +44,8 @@ fn complementary_xor_weekday<T, U, V: PerennialWithComplementaryDay<T, U> + From
 }
 
 fn perennial<
-    T,
-    U: std::cmp::PartialEq + std::fmt::Debug,
+    T: FromPrimitive + ToPrimitive,
+    U: std::cmp::PartialEq + std::fmt::Debug + FromPrimitive + ToPrimitive,
     V: PerennialWithComplementaryDay<T, U> + ToFromCommonDate,
 >(
     y0: i32,

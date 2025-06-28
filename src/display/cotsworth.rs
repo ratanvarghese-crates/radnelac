@@ -1,7 +1,6 @@
 use crate::calendar::Cotsworth;
 use crate::clock::TimeOfDay;
-use crate::common::date::CommonDay;
-use crate::common::date::GuaranteedMonth;
+use crate::common::date::ComplementaryWeekOfYear;
 use crate::common::date::PerennialWithComplementaryDay;
 use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
@@ -42,16 +41,10 @@ impl DisplayItem for Cotsworth {
                 Some(d) => fmt_number(d as i8, opt),
                 None => "".to_string(),
             },
-            NumericContent::WeekOfYear => {
-                let m = self.month() as i8;
-                let d = self.day() as i8;
-                let w = if d == 29 {
-                    (((m - 1) * 28) + 28) / 7 + 1
-                } else {
-                    (((m - 1) * 28) + d - 1) / 7 + 1
-                };
-                fmt_number(w, opt)
-            }
+            NumericContent::WeekOfYear => match self.try_week_of_year() {
+                Some(w) => fmt_number(w as i8, opt),
+                None => "".to_string(),
+            },
         }
     }
     fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String {

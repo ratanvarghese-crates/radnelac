@@ -1,7 +1,7 @@
 use crate::calendar::Gregorian;
 use crate::clock::TimeOfDay;
+use crate::common::date::CommonWeekOfYear;
 use crate::common::date::ToFromCommonDate;
-use crate::common::date::WeekOfYear;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
 use crate::display::private::fmt_days_since_epoch;

@@ -10,6 +10,7 @@ use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
+use crate::date::ComplementaryWeekOfYear;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -26,7 +27,7 @@ const FRENCH_EPOCH_GREGORIAN: CommonDate = CommonDate {
 };
 const NON_MONTH: u8 = 13;
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum FrenchRevMonth {
     Vendemiaire = 1,
     Brumaire,
@@ -42,7 +43,7 @@ pub enum FrenchRevMonth {
     Fructidor,
 }
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum FrenchRevWeekday {
     Primidi = 1,
     Duodi,
@@ -56,7 +57,7 @@ pub enum FrenchRevWeekday {
     Decadi,
 }
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum Sansculottide {
     Vertu = 1,
     Genie,
@@ -100,6 +101,14 @@ impl<const L: bool> PerennialWithComplementaryDay<Sansculottide, FrenchRevWeekda
         } else {
             5
         }
+    }
+
+    fn days_per_week() -> u8 {
+        10
+    }
+
+    fn weeks_per_month() -> u8 {
+        3
     }
 }
 
@@ -210,6 +219,11 @@ impl<const L: bool> Quarter for FrenchRevArith<L> {
 impl<const L: bool> CommonYear for FrenchRevArith<L> {}
 impl<const L: bool> TryMonth<FrenchRevMonth> for FrenchRevArith<L> {}
 impl<const L: bool> CommonDay for FrenchRevArith<L> {}
+
+impl<const L: bool> ComplementaryWeekOfYear<FrenchRevMonth, Sansculottide, FrenchRevWeekday>
+    for FrenchRevArith<L>
+{
+}
 
 #[cfg(test)]
 mod tests {

@@ -15,6 +15,7 @@ use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
+use crate::date::ComplementaryWeekOfYear;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -30,7 +31,7 @@ const POSITIVIST_YEAR_OFFSET: i16 = 1789 - 1;
 const NON_MONTH: u8 = 14;
 
 // Calendier Positiviste Page 19
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum PositivistMonth {
     Moses = 1,
     Homer,
@@ -48,7 +49,7 @@ pub enum PositivistMonth {
 }
 
 // Calendier Positiviste Page 8
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum PositivistComplementaryDay {
     FestivalOfTheDead = 1,
     FestivalOfHolyWomen,
@@ -82,6 +83,14 @@ impl PerennialWithComplementaryDay<PositivistComplementaryDay, Weekday> for Posi
         } else {
             1
         }
+    }
+
+    fn days_per_week() -> u8 {
+        7
+    }
+
+    fn weeks_per_month() -> u8 {
+        4
     }
 }
 
@@ -165,6 +174,8 @@ impl Quarter for Positivist {
 impl CommonYear for Positivist {}
 impl TryMonth<PositivistMonth> for Positivist {}
 impl CommonDay for Positivist {}
+
+impl ComplementaryWeekOfYear<PositivistMonth, PositivistComplementaryDay, Weekday> for Positivist {}
 
 #[cfg(test)]
 mod tests {

@@ -26,7 +26,7 @@ const ETHIOPIC_EPOCH_JULIAN: CommonDate = CommonDate {
     day: 29,
 };
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum EthiopicMonth {
     Maskaram = 1,
     Teqemt,

@@ -2,12 +2,19 @@ use crate::common::bound::EffectiveBound;
 use crate::common::error::CalendarError;
 use crate::day_count::ToFixed;
 use num_traits::FromPrimitive;
+use num_traits::ToPrimitive;
 use std::num::NonZero;
 
-pub trait PerennialWithComplementaryDay<T, U> {
+pub trait PerennialWithComplementaryDay<T, U>
+where
+    T: FromPrimitive + ToPrimitive,
+    U: FromPrimitive + ToPrimitive,
+{
     fn complementary(self) -> Option<T>;
     fn weekday(self) -> Option<U>;
     fn complementary_count(year: i32) -> u8;
+    fn days_per_week() -> u8;
+    fn weeks_per_month() -> u8;
 }
 
 pub trait HasLeapYears {
@@ -80,7 +87,7 @@ pub trait GuaranteedMonth<T: FromPrimitive>: ToFromCommonDate {
     }
 }
 
-impl<T: FromPrimitive, U: GuaranteedMonth<T>> TryMonth<T> for U {
+impl<T: FromPrimitive + ToPrimitive, U: GuaranteedMonth<T>> TryMonth<T> for U {
     fn try_month(self) -> Option<T> {
         Some(self.month())
     }
@@ -96,12 +103,7 @@ pub trait Quarter {
     fn quarter(self) -> NonZero<u8>;
 }
 
-pub trait WeekOfYear {
-    fn week_of_year(self) -> u8;
-}
-
-pub trait CommonWeekOfYear: ToFromCommonDate + ToFixed + CommonYear {}
-impl<T: CommonWeekOfYear> WeekOfYear for T {
+pub trait CommonWeekOfYear: ToFromCommonDate + ToFixed + CommonYear {
     fn week_of_year(self) -> u8 {
         let today = self.to_fixed();
         let start = Self::try_from_common_date(Self::year_start_date(self.year()))
@@ -109,6 +111,28 @@ impl<T: CommonWeekOfYear> WeekOfYear for T {
             .to_fixed();
         let diff = today.get_day_i() - start.get_day_i();
         (diff.div_euclid(7) + 1) as u8
+    }
+}
+
+pub trait ComplementaryWeekOfYear<S, T, U>:
+    CommonDay + TryMonth<S> + PerennialWithComplementaryDay<T, U>
+where
+    S: ToPrimitive + FromPrimitive,
+    T: ToPrimitive + FromPrimitive,
+    U: ToPrimitive + FromPrimitive,
+{
+    fn try_week_of_year(self) -> Option<u8> {
+        match (self.complementary(), self.try_month()) {
+            (None, Some(month)) => {
+                let d = self.day() as i64;
+                let m = month.to_i64().expect("Guaranteed in range");
+                let dpw = Self::days_per_week() as i64;
+                let wpm = Self::weeks_per_month() as i64;
+                let dpm = dpw * wpm;
+                Some(((((m - 1) * dpm) + d - 1) / dpw + 1) as u8)
+            }
+            (_, _) => None,
+        }
     }
 }
 

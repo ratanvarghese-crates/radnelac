@@ -11,6 +11,8 @@ use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
+use crate::date::CommonDay;
+use crate::date::ComplementaryWeekOfYear;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -35,7 +37,7 @@ const TRANQUILITY_EPOCH_CLOCK: ClockTime = ClockTime {
     seconds: 1.2,
 };
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum TranquilityMonth {
     Archimedes = 1,
     Brahe,
@@ -54,7 +56,7 @@ pub enum TranquilityMonth {
 
 const AFTER_H27: i64 = (TranquilityMonth::Hippocrates as i64) * 28;
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum TranquilityComplementaryDay {
     MoonLandingDay = 0,
     ArmstrongDay,
@@ -82,10 +84,6 @@ impl TranquilityMoment {
         } else {
             self.date.year > 0
         }
-    }
-
-    pub fn day(self) -> u8 {
-        self.date.day
     }
 
     pub fn hour(self) -> u8 {
@@ -222,6 +220,14 @@ impl PerennialWithComplementaryDay<TranquilityComplementaryDay, Weekday> for Tra
             1
         }
     }
+
+    fn days_per_week() -> u8 {
+        7
+    }
+
+    fn weeks_per_month() -> u8 {
+        4
+    }
 }
 
 impl HasLeapYears for TranquilityMoment {
@@ -347,7 +353,13 @@ impl Quarter for TranquilityMoment {
     }
 }
 
+impl CommonDay for TranquilityMoment {}
 impl TryMonth<TranquilityMonth> for TranquilityMoment {}
+
+impl ComplementaryWeekOfYear<TranquilityMonth, TranquilityComplementaryDay, Weekday>
+    for TranquilityMoment
+{
+}
 
 #[cfg(test)]
 mod tests {

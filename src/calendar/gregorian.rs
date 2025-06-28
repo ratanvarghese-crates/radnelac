@@ -24,7 +24,7 @@ use num_traits::FromPrimitive;
 
 const GREGORIAN_EPOCH_RD: i32 = 1;
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum GregorianMonth {
     January = 1,
     February,

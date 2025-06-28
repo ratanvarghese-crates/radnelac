@@ -5,7 +5,7 @@ use crate::day_count::FromFixed;
 #[allow(unused_imports)] //FromPrimitive is needed for derive
 use num_traits::FromPrimitive;
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum Weekday {
     Sunday = 0,
     Monday,

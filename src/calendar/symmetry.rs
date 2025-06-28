@@ -57,7 +57,7 @@ const NORTH_SOLSTICE_PARAMS: SymmetryParams = SymmetryParams {
     K: 194,
 };
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum SymmetryMonth {
     January = 1,
     February,

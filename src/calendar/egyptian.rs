@@ -21,7 +21,7 @@ use std::num::NonZero;
 const NABONASSAR_ERA_JD: i32 = 1448638;
 const NON_MONTH: u8 = 13;
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum EgyptianMonth {
     Thoth = 1,
     Phaophi,
@@ -37,7 +37,7 @@ pub enum EgyptianMonth {
     Mesori,
 }
 
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum EgyptianDaysUponTheYear {
     BirthOfOsiris = 1,
     BirthOfHorus,
