@@ -3,16 +3,16 @@ use crate::clock::TimeOfDay;
 use crate::common::math::TermNum;
 use crate::display::private::fmt_number;
 use crate::display::private::fmt_string;
-use crate::format::Content;
-use crate::format::DisplayItem;
-use crate::format::Item;
-use crate::format::Locale;
-use crate::format::NumericContent;
-use crate::format::Sign;
+use crate::display::private::Content;
+use crate::display::private::DisplayItem;
+use crate::display::private::Item;
+use crate::display::private::Locale;
+use crate::display::private::NumericContent;
+use crate::display::private::Sign;
 
-use crate::format::DisplayOptions;
+use crate::display::private::DisplayOptions;
 
-use crate::format::TextContent;
+use crate::display::private::TextContent;
 
 use std::fmt;
 

@@ -12,13 +12,11 @@ mod common {
     pub mod bound;
     pub mod date;
     pub mod error;
-    pub mod format;
     pub mod math;
 }
 pub use common::bound;
 pub use common::date;
 pub use common::error;
-pub use common::format;
 pub mod day_count {
     mod fixed;
     mod jd;

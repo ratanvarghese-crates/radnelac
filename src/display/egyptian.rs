@@ -9,17 +9,17 @@ use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
 use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
-use crate::format::Content;
-use crate::format::DisplayItem;
-use crate::format::Item;
-use crate::format::Locale;
-use crate::format::NumericContent;
-use crate::format::Sign;
+use crate::display::private::Content;
+use crate::display::private::DisplayItem;
+use crate::display::private::Item;
+use crate::display::private::Locale;
+use crate::display::private::NumericContent;
+use crate::display::private::Sign;
 use std::fmt;
 
-use crate::format::TextContent;
+use crate::display::private::TextContent;
 
-use crate::format::DisplayOptions;
+use crate::display::private::DisplayOptions;
 
 impl DisplayItem for Egyptian {
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
