@@ -2,7 +2,7 @@ use crate::clock::ClockTime;
 use crate::clock::TimeOfDay;
 use crate::common::math::TermNum;
 use crate::display::preset_fmt::PresetDisplay;
-use crate::display::preset_fmt::TIME;
+use crate::display::preset_fmt::HMS_COLON;
 use crate::display::private::fmt_number;
 use crate::display::private::fmt_string;
 use crate::display::private::DisplayItem;
@@ -52,6 +52,6 @@ impl PresetDisplay for TimeOfDay {}
 
 impl fmt::Display for TimeOfDay {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.preset_fmt(f, TIME)
+        self.preset_fmt(f, HMS_COLON)
     }
 }
