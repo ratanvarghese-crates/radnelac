@@ -87,3 +87,40 @@ impl fmt::Display for Gregorian {
         self.preset_fmt(f, LONG_DATE)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::common::date::ToFromCommonDate;
+    use crate::date::CommonDate;
+    use crate::display::gregorian::Gregorian;
+    use crate::display::preset_fmt::PresetDisplay;
+    use crate::display::preset_fmt::LONG_DATE;
+
+    #[test]
+    fn long_date() {
+        let d_list = [
+            (
+                CommonDate::new(2025, 1, 1),
+                "Wednesday January 1, 2025 Common Era",
+            ),
+            (
+                CommonDate::new(2025, 6, 29),
+                "Sunday June 29, 2025 Common Era",
+            ),
+            (
+                CommonDate::new(2025, 6, 30),
+                "Monday June 30, 2025 Common Era",
+            ),
+            (
+                CommonDate::new(2025, 7, 1),
+                "Tuesday July 1, 2025 Common Era",
+            ),
+        ];
+
+        for item in d_list {
+            let d = Gregorian::try_from_common_date(item.0).unwrap();
+            let s = d.preset_str(LONG_DATE);
+            assert_eq!(s, item.1);
+        }
+    }
+}
