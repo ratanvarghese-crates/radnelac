@@ -90,15 +90,20 @@ impl fmt::Display for Gregorian {
 
 #[cfg(test)]
 mod tests {
-    use crate::common::date::ToFromCommonDate;
+    use super::*;
     use crate::date::CommonDate;
-    use crate::display::gregorian::Gregorian;
-    use crate::display::preset_fmt::PresetDisplay;
-    use crate::display::preset_fmt::LONG_DATE;
 
     #[test]
     fn long_date() {
         let d_list = [
+            (
+                CommonDate::new(1582, 10, 15),
+                "Friday October 15, 1582 Common Era",
+            ),
+            (
+                CommonDate::new(2012, 12, 21),
+                "Friday December 21, 2012 Common Era",
+            ),
             (
                 CommonDate::new(2025, 1, 1),
                 "Wednesday January 1, 2025 Common Era",
