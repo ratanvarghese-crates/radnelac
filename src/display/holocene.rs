@@ -137,6 +137,12 @@ mod tests {
     #[test]
     fn short_date() {
         let d_list = [
+            (CommonDate::new(1582, 10, 15), "01582-10-15"),
+            (CommonDate::new(2012, 12, 21), "02012-12-21"),
+            (CommonDate::new(2025, 1, 1), "02025-01-01"),
+            (CommonDate::new(2025, 6, 29), "02025-06-29"),
+            (CommonDate::new(2025, 6, 30), "02025-06-30"),
+            (CommonDate::new(2025, 7, 1), "02025-07-01"),
             (CommonDate::new(11582, 10, 15), "11582-10-15"),
             (CommonDate::new(12012, 12, 21), "12012-12-21"),
             (CommonDate::new(12025, 1, 1), "12025-01-01"),
