@@ -92,3 +92,63 @@ impl fmt::Display for Holocene {
         write!(f, "{}", self.long_date())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::date::CommonDate;
+
+    #[test]
+    fn long_date() {
+        let d_list = [
+            (
+                CommonDate::new(11582, 10, 15),
+                "Friday October 15, 11582 Human Era",
+            ),
+            (
+                CommonDate::new(12012, 12, 21),
+                "Friday December 21, 12012 Human Era",
+            ),
+            (
+                CommonDate::new(12025, 1, 1),
+                "Wednesday January 1, 12025 Human Era",
+            ),
+            (
+                CommonDate::new(12025, 6, 29),
+                "Sunday June 29, 12025 Human Era",
+            ),
+            (
+                CommonDate::new(12025, 6, 30),
+                "Monday June 30, 12025 Human Era",
+            ),
+            (
+                CommonDate::new(12025, 7, 1),
+                "Tuesday July 1, 12025 Human Era",
+            ),
+        ];
+
+        for item in d_list {
+            let d = Holocene::try_from_common_date(item.0).unwrap();
+            let s = d.long_date();
+            assert_eq!(s, item.1);
+        }
+    }
+
+    #[test]
+    fn short_date() {
+        let d_list = [
+            (CommonDate::new(11582, 10, 15), "11582-10-15"),
+            (CommonDate::new(12012, 12, 21), "12012-12-21"),
+            (CommonDate::new(12025, 1, 1), "12025-01-01"),
+            (CommonDate::new(12025, 6, 29), "12025-06-29"),
+            (CommonDate::new(12025, 6, 30), "12025-06-30"),
+            (CommonDate::new(12025, 7, 1), "12025-07-01"),
+        ];
+
+        for item in d_list {
+            let d = Holocene::try_from_common_date(item.0).unwrap();
+            let s = d.short_date();
+            assert_eq!(s, item.1);
+        }
+    }
+}
