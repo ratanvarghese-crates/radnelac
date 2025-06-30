@@ -5,7 +5,6 @@ use crate::common::date::ToFromCommonDate;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
 use crate::display::preset_fmt::PresetDisplay;
-use crate::display::preset_fmt::LONG_DATE;
 use crate::display::private::fmt_days_since_epoch;
 use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
@@ -84,6 +83,6 @@ impl PresetDisplay for Julian {}
 
 impl fmt::Display for Julian {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.preset_fmt(f, LONG_DATE)
+        write!(f, "{}", self.long_date())
     }
 }

@@ -58,10 +58,18 @@ impl DisplayItem for ISO {
     }
 }
 
-impl PresetDisplay for ISO {}
+impl PresetDisplay for ISO {
+    fn long_date(&self) -> String {
+        self.preset_str(YEAR_WEEK_DAY)
+    }
+
+    fn short_date(&self) -> String {
+        self.preset_str(YEAR_WEEK_DAY)
+    }
+}
 
 impl fmt::Display for ISO {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.preset_fmt(f, YEAR_WEEK_DAY)
+        write!(f, "{}", self.long_date())
     }
 }

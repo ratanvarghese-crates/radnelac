@@ -6,8 +6,6 @@ use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::day_count::ToFixed;
 use crate::display::preset_fmt::PresetDisplay;
-use crate::display::preset_fmt::LONG_COMPLEMENTARY;
-use crate::display::preset_fmt::LONG_DATE;
 use crate::display::private::fmt_days_since_epoch;
 use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
@@ -93,9 +91,9 @@ impl DisplayItem for Cotsworth {
                 }
             }
             TextContent::ComplementaryDayName => {
-                const COMPLEMENTARY: [&str; 2] = ["Year Day", "Leap Day"];
+                const COMPL: [&str; 2] = ["Year Day", "Leap Day"];
                 let name = match self.complementary() {
-                    Some(d) => COMPLEMENTARY[(d as usize) - 1],
+                    Some(d) => COMPL[(d as usize) - 1],
                     None => "",
                 };
                 fmt_string(name, opt)
@@ -108,10 +106,6 @@ impl PresetDisplay for Cotsworth {}
 
 impl fmt::Display for Cotsworth {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.complementary().is_some() {
-            self.preset_fmt(f, LONG_COMPLEMENTARY)
-        } else {
-            self.preset_fmt(f, LONG_DATE)
-        }
+        write!(f, "{}", self.long_date())
     }
 }

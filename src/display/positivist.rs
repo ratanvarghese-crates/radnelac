@@ -6,7 +6,7 @@ use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::day_count::ToFixed;
 use crate::display::preset_fmt::PresetDisplay;
-use crate::display::preset_fmt::LONG_COMPLEMENTARY;
+use crate::display::preset_fmt::LONG_COMPL;
 use crate::display::preset_fmt::LONG_DATE;
 use crate::display::private::fmt_days_since_epoch;
 use crate::display::private::fmt_number;
@@ -93,9 +93,9 @@ impl DisplayItem for Positivist {
                 }
             }
             TextContent::ComplementaryDayName => {
-                const COMPLEMENTARY: [&str; 2] = ["Festival Of The Dead", "Festival Of Holy Women"];
+                const COMPL: [&str; 2] = ["Festival Of The Dead", "Festival Of Holy Women"];
                 let name = match self.complementary() {
-                    Some(d) => COMPLEMENTARY[(d as usize) - 1],
+                    Some(d) => COMPL[(d as usize) - 1],
                     None => "",
                 };
                 fmt_string(name, opt)
@@ -104,14 +104,18 @@ impl DisplayItem for Positivist {
     }
 }
 
-impl PresetDisplay for Positivist {}
+impl PresetDisplay for Positivist {
+    fn long_date(&self) -> String {
+        if self.complementary().is_some() {
+            self.preset_str(LONG_COMPL)
+        } else {
+            self.preset_str(LONG_DATE)
+        }
+    }
+}
 
 impl fmt::Display for Positivist {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.complementary().is_some() {
-            self.preset_fmt(f, LONG_COMPLEMENTARY)
-        } else {
-            self.preset_fmt(f, LONG_DATE)
-        }
+        write!(f, "{}", self.long_date())
     }
 }

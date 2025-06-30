@@ -1,3 +1,4 @@
+use crate::display::private::Case;
 use crate::display::private::Content;
 use crate::display::private::DisplayItem;
 use crate::display::private::DisplayOptions;
@@ -6,7 +7,6 @@ use crate::display::private::Locale;
 use crate::display::private::NumericContent;
 use crate::display::private::Sign;
 use crate::display::private::TextContent;
-use std::fmt;
 
 const O_LITERAL: DisplayOptions = DisplayOptions {
     numerals: None,
@@ -14,6 +14,46 @@ const O_LITERAL: DisplayOptions = DisplayOptions {
     align: None,
     padding: None,
     case: None,
+    sign: Sign::OnlyNegative,
+    locale: Locale::en_CA,
+};
+
+const O_YEAR_IN_ERA: DisplayOptions = DisplayOptions {
+    numerals: None,
+    width: None,
+    align: None,
+    padding: None,
+    case: None,
+    sign: Sign::Never,
+    locale: Locale::en_CA,
+};
+
+const O_N1: DisplayOptions = DisplayOptions {
+    numerals: None,
+    width: Some(1),
+    align: None,
+    padding: None,
+    case: Some(Case::Upper),
+    sign: Sign::Never,
+    locale: Locale::en_CA,
+};
+
+const O_N2: DisplayOptions = DisplayOptions {
+    numerals: None,
+    width: Some(2),
+    align: None,
+    padding: Some('0'),
+    case: Some(Case::Upper),
+    sign: Sign::Never,
+    locale: Locale::en_CA,
+};
+
+const O_N3: DisplayOptions = DisplayOptions {
+    numerals: None,
+    width: Some(3),
+    align: None,
+    padding: None,
+    case: Some(Case::Upper),
     sign: Sign::Never,
     locale: Locale::en_CA,
 };
@@ -63,35 +103,35 @@ macro_rules! NumericDateItems {
     };
 }
 
-NumericDateItems!(ITEMS_HMS_COLON, ":", Hour0to23, 2, Minute, 2, Second, 2);
-NumericDateItems!(ITEMS_YMD_DASH, "-", Year, 4, Month, 2, DayOfMonth, 2);
-NumericDateItems!(ITEMS_Y5_MD_DASH, "-", Year, 5, Month, 2, DayOfMonth, 2);
-NumericDateItems!(ITEMS_YMD_SLASH, "/", Year, 4, Month, 2, DayOfMonth, 2);
-NumericDateItems!(ITEMS_DMY_SLASH, "/", DayOfMonth, 2, Month, 2, Year, 4);
-NumericDateItems!(ITEMS_DMY_DOT, ".", DayOfMonth, 2, Month, 2, Year, 4);
-NumericDateItems!(ITEMS_MDY_SLASH, "/", Month, 2, DayOfMonth, 2, Year, 4);
+NumericDateItems!(I_HHMMSS_COLON, ":", Hour0to23, 2, Minute, 2, Second, 2);
+NumericDateItems!(I_YYYYMMDD_DASH, "-", Year, 4, Month, 2, DayOfMonth, 2);
+NumericDateItems!(I_YYYYYMMDD_DASH, "-", Year, 5, Month, 2, DayOfMonth, 2);
+NumericDateItems!(I_YYYYMMDD_SLASH, "/", Year, 4, Month, 2, DayOfMonth, 2);
+NumericDateItems!(I_DDMMYYYY_SLASH, "/", DayOfMonth, 2, Month, 2, Year, 4);
+NumericDateItems!(I_DDMMYYYY_DOT, ".", DayOfMonth, 2, Month, 2, Year, 4);
+NumericDateItems!(I_MMDDYYYY_SLASH, "/", Month, 2, DayOfMonth, 2, Year, 4);
 
-const ITEMS_LONG_DATE: [Item<'_>; 9] = [
+const I_LONG_DATE: [Item<'_>; 9] = [
     Item::new(Content::Text(TextContent::DayOfWeekName), O_LITERAL),
     Item::new(Content::Literal(" "), O_LITERAL),
     Item::new(Content::Text(TextContent::MonthName), O_LITERAL),
     Item::new(Content::Literal(" "), O_LITERAL),
     Item::new(Content::Numeric(NumericContent::DayOfMonth), O_LITERAL),
     Item::new(Content::Literal(", "), O_LITERAL),
-    Item::new(Content::Numeric(NumericContent::Year), O_LITERAL),
+    Item::new(Content::Numeric(NumericContent::Year), O_YEAR_IN_ERA),
     Item::new(Content::Literal(" "), O_LITERAL),
     Item::new(Content::Text(TextContent::EraName), O_LITERAL),
 ];
 
-const ITEMS_COMPLEMENTARY: [Item<'_>; 5] = [
+const I_LONG_COMPL: [Item<'_>; 5] = [
     Item::new(Content::Text(TextContent::ComplementaryDayName), O_LITERAL),
     Item::new(Content::Literal(", "), O_LITERAL),
-    Item::new(Content::Numeric(NumericContent::Year), O_LITERAL),
+    Item::new(Content::Numeric(NumericContent::Year), O_YEAR_IN_ERA),
     Item::new(Content::Literal(" "), O_LITERAL),
     Item::new(Content::Text(TextContent::EraName), O_LITERAL),
 ];
 
-const ITEMS_YEAR_WEEK_DAY: [Item<'_>; 5] = [
+const I_YEAR_WEEK_DAY: [Item<'_>; 5] = [
     Item::new(Content::Numeric(NumericContent::Year), O_LITERAL),
     Item::new(Content::Literal("-W"), O_LITERAL),
     Item::new(Content::Numeric(NumericContent::WeekOfYear), O_LITERAL),
@@ -99,19 +139,40 @@ const ITEMS_YEAR_WEEK_DAY: [Item<'_>; 5] = [
     Item::new(Content::Numeric(NumericContent::DayOfWeek), O_LITERAL),
 ];
 
+const I_YEAR_MDD: [Item<'_>; 4] = [
+    Item::new(Content::Numeric(NumericContent::Year), O_LITERAL),
+    Item::new(Content::Literal("-"), O_LITERAL),
+    Item::new(Content::Text(TextContent::MonthName), O_N1),
+    Item::new(Content::Numeric(NumericContent::DayOfMonth), O_N2),
+];
+
+const I_YEAR_COMPL: [Item<'_>; 3] = [
+    Item::new(Content::Numeric(NumericContent::Year), O_LITERAL),
+    Item::new(Content::Literal("-"), O_LITERAL),
+    Item::new(Content::Text(TextContent::ComplementaryDayName), O_N3),
+];
+
+const I_COMPL_ONLY: [Item<'_>; 1] = [Item::new(
+    Content::Text(TextContent::ComplementaryDayName),
+    O_LITERAL,
+)];
+
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct PresetFormat<'a>(&'a [Item<'a>]);
 
-pub const HMS_COLON: PresetFormat<'static> = PresetFormat::<'static>(&ITEMS_HMS_COLON);
-pub const YMD_DASH: PresetFormat<'static> = PresetFormat::<'static>(&ITEMS_YMD_DASH);
-pub const Y5_MD_DASH: PresetFormat<'static> = PresetFormat::<'static>(&ITEMS_Y5_MD_DASH);
-pub const YMD_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&ITEMS_YMD_SLASH);
-pub const DMY_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&ITEMS_DMY_SLASH);
-pub const DMY_DOT: PresetFormat<'static> = PresetFormat::<'static>(&ITEMS_DMY_DOT);
-pub const MDY_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&ITEMS_MDY_SLASH);
-pub const LONG_DATE: PresetFormat<'static> = PresetFormat::<'static>(&ITEMS_LONG_DATE);
-pub const LONG_COMPLEMENTARY: PresetFormat<'static> = PresetFormat::<'static>(&ITEMS_COMPLEMENTARY);
-pub const YEAR_WEEK_DAY: PresetFormat<'static> = PresetFormat::<'static>(&ITEMS_YEAR_WEEK_DAY);
+pub const HHMMSS_COLON: PresetFormat<'static> = PresetFormat::<'static>(&I_HHMMSS_COLON);
+pub const YYYYMMDD_DASH: PresetFormat<'static> = PresetFormat::<'static>(&I_YYYYMMDD_DASH);
+pub const YYYYYMMDD_DASH: PresetFormat<'static> = PresetFormat::<'static>(&I_YYYYYMMDD_DASH);
+pub const YYYYMMDD_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&I_YYYYMMDD_SLASH);
+pub const DDMMYYYY_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&I_DDMMYYYY_SLASH);
+pub const DDMMYYYY_DOT: PresetFormat<'static> = PresetFormat::<'static>(&I_DDMMYYYY_DOT);
+pub const MMDDYYYY_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&I_MMDDYYYY_SLASH);
+pub const LONG_DATE: PresetFormat<'static> = PresetFormat::<'static>(&I_LONG_DATE);
+pub const LONG_COMPL: PresetFormat<'static> = PresetFormat::<'static>(&I_LONG_COMPL);
+pub const YEAR_WEEK_DAY: PresetFormat<'static> = PresetFormat::<'static>(&I_YEAR_WEEK_DAY);
+pub const YEAR_MDD: PresetFormat<'static> = PresetFormat::<'static>(&I_YEAR_MDD);
+pub const YEAR_COMPL: PresetFormat<'static> = PresetFormat::<'static>(&I_YEAR_COMPL);
+pub const COMPL_ONLY: PresetFormat<'static> = PresetFormat::<'static>(&I_COMPL_ONLY);
 
 pub trait PresetDisplay: DisplayItem {
     fn preset_str(&self, preset: PresetFormat) -> String {
@@ -122,10 +183,11 @@ pub trait PresetDisplay: DisplayItem {
         result
     }
 
-    fn preset_fmt(&self, f: &mut fmt::Formatter, preset: PresetFormat) -> fmt::Result {
-        for item in preset.0 {
-            write!(f, "{}", self.fmt_item(*item))?;
-        }
-        Ok(())
+    fn long_date(&self) -> String {
+        self.preset_str(LONG_DATE)
+    }
+
+    fn short_date(&self) -> String {
+        self.preset_str(YYYYMMDD_DASH)
     }
 }

@@ -5,7 +5,6 @@ use crate::common::date::ToFromCommonDate;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
 use crate::display::preset_fmt::PresetDisplay;
-use crate::display::preset_fmt::LONG_DATE;
 use crate::display::private::fmt_days_since_epoch;
 use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
@@ -84,7 +83,7 @@ impl PresetDisplay for Gregorian {}
 
 impl fmt::Display for Gregorian {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.preset_fmt(f, LONG_DATE)
+        write!(f, "{}", self.long_date())
     }
 }
 
@@ -124,7 +123,25 @@ mod tests {
 
         for item in d_list {
             let d = Gregorian::try_from_common_date(item.0).unwrap();
-            let s = d.preset_str(LONG_DATE);
+            let s = d.long_date();
+            assert_eq!(s, item.1);
+        }
+    }
+
+    #[test]
+    fn short_date() {
+        let d_list = [
+            (CommonDate::new(1582, 10, 15), "1582-10-15"),
+            (CommonDate::new(2012, 12, 21), "2012-12-21"),
+            (CommonDate::new(2025, 1, 1), "2025-01-01"),
+            (CommonDate::new(2025, 6, 29), "2025-06-29"),
+            (CommonDate::new(2025, 6, 30), "2025-06-30"),
+            (CommonDate::new(2025, 7, 1), "2025-07-01"),
+        ];
+
+        for item in d_list {
+            let d = Gregorian::try_from_common_date(item.0).unwrap();
+            let s = d.short_date();
             assert_eq!(s, item.1);
         }
     }

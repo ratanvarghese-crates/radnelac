@@ -5,7 +5,7 @@ use crate::common::date::ToFromCommonDate;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
 use crate::display::preset_fmt::PresetDisplay;
-use crate::display::preset_fmt::LONG_DATE;
+use crate::display::preset_fmt::YYYYYMMDD_DASH;
 use crate::display::private::fmt_days_since_epoch;
 use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
@@ -81,10 +81,14 @@ impl DisplayItem for Holocene {
     }
 }
 
-impl PresetDisplay for Holocene {}
+impl PresetDisplay for Holocene {
+    fn short_date(&self) -> String {
+        self.preset_str(YYYYYMMDD_DASH)
+    }
+}
 
 impl fmt::Display for Holocene {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.preset_fmt(f, LONG_DATE)
+        write!(f, "{}", self.long_date())
     }
 }

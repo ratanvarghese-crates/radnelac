@@ -8,7 +8,7 @@ use crate::common::date::ToFromCommonDate;
 use crate::common::date::TryMonth;
 use crate::day_count::ToFixed;
 use crate::display::preset_fmt::PresetDisplay;
-use crate::display::preset_fmt::LONG_COMPLEMENTARY;
+use crate::display::preset_fmt::LONG_COMPL;
 use crate::display::preset_fmt::LONG_DATE;
 use crate::display::private::fmt_days_since_epoch;
 use crate::display::private::fmt_number;
@@ -120,14 +120,18 @@ impl<const L: bool> DisplayItem for FrenchRevArith<L> {
     }
 }
 
-impl<const L: bool> PresetDisplay for FrenchRevArith<L> {}
+impl<const L: bool> PresetDisplay for FrenchRevArith<L> {
+    fn long_date(&self) -> String {
+        if self.complementary().is_some() {
+            self.preset_str(LONG_COMPL)
+        } else {
+            self.preset_str(LONG_DATE)
+        }
+    }
+}
 
 impl<const L: bool> fmt::Display for FrenchRevArith<L> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.complementary().is_some() {
-            self.preset_fmt(f, LONG_COMPLEMENTARY)
-        } else {
-            self.preset_fmt(f, LONG_DATE)
-        }
+        write!(f, "{}", self.long_date())
     }
 }
