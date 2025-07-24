@@ -1,8 +1,3 @@
-// "The Importance of Calendar Reform to the Business World"
-// by George Eastman, President, Eastman Kodak Company
-// "Nation's Business" May 1926
-// https://www.freexenon.com/wp-content/uploads/2018/07/The-Importance-of-Calendar-Reform-to-the-Business-World-George-Eastman.pdf
-
 use crate::calendar::gregorian::Gregorian;
 use crate::common::bound::BoundedDayCount;
 use crate::common::date::CommonDate;
@@ -26,6 +21,7 @@ use crate::day_cycle::Weekday;
 use num_traits::FromPrimitive;
 use std::num::NonZero;
 
+/// Represents a month in the Cotsworth Calendar
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum CotsworthMonth {
     January = 1,
@@ -43,11 +39,28 @@ pub enum CotsworthMonth {
     December,
 }
 
+/// Represents a complementary day of the Cotsworth Calendar
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum CotsworthComplementaryDay {
+    /// The day that ends every year of the Cotsworth Calendar.
+    /// This is also represented as December 29. It is not part of any week.
     YearDay = 1,
+    /// The extra day added in leap years of the Cotsworth Calendar.
+    /// This is also represented as June 29. It is not part of any week.
     LeapDay,
 }
+
+/// Represents a date in the Cotsworth calendar
+/// (ie. International Fixed Calendar, Eastman plan, Yearal)
+///
+/// This calendar was originally designed by Moses B Cotsworth.
+/// George Eastman instituted its use within the Eastman Kodak Company from 1928 to 1989.
+///
+/// Further reading
+/// + [Wikipedia](https://en.wikipedia.org/wiki/Cotsworth_calendar)
+/// + ["Nation's Business" May 1926](https://www.freexenon.com/wp-content/uploads/2018/07/The-Importance-of-Calendar-Reform-to-the-Business-World-George-Eastman.pdf)
+///   + "The Importance of Calendar Reform to the Business World"
+///   + by George Eastman, President, Eastman Kodak Company
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Cotsworth(CommonDate);

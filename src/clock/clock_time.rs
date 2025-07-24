@@ -2,6 +2,7 @@ use crate::clock::TimeOfDay;
 use crate::common::math::TermNum;
 use crate::error::CalendarError;
 
+/// Represents a clock time as hours, minutes and seconds
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct ClockTime {
     pub hours: u8,

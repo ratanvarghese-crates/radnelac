@@ -7,6 +7,21 @@ use crate::day_count::ToFixed;
 
 const JD_EPOCH: f64 = -1721424.5;
 
+/// Represents a Julian Day Number (not to be confused with the Julian Calendar)
+///
+/// The Julian Day Number is the count of days since noon on January 1, 4713 BC
+/// in the proleptic Julian Calendar (November 24, 4714 BCE in the proleptic Gregorian
+/// Calendar).
+///
+/// This is internally a floating point number, where the integer portion represents a
+/// particular day and the fractional portion represents a particular time of day.
+///
+/// Note that equality and ordering operations are subject to limitations similar to
+/// equality and ordering operations on a floating point number. Two `JulianDay` values represent
+/// the same day or even the same second, but still appear different on the sub-second level.
+///
+/// Further reading:
+/// + [Wikipedia](https://en.m.wikipedia.org/wiki/Julian_day)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct JulianDay(f64);
 

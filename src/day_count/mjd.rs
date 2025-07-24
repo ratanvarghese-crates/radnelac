@@ -7,6 +7,20 @@ use crate::day_count::ToFixed;
 
 const MJD_EPOCH: f64 = 678576.0;
 
+/// Represents a Modified Julian Day Number (not to be confused with the Julian Calendar)
+///
+/// The Modified Julian Day Number is the count of days since midnight November 17,
+/// 1858 CE in the proleptic Gregorian Calendar.
+///
+/// This is internally a floating point number, where the integer portion represents a
+/// particular day and the fractional portion represents a particular time of day.
+///
+/// Note that equality and ordering operations are subject to limitations similar to
+/// equality and ordering operations on a floating point number. Two `ModifiedJulianDay` values represent
+/// the same day or even the same second, but still appear different on the sub-second level.
+///
+/// Further reading:
+/// + [Wikipedia](https://en.m.wikipedia.org/wiki/Julian_day#Variants)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct ModifiedJulianDay(f64);
 

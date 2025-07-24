@@ -26,6 +26,7 @@ const ETHIOPIC_EPOCH_JULIAN: CommonDate = CommonDate {
     day: 29,
 };
 
+/// Represents a month in the Ethiopic Calendar
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum EthiopicMonth {
     Maskaram = 1,
@@ -58,6 +59,10 @@ impl EthiopicMonth {
     }
 }
 
+/// Represents a date in the Ethiopic calendar
+///
+/// Further reading
+/// + [Wikipedia](https://en.wikipedia.org/wiki/Ethiopic_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Ethiopic(CommonDate);
 

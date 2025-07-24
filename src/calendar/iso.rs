@@ -14,6 +14,18 @@ use num_traits::FromPrimitive;
 use std::cmp::Ordering;
 use std::num::NonZero;
 
+/// Represents a date in the ISO-8601 week-date calendar
+///
+/// This is essentially an alternative naming system for Gregorian dates.
+///
+/// Despite being derived from the Gregorian calendar, **the ISO-8601 has a different year
+/// start and year end than the Gregorian.** If the Gregorian year X ends in the middle of
+/// the ISO week, the next days may be in Gregorian year X+1 and ISO year X.
+///
+/// Further reading
+/// + [Wikipedia](https://en.wikipedia.org/wiki/ISO_week_date)
+/// + [Rachel by the Bay](https://rachelbythebay.com/w/2018/04/20/iso/)
+///   + describes the confusion of intermingling documentation for ISO and Gregorian dates
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct ISO {
     year: i32,
@@ -30,10 +42,13 @@ impl ISO {
         self.week
     }
 
+    /// Note that the numeric values of the Weekday enum are not consistent with ISO-8601.
+    /// Use day_num for the numeric day number.
     pub fn day(self) -> Weekday {
         self.day
     }
 
+    /// Represents Sunday as 7 instead of 0, as required by ISO-8601.
     pub fn day_num(self) -> u8 {
         (self.day as u8).adjusted_remainder(7)
     }

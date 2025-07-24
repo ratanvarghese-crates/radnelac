@@ -21,10 +21,17 @@ use std::num::NonZero;
 #[allow(unused_imports)] //FromPrimitive is needed for derive
 use num_traits::FromPrimitive;
 
+/// Represents a month in the Julian calendar
 pub type JulianMonth = GregorianMonth;
 
 const JULIAN_EPOCH_RD: i32 = -1;
 
+/// Represents a date in the Julian calendar
+///
+/// Year 0 is not supported - the year before 1 AD is 1 BC.
+///
+/// Further reading
+/// + [Wikipedia](https://en.wikipedia.org/wiki/Julian_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Julian(CommonDate);
 

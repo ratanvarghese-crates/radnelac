@@ -27,6 +27,12 @@ const FRENCH_EPOCH_GREGORIAN: CommonDate = CommonDate {
 };
 const NON_MONTH: u8 = 13;
 
+/// Represents a month in the French Revolutionary Calendar
+///
+/// Note that the Sansculottides at the end of the French Revolutionary calendar
+/// year have no month and thus are not represented by FrenchRevMonth. When representing
+/// an arbitrary day in the French Revolutionary calendar, use an `Option<FrenchRevMonth>`
+/// for the the month field.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum FrenchRevMonth {
     Vendemiaire = 1,
@@ -43,6 +49,13 @@ pub enum FrenchRevMonth {
     Fructidor,
 }
 
+/// Represents a weekday in the French Revolutionary Calendar
+///
+/// The calendar reforms during the French Revolution included the creation of
+/// a ten-day week. The name of each day is based on the numeric position in the week.
+///
+/// Note that the Sansculottides at the end of the French Revolutionary calendar
+/// year do not have a weekday.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum FrenchRevWeekday {
     Primidi = 1,
@@ -57,6 +70,7 @@ pub enum FrenchRevWeekday {
     Decadi,
 }
 
+/// Represents an epagomenal day at the end of the French Revolutionary calendar year
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum Sansculottide {
     Vertu = 1,
@@ -67,10 +81,58 @@ pub enum Sansculottide {
     Revolution,
 }
 
+/// Represents a date in the algorithmic approximation of the French Revolutionary calendar
+/// (ie French Republican calendar)
+///
+/// The calendar actually implemented during the French First Republic relied on astronomical
+/// observations to determine whether a given year was a leap year. **FrenchRevArith does not
+/// read astronomical data nor approximate such data - instead it relies on algorithmic
+/// rules to determine the start of new years, similar to those used by the Gregorian calendar**.
+///
+/// The leap year rule is determined by the parameter L.
+/// * L = false: According to this rule, any year which is a multiple of 4 is a leap year
+///    unless it is a multiple of 100. Any year which is a multiple of 100 is not a leap year
+///    unless it is a multiple of 400. Any year which is a multiple of 400 is a leap year
+///    unless it is a multiple of 4000. For example, years 4, 8, and 12 are leap years.
+/// * L = true: This approximation is exactly the same as the one used where L = false, except
+///    that an offset of 1 is added to the year before starting the calculation. For example,
+///    years 3, 7 and 11 are leap years.
+///
+/// The approximation where L = false was proposed by Gilbert Romme, who directed the creation
+/// of the calendar. It is commonly used by other software approximating the French Revolutionary
+/// calendar. However, it was never used by any French government -
+/// the calendar actually used during the French First Republic used astronomical observations
+/// to determine leap years, and contradicted Romme's approximations. The official leap years
+/// during the Revolution were years 3, 7, and 11 whereas the leap years produced by Romme's
+/// approximation are years 4, 8, and 12.
+///
+/// The approximation where L = true ensures that leap years are consistent with the French
+/// government for the years where the Revolutionary calendar was officially used. This is a
+/// rather crude approximation which is not astronomically accurate outside those particular
+/// years.
+///
+/// The value of L should be determined by the caller's use case:
+/// * for consistency with other software using Romme's approximation: L = false
+/// * for consistency with Romme's wishes: L = false
+/// * for consistency with historical dates during the French First Republic: L = true
+/// * for consistency with historical dates during the Paris Commune: L = true
+/// * for consistency with how the calendar was "originally intended" to work for
+///   time periods not mentioned above: **not supported**
+///
+/// The final use case in the list above is not currently supported by this library.
+/// Implementing that feature requires calculating the date of the autumnal equinox
+/// at the Paris Observatory. If a future version of this library implements such
+/// astronomical calculations, those calculations will not be provided by FrenchRevArith.
+/// Instead, such calculations shall be provided by a new struct with a new name.
+///
+/// Further reading
+/// + [Wikipedia](https://en.wikipedia.org/wiki/French_Republican_calendar)
+/// + [Guanzhong "quantum" Chen](https://quantum5.ca/2022/03/09/art-of-time-keeping-part-4-french-republican-calendar/)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct FrenchRevArith<const L: bool>(CommonDate);
 
 impl<const L: bool> FrenchRevArith<L> {
+    /// Returns L
     pub fn is_adjusted(self) -> bool {
         L
     }

@@ -4,6 +4,7 @@ use crate::common::math::TermNum;
 use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
 
+/// Represents a clock time as a fraction of a day
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct TimeOfDay(f64);
 

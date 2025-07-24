@@ -21,6 +21,12 @@ use std::num::NonZero;
 const ARMENIAN_EPOCH_RD: i32 = 201443;
 const NON_MONTH: u8 = 13;
 
+/// Represents a month in the Armenian Calendar
+///
+/// Note that the epagomenal days at the end of the Armenian calendar year have no
+/// month and thus are not represented by ArmenianMonth. When representing an
+/// arbitrary day in the Armenian calendar, use an `Option<ArmenianMonth>` for the
+/// the month field.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum ArmenianMonth {
     Nawasardi = 1,
@@ -37,7 +43,11 @@ pub enum ArmenianMonth {
     Hrotich,
 }
 
-//https://en.wikipedia.org/wiki/Armenian_calendar
+/// Represents a day of month in the Armenian Calendar
+///
+/// The Armenian calendar has name for each day of month instead of a number.
+/// Note that the epagomenal days at the end of the Armenian calendar year have no
+/// month therefore they also do not have names.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum ArmenianDaysOfMonth {
     Areg = 1,
@@ -72,10 +82,15 @@ pub enum ArmenianDaysOfMonth {
     Giseravar,
 }
 
+/// Represents a date in the Armenian calendar
+///
+/// Further reading
+/// + [Wikipedia](https://en.wikipedia.org/wiki/Armenian_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Armenian(CommonDate);
 
 impl Armenian {
+    /// Returns the day name of month if one exists
     pub fn day_name(self) -> Option<ArmenianDaysOfMonth> {
         if self.0.month == NON_MONTH {
             None
@@ -109,6 +124,8 @@ impl ToFixed for Armenian {
     }
 }
 
+/// The epagomenal days at the end of the Armenian calendar year are represented
+/// as month 13 when converting to and from a CommonDate.
 impl ToFromCommonDate for Armenian {
     fn to_common_date(self) -> CommonDate {
         self.0

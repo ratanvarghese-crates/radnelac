@@ -18,6 +18,7 @@ use num_traits::FromPrimitive;
 
 const YEAR_ROME_FOUNDED_JULIAN: i32 = -753;
 
+/// Represents key events in a Roman month
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum RomanMonthlyEvent {
     Kalends = 1,
@@ -25,6 +26,7 @@ pub enum RomanMonthlyEvent {
     Ides,
 }
 
+/// Represents a month in the Roman calendar after the Julian reform
 pub type RomanMonth = JulianMonth;
 
 impl RomanMonth {
@@ -43,6 +45,11 @@ impl RomanMonth {
     }
 }
 
+/// Represents a date in the Roman calendar after the Julian reform
+///
+/// This is essentially an alternative system for naming Julian dates.
+///
+/// Year 0 is not supported - the year before 1 AD is 1 BC.
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Roman {
     year: NonZero<i32>,
@@ -73,6 +80,7 @@ impl Roman {
         self.leap
     }
 
+    /// Converts from BC/AD year to AUC year
     pub fn julian_year_from_auc(year: NonZero<i32>) -> NonZero<i32> {
         let j_year = year.get();
         if j_year >= 1 && j_year <= -YEAR_ROME_FOUNDED_JULIAN {
@@ -82,6 +90,7 @@ impl Roman {
         }
     }
 
+    /// Converts from AUC year to BC/AD year
     pub fn auc_year_from_julian(year: NonZero<i32>) -> NonZero<i32> {
         let a_year = year.get();
         if YEAR_ROME_FOUNDED_JULIAN <= a_year && a_year <= -1 {

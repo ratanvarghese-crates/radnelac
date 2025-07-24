@@ -7,6 +7,20 @@ use crate::day_count::ToFixed;
 
 const RD_EPOCH: f64 = 0.0;
 
+/// Represents a Rata Die
+///
+/// The Rata Die is the count of days since midnight December 31, 0 CE in the
+/// proleptic Gregorian Calendar.
+///
+/// This is internally a floating point number, where the integer portion represents a
+/// particular day and the fractional portion represents a particular time of day.
+///
+/// Note that equality and ordering operations are subject to limitations similar to
+/// equality and ordering operations on a floating point number. Two `RataDie` values represent
+/// the same day or even the same second, but still appear different on the sub-second level.
+///
+/// Further reading:
+/// + [Wikipedia](https://en.m.wikipedia.org/wiki/Rata_Die)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct RataDie(f64);
 

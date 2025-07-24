@@ -24,6 +24,7 @@ use num_traits::FromPrimitive;
 
 const GREGORIAN_EPOCH_RD: i32 = 1;
 
+/// Represents a month in the Gregorian calendar
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum GregorianMonth {
     January = 1,
@@ -65,6 +66,22 @@ impl GregorianMonth {
     }
 }
 
+/// Represents a date in the proleptic Gregorian calendar
+///
+/// According to Wikipedia:
+/// > The proleptic Gregorian calendar is produced by extending the Gregorian
+/// > calendar backward to the dates preceding its official introduction in 1582.
+///
+/// This means there are no "skipped days" at the point where the Gregorian
+/// calendar was introduced. Additionally, this means that year 0 is considered
+/// valid for this implementation of the Gregorian calendar.
+///
+/// The Gregorian reform was implemented at different times in different countries.
+/// For consistency with historical dates before the Gregorian reform, callers
+/// should probably use the Julian calendar.
+///
+/// Further reading
+/// + [Wikipedia](https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Gregorian(CommonDate);
 

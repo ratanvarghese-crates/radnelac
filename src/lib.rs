@@ -1,3 +1,5 @@
+//! A library for calendrical calculations in a variety of different timekeeping systems.
+
 #[macro_use]
 extern crate num_derive;
 
@@ -63,6 +65,7 @@ pub mod calendar {
     mod tranquility;
 
     pub use armenian::Armenian;
+    pub use armenian::ArmenianDaysOfMonth;
     pub use armenian::ArmenianMonth;
     pub use coptic::Coptic;
     pub use coptic::CopticMonth;

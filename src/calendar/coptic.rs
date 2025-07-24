@@ -25,6 +25,7 @@ const COPTIC_EPOCH_JULIAN: CommonDate = CommonDate {
     day: 29,
 };
 
+/// Represents a month in the Coptic Calendar
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum CopticMonth {
     Thoout = 1,
@@ -57,6 +58,10 @@ impl CopticMonth {
     }
 }
 
+/// Represents a date in the Coptic calendar
+///
+/// Further reading
+/// + [Wikipedia](https://en.wikipedia.org/wiki/Coptic_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Coptic(CommonDate);
 

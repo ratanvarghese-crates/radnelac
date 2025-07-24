@@ -5,6 +5,16 @@ use crate::day_count::FromFixed;
 #[allow(unused_imports)] //FromPrimitive is needed for derive
 use num_traits::FromPrimitive;
 
+/// Represents a day in the common week cycle
+///
+/// Note that some calendars such as the ISO calendar assign different numbers to each day.
+/// See `ISO` for details about that.
+///
+/// Additionally, some calendars use different week cycles than the common week cycle. Some
+/// calendars have seperate data types representing their weekdays, such as `FrenchRevArith`
+/// which has a ten-day week. Other calendars which use the same names for their weekdays
+/// re-use the `Weekday` struct such as `Cotsworth`. Monday in the common week cycle does
+/// not necessarily correspond to Monday in the Cotsworth calendar.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum Weekday {
     Sunday = 0,

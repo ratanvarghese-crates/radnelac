@@ -8,6 +8,19 @@ use crate::day_count::ToFixed;
 const UNIX_EPOCH: f64 = 719163.0;
 const UNIX_DAY: f64 = 24.0 * 60.0 * 60.0;
 
+/// Represents seconds since the Unix epoch
+///
+/// The Unix epoch is 00:00:00 UTC on January 1, 1970 CE in the proleptic Gregorian calendar.
+///
+/// This is internally an integer of more than 32 bits.
+///
+/// Note that the range of dates supported by this library is different from the range of dates
+/// supported by standard Unix utilities. This library can support years beyond 2038 CE
+/// (Gregorian) but if you plan to work with times in the distant past or future, please see
+/// the documentation for `Fixed`.
+///
+/// Further reading:
+/// + [Wikipedia](https://en.wikipedia.org/wiki/Unix_time)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct UnixMoment(i64);
 

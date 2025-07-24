@@ -20,8 +20,19 @@ use std::num::NonZero;
 
 const HOLOCENE_YEAR_OFFSET: i16 = -10000;
 
+/// Represents a month in the Holocene calendar
 pub type HoloceneMonth = GregorianMonth;
 
+/// Represents a date in the Holocene calendar
+///
+/// The Holocene calendar was proposed by Cesare Emiliani.
+/// It is identical to the proleptic Gregorian calendar, but
+/// with an extra 10000 years added to each date. Thus 2016
+/// in the Gregorian calendar is 12016 in the Holocene calendar.
+///
+/// Further reading:
+/// + [Wikipedia](https://en.wikipedia.org/wiki/Holocene_calendar)
+/// + [Kurzgesagt](https://www.youtube.com/watch?v=czgOWmtGVGs)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Holocene(CommonDate);
 

@@ -37,6 +37,14 @@ const TRANQUILITY_EPOCH_CLOCK: ClockTime = ClockTime {
     seconds: 1.2,
 };
 
+/// Represents a month of the Tranquility Calendar
+///
+/// The Tranquility months are named after famous historical figures.
+///
+/// Note that the complementary days of the Tranquility calendar year have no
+/// month and thus are not represented by TranquilityMonth. When representing an
+/// arbitrary day in the Tranquility calendar, use an `Option<TranquilityMonth>` for the
+/// the month field.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum TranquilityMonth {
     Archimedes = 1,
@@ -56,12 +64,58 @@ pub enum TranquilityMonth {
 
 const AFTER_H27: i64 = (TranquilityMonth::Hippocrates as i64) * 28;
 
+/// Represents a complementary day of the Tranquility Calendar
+///
+/// These are a bit more complex than the complementary days of the Positivist
+/// or Cotsworth calendars.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum TranquilityComplementaryDay {
+    /// This is the day of the Apollo 11 moon landing, which is the epoch for
+    /// the Tranquility calendar. It is not part of any week, month or year.
     MoonLandingDay = 0,
+    /// This is the last day of every year except 1 Before Tranquility. It
+    /// is not part of any week or month.
     ArmstrongDay,
+    /// This is an extra day added during leap years. It occurs between Hippocrates
+    /// 27 and 28. It is not part of any week or month.
     AldrinDay,
 }
+
+/// Represents a date *and time* in the Tranquility Calendar
+///
+/// The Tranquility calendar was proposed by Jeff Siggins in the July 1989 issue of
+/// OMNI magazine. It is used by the Orion's Arm collaborative science fiction project.
+/// Hardly anybody else uses the Tranquility calendar - it is so obscure that its Wikipedia
+/// page was deleted for lack of notability.
+///
+/// Siggins' article starts with the following:
+/// > Are you tired of that same old calendar, with 12 months of unequal length, and dates
+/// > that always fall on different days? Do you forget lunch dates, closing days for real
+/// > estate deals, or deadlines for IRA rollovers? When plotting graphs in your fruit fly
+/// > experiment, do you ever get confused? Do you wonder why that same vile mood hits on the
+/// > fifth of one month and the fifteenth of the next?
+/// >
+/// > If these problems are yours, you are probably ready for the next step in time accounting,
+/// > the Tranquility calendar, designed for a perfection-seeking society, especially the men
+/// > and women of science. Inspired by the Apollo 11 manned mission to the moon and developed
+/// > for *Omni*, the Tranquility calendar will ease the complexity of scientific calculation,
+/// > help astronomers fathom the movements of heavenly spheres, and facilitate high-stakes business.
+/// > It will also aid everyday users who simply require a precise, easy-to-follow record of
+/// > the events of their lives.
+///
+/// Unfortunately, despite these lofty goals, the Tranquility Calendar has many edge cases not
+/// present in other timekeeping systems; this can cause difficulty when implementing software
+/// applications. **There are almost certainly discrepancies between this library and others
+/// attempting to implement the Tranquility calendar**.
+///
+/// Further reading
+/// + [Orion's Arm "Encyclopaedia Galactica"](https://www.orionsarm.com/eg-article/48c6d4c3d54cf/)
+/// + [Wikipedia Deletion Log](https://en.wikipedia.org/wiki/Wikipedia:Articles_for_deletion/Tranquility_Calendar)
+/// + [Archived Wikipedia article](https://web.archive.org/web/20180818233025/https://en.wikipedia.org/wiki/Tranquility_calendar)
+/// + Archived copies of Jeff Siggins' article for OMNI
+///   + [archive.org copy of mithrandir.com](https://web.archive.org/web/20161025042320/http://www.mithrandir.com/Tranquility/tranquilityArticle.html)
+///   + [archive.org copy of OMNI July 1989, pages 63, 64](https://archive.org/details/omni-archive/OMNI_1989_07/page/n63/mode/2up)
+///   + [archive.org copy of OMNI July 1989, pages 65, 66](https://archive.org/details/omni-archive/OMNI_1989_07/page/n65/mode/2up)
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct TranquilityMoment {
@@ -414,6 +468,292 @@ mod tests {
                 .unwrap()
                 .to_fixed();
             assert_eq!(dq.get_day_i(), dg.get_day_i());
+        }
+    }
+
+    #[test]
+    fn article_examples() {
+        let d_list = [
+            // From Siggins' article
+            // 21, 1, 3
+            // Beginning of the Perseid meteor showers (1989)
+            // ???
+            // Louise Brown, first test-tube baby, is born (1978)
+            // 1978-07-25 https://en.wikipedia.org/wiki/Louise_Brown
+            (CommonDate::new(1978, 7, 25), CommonDate::new(10, 1, 5)),
+            // NASA established and funded by Congress (1958)
+            // 1958-07-29 https://en.wikipedia.org/wiki/NASA
+            (CommonDate::new(1958, 7, 29), CommonDate::new(-11, 1, 9)),
+            // Explorer VI transmits first picture of Earth from space (1959)
+            // 1959-08-14 https://en.wikipedia.org/wiki/Explorer_6
+            // (CommonDate::new(1959, 8, 14), CommonDate::new(-10, 1, 18)), //Incorrect???
+            // USSR explodes its first hydrogen bomb (1953)
+            // 1953-08-12 https://en.wikipedia.org/wiki/RDS-6s
+            (CommonDate::new(1953, 8, 12), CommonDate::new(-16, 1, 23)),
+            // Lunar eclipse (1989)
+            // 1989-08-17 https://en.wikipedia.org/wiki/August_1989_lunar_eclipse
+            (CommonDate::new(1989, 8, 17), CommonDate::new(21, 1, 28)),
+            // Launch of Voyager 2, space-craft for planetary exploration (1977)
+            // 1977-08-20 https://en.wikipedia.org/wiki/Voyager_2
+            (CommonDate::new(1977, 8, 20), CommonDate::new(9, 2, 3)),
+            // -1890, 2, 7
+            // Pliny the Elder dies in eruption of Vesuvius at Pompeii (79)
+            // ???
+            // Partial solar eclipse (1989)
+            // 1989-08-31 wiki:https://en.wikipedia.org/wiki/Solar_eclipse_of_August_31,_1989
+            (CommonDate::new(1989, 8, 31), CommonDate::new(21, 2, 14)),
+            // Viking 2 lands near polar cap of Mars, sends photos of Earth (1976)
+            // 1976-09-03 wiki:https://en.wikipedia.org/wiki/Viking_2
+            (CommonDate::new(1976, 9, 3), CommonDate::new(8, 2, 17)),
+            // Charles Darwin, in a letter to American botanist Asa Gray, propounds the law of evolution of species by means of natural selection (1857)
+            // 1857-09-05 wiki:https://en.wikipedia.org/wiki/Charles_Darwin
+            (CommonDate::new(1857, 9, 5), CommonDate::new(-112, 2, 19)),
+            // First privately owned rocket launched by Space Services, Inc., of the USA (1982)
+            // 1982-09-09 wiki:https://en.wikipedia.org/wiki/Conestoga_(rocket)
+            (CommonDate::new(1982, 9, 9), CommonDate::new(14, 2, 23)),
+            // 16, 2, 28
+            // First solo balloon flight across the Atlantic Ocean embarks from Maine, arrives 86 hours later (1984)
+            // ???
+            // Autumnal equinox. The serpent of light appears on the pyramid at Chichen Itza Mexico (1989)
+            // 1989-09-23 https://www.timeanddate.com/calendar/seasons.html?year=1950&n=1440
+            (CommonDate::new(1989, 9, 23), CommonDate::new(21, 3, 9)),
+            // "Blue sun," a 200-mile-wide blanket of smoke, caused by forest fires in Alberta and British Columbia, Canada (1950)
+            // 1950-09-24 https://en.wikipedia.org/wiki/Chinchaga_fire (black sunday)
+            // (CommonDate::new(1950, 9, 24), CommonDate::new(-19, 3, 12)), //Incorrect?
+            // Shuttle Discovery launched, first manned US craft since the Challenger (1988)
+            // 1988-09-29 https://en.wikipedia.org/wiki/STS-26
+            (CommonDate::new(1988, 9, 29), CommonDate::new(20, 3, 15)),
+            // 21, 3, 16
+            // First day of year 5750 on the Judaic calendar (1989)
+            // ???
+            // Sputnik 1, first successful man-made satellite, is launched by the USSR (1957)
+            // 1957-10-04 https://en.wikipedia.org/wiki/Sputnik_1
+            (CommonDate::new(1957, 10, 4), CommonDate::new(-12, 3, 20)),
+            // -302, 3, 25
+            // Antonie van Leeuwenhoek announces discovery of microorganisms (1667)
+            // ???
+            // Christopher Columbus lands in the Bahamas (1492)
+            // 1492-10-12 https://en.wikipedia.org/wiki/Voyages_of_Christopher_Columbus
+            // (CommonDate::new(1492, 10, 2), CommonDate::new(-477, 3, 28)), //Incorrect?
+            // USAF Chaptain Charles Yeager becomes first human to fly faster than the speed of sound
+            // 1947-10-14 https://en.wikipedia.org/wiki/Bell_X-1
+            // (CommonDate::new(1947, 10, 4), CommonDate::new(-22, 4, 2)), //Incorrect?
+            // -123, 4, 4
+            // First public operation using ether as an anesthetic is performed at Massachusetts General Hospital
+            // ???
+            // Thomas Edison invents incandescent electric lamp (1879)
+            // 1879-10-22 https://en.wikipedia.org/wiki/Incandescent_light_bulb
+            // (CommonDate::new(1879, 10, 22), CommonDate::new(-90, 4, 9)), //Incorrect?
+            // The first recorded parachute descent, from a balloon (1797) (1st Brumaire, Year VI of the Republican calendar)
+            // 1797-10-22 https://en.wikipedia.org/wiki/Andr%C3%A9-Jacques_Garnerin
+            (CommonDate::new(1797, 10, 22), CommonDate::new(-172, 4, 10)),
+            // -10, 4, 15
+            // The Soviet Union releases the first pictures of the far side of the moon, taken by Lunik 3 (1959)
+            // ??? 1959-10-07 wiki:https://en.wikipedia.org/wiki/Luna_3
+            // Laika, a Russian dog, becomes the first "higher" animal in space (1957)
+            // 1957-11-03 https://en.wikipedia.org/wiki/Sputnik_2
+            (CommonDate::new(1957, 11, 3), CommonDate::new(-12, 4, 22)),
+            // Archaeologist Howard Carter discovers tomb of King Tut at Luxor, Egypt (1922)
+            // 1992-11-04 https://en.wikipedia.org/wiki/Discovery_of_the_tomb_of_Tutankhamun
+            // (CommonDate::new(1992, 11, 4), CommonDate::new(-47, 4, 23)), // Incorrect?
+            // 25, 4, 28
+            // The next transit of the planet Mercury across the face of the sun (1993)
+            // ??? 1993-11-06 https://en.m.wikipedia.org/wiki/Transit_of_Mercury
+            // The first coast-to-coast direct-dial telephone service begins, Englewood, New Jersey (1951)
+            // 1951-11-10 https://en.wikipedia.org/wiki/Englewood,_New_Jersey
+            (CommonDate::new(1951, 11, 10), CommonDate::new(-18, 5, 1)),
+            // Voyager 1 nears Saturn; photos reveal three new moons (1980)
+            // 1980-11-12 https://en.wikipedia.org/wiki/Voyager_1
+            (CommonDate::new(1980, 11, 12), CommonDate::new(12, 5, 3)),
+            // -3, 5, 8
+            // The densest meteor shower ever recorded (1966)
+            // ???
+            // -63, 5, 13
+            // SOS adopted as the international distress call (1906)
+            // ??? 1906-11-03 wiki:https://en.wikipedia.org/wiki/SOS
+            // Charles Darwin's The Origin of Species is published (1859)
+            // 1859-11-24 https://en.wikipedia.org/wiki/On_the_Origin_of_Species
+            (CommonDate::new(1859, 11, 24), CommonDate::new(-110, 5, 15)),
+            // -23, 5, 28
+            // Percy Spencer patents the microwave oven (1946)
+            // ??? 1945-10-08 wiki:https://en.wikipedia.org/wiki/Percy_Spencer
+            // Anethesia used for first time to perform a dental extraction (1844)
+            //1844-12-10 https://en.wikipedia.org/wiki/History_of_general_anesthesia
+            // (CommonDate::new(1844, 12, 10), CommonDate::new(-125, 6, 4)), // Incorrect??
+            // -22, 6, 5
+            // John Bardeen, Walter Brattain, and William Shockley invent the transistor (1947)
+            // ??? 1947-(11-17 to 12-23) wiki:https://en.wikipedia.org/wiki/Transistor
+            // The first airplane flight by Orville and Wilbur Wright, Kitty Hawk, North Carolina (1903)
+            //1903-12-17 https://en.wikipedia.org/wiki/Wright_Flyer
+            (CommonDate::new(1903, 12, 17), CommonDate::new(-66, 6, 10)),
+            // Winter solstice (1989)
+            //1989-12-21 https://aa.usno.navy.mil/calculated/seasons?year=1989&tz=0.00&tz_sign=-1&tz_label=false&dst=false&submit=Get+Data
+            (CommonDate::new(1989, 12, 21), CommonDate::new(21, 6, 14)),
+            // 6, 6, 17
+            // The discovery of Lucy, fossil remains of an early female hominid, in Ethiopia (1974)
+            // ???
+            // New Year's Day on both the Gregorian Calendar (1990) and Japanese calendar (2651)
+            // 1990-01-01 by definition
+            (CommonDate::new(1990, 1, 1), CommonDate::new(21, 6, 25)),
+            // 21, 6, 28
+            // The earth is at its farthest distance from the sun (aphelion) (1990)
+            // ??? 1990-01-04 is the perihelion wiki:https://aa.usno.navy.mil/calculated/seasons?year=1990&tz=0.00&tz_sign=-1&tz_label=false&dst=false&submit=Get+Data
+            // Galileo discovers the moons of Jupiter (1610)
+            // 1610-01-07 https://en.wikipedia.org/wiki/Galileo_Galilei
+            (CommonDate::new(1610, 1, 7), CommonDate::new(-360, 7, 3)),
+            // 16, 7, 9
+            // Ornithologists count 1350 great white cranes at Poyand Lake in China, the most ever recorded (1985)
+            // ???
+            // Earthquake changes course of the Mississippi River (1812)
+            // 1812-01-23 https://en.wikipedia.org/wiki/1811%E2%80%931812_New_Madrid_earthquakes
+            (CommonDate::new(1812, 1, 23), CommonDate::new(-158, 7, 19)),
+            // Annular eclipse of the sun (1990)
+            // 1990-01-26 wiki:https://en.wikipedia.org/wiki/List_of_solar_eclipses_in_the_20th_century
+            (CommonDate::new(1990, 1, 26), CommonDate::new(21, 7, 22)),
+            // Apollo 1 fire kills US astronauts Gus Grissom, Ed White, and Roger Chaffee (1967)
+            //1967-01-27 https://en.wikipedia.org/wiki/Apollo_1
+            (CommonDate::new(1967, 1, 27), CommonDate::new(-3, 7, 23)),
+            // The space shuttle Challenger explodes, killing seven American astronauts (1986)
+            //1986-01-28 https://en.wikipedia.org/wiki/Space_Shuttle_Challenger_disaster
+            (CommonDate::new(1986, 1, 28), CommonDate::new(17, 7, 24)),
+            // Explorer 1, the first US satellite, is launched (1958)
+            //1958-02-01 https://en.wikipedia.org/wiki/Explorer_1
+            // (CommonDate::new(1958, 2, 1), CommonDate::new(-12, 7, 27)), //Incorrect??
+            // Soviet Luna 9 makes first successful soft landing on the moon (1966)
+            //1966-02-03 https://en.wikipedia.org/wiki/Luna_9
+            (CommonDate::new(1966, 2, 3), CommonDate::new(-4, 8, 2)),
+            // Two US astronauts become first humans to fly untethered in space (1984)
+            //1984-02-07 https://en.wikipedia.org/wiki/STS-41-B
+            // (CommonDate::new(1984, 2, 7), CommonDate::new(15, 8, 2)), //Incorrect??
+            // Total lunar eclipse (1990)
+            //1990-02-09 https://en.wikipedia.org/wiki/List_of_lunar_eclipses_in_the_20th_century
+            // (CommonDate::new(1990, 2, 9), CommonDate::new(21, 8, 7)), //Incorrect??
+            // -388, 8, 12
+            // Pope Gregory corrects the Julian calendar (1582)
+            // ??? 1582-10-15 wiki:https://en.wikipedia.org/wiki/Gregorian_calendar
+
+            // Italian philosopher Giordano Bruno burned at the stake for his heliocentric views (1600)
+            //1600-02-17 https://en.wikipedia.org/wiki/Giordano_Bruno
+            (CommonDate::new(1600, 2, 17), CommonDate::new(-370, 8, 16)),
+            // The planet Pluto is discovered by Clyde Tombaught (1930)
+            //1930-02-18 https://en.m.wikipedia.org/wiki/Pluto
+            (CommonDate::new(1930, 2, 18), CommonDate::new(-40, 8, 17)),
+            // John Glenn aboard the Friendship 7, becomes the first American to orbit Earth (1962)
+            //1962-02-20 https://en.wikipedia.org/wiki/Mercury-Atlas_6
+            (CommonDate::new(1962, 2, 20), CommonDate::new(-8, 8, 19)),
+            // Sir James Chadwick of Great Britain announces the discovery of the neutron (1932)
+            //1932-02-27 https://web.mit.edu/22.54/resources/Chadwick.pdf
+            (CommonDate::new(1932, 2, 27), CommonDate::new(-38, 8, 26)),
+            // The launch of Pioneer 10, first known Earth object to leave solar system (1972)
+            //1972-03-03 https://en.wikipedia.org/wiki/Pioneer_10
+            // (CommonDate::new(1972, 3, 3), CommonDate::new(3, 9, 1)),
+            // -189, 9, 5
+            // Sir William Herschel discovers Uranus (1781)
+            // ?? 1781-03-13 wiki:https://en.wikipedia.org/wiki/Uranus
+            // -2013, 9, 14
+            // The Ides of March, the day that Julius Caesar died (-44)
+            // ?? Julian -44-03-15 wiki:https://en.wikipedia.org/wiki/Julius_Caesar
+            // -44, 9, 15
+            // Robert Goddard launches the first successful liquid-fuel rocket (1926)
+            // ??
+
+            // The US Congress authorizes conversion to standard time zones and daylight saving time (1918)
+            // 1918-03-29 https://en.wikipedia.org/wiki/Standard_Time_Act
+            // (CommonDate::new(1918, 3, 29), CommonDate::new(-12, 9, 18)), //Incorrect?
+            // Vernal equinox. Serpent of light appears on the pyramid at Chichen Itza, Mexico (1990)
+            // 1990-03-20 https://aa.usno.navy.mil/calculated/seasons?year=1990&tz=0.00&tz_sign=-1&tz_label=false&dst=false&submit=Get+Data
+            (CommonDate::new(1990, 3, 20), CommonDate::new(21, 9, 19)),
+            // Accident at Three Mile Island Nuclear Generating Station in Pennsylvania (1979)
+            // 1979-03-28 https://en.wikipedia.org/wiki/Three_Mile_Island_accident
+            (CommonDate::new(1979, 3, 28), CommonDate::new(10, 9, 27)),
+            // Mariner 10 spacecraft approaches Mercury and sends 647 photos back to Earth (1974)
+            // 1974-03-29 https://en.wikipedia.org/wiki/Mariner_10
+            (CommonDate::new(1974, 3, 29), CommonDate::new(5, 9, 28)),
+            // Samuel Morey patents the internal-combustion engine (1826)
+            // 1826-04-01 https://www.ancientpages.com/2017/04/01/samuel-morey-patent/
+            (CommonDate::new(1826, 4, 1), CommonDate::new(-144, 10, 3)),
+            // First commerical communications satellite launched (US) (1965)
+            // 1965-04-06 https://en.wikipedia.org/wiki/Communications_satellite
+            // (CommonDate::new(1965, 4, 6), CommonDate::new(-5, 10, 6)), //Incorrect?
+            // -61, 10, 8
+            // Robert E. Peary claims discovery of the North Pole (1909)
+            // ?? 1909-04-06?? -07?? wiki:https://en.wikipedia.org/wiki/Robert_Peary
+            // Cosmonaut Yuri Gagarin of the USSR orbits Earth, becoming the first human in space (1961)
+            // 1961-04-12 https://en.wikipedia.org/wiki/Vostok_1
+            (CommonDate::new(1961, 4, 12), CommonDate::new(-9, 10, 14)),
+            // 3, 10, 18
+            // Two giant pandas, gifts from People's Republic of China, arrive at the National Zoo in Washington DC (1972)
+            // ??
+            // -284, 10, 19
+            // Sir Isaac Newton presents Philosophiae naturalis principia mathematica to the Royal Society (1686)
+            // ??
+            // Francis Crick and James Watson report their discovery of the DNA double helix (1953)
+            //1953-04-25 wiki:https://www.nature.com/articles/171737a0
+            (CommonDate::new(1953, 04, 25), CommonDate::new(-17, 10, 27)),
+            // Alan Shepard becomes the first American in space (1961)
+            //1961-05-05 wiki:https://en.wikipedia.org/wiki/Mercury-Redstone_3
+            (CommonDate::new(1961, 05, 05), CommonDate::new(-9, 11, 9)),
+            // -174, 11, 18
+            // Dr Edward Jenner conducts his first experiment with cow-pox vaccination (1796)
+            // ??
+            // Charles Lindbergh lands in Paris, becoming the first person to fly an airplane solo, nonstop across the Atlantic Ocean (1927)
+            //1927-05-21 wiki:https://en.wikipedia.org/wiki/Spirit_of_St._Louis
+            (CommonDate::new(1927, 05, 21), CommonDate::new(-43, 11, 25)),
+            // The Concorde supersonic transport makes its first transatlantic flight to USA (1976)
+            //1976-05-24 wiki:https://en.wikipedia.org/wiki/Concorde_operational_history
+            (CommonDate::new(1976, 05, 24), CommonDate::new(7, 11, 28)),
+            // -2554, 12, 4
+            // Most famous ancient solar eclipse occurs during a battle between Lydians and Medes (585 BC)
+            // ?? Julian -585-05-28 wiki:https://en.wikipedia.org/wiki/Eclipse_of_Thales
+            // US launches the Mariner 9, first spacecraft to orbit another planet (1971)
+            // 1971-05-30 https://en.wikipedia.org/wiki/Mariner_9
+            (CommonDate::new(1971, 5, 30), CommonDate::new(2, 12, 6)),
+            // Guglielmo Marconi is granted patent for the radio in Great Britain (1896)
+            // 1896-06-02 https://en.wikipedia.org/wiki/Guglielmo_Marconi
+            (CommonDate::new(1896, 6, 2), CommonDate::new(-74, 12, 9)),
+            // Byron Allen pedals Gossamer Albatross aircraft across the English Channel (1979)
+            // 1979-06-12 https://en.wikipedia.org/wiki/MacCready_Gossamer_Albatross
+            (CommonDate::new(1979, 6, 12), CommonDate::new(10, 12, 19)),
+            // 14, 12, 20
+            // Pioneer 10 exits solar system (1983)
+            // ???
+            // Ben Franklin flies kite during a lightning storm and discovers electricity (1752)
+            //1752-06-15 https://en.wikipedia.org/wiki/Benjamin_Franklin
+            (CommonDate::new(1752, 6, 15), CommonDate::new(-218, 12, 22)),
+            // Sally Ride becomes first US woman in space (1983)
+            //1983-06-18 https://en.wikipedia.org/wiki/STS-7
+            (CommonDate::new(1983, 6, 18), CommonDate::new(14, 12, 25)),
+            // Summer solstice, longest day of year, Northern Hemisphere (1990)
+            //1990-06-21 https://aa.usno.navy.mil/calculated/seasons?year=1990&tz=0.00&tz_sign=-1&tz_label=false&dst=false&submit=Get+Data
+            (CommonDate::new(1990, 6, 21), CommonDate::new(21, 12, 28)),
+            // First reported UFO sighting using the term flying saucers (1947)
+            //1947-06-24 https://en.wikipedia.org/wiki/Kenneth_Arnold_UFO_sighting
+            (CommonDate::new(1947, 6, 24), CommonDate::new(-23, 13, 3)),
+            // -13, 13, 4
+            // CBS broadcasts first commercial color TV program (1957)
+            // ???
+            // Mysterious explosion devastates a huge forest in Tunguska, Siberia (1908)
+            // 1908-06-30 https://en.wikipedia.org/wiki/Tunguska_event
+            (CommonDate::new(1908, 6, 30), CommonDate::new(-62, 13, 9)),
+            // -83, 13, 15
+            // Louis Pasteur inoculates a boy with antirabies serum (1887)
+            // ???
+            // Skylab falls to Earth (1979)
+            // 1979-07-11 https://en.wikipedia.org/wiki/Skylab
+            (CommonDate::new(1979, 7, 11), CommonDate::new(10, 13, 20)),
+            // -8, 13, 22
+            // First transatlantic conversation using communications satellite (1962)
+            // ??? wiki:https://en.wikipedia.org/wiki/Telstar
+            // First atomic bomb is detonated, Trinity Site, New Mexico (1945)
+            // 1945-07-16 https://en.wikipedia.org/wiki/Trinity_(nuclear_test)
+            (CommonDate::new(1945, 7, 16), CommonDate::new(-25, 13, 25)),
+        ];
+        for pair in d_list {
+            let dg = Gregorian::try_from_common_date(pair.0).unwrap().to_fixed();
+            let dq = TranquilityMoment::try_from_common_date(pair.1)
+                .unwrap()
+                .to_fixed();
+            assert_eq!(dq.get_day_i(), dg.get_day_i(), "{:?}", pair);
         }
     }
 

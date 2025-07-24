@@ -1,19 +1,3 @@
-// "Basic Symmetry454 and Symmetry010 Calendar Arithmetic" by Dr. Irvin L. Bromberg
-// https://kalendis.free.nf/Symmetry454-Arithmetic.pdf
-// > Symmetry454 and Symmetry010 calendar arithmetic is very simple, but there is a tendency
-// > for those who are programming their first implementation of these calendars to immediately
-// > cut corners that may suffice for a limited range of dates, or to skip thorough validation
-// > of their implementation.
-// > Please don’t deviate from the arithmetic outlined herein. Please “stick to the script”.
-// > Don’t try to invent your own arithmetic using novel expressions. There is no reason to do
-// > so, because this arithmetic is in the public domain, royalty free. The algorithm steps
-// > documented herein were carefully designed for efficiency, simplicity, and clarity of
-// > program code, and were thoroughly validated. Cutting corners will most likely result in
-// > harder-to-read programs that are more difficult to maintain and troubleshoot. In all
-// > probability a novel expression intended to “simplify” the arithmetic documented herein
-// > will actually prove to function erroneously under specific circumstances. It is just not
-// > worth wasting the time on the trouble that will make for you.
-
 // Approximate northward equinox
 use crate::calendar::gregorian::Gregorian;
 use crate::common::bound::BoundedDayCount;
@@ -57,6 +41,7 @@ const NORTH_SOLSTICE_PARAMS: SymmetryParams = SymmetryParams {
     K: 194,
 };
 
+/// Represents a month of the Symmetry calendars
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum SymmetryMonth {
     January = 1,
@@ -71,15 +56,70 @@ pub enum SymmetryMonth {
     October,
     November,
     December,
+    /// Only appears in leap years
     Irvember,
 }
 
+/// Represents a date in one of the Symmetry calendars
+///
+/// The Symmetry calendars are a collection of calendars developed by Dr. Irvin L. Bromberg.
+/// Bromberg proposed 2 leap year rules and 2 month length rules, which can be combined to form
+/// 4 calendar systems.
+///
+/// | T     | U     | Alias                 | Leap cycle                   | Quarter length    |
+/// |-------|-------|-----------------------|------------------------------|-------------------|
+/// | true  | true  | `Symmetry454`         | 293 year (northward equinox) | 4 + 5 + 4 weeks   |
+/// | false | true  | `Symmetry010`         | 293 year (northward equinox) | 30 + 31 + 30 days |
+/// | true  | false | `Symmetry454Solstice` | 389 year (north solstice)    | 4 + 5 + 4 weeks   |
+/// | false | false | `Symmetry010Solstice` | 389 year (north solstice)    | 30 + 31 + 30 days |
+///
+/// The combinations are summarized in the table above. Columns T and U are the type parameters.
+/// Column Alias refers to the type aliases provided for convenience. The placement of leap years
+/// is symmetric within a cycle - the length of the cycle is in column Leap Cycle. There is more
+/// information about the leap cycles in "Basic Symmetry454 and Symmetry010 Calendar Arithmetic"
+/// by Dr. Irvin L. Bromberg, in the section titled "Symmetrical leap cycles and the Symmetry454
+/// and Symmetry010 leap rule". Column Quarter Length refers to how days are distributed within a
+/// common year. Symmetry calendars have years split into 4 quarters. Each quarter is composed of
+/// 3 months. In Symmetry454 calendars, the months have lengths of 4, 5, and 4 weeks respectively.
+/// In Symmetry010 calendars, the months have lenghts of 30, 31, and 30 days respectively.
+///
+/// The Symmetry calendars have leap weeks instead of leap days. The extra week added in a leap
+/// year is a standalone thirteenth month called Irvember. Dr. Irvin L. Bromberg suggested an
+/// alternative scheme where the extra week is added to December instead of being standalone -
+/// however this alternative scheme is **not** implemented.
+///
+/// The calculations used in this library mirror Dr. Bromberg's reference documents closely
+/// while still being idiomatic Rust. From "Basic Symmetry454 and Symmetry010 Calendar
+/// Arithmetic" by Dr. Irvin L. Bromberg:
+///
+/// > Symmetry454 and Symmetry010 calendar arithmetic is very simple, but there is a tendency
+/// > for those who are programming their first implementation of these calendars to immediately
+/// > cut corners that may suffice for a limited range of dates, or to skip thorough validation
+/// > of their implementation.
+/// >
+/// > Please don’t deviate from the arithmetic outlined herein. Please “stick to the script”.
+/// > Don’t try to invent your own arithmetic using novel expressions. There is no reason to do
+/// > so, because this arithmetic is in the public domain, royalty free. The algorithm steps
+/// > documented herein were carefully designed for efficiency, simplicity, and clarity of
+/// > program code, and were thoroughly validated. Cutting corners will most likely result in
+/// > harder-to-read programs that are more difficult to maintain and troubleshoot. In all
+/// > probability a novel expression intended to “simplify” the arithmetic documented herein
+/// > will actually prove to function erroneously under specific circumstances. It is just not
+/// > worth wasting the time on the trouble that will make for you.
+///
+/// Further reading
+/// + Dr. Irvin L. Bromberg
+///   + ["Basic Symmetry454 and Symmetry010 Calendar Arithmetic"](https://kalendis.free.nf/Symmetry454-Arithmetic.pdf)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Symmetry<const T: bool, const U: bool>(CommonDate);
 
+/// Symmetry454 calendar whose leap rule approximates the northward equinox
 pub type Symmetry454 = Symmetry<true, true>;
+/// Symmetry010 calendar whose leap rule approximates the northward equinox
 pub type Symmetry010 = Symmetry<false, true>;
+/// Symmetry454 calendar whose leap rule approximates the north solstice
 pub type Symmetry454Solstice = Symmetry<true, false>;
+/// Symmetry010 calendar whose leap rule approximates the north solstice
 pub type Symmetry010Solstice = Symmetry<false, false>;
 
 impl<const T: bool, const U: bool> Symmetry<T, U> {
@@ -91,10 +131,19 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
         }
     }
 
+    /// Returns (T, U)
+    ///
+    /// T is true for Symmetry454 calendars and false for Symmetry010 calendars
+    /// U is true for the 292 year leap cycle and false for the 389 year leap cycle
+    /// More information is available in the documentation for the whole struct.
     pub fn mode(self) -> (bool, bool) {
         (T, U)
     }
 
+    /// Returns the fixed day number of a Symmetry year
+    ///
+    /// This is intended to implement SymNewYearDay() from
+    /// "Basic Symmetry454 and Symmetry010 Calendar Arithmetic" by Dr. Bromberg
     pub fn new_year_day_unchecked(sym_year: i32, sym_epoch: i64) -> i64 {
         let p = Self::params();
         #[allow(non_snake_case)]
@@ -155,6 +204,9 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
         }
     }
 
+    /// This function is not described by Dr. Bromberg and is not
+    /// used in conversion to and from other timekeeping systems.
+    /// Instead it is used for checking if a CommonDate is valid.
     pub fn days_in_month(month: SymmetryMonth) -> u8 {
         if month == SymmetryMonth::Irvember {
             7
@@ -167,6 +219,10 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
 }
 
 impl<const T: bool, const U: bool> HasLeapYears for Symmetry<T, U> {
+    /// Returns the fixed day number of a Symmetry year
+    ///
+    /// This is intended to implement isSymLeapYear() from
+    /// "Basic Symmetry454 and Symmetry010 Calendar Arithmetic" by Dr. Bromberg
     fn is_leap(sym_year: i32) -> bool {
         let p = Self::params();
         let sym_year = sym_year as i64;

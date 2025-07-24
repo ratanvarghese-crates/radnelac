@@ -7,6 +7,7 @@ use crate::day_count::FromFixed;
 use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
 
+/// Represents a prefix in the Akan day cycle
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
 pub enum AkanPrefix {
     Nwona = 1,
@@ -19,6 +20,7 @@ pub enum AkanPrefix {
 
 impl BoundedCycle<6, 1> for AkanPrefix {}
 
+/// Represents a stem in the Akan day cycle
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
 pub enum AkanStem {
     Wukuo = 1,
@@ -32,6 +34,10 @@ pub enum AkanStem {
 
 impl BoundedCycle<7, 1> for AkanStem {}
 
+/// Represents a specific day in the Akan day cycle
+///
+/// Further reading:
+/// + [Wikipedia](https://en.wikipedia.org/wiki/Akan_calendar)
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Akan {
     prefix: AkanPrefix,
@@ -41,14 +47,19 @@ pub struct Akan {
 const CYCLE_START: i64 = 37;
 
 impl Akan {
+    /// Create a day in the Akan day cycle
     pub fn new(stem: AkanStem, prefix: AkanPrefix) -> Akan {
         Akan { stem, prefix }
     }
 
+    /// Given a position in the Akan day cycle, return the day in the cycle.
+    ///
+    /// It is assumed that the first day in the cycle is Nwuna-Wukuo.
     pub fn day_name(n: i64) -> Akan {
         Akan::new(AkanStem::from_unbounded(n), AkanPrefix::from_unbounded(n))
     }
 
+    /// Given two days in the Akan day cycle, return the difference in days.
     pub fn name_difference(self, other: Self) -> i16 {
         let prefix1 = self.prefix as i16;
         let stem1 = self.stem as i16;
@@ -61,10 +72,12 @@ impl Akan {
         (prefix_diff + 36 * (stem_diff - prefix_diff)).adjusted_remainder(42)
     }
 
+    /// Given a day in the Akan cycle, return the stem
     pub fn stem(self) -> AkanStem {
         self.stem
     }
 
+    /// Given a day in the Akan cycle, return the stem
     pub fn prefix(self) -> AkanPrefix {
         self.prefix
     }

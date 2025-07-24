@@ -5,25 +5,57 @@ use crate::common::math::EFFECTIVE_MAX;
 use crate::common::math::EFFECTIVE_MIN;
 
 const FIXED_MAX_SCALE: f64 = 2048.0;
+
+/// Maximum supported value for a `Fixed`
+///
+/// This somewhere after January 1, 47000000 Common Era in the proleptic Gregorian calendar.
+///
+/// It is possible to create a `Fixed` at with a higher value - this is permitted for
+/// intermediate results of calculations. However in general a `Fixed` with a value beyond
+/// `FIXED_MAX` is at risk of reduced accuracy calculations.
 pub const FIXED_MAX: f64 = (EFFECTIVE_MAX * (FIXED_MAX_SCALE - 1.0)) / FIXED_MAX_SCALE;
+/// Minimum supported value for a `Fixed`
+///
+/// This somewhere before January 1, 47000000 Before Common Era in the proleptic Gregorian calendar.
+///
+/// It is possible to create a `Fixed` at with a lower value - this is permitted for
+/// intermediate results of calculations. However in general a `Fixed` with a value beyond
+/// `FIXED_MIN` is at risk of reduced accuracy calculations.
 pub const FIXED_MIN: f64 = (EFFECTIVE_MIN * (FIXED_MAX_SCALE - 1.0)) / FIXED_MAX_SCALE;
 
+/// Represents a fixed point in time
+///
+/// This is internally a floating point number, where the integer portion represents a
+/// particular day and the fractional portion represents a particular time of day.
+///
+/// The epoch used for this data structure is considered an internal implementation detail.
+///
+/// Note that equality and ordering operations are subject to limitations similar to
+/// equality and ordering operations on a floating point number. Two `Fixed` values represent
+/// the same day or even the same second, but still appear different on the sub-second level.
+/// Use `get_day_i` to compare days, and use `same_second` to compare seconds.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct Fixed(f64);
 
 impl Fixed {
+    /// Returns a new `Fixed` with day 0 and the same time of day.
     pub fn to_time_of_day(self) -> Fixed {
         Fixed(self.0.modulus(1.0))
     }
 
+    /// Returns a new `Fixed` with the same day and midnight as the time of day.
     pub fn to_day(self) -> Fixed {
         Fixed(self.0.floor())
     }
 
+    /// Returns the day as an integer
     pub fn get_day_i(self) -> i64 {
         self.to_day().get() as i64
     }
 
+    /// Returns true if `self` and `other` represent the same second of time.
+    ///
+    ///
     pub fn same_second(self, other: Self) -> bool {
         self.0.approx_eq(other.0)
     }

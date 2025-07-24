@@ -1,7 +1,3 @@
-// http://positivists.org/calendar.html
-// https://gallica.bnf.fr/ark:/12148/bpt6k21868f/f42.planchecontact
-// https://books.google.ca/books?id=S_BRAAAAMAAJ
-
 // Calendier Positiviste Page 52-53
 use crate::calendar::gregorian::Gregorian;
 use crate::common::bound::BoundedDayCount;
@@ -30,7 +26,16 @@ use num_traits::FromPrimitive;
 const POSITIVIST_YEAR_OFFSET: i16 = 1789 - 1;
 const NON_MONTH: u8 = 14;
 
-// Calendier Positiviste Page 19
+/// Represents a month of the Positivist Calendar
+///
+/// The Positivist months are named after famous historical figures.
+///
+/// Note that the complementary days at the end of the Positivist calendar year have no
+/// month and thus are not represented by PositivistMonth. When representing an
+/// arbitrary day in the Positivist calendar, use an `Option<PositivistMonth>` for the
+/// the month field.
+///
+/// See page 19 of "Calendier Positiviste" for more details.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum PositivistMonth {
     Moses = 1,
@@ -48,13 +53,25 @@ pub enum PositivistMonth {
     Bichat,
 }
 
-// Calendier Positiviste Page 8
+/// Represents a complementary day of the Positivist Calendar
+///
+/// These are not part of any week or month.
+/// See page 8 of "Calendier Positiviste" for more details.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum PositivistComplementaryDay {
+    /// In leap years of the Positivist calendar, this is the second-last day of the year.
+    /// In common years of the Positivist calendar, this is the last day of the year.
     FestivalOfTheDead = 1,
+    /// In leap years of the Positivist calendar, this is the last day of the year.
     FestivalOfHolyWomen,
 }
 
+/// Represents a date in the Positivist calendar
+///
+/// Further reading
+/// + [Positivists.org](http://positivists.org/calendar.html)
+/// + ["Calendrier Positiviste" by August Comte](https://gallica.bnf.fr/ark:/12148/bpt6k21868f/f42.planchecontact)
+/// + ["The Positivist Calendar" by Henry Edger](https://books.google.ca/books?id=S_BRAAAAMAAJ)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Positivist(CommonDate);
 

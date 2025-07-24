@@ -21,6 +21,9 @@ pub trait HasLeapYears {
     fn is_leap(year: i32) -> bool;
 }
 
+/// Represents a combination of numeric year, month and day
+///
+/// This is not specific to any particular calendar system.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct CommonDate {
     pub year: i32,
@@ -136,6 +139,9 @@ where
     }
 }
 
+/// Represents a numeric year and day of year.
+///
+/// This is not specific to any particular calendar system.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct OrdinalDate {
     pub year: i32,

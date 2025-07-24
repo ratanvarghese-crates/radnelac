@@ -21,6 +21,12 @@ use std::num::NonZero;
 const NABONASSAR_ERA_JD: i32 = 1448638;
 const NON_MONTH: u8 = 13;
 
+/// Represents a month in the Egyptian Calendar
+///
+/// Note that the epagomenal days at the end of the Egyptian calendar year have no
+/// month and thus are not represented by ArmenianMonth. When representing an
+/// arbitrary day in the Egyptian calendar, use an `Option<EgyptianMonth>` for the
+/// the month field.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum EgyptianMonth {
     Thoth = 1,
@@ -37,6 +43,7 @@ pub enum EgyptianMonth {
     Mesori,
 }
 
+/// Represents an epagomenal day at the end of the Egyptian calendar year
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum EgyptianDaysUponTheYear {
     BirthOfOsiris = 1,
@@ -46,6 +53,10 @@ pub enum EgyptianDaysUponTheYear {
     BirthOfNephthys,
 }
 
+/// Represents a date in the Egyptian calendar
+///
+/// Further reading
+/// + [Wikipedia](https://en.wikipedia.org/wiki/Egyptian_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Egyptian(CommonDate);
 
