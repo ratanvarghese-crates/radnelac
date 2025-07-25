@@ -24,6 +24,7 @@ fn check_fields(hours: u8, minutes: u8, seconds: f32) -> Result<(), CalendarErro
 }
 
 impl ClockTime {
+    /// Split `TimeOfDay` into hours, minutes, and seconds and aggregate into `ClockTime`
     pub fn new(t: TimeOfDay) -> ClockTime {
         let b = [24.0, 60.0, 60.0];
         let mut a = [0.0, 0.0, 0.0, 0.0];
@@ -36,6 +37,7 @@ impl ClockTime {
         }
     }
 
+    /// Validate combination of hours, minutes, and seconds and aggregate into `ClockTime`
     pub fn set(hours: u8, minutes: u8, seconds: f32) -> Result<ClockTime, CalendarError> {
         match check_fields(hours, minutes, seconds) {
             Ok(()) => Ok(ClockTime {

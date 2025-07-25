@@ -1,7 +1,7 @@
 use crate::common::math::TermNum;
 use std::num::NonZero;
 
-/// Represents a year grouped by Olympiad=
+/// Represents a year grouped by Olympiad
 ///
 /// Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Olympiad)

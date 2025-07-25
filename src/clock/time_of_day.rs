@@ -5,18 +5,29 @@ use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
 
 /// Represents a clock time as a fraction of a day
+///
+/// This is internally a floating point number, where the fractional portion represents
+/// a particular time of day. For example 1.0 is midnight at the start of day 1, and 1.5 is
+/// noon on day 1.
+///
+/// Note that equality and ordering operations are subject to limitations similar to
+/// equality and ordering operations on a floating point number. Two `JulianDay` values represent
+/// the same day or even the same second, but still appear different on the sub-second level.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct TimeOfDay(f64);
 
 impl TimeOfDay {
+    /// Create a new `TimeOfDay`
     pub fn new(t: f64) -> Self {
         TimeOfDay(t)
     }
 
+    /// Get underlying floating point from `TimeOfDay`
     pub fn get(self) -> f64 {
         self.0
     }
 
+    /// Aggregate `ClockTime` hours, minutes and second fields into a `TimeOfDay`
     pub fn new_from_clock(clock: ClockTime) -> TimeOfDay {
         let a = [
             0.0,
