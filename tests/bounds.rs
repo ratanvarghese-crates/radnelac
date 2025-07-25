@@ -15,8 +15,8 @@ use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::TranquilityMoment;
 use radnelac::calendar::ISO;
-use radnelac::bound::BoundedDayCount;
-use radnelac::bound::EffectiveBound;
+use radnelac::day_count::BoundedDayCount;
+use radnelac::day_count::EffectiveBound;
 use radnelac::day_count::Fixed;
 use radnelac::day_count::FromFixed;
 

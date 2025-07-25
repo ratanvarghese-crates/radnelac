@@ -1,6 +1,6 @@
-use crate::common::bound::BoundedDayCount;
-use crate::common::date::CommonDate;
-use crate::common::date::Quarter;
+use crate::day_count::BoundedDayCount;
+use crate::calendar::CommonDate;
+use crate::calendar::Quarter;
 use crate::day_count::Epoch;
 use crate::day_count::ToFixed;
 use convert_case;

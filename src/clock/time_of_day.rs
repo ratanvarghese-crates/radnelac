@@ -1,5 +1,5 @@
 use crate::clock::ClockTime;
-use crate::common::bound::BoundedDayCount;
+use crate::day_count::BoundedDayCount;
 use crate::common::math::TermNum;
 use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
@@ -49,7 +49,7 @@ impl FromFixed for TimeOfDay {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::bound::BoundedDayCount;
+    use crate::day_count::BoundedDayCount;
     use crate::day_count::JulianDay;
     use crate::day_count::ToFixed;
 

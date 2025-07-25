@@ -1,10 +1,10 @@
 use crate::calendar::TranquilityComplementaryDay;
 use crate::calendar::TranquilityMoment;
 use crate::clock::TimeOfDay;
-use crate::common::date::ComplementaryWeekOfYear;
-use crate::common::date::PerennialWithComplementaryDay;
-use crate::common::date::ToFromCommonDate;
-use crate::common::date::TryMonth;
+use crate::calendar::ComplementaryWeekOfYear;
+use crate::calendar::PerennialWithComplementaryDay;
+use crate::calendar::ToFromCommonDate;
+use crate::calendar::TryMonth;
 use crate::day_count::ToFixed;
 use crate::display::preset_fmt::PresetDisplay;
 use crate::display::preset_fmt::COMPL_ONLY;
@@ -136,7 +136,7 @@ impl fmt::Display for TranquilityMoment {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::date::CommonDate;
+    use crate::calendar::CommonDate;
 
     #[test]
     fn long_date() {

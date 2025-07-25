@@ -1,4 +1,4 @@
-use crate::common::bound::EffectiveBound;
+use crate::day_count::EffectiveBound;
 use crate::common::error::CalendarError;
 use crate::day_count::ToFixed;
 use num_traits::FromPrimitive;

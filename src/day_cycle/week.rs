@@ -1,7 +1,7 @@
-use crate::common::bound::BoundedCycle;
-use crate::common::bound::BoundedDayCount;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
+use crate::day_cycle::BoundedCycle;
 #[allow(unused_imports)] //FromPrimitive is needed for derive
 use num_traits::FromPrimitive;
 

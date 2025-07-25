@@ -1,7 +1,7 @@
 use proptest::prelude::TestCaseError;
 use proptest::prop_assume;
 use proptest::proptest;
-use radnelac::bound::BoundedDayCount;
+use radnelac::day_count::BoundedDayCount;
 use radnelac::calendar::Armenian;
 use radnelac::calendar::Coptic;
 use radnelac::calendar::Cotsworth;
@@ -18,7 +18,7 @@ use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::TranquilityMoment;
 use radnelac::calendar::ISO;
-use radnelac::date::PerennialWithComplementaryDay;
+use radnelac::calendar::PerennialWithComplementaryDay;
 use radnelac::day_count::Epoch;
 use radnelac::day_count::Fixed;
 use radnelac::day_count::FromFixed;

@@ -1,5 +1,5 @@
-use radnelac::bound::BoundedDayCount;
-use radnelac::bound::EffectiveBound;
+use radnelac::day_count::BoundedDayCount;
+use radnelac::day_count::EffectiveBound;
 use radnelac::calendar::Armenian;
 use radnelac::calendar::Coptic;
 use radnelac::calendar::Cotsworth;

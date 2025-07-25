@@ -2,15 +2,15 @@
 
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::gregorian::GregorianMonth;
-use crate::common::date::CommonDate;
-use crate::common::date::CommonDay;
-use crate::common::date::CommonYear;
-use crate::common::date::GuaranteedMonth;
-use crate::common::date::HasLeapYears;
-use crate::common::date::Quarter;
-use crate::common::date::ToFromCommonDate;
+use crate::calendar::CommonDate;
+use crate::calendar::CommonDay;
+use crate::calendar::CommonYear;
+use crate::calendar::GuaranteedMonth;
+use crate::calendar::HasLeapYears;
+use crate::calendar::Quarter;
+use crate::calendar::ToFromCommonDate;
 use crate::common::error::CalendarError;
-use crate::date::CommonWeekOfYear;
+use crate::calendar::CommonWeekOfYear;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;

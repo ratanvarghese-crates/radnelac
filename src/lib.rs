@@ -11,20 +11,20 @@ pub mod clock {
     pub use time_of_day::TimeOfDay;
 }
 mod common {
-    pub mod bound;
-    pub mod date;
     pub mod error;
     pub mod math;
 }
-pub use common::bound;
-pub use common::date;
 pub use common::error::CalendarError;
 pub mod day_count {
+    mod prelude;
+
     mod fixed;
     mod jd;
     mod mjd;
     mod rd;
     mod unix;
+
+    pub use prelude::*;
 
     pub use fixed::CalculatedBounds;
     pub use fixed::Epoch;
@@ -39,8 +39,12 @@ pub mod day_count {
     pub use unix::UnixMoment;
 }
 pub mod day_cycle {
+    mod prelude;
+
     mod akan;
     mod week;
+
+    pub use prelude::*;
 
     pub use akan::Akan;
     pub use akan::AkanPrefix;
@@ -48,6 +52,8 @@ pub mod day_cycle {
     pub use week::Weekday;
 }
 pub mod calendar {
+    mod prelude;
+
     mod armenian;
     mod coptic;
     mod cotsworth;
@@ -63,6 +69,8 @@ pub mod calendar {
     mod roman;
     mod symmetry;
     mod tranquility;
+
+    pub use prelude::*;
 
     pub use armenian::Armenian;
     pub use armenian::ArmenianDaysOfMonth;

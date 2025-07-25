@@ -1,4 +1,4 @@
-use crate::common::bound::BoundedDayCount;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;

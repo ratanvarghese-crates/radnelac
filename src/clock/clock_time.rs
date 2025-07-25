@@ -78,7 +78,7 @@ impl TryFrom<TimeOfDay> for ClockTime {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::bound::BoundedDayCount;
+    use crate::day_count::BoundedDayCount;
     use crate::day_count::Fixed;
     use crate::day_count::FromFixed;
     use crate::day_count::FIXED_MAX;

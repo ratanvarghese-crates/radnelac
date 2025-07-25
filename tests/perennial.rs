@@ -1,7 +1,7 @@
 use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
 use proptest::proptest;
-use radnelac::bound::BoundedDayCount;
+use radnelac::day_count::BoundedDayCount;
 use radnelac::calendar::Cotsworth;
 use radnelac::calendar::CotsworthComplementaryDay;
 use radnelac::calendar::FrenchRevArith;
@@ -15,8 +15,8 @@ use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::TranquilityComplementaryDay;
 use radnelac::calendar::TranquilityMoment;
-use radnelac::date::CommonDate;
-use radnelac::date::ToFromCommonDate;
+use radnelac::calendar::CommonDate;
+use radnelac::calendar::ToFromCommonDate;
 use radnelac::day_count::FromFixed;
 use radnelac::day_count::RataDie;
 use radnelac::day_count::ToFixed;
@@ -24,7 +24,7 @@ use radnelac::day_count::FIXED_MAX;
 use radnelac::day_count::FIXED_MIN;
 use radnelac::day_cycle::Weekday;
 
-use radnelac::date::PerennialWithComplementaryDay;
+use radnelac::calendar::PerennialWithComplementaryDay;
 
 const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 

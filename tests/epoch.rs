@@ -1,4 +1,4 @@
-use radnelac::bound::BoundedDayCount;
+use radnelac::day_count::BoundedDayCount;
 use radnelac::day_count::Epoch;
 use radnelac::day_count::Fixed;
 use radnelac::day_count::FromFixed;

@@ -1,7 +1,7 @@
 use crate::calendar::Gregorian;
 use crate::clock::TimeOfDay;
-use crate::common::date::CommonWeekOfYear;
-use crate::common::date::ToFromCommonDate;
+use crate::calendar::CommonWeekOfYear;
+use crate::calendar::ToFromCommonDate;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
 use crate::display::preset_fmt::PresetDisplay;
@@ -90,7 +90,7 @@ impl fmt::Display for Gregorian {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::date::CommonDate;
+    use crate::calendar::CommonDate;
 
     #[test]
     fn long_date() {
