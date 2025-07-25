@@ -3,6 +3,7 @@
 #[macro_use]
 extern crate num_derive;
 
+/// Timekeeping systems which focus on events within a single day
 pub mod clock {
     mod clock_time;
     mod time_of_day;
@@ -15,6 +16,7 @@ mod common {
     pub mod math;
 }
 pub use common::error::CalendarError;
+/// Timekeeping systems which identify a day using a single field
 pub mod day_count {
     mod prelude;
 
@@ -38,6 +40,7 @@ pub mod day_count {
     pub use rd::RataDie;
     pub use unix::UnixMoment;
 }
+/// Timekeeping systems which continually repeat
 pub mod day_cycle {
     mod prelude;
 
@@ -51,6 +54,7 @@ pub mod day_cycle {
     pub use akan::AkanStem;
     pub use week::Weekday;
 }
+/// Timekeeping systems which identify a day using multiple fields
 pub mod calendar {
     mod prelude;
 
@@ -113,6 +117,7 @@ pub mod calendar {
     pub use tranquility::TranquilityMoment;
     pub use tranquility::TranquilityMonth;
 }
+/// Formatting datestamps and timestamps
 #[allow(unused)]
 pub mod display {
     mod private;
