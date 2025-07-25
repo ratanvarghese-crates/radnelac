@@ -167,7 +167,7 @@ pub const HHMMSS_COLON: PresetFormat<'static> = PresetFormat::<'static>(&I_HHMMS
 pub const YYYYMMDD_DASH: PresetFormat<'static> = PresetFormat::<'static>(&I_YYYYMMDD_DASH);
 /// YYYYY-MM-DD numeric date format
 ///
-/// This is intended for the Tranquility Calendar
+/// This is intended for the Holocene Calendar
 pub const YYYYYMMDD_DASH: PresetFormat<'static> = PresetFormat::<'static>(&I_YYYYYMMDD_DASH);
 /// YYYY/MM/DD numeric date format
 pub const YYYYMMDD_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&I_YYYYMMDD_SLASH);

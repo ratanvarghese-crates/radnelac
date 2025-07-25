@@ -1,6 +1,6 @@
 use crate::clock::ClockTime;
-use crate::day_count::BoundedDayCount;
 use crate::common::math::TermNum;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
 
@@ -11,7 +11,7 @@ use crate::day_count::FromFixed;
 /// noon on day 1.
 ///
 /// Note that equality and ordering operations are subject to limitations similar to
-/// equality and ordering operations on a floating point number. Two `JulianDay` values represent
+/// equality and ordering operations on a floating point number. Two `TimeOfDay` values represent
 /// the same day or even the same second, but still appear different on the sub-second level.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, Default)]
 pub struct TimeOfDay(f64);
