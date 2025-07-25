@@ -18,7 +18,7 @@ mod common {
 }
 pub use common::bound;
 pub use common::date;
-pub use common::error;
+pub use common::error::CalendarError;
 pub mod day_count {
     mod fixed;
     mod jd;
@@ -105,25 +105,45 @@ pub mod calendar {
     pub use tranquility::TranquilityMoment;
     pub use tranquility::TranquilityMonth;
 }
+#[allow(unused)]
 pub mod display {
     mod private;
 
-    pub mod akan;
-    pub mod armenian;
-    pub mod clock;
-    pub mod coptic;
-    pub mod cotsworth;
-    pub mod egyptian;
-    pub mod ethiopic;
-    pub mod french_rev;
-    pub mod gregorian;
-    pub mod holocene;
-    pub mod iso;
-    pub mod julian;
-    pub mod positivist;
-    pub mod preset_fmt;
-    pub mod roman;
-    pub mod symmetry;
-    pub mod tranquility;
-    pub mod week;
+    mod akan;
+    mod armenian;
+    mod clock;
+    mod coptic;
+    mod cotsworth;
+    mod egyptian;
+    mod ethiopic;
+    mod french_rev;
+    mod gregorian;
+    mod holocene;
+    mod iso;
+    mod julian;
+    mod positivist;
+    mod preset_fmt;
+    mod roman;
+    mod symmetry;
+    mod tranquility;
+    mod week;
+
+    pub use akan::*;
+    pub use armenian::*;
+    pub use clock::*;
+    pub use coptic::*;
+    pub use cotsworth::*;
+    pub use egyptian::*;
+    pub use ethiopic::*;
+    pub use french_rev::*;
+    pub use gregorian::*;
+    pub use holocene::*;
+    pub use iso::*;
+    pub use julian::*;
+    pub use positivist::*;
+    pub use preset_fmt::*;
+    pub use roman::*;
+    pub use symmetry::*;
+    pub use tranquility::*;
+    pub use week::*;
 }

@@ -157,24 +157,48 @@ const I_COMPL_ONLY: [Item<'_>; 1] = [Item::new(
     O_LITERAL,
 )];
 
+/// Represents a date format
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct PresetFormat<'a>(&'a [Item<'a>]);
 
+/// HH:MM:SS time format
 pub const HHMMSS_COLON: PresetFormat<'static> = PresetFormat::<'static>(&I_HHMMSS_COLON);
+/// YYYY-MM-DD numeric date format
 pub const YYYYMMDD_DASH: PresetFormat<'static> = PresetFormat::<'static>(&I_YYYYMMDD_DASH);
+/// YYYYY-MM-DD numeric date format
+///
+/// This is intended for the Tranquility Calendar
 pub const YYYYYMMDD_DASH: PresetFormat<'static> = PresetFormat::<'static>(&I_YYYYYMMDD_DASH);
+/// YYYY/MM/DD numeric date format
 pub const YYYYMMDD_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&I_YYYYMMDD_SLASH);
+/// DD/MM/YYYY numeric date format
 pub const DDMMYYYY_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&I_DDMMYYYY_SLASH);
+/// DD.MM.YYYY numeric date format
 pub const DDMMYYYY_DOT: PresetFormat<'static> = PresetFormat::<'static>(&I_DDMMYYYY_DOT);
+/// MM/DD/YYYY numeric date format
 pub const MMDDYYYY_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&I_MMDDYYYY_SLASH);
+/// Calendar-specific long date format
 pub const LONG_DATE: PresetFormat<'static> = PresetFormat::<'static>(&I_LONG_DATE);
+/// Calendar-specific long complementary day format
+///
+/// This is intended for calendars with complementary days
 pub const LONG_COMPL: PresetFormat<'static> = PresetFormat::<'static>(&I_LONG_COMPL);
+/// YYYY-Www-DD alphanumeric date format
+///
+/// This is inteded for the ISO calendar
 pub const YEAR_WEEK_DAY: PresetFormat<'static> = PresetFormat::<'static>(&I_YEAR_WEEK_DAY);
+/// Y-mDD alphanumeric date format, where Y has variable length, m is a single character
+///
+/// This is intended for the Tranquility calendar
 pub const YEAR_MDD: PresetFormat<'static> = PresetFormat::<'static>(&I_YEAR_MDD);
+/// Y-CCC alphanumeric date format, where Y has variable length, CCC is the complementary day
 pub const YEAR_COMPL: PresetFormat<'static> = PresetFormat::<'static>(&I_YEAR_COMPL);
+/// Format which is the full name of a the complementary day
 pub const COMPL_ONLY: PresetFormat<'static> = PresetFormat::<'static>(&I_COMPL_ONLY);
 
+/// Format a date in a preset format
 pub trait PresetDisplay: DisplayItem {
+    /// Format a date in any `PresetFormat`
     fn preset_str(&self, preset: PresetFormat) -> String {
         let mut result = String::new();
         for item in preset.0 {
@@ -183,10 +207,12 @@ pub trait PresetDisplay: DisplayItem {
         result
     }
 
+    /// Format a date in a calendar-specific long format
     fn long_date(&self) -> String {
         self.preset_str(LONG_DATE)
     }
 
+    /// Format a date in a calendar-specific short format
     fn short_date(&self) -> String {
         self.preset_str(YYYYMMDD_DASH)
     }

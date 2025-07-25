@@ -1,6 +1,6 @@
 use crate::clock::TimeOfDay;
 use crate::common::math::TermNum;
-use crate::error::CalendarError;
+use crate::CalendarError;
 
 /// Represents a clock time as hours, minutes and seconds
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]

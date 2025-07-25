@@ -54,8 +54,6 @@ impl Fixed {
     }
 
     /// Returns true if `self` and `other` represent the same second of time.
-    ///
-    ///
     pub fn same_second(self, other: Self) -> bool {
         self.0.approx_eq(other.0)
     }
