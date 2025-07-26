@@ -1,7 +1,7 @@
 use crate::calendar::gregorian::Gregorian;
-use crate::calendar::CommonDate;
-use crate::calendar::Quarter;
-use crate::calendar::ToFromCommonDate;
+use crate::calendar::prelude::CommonDate;
+use crate::calendar::prelude::Quarter;
+use crate::calendar::prelude::ToFromCommonDate;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
@@ -158,8 +158,8 @@ impl Quarter for ISO {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::calendar::HasLeapYears;
-    use crate::calendar::ToFromCommonDate;
+    use crate::calendar::prelude::HasLeapYears;
+    use crate::calendar::prelude::ToFromCommonDate;
     use crate::day_count::FIXED_MAX;
     use proptest::proptest;
     const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;

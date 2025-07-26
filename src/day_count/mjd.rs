@@ -1,9 +1,9 @@
-use crate::day_count::BoundedDayCount;
-use crate::day_count::CalculatedBounds;
-use crate::day_count::Epoch;
-use crate::day_count::Fixed;
-use crate::day_count::FromFixed;
-use crate::day_count::ToFixed;
+use crate::day_count::fixed::CalculatedBounds;
+use crate::day_count::fixed::Epoch;
+use crate::day_count::fixed::Fixed;
+use crate::day_count::fixed::FromFixed;
+use crate::day_count::fixed::ToFixed;
+use crate::day_count::prelude::BoundedDayCount;
 
 const MJD_EPOCH: f64 = 678576.0;
 
@@ -58,8 +58,8 @@ impl BoundedDayCount<f64> for ModifiedJulianDay {
 mod tests {
     use super::*;
     use crate::common::math::TermNum;
-    use crate::day_count::Fixed;
-    use crate::day_count::JulianDay;
+    use crate::day_count::fixed::Fixed;
+    use crate::day_count::jd::JulianDay;
     use crate::day_count::FIXED_MAX;
     use crate::day_count::FIXED_MIN;
     use proptest::proptest;

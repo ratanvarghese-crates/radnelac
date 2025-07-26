@@ -1,9 +1,9 @@
 use crate::calendar::julian::Julian;
 use crate::calendar::julian::JulianMonth;
-use crate::calendar::CommonDate;
-use crate::calendar::HasLeapYears;
-use crate::calendar::Quarter;
-use crate::calendar::ToFromCommonDate;
+use crate::calendar::prelude::CommonDate;
+use crate::calendar::prelude::HasLeapYears;
+use crate::calendar::prelude::Quarter;
+use crate::calendar::prelude::ToFromCommonDate;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
@@ -236,7 +236,7 @@ impl Quarter for Roman {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::calendar::ToFromCommonDate;
+    use crate::calendar::prelude::ToFromCommonDate;
     use proptest::prop_assume;
     use proptest::proptest;
 

@@ -1,5 +1,5 @@
-use crate::day_count::BoundedDayCount;
-use crate::day_count::EffectiveBound;
+use crate::day_count::prelude::BoundedDayCount;
+use crate::day_count::prelude::EffectiveBound;
 use crate::common::math::TermNum;
 use crate::common::math::EFFECTIVE_MAX;
 use crate::common::math::EFFECTIVE_MIN;
