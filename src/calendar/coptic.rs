@@ -1,7 +1,7 @@
 use crate::calendar::julian::Julian;
-use crate::day_count::BoundedDayCount;
 use crate::calendar::CommonDate;
 use crate::calendar::CommonDay;
+use crate::calendar::CommonWeekOfYear;
 use crate::calendar::CommonYear;
 use crate::calendar::GuaranteedMonth;
 use crate::calendar::HasLeapYears;
@@ -9,7 +9,7 @@ use crate::calendar::Quarter;
 use crate::calendar::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
-use crate::calendar::CommonWeekOfYear;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -60,7 +60,11 @@ impl CopticMonth {
 
 /// Represents a date in the Coptic calendar
 ///
-/// Further reading
+/// ## Year 0
+///
+/// Year 0 is supported for this calendar.
+///
+/// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Coptic_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Coptic(CommonDate);

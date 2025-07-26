@@ -1,15 +1,15 @@
 use crate::calendar::gregorian::GregorianMonth;
-use crate::day_count::BoundedDayCount;
 use crate::calendar::CommonDate;
 use crate::calendar::CommonDay;
+use crate::calendar::CommonWeekOfYear;
+use crate::calendar::CommonYear;
 use crate::calendar::GuaranteedMonth;
 use crate::calendar::HasLeapYears;
 use crate::calendar::Quarter;
 use crate::calendar::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
-use crate::calendar::CommonWeekOfYear;
-use crate::calendar::CommonYear;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -28,9 +28,11 @@ const JULIAN_EPOCH_RD: i32 = -1;
 
 /// Represents a date in the Julian calendar
 ///
-/// Year 0 is not supported - the year before 1 AD is 1 BC.
+/// ## Year 0
 ///
-/// Further reading
+/// Year 0 is **not** supported for this calendar. The year before 1 AD is 1 BC.
+///
+/// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Julian_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Julian(CommonDate);

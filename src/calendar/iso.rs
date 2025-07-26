@@ -1,9 +1,9 @@
 use crate::calendar::gregorian::Gregorian;
-use crate::day_count::BoundedDayCount;
 use crate::calendar::CommonDate;
 use crate::calendar::Quarter;
 use crate::calendar::ToFromCommonDate;
 use crate::common::math::TermNum;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -22,7 +22,11 @@ use std::num::NonZero;
 /// start and year end than the Gregorian.** If the Gregorian year X ends in the middle of
 /// the ISO week, the next days may be in Gregorian year X+1 and ISO year X.
 ///
-/// Further reading
+/// ## Year 0
+///
+/// Year 0 is supported for this calendar.
+///
+/// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/ISO_week_date)
 /// + [Rachel by the Bay](https://rachelbythebay.com/w/2018/04/20/iso/)
 ///   + describes the confusion of intermingling documentation for ISO and Gregorian dates

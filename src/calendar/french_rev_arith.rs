@@ -1,8 +1,8 @@
 use crate::calendar::gregorian::Gregorian;
-use crate::day_count::BoundedDayCount;
 use crate::calendar::CommonDate;
 use crate::calendar::CommonDay;
 use crate::calendar::CommonYear;
+use crate::calendar::ComplementaryWeekOfYear;
 use crate::calendar::HasLeapYears;
 use crate::calendar::PerennialWithComplementaryDay;
 use crate::calendar::Quarter;
@@ -10,7 +10,7 @@ use crate::calendar::ToFromCommonDate;
 use crate::calendar::TryMonth;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
-use crate::calendar::ComplementaryWeekOfYear;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -125,7 +125,11 @@ pub enum Sansculottide {
 /// astronomical calculations, those calculations will not be provided by FrenchRevArith.
 /// Instead, such calculations shall be provided by a new struct with a new name.
 ///
-/// Further reading
+/// ## Year 0
+///
+/// Year 0 is supported for this calendar.
+///
+/// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/French_Republican_calendar)
 /// + [Guanzhong "quantum" Chen](https://quantum5.ca/2022/03/09/art-of-time-keeping-part-4-french-republican-calendar/)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]

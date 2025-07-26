@@ -4,13 +4,13 @@ use crate::calendar::gregorian::Gregorian;
 use crate::calendar::gregorian::GregorianMonth;
 use crate::calendar::CommonDate;
 use crate::calendar::CommonDay;
+use crate::calendar::CommonWeekOfYear;
 use crate::calendar::CommonYear;
 use crate::calendar::GuaranteedMonth;
 use crate::calendar::HasLeapYears;
 use crate::calendar::Quarter;
 use crate::calendar::ToFromCommonDate;
 use crate::common::error::CalendarError;
-use crate::calendar::CommonWeekOfYear;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -30,7 +30,11 @@ pub type HoloceneMonth = GregorianMonth;
 /// with an extra 10000 years added to each date. Thus 2016
 /// in the Gregorian calendar is 12016 in the Holocene calendar.
 ///
-/// Further reading:
+/// ## Year 0
+///
+/// Year 0 is supported for this calendar.
+///
+/// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Holocene_calendar)
 /// + [Kurzgesagt](https://www.youtube.com/watch?v=czgOWmtGVGs)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]

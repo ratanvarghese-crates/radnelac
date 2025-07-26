@@ -1,11 +1,11 @@
 use crate::calendar::julian::Julian;
 use crate::calendar::julian::JulianMonth;
-use crate::day_count::BoundedDayCount;
 use crate::calendar::CommonDate;
 use crate::calendar::HasLeapYears;
 use crate::calendar::Quarter;
 use crate::calendar::ToFromCommonDate;
 use crate::common::math::TermNum;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
@@ -49,7 +49,9 @@ impl RomanMonth {
 ///
 /// This is essentially an alternative system for naming Julian dates.
 ///
-/// Year 0 is not supported - the year before 1 AD is 1 BC.
+/// ## Year 0
+///
+/// Year 0 is **not** supported because they are not supported in the Julian calendar.
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Roman {
     year: NonZero<i32>,

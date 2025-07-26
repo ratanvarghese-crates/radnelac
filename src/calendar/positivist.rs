@@ -1,9 +1,9 @@
 // Calendier Positiviste Page 52-53
 use crate::calendar::gregorian::Gregorian;
-use crate::day_count::BoundedDayCount;
 use crate::calendar::CommonDate;
 use crate::calendar::CommonDay;
 use crate::calendar::CommonYear;
+use crate::calendar::ComplementaryWeekOfYear;
 use crate::calendar::HasLeapYears;
 use crate::calendar::PerennialWithComplementaryDay;
 use crate::calendar::Quarter;
@@ -11,7 +11,7 @@ use crate::calendar::ToFromCommonDate;
 use crate::calendar::TryMonth;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
-use crate::calendar::ComplementaryWeekOfYear;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -68,7 +68,11 @@ pub enum PositivistComplementaryDay {
 
 /// Represents a date in the Positivist calendar
 ///
-/// Further reading
+/// ## Year 0
+///
+/// Year 0 is supported for this calendar.
+///
+/// ## Further reading
 /// + [Positivists.org](http://positivists.org/calendar.html)
 /// + ["Calendrier Positiviste" by August Comte](https://gallica.bnf.fr/ark:/12148/bpt6k21868f/f42.planchecontact)
 /// + ["The Positivist Calendar" by Henry Edger](https://books.google.ca/books?id=S_BRAAAAMAAJ)

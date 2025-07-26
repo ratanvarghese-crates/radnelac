@@ -1,15 +1,14 @@
-// Approximate northward equinox
 use crate::calendar::gregorian::Gregorian;
-use crate::day_count::BoundedDayCount;
 use crate::calendar::CommonDate;
 use crate::calendar::CommonDay;
+use crate::calendar::CommonWeekOfYear;
 use crate::calendar::CommonYear;
 use crate::calendar::GuaranteedMonth;
 use crate::calendar::HasLeapYears;
 use crate::calendar::Quarter;
 use crate::calendar::ToFromCommonDate;
 use crate::common::error::CalendarError;
-use crate::calendar::CommonWeekOfYear;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -66,12 +65,12 @@ pub enum SymmetryMonth {
 /// Bromberg proposed 2 leap year rules and 2 month length rules, which can be combined to form
 /// 4 calendar systems.
 ///
-/// | T     | U     | Alias                 | Leap cycle                   | Quarter length    |
-/// |-------|-------|-----------------------|------------------------------|-------------------|
-/// | true  | true  | `Symmetry454`         | 293 year (northward equinox) | 4 + 5 + 4 weeks   |
-/// | false | true  | `Symmetry010`         | 293 year (northward equinox) | 30 + 31 + 30 days |
-/// | true  | false | `Symmetry454Solstice` | 389 year (north solstice)    | 4 + 5 + 4 weeks   |
-/// | false | false | `Symmetry010Solstice` | 389 year (north solstice)    | 30 + 31 + 30 days |
+/// | T     | U     | Alias                   | Leap cycle                   | Quarter length    |
+/// |-------|-------|-------------------------|------------------------------|-------------------|
+/// | true  | true  | [`Symmetry454`]         | 293 year (northward equinox) | 4 + 5 + 4 weeks   |
+/// | false | true  | [`Symmetry010`]         | 293 year (northward equinox) | 30 + 31 + 30 days |
+/// | true  | false | [`Symmetry454Solstice`] | 389 year (north solstice)    | 4 + 5 + 4 weeks   |
+/// | false | false | [`Symmetry010Solstice`] | 389 year (north solstice)    | 30 + 31 + 30 days |
 ///
 /// The combinations are summarized in the table above. Columns T and U are the type parameters.
 /// Column Alias refers to the type aliases provided for convenience. The placement of leap years
@@ -107,19 +106,31 @@ pub enum SymmetryMonth {
 /// > will actually prove to function erroneously under specific circumstances. It is just not
 /// > worth wasting the time on the trouble that will make for you.
 ///
-/// Further reading
+/// ## Year 0
+///
+/// Year 0 is supported for this calendar.
+///
+/// ## Further reading
 /// + Dr. Irvin L. Bromberg
 ///   + ["Basic Symmetry454 and Symmetry010 Calendar Arithmetic"](https://kalendis.free.nf/Symmetry454-Arithmetic.pdf)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Symmetry<const T: bool, const U: bool>(CommonDate);
 
-/// Symmetry454 calendar whose leap rule approximates the northward equinox
+/// Symmetry454 calendar with 293 year leap rule
+///
+/// See [Symmetry] for more details.
 pub type Symmetry454 = Symmetry<true, true>;
-/// Symmetry010 calendar whose leap rule approximates the northward equinox
+/// Symmetry010 calendar with 293 year leap rule
+///
+/// See [Symmetry] for more details.
 pub type Symmetry010 = Symmetry<false, true>;
-/// Symmetry454 calendar whose leap rule approximates the north solstice
+/// Symmetry454 calendar with 389 year leap rule
+///
+/// See [Symmetry] for more details.
 pub type Symmetry454Solstice = Symmetry<true, false>;
-/// Symmetry010 calendar whose leap rule approximates the north solstice
+/// Symmetry010 calendar with 389 year leap rule
+///
+/// See [Symmetry] for more details.
 pub type Symmetry010Solstice = Symmetry<false, false>;
 
 impl<const T: bool, const U: bool> Symmetry<T, U> {
@@ -133,9 +144,9 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
 
     /// Returns (T, U)
     ///
-    /// T is true for Symmetry454 calendars and false for Symmetry010 calendars
-    /// U is true for the 292 year leap cycle and false for the 389 year leap cycle
-    /// More information is available in the documentation for the whole struct.
+    /// T is true for Symmetry454 calendars and false for Symmetry010 calendars.
+    /// U is true for the 292 year leap cycle and false for the 389 year leap cycle.
+    /// See [Symmetry] for more details.
     pub fn mode(self) -> (bool, bool) {
         (T, U)
     }
@@ -206,7 +217,7 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
 
     /// This function is not described by Dr. Bromberg and is not
     /// used in conversion to and from other timekeeping systems.
-    /// Instead it is used for checking if a CommonDate is valid.
+    /// Instead it is used for checking if a [CommonDate] is valid.
     pub fn days_in_month(month: SymmetryMonth) -> u8 {
         if month == SymmetryMonth::Irvember {
             7

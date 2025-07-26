@@ -1,8 +1,8 @@
 use crate::calendar::gregorian::Gregorian;
-use crate::day_count::BoundedDayCount;
 use crate::calendar::CommonDate;
 use crate::calendar::CommonDay;
 use crate::calendar::CommonYear;
+use crate::calendar::ComplementaryWeekOfYear;
 use crate::calendar::GuaranteedMonth;
 use crate::calendar::HasLeapYears;
 use crate::calendar::PerennialWithComplementaryDay;
@@ -10,7 +10,7 @@ use crate::calendar::Quarter;
 use crate::calendar::ToFromCommonDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
-use crate::calendar::ComplementaryWeekOfYear;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -56,7 +56,11 @@ pub enum CotsworthComplementaryDay {
 /// This calendar was originally designed by Moses B Cotsworth.
 /// George Eastman instituted its use within the Eastman Kodak Company from 1928 to 1989.
 ///
-/// Further reading
+/// ## Year 0
+///
+/// Year 0 is supported for this calendar.
+///
+/// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Cotsworth_calendar)
 /// + ["Nation's Business" May 1926](https://www.freexenon.com/wp-content/uploads/2018/07/The-Importance-of-Calendar-Reform-to-the-Business-World-George-Eastman.pdf)
 ///   + "The Importance of Calendar Reform to the Business World"

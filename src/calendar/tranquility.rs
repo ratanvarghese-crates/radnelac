@@ -1,18 +1,18 @@
 use crate::calendar::gregorian::Gregorian;
-use crate::clock::ClockTime;
-use crate::clock::TimeOfDay;
-use crate::day_count::BoundedDayCount;
 use crate::calendar::CommonDate;
+use crate::calendar::CommonDay;
+use crate::calendar::ComplementaryWeekOfYear;
 use crate::calendar::HasLeapYears;
 use crate::calendar::OrdinalDate;
 use crate::calendar::PerennialWithComplementaryDay;
 use crate::calendar::Quarter;
 use crate::calendar::ToFromCommonDate;
 use crate::calendar::TryMonth;
+use crate::clock::ClockTime;
+use crate::clock::TimeOfDay;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
-use crate::calendar::CommonDay;
-use crate::calendar::ComplementaryWeekOfYear;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -108,7 +108,13 @@ pub enum TranquilityComplementaryDay {
 /// applications. **There are almost certainly discrepancies between this library and others
 /// attempting to implement the Tranquility calendar**.
 ///
-/// Further reading
+/// ## Year 0
+///
+/// Year 0 is **not** supported for this calendar **except** when representing Moon Landing
+/// Day as a `CommonDate`. Technically, Moon Landing Day is not part of any week, month, or
+/// year.
+///
+/// ## Further reading
 /// + [Orion's Arm "Encyclopaedia Galactica"](https://www.orionsarm.com/eg-article/48c6d4c3d54cf/)
 /// + [Wikipedia Deletion Log](https://en.wikipedia.org/wiki/Wikipedia:Articles_for_deletion/Tranquility_Calendar)
 /// + [Archived Wikipedia article](https://web.archive.org/web/20180818233025/https://en.wikipedia.org/wiki/Tranquility_calendar)

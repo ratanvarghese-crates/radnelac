@@ -3,7 +3,11 @@ use std::num::NonZero;
 
 /// Represents a year grouped by Olympiad
 ///
-/// Further reading
+/// ## Year 0
+///
+/// Year 0 is **not** supported because they are not supported in the Julian calendar.
+///
+/// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Olympiad)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Olympiad {

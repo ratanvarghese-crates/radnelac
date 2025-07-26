@@ -1,13 +1,13 @@
 use crate::calendar::egyptian::Egyptian;
-use crate::day_count::BoundedDayCount;
 use crate::calendar::CommonDate;
 use crate::calendar::CommonDay;
+use crate::calendar::CommonWeekOfYear;
 use crate::calendar::CommonYear;
 use crate::calendar::Quarter;
 use crate::calendar::ToFromCommonDate;
 use crate::calendar::TryMonth;
 use crate::common::error::CalendarError;
-use crate::calendar::CommonWeekOfYear;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
 use crate::day_count::Fixed;
@@ -25,7 +25,7 @@ const NON_MONTH: u8 = 13;
 ///
 /// Note that the epagomenal days at the end of the Armenian calendar year have no
 /// month and thus are not represented by ArmenianMonth. When representing an
-/// arbitrary day in the Armenian calendar, use an `Option<ArmenianMonth>` for the
+/// arbitrary day in the Armenian calendar, use an [`Option<ArmenianMonth>`] for the
 /// the month field.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum ArmenianMonth {
@@ -84,7 +84,11 @@ pub enum ArmenianDaysOfMonth {
 
 /// Represents a date in the Armenian calendar
 ///
-/// Further reading
+/// ## Year 0
+///
+/// Year 0 is supported for this calendar.
+///
+/// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Armenian_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Armenian(CommonDate);

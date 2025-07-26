@@ -1,5 +1,81 @@
-//! A library for calendrical calculations in a variety of different timekeeping systems.
-
+//! Calculations in a variety of different timekeeping systems.
+//!
+//! ## Introduction
+//!
+//! This is a crate for calendrical calculations: given a day represented in
+//! one timekeeping system, this crate can create the representation for the same
+//! day in another timekeeping system.
+//!
+//! Additionally, the crate can convert dates to strings in some predefined formats.
+//!
+//! For example, here is a conversion from the Gregorian calendar to the Julian:
+//!
+//! ```
+//! use radnelac::calendar::*;
+//! use radnelac::day_count::*;
+//!
+//! let g = Gregorian::try_from_common_date(CommonDate::new(2025, 7, 26)).unwrap();
+//! let j = g.convert::<Julian>();
+//! assert_eq!(j.to_common_date(), CommonDate::new(2025, 7, 13));
+//! ```
+//!
+//! ## Limitations
+//!
+//! ### Out-of-Scope Features
+//!
+//! This crate is focused on *calendrical* calculations involving days, weeks, months
+//! and years. Measurements of time more precise than a day are not usable by most
+//! functions or data structures.
+//!
+//! As such, there many time-related features that are out-of-scope:
+//! - anything involving time zones
+//! - anything involving daylight saving time
+//! - anything involving leap seconds
+//! - anything involving benchmarking or profiling code
+//! - anything involving millisecond or nanosecond precision
+//!
+//! There are also many calendar-related features that would be potentially within-scope,
+//! but not supported yet:
+//! - predicting astronomical events (ex. lunar phases, eclipses, equinoxes)
+//! - astronomical calendars (ex. Chinese Lunar calendar)
+//! - arranging days in a grid
+//! - reading and writing CalDAV
+//!
+//! ### Proleptic Dates
+//!
+//! Calendars are assumed to be **proleptic**. Wiktionary defines proleptic[^1] as:
+//! > Extrapolated to dates prior to its first adoption; of those used to adjust to
+//! > or from the Julian calendar or Gregorian calendar.
+//!
+//! This can lead to confusion when using a calendar before the date of its adoption.
+//!
+//! For example, when the Gregorian calendar was introduced in the Papal States in 1582,
+//! it replaced the Julian calendar. During the transition, 10 days were officially skipped
+//! in the Papal States, so that October 4th was immediately followed by October 15th.
+//!
+//! This crate does **not** implement such skipping. When using the Gregorian calendar
+//! functions in this crate, October 4th is always followed by October 5th. To work with
+//! historical dates before the Gregorian reform, applications must explicitly switch to
+//! the Julian calendar (or whatever other calendar is appropriate).
+//!
+//! Explicitly switching between calendars makes sense for applications, because the
+//! Gregorian reform was implemented at different times in different regions.
+//!
+//! ### Year Zero and Negative Years
+//!
+//! Additionally most calendars, including the Gregorian, are assumed to have a Year 0. One
+//! notable exception is the Julian. If a calendar does not allow Year 0, this property is
+//! mentioned on that calendar's page in the documentation.
+//!
+//! The following is a quotation from Chapter 1.16 of *Calendrical Calculations: The Ultimate
+//! Edition* by Reingold & Dershowitz, which applies quite well to this situation.
+//! > All our functions give "correct" (mathematically sensible) results for negative
+//! > years and for dates prior to the epoch of a calendar. However, these results may be
+//! > *culturally* wrong in the sense that, say, the Copts may not refer to a year 0 or -1.
+//! > It may be considered heretical on some calendars to refer to dates before the creation
+//! > of the world.
+//!
+//! [^1]: <https://en.wiktionary.org/wiki/proleptic>
 #[macro_use]
 extern crate num_derive;
 
