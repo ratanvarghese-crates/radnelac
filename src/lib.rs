@@ -197,6 +197,7 @@ pub mod calendar {
 /// Formatting datestamps and timestamps
 #[allow(unused)]
 pub mod display {
+    mod prelude;
     mod private;
 
     mod akan;
@@ -212,11 +213,12 @@ pub mod display {
     mod iso;
     mod julian;
     mod positivist;
-    mod preset_fmt;
     mod roman;
     mod symmetry;
     mod tranquility;
     mod week;
+
+    pub use prelude::*;
 
     pub use akan::*;
     pub use armenian::*;
@@ -231,7 +233,6 @@ pub mod display {
     pub use iso::*;
     pub use julian::*;
     pub use positivist::*;
-    pub use preset_fmt::*;
     pub use roman::*;
     pub use symmetry::*;
     pub use tranquility::*;

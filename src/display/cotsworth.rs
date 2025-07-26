@@ -5,7 +5,7 @@ use crate::calendar::PerennialWithComplementaryDay;
 use crate::calendar::ToFromCommonDate;
 use crate::calendar::TryMonth;
 use crate::day_count::ToFixed;
-use crate::display::preset_fmt::PresetDisplay;
+use crate::display::prelude::PresetDisplay;
 use crate::display::private::fmt_days_since_epoch;
 use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;

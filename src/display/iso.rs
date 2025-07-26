@@ -1,8 +1,8 @@
 use crate::calendar::ISO;
 use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;
-use crate::display::preset_fmt::PresetDisplay;
-use crate::display::preset_fmt::YEAR_WEEK_DAY;
+use crate::display::prelude::PresetDisplay;
+use crate::display::prelude::YEAR_WEEK_DAY;
 use crate::display::private::fmt_days_since_epoch;
 use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;

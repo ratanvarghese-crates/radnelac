@@ -1,8 +1,8 @@
 use crate::clock::ClockTime;
 use crate::clock::TimeOfDay;
 use crate::common::math::TermNum;
-use crate::display::preset_fmt::PresetDisplay;
-use crate::display::preset_fmt::HHMMSS_COLON;
+use crate::display::prelude::PresetDisplay;
+use crate::display::prelude::HHMMSS_COLON;
 use crate::display::private::fmt_number;
 use crate::display::private::fmt_string;
 use crate::display::private::DisplayItem;

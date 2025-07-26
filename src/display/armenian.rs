@@ -1,10 +1,10 @@
 use crate::calendar::Armenian;
-use crate::clock::TimeOfDay;
 use crate::calendar::CommonWeekOfYear;
 use crate::calendar::ToFromCommonDate;
+use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
-use crate::display::preset_fmt::PresetDisplay;
+use crate::display::prelude::PresetDisplay;
 use crate::display::private::fmt_days_since_epoch;
 use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
