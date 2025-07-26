@@ -39,6 +39,7 @@
 //! - predicting astronomical events (ex. lunar phases, eclipses, equinoxes)
 //! - astronomical calendars (ex. Chinese Lunar calendar)
 //! - arranging days in a grid
+//! - parsing dates
 //! - reading and writing CalDAV
 //!
 //! ### Proleptic Dates
