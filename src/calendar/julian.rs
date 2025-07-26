@@ -181,8 +181,6 @@ impl CommonWeekOfYear for Julian {}
 mod tests {
     use super::*;
     use crate::calendar::gregorian::Gregorian;
-    use proptest::prop_assume;
-    use proptest::proptest;
 
     #[test]
     fn julian_gregorian_conversion() {

@@ -1,7 +1,6 @@
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use num_traits::AsPrimitive;
-use num_traits::FromPrimitive;
 
 pub trait EffectiveBound: Copy + Clone + PartialEq + PartialOrd {
     fn effective_min() -> Self;
