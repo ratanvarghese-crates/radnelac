@@ -14,6 +14,7 @@ use radnelac::calendar::Symmetry010;
 use radnelac::calendar::Symmetry010Solstice;
 use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
+use radnelac::calendar::ToFromOrdinalDate;
 use radnelac::calendar::TranquilityMoment;
 use radnelac::calendar::ISO;
 use radnelac::day_count::BoundedDayCount;
@@ -44,6 +45,14 @@ fn roundtrip<T: FromFixed + ToFixed + PartialEq + Debug>(t: f64) {
 fn roundtrip_moment<T: FromFixed + ToFixed + PartialEq + Debug>(t: f64) {
     let f0 = Fixed::new(t);
     roundtrip_inner::<T>(f0);
+}
+
+fn roundtrip_ordinal<T: FromFixed + PartialEq + Debug + ToFromOrdinalDate>(t: f64) {
+    let f = Fixed::new(t).to_day();
+    let d0 = T::from_fixed(f);
+    let ord = d0.to_ordinal();
+    let d1 = T::try_from_ordinal(ord).unwrap();
+    assert_eq!(d1, d0);
 }
 
 proptest! {
@@ -81,6 +90,7 @@ proptest! {
     #[test]
     fn gregorian(t in FIXED_MIN..FIXED_MAX) {
         roundtrip::<Gregorian>(t);
+        roundtrip_ordinal::<Gregorian>(t);
     }
 
     #[test]
@@ -119,6 +129,7 @@ proptest! {
     #[test]
     fn tranquility(t in FIXED_MIN..FIXED_MAX) {
         roundtrip::<TranquilityMoment>(t);
+        roundtrip_ordinal::<TranquilityMoment>(t);
     }
 
     #[test]

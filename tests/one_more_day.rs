@@ -29,6 +29,7 @@ use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::SymmetryMonth;
 use radnelac::calendar::ToFromCommonDate;
+use radnelac::calendar::ToFromOrdinalDate;
 use radnelac::calendar::TranquilityMoment;
 use radnelac::calendar::TranquilityMonth;
 use radnelac::day_count::BoundedDayCount;
@@ -62,6 +63,20 @@ fn one_more_day<S: FromPrimitive + ToPrimitive, T: ToFromCommonDate<S> + FromFix
         assert_eq!(d1.day, d0.day + 1);
     } else {
         panic!("Added one day but the dates are equal");
+    }
+}
+
+fn one_more_day_ordinal<T: FromFixed + ToFromOrdinalDate>(t: f64) {
+    let f0 = Fixed::new(t);
+    let f1 = Fixed::new(t + 1.0);
+    let ord0 = T::ordinal_from_fixed(f0);
+    let ord1 = T::ordinal_from_fixed(f1);
+    if ord0.year == ord1.year {
+        assert_eq!(ord1.year, ord0.year);
+        assert_eq!(ord1.day_of_year, ord0.day_of_year + 1);
+    } else {
+        assert_eq!(ord1.year, ord0.year + 1);
+        assert_eq!(ord1.day_of_year, 1);
     }
 }
 
@@ -100,6 +115,12 @@ proptest! {
     #[test]
     fn gregorian(t in FIXED_MIN..FIXED_MAX) {
         one_more_day::<GregorianMonth, Gregorian>(t);
+        one_more_day_ordinal::<Gregorian>(t);
+    }
+
+    #[test]
+    fn gregorian_ordinal(t in FIXED_MIN..FIXED_MAX) {
+        one_more_day_ordinal::<Gregorian>(t);
     }
 
     #[test]
@@ -152,6 +173,13 @@ proptest! {
         prop_assume!(tq0.complementary().is_none());
         prop_assume!(tq1.complementary().is_none());
         one_more_day::<TranquilityMonth, TranquilityMoment>(t);
+        one_more_day_ordinal::<TranquilityMoment>(t);
     }
 
+    #[test]
+    fn tranquility_ordinal(dt in FIXED_MIN..FIXED_MAX) {
+        prop_assume!(dt < -1.0 || dt > 1.0);
+        let t = TranquilityMoment::epoch().get() + dt;
+        one_more_day_ordinal::<TranquilityMoment>(t);
+    }
 }

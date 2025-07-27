@@ -166,6 +166,19 @@ impl TranquilityMoment {
 }
 
 impl ToFromOrdinalDate for TranquilityMoment {
+    fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {
+        let correction = if TranquilityMoment::is_leap(ord.year) {
+            1
+        } else {
+            0
+        };
+        if ord.day_of_year > 0 && ord.day_of_year <= (365 + correction) {
+            Ok(())
+        } else {
+            Err(CalendarError::InvalidDayOfYear)
+        }
+    }
+
     fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
         //Common
         //Gregorian:   (jan1).....(feb28)(mar1).....(jul20)(jul21).....(dec31)
@@ -228,6 +241,34 @@ impl ToFromOrdinalDate for TranquilityMoment {
         OrdinalDate {
             year: self.date.year,
             day_of_year: ordinal_day as u16,
+        }
+    }
+
+    fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        let date_tq = match (
+            ord.day_of_year as i64,
+            ord.year,
+            TranquilityMoment::is_leap(ord.year),
+        ) {
+            (_, 0, _) => CommonDate::new(0, NON_MONTH, 0),
+            (365, _, false) => CommonDate::new(ord.year, NON_MONTH, 1),
+            (366, _, true) => CommonDate::new(ord.year, NON_MONTH, 1),
+            (AFTER_H27, _, true) => CommonDate::new(ord.year, NON_MONTH, 2),
+            (doy, y, is_leap) => {
+                let correction = if doy < AFTER_H27 || !is_leap { 0 } else { 1 };
+                let month = ((((doy - correction) - 1) as i64).div_euclid(28) + 1) as u8;
+                let day = ((doy - correction) as i64).adjusted_remainder(28) as u8;
+                debug_assert!(month > 0 && month < 14, "doy: {}, y: {}", doy, y);
+                CommonDate::new(y, month, day)
+            }
+        };
+        TranquilityMoment {
+            date: date_tq,
+            time: ClockTime {
+                hours: 0,
+                minutes: 0,
+                seconds: 0.0,
+            },
         }
     }
 }
@@ -312,25 +353,8 @@ impl Epoch for TranquilityMoment {
 impl FromFixed for TranquilityMoment {
     fn from_fixed(date: Fixed) -> TranquilityMoment {
         let ord = TranquilityMoment::ordinal_from_fixed(date);
-        let date_tq = match (
-            ord.day_of_year as i64,
-            ord.year,
-            TranquilityMoment::is_leap(ord.year),
-        ) {
-            (_, 0, _) => CommonDate::new(0, NON_MONTH, 0),
-            (365, _, false) => CommonDate::new(ord.year, NON_MONTH, 1),
-            (366, _, true) => CommonDate::new(ord.year, NON_MONTH, 1),
-            (AFTER_H27, _, true) => CommonDate::new(ord.year, NON_MONTH, 2),
-            (doy, y, is_leap) => {
-                let correction = if doy < AFTER_H27 || !is_leap { 0 } else { 1 };
-                let month = ((((doy - correction) - 1) as i64).div_euclid(28) + 1) as u8;
-                let day = ((doy - correction) as i64).adjusted_remainder(28) as u8;
-                debug_assert!(month > 0 && month < 14, "doy: {}, y: {}", doy, y);
-                CommonDate::new(y, month, day)
-            }
-        };
         TranquilityMoment {
-            date: date_tq,
+            date: TranquilityMoment::from_ordinal_unchecked(ord).date,
             time: ClockTime::new(TimeOfDay::from_fixed(date)),
         }
     }

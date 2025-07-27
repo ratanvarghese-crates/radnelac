@@ -143,7 +143,15 @@ pub struct OrdinalDate {
     pub day_of_year: u16,
 }
 
-pub trait ToFromOrdinalDate {
+pub trait ToFromOrdinalDate: Sized {
+    fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError>;
     fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate;
     fn to_ordinal(self) -> OrdinalDate;
+    fn from_ordinal_unchecked(ord: OrdinalDate) -> Self;
+    fn try_from_ordinal(ord: OrdinalDate) -> Result<Self, CalendarError> {
+        match Self::valid_ordinal(ord) {
+            Err(e) => Err(e),
+            Ok(_) => Ok(Self::from_ordinal_unchecked(ord)),
+        }
+    }
 }

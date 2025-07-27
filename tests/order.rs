@@ -28,6 +28,7 @@ use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::SymmetryMonth;
 use radnelac::calendar::ToFromCommonDate;
+use radnelac::calendar::ToFromOrdinalDate;
 use radnelac::calendar::TranquilityMoment;
 use radnelac::calendar::ISO;
 use radnelac::day_count::BoundedDayCount;
@@ -66,6 +67,21 @@ fn consistent_order<
     assert_eq!(f0 == f1, c0 == c1);
     assert_eq!(f0 >= f1, c0 >= c1);
     assert_eq!(f0 > f1, c0 > c1);
+}
+
+fn consistent_order_ordinal<T: FromFixed + PartialEq + Debug + ToFromOrdinalDate>(
+    t0: f64,
+    t1: f64,
+) {
+    let f0 = Fixed::new(t0).to_day();
+    let f1 = Fixed::new(t1).to_day();
+    let ord0 = T::from_fixed(f0).to_ordinal();
+    let ord1 = T::from_fixed(f1).to_ordinal();
+    assert_eq!(f0 < f1, ord0 < ord1);
+    assert_eq!(f0 <= f1, ord0 <= ord1);
+    assert_eq!(f0 == f1, ord0 == ord1);
+    assert_eq!(f0 >= f1, ord0 >= ord1);
+    assert_eq!(f0 > f1, ord0 > ord1);
 }
 
 proptest! {
@@ -134,11 +150,13 @@ proptest! {
     #[test]
     fn gregorian(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
         consistent_order::<GregorianMonth, Gregorian>(t0, t1);
+        consistent_order_ordinal::<Gregorian>(t0, t1);
     }
 
     #[test]
     fn gregorian_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
         consistent_order::<GregorianMonth, Gregorian>(t0, t0 + (diff as f64));
+        consistent_order_ordinal::<Gregorian>(t0, t0 + (diff as f64));
     }
 
     #[test]
@@ -210,10 +228,12 @@ proptest! {
     #[test]
     fn tranquility(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
         consistent_order_basic::<TranquilityMoment>(t0, t1);
+        consistent_order_ordinal::<TranquilityMoment>(t0, t1);
     }
 
     #[test]
     fn tranquility_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
         consistent_order_basic::<TranquilityMoment>(t0, t0 + (diff as f64));
+        consistent_order_ordinal::<TranquilityMoment>(t0, t0 + (diff as f64));
     }
 }
