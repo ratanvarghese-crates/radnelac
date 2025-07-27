@@ -5,6 +5,7 @@ use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::OrdinalDate;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -14,7 +15,6 @@ use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
 use crate::day_count::RataDie;
 use crate::day_count::ToFixed;
-use crate::day_cycle::Weekday;
 use std::num::NonZero;
 
 #[allow(unused_imports)] //FromPrimitive is needed for derive
@@ -88,7 +88,18 @@ impl GregorianMonth {
 pub struct Gregorian(CommonDate);
 
 impl Gregorian {
-    pub fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+    pub fn prior_elapsed_days(year: i32) -> i64 {
+        let year = year as i64;
+        let offset_e = Gregorian::epoch().get_day_i() - 1;
+        let offset_y = 365 * (year - 1);
+        let offset_leap =
+            (year - 1).div_euclid(4) - (year - 1).div_euclid(100) + (year - 1).div_euclid(400);
+        offset_e + offset_y + offset_leap
+    }
+}
+
+impl ToFromOrdinalDate for Gregorian {
+    fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
         let date = fixed_date.get_day_i();
         let epoch = Gregorian::epoch().get_day_i();
         let d0 = date - epoch;
@@ -113,7 +124,7 @@ impl Gregorian {
         }
     }
 
-    pub fn to_ordinal(self) -> OrdinalDate {
+    fn to_ordinal(self) -> OrdinalDate {
         let month = self.0.month as i16;
         let day = self.0.day as i16;
         let correction = if month > (GregorianMonth::February as i16) {
@@ -130,27 +141,6 @@ impl Gregorian {
             year: self.0.year,
             day_of_year: ordinal_day as u16,
         }
-    }
-
-    pub fn prior_elapsed_days(year: i32) -> i64 {
-        let year = year as i64;
-        let offset_e = Gregorian::epoch().get_day_i() - 1;
-        let offset_y = 365 * (year - 1);
-        let offset_leap =
-            (year - 1).div_euclid(4) - (year - 1).div_euclid(100) + (year - 1).div_euclid(400);
-        offset_e + offset_y + offset_leap
-    }
-
-    //Arguments swapped from the original
-    pub fn nth_kday(self, nz: NonZero<i16>, k: Weekday) -> Fixed {
-        let n = nz.get();
-        let result = if n > 0 {
-            k.before(self.to_fixed()).get_day_i() + (7 * n as i64)
-        } else {
-            k.after(self.to_fixed()).get_day_i() + (7 * n as i64)
-        };
-
-        Fixed::cast_new(result)
     }
 }
 

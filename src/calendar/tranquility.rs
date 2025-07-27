@@ -5,6 +5,7 @@ use crate::calendar::prelude::OrdinalDate;
 use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::prelude::ToFromOrdinalDate;
 use crate::clock::ClockTime;
 use crate::clock::TimeOfDay;
 use crate::common::error::CalendarError;
@@ -161,8 +162,10 @@ impl TranquilityMoment {
             prior_g.to_fixed().get_day_i()
         }
     }
+}
 
-    pub fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+impl ToFromOrdinalDate for TranquilityMoment {
+    fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
         //Common
         //Gregorian:   (jan1).....(feb28)(mar1).....(jul20)(jul21).....(dec31)
         //Greg  ord:   (1)...........(59)(60).........(201)(202).........(365)
@@ -203,7 +206,7 @@ impl TranquilityMoment {
         }
     }
 
-    pub fn to_ordinal(self) -> OrdinalDate {
+    fn to_ordinal(self) -> OrdinalDate {
         let comp_count = Self::complementary_count(self.date.year) as i64;
         let ordinal_day = match self.complementary() {
             Some(TranquilityComplementaryDay::MoonLandingDay) => 1,
@@ -242,9 +245,7 @@ impl PartialOrd for TranquilityMoment {
     }
 }
 
-impl Perennial<TranquilityMonth, TranquilityComplementaryDay, Weekday>
-    for TranquilityMoment
-{
+impl Perennial<TranquilityMonth, TranquilityComplementaryDay, Weekday> for TranquilityMoment {
     fn complementary(self) -> Option<TranquilityComplementaryDay> {
         if self.date.month == NON_MONTH {
             TranquilityComplementaryDay::from_u8(self.date.day)

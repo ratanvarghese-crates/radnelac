@@ -1,6 +1,9 @@
 use crate::common::error::CalendarError;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::EffectiveBound;
+use crate::day_count::Fixed;
 use crate::day_count::ToFixed;
+use crate::day_cycle::Weekday;
 use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
 use std::num::NonZero;
@@ -116,6 +119,17 @@ pub trait CommonWeekOfYear<T: FromPrimitive>: ToFromCommonDate<T> + ToFixed {
         let diff = today.get_day_i() - start.get_day_i();
         (diff.div_euclid(7) + 1) as u8
     }
+
+    //Arguments swapped from the original
+    fn nth_kday(self, nz: NonZero<i16>, k: Weekday) -> Fixed {
+        let n = nz.get();
+        let result = if n > 0 {
+            k.before(self.to_fixed()).get_day_i() + (7 * n as i64)
+        } else {
+            k.after(self.to_fixed()).get_day_i() + (7 * n as i64)
+        };
+        Fixed::cast_new(result)
+    }
 }
 
 /// Represents a numeric year and day of year.
@@ -125,4 +139,9 @@ pub trait CommonWeekOfYear<T: FromPrimitive>: ToFromCommonDate<T> + ToFixed {
 pub struct OrdinalDate {
     pub year: i32,
     pub day_of_year: u16,
+}
+
+pub trait ToFromOrdinalDate {
+    fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate;
+    fn to_ordinal(self) -> OrdinalDate;
 }

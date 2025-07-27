@@ -5,6 +5,7 @@ use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::prelude::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -66,9 +67,7 @@ pub enum CotsworthComplementaryDay {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Cotsworth(CommonDate);
 
-impl Perennial<CotsworthMonth, CotsworthComplementaryDay, Weekday>
-    for Cotsworth
-{
+impl Perennial<CotsworthMonth, CotsworthComplementaryDay, Weekday> for Cotsworth {
     fn complementary(self) -> Option<CotsworthComplementaryDay> {
         if self.0.day == 29 && self.0.month == (CotsworthMonth::December as u8) {
             Some(CotsworthComplementaryDay::YearDay)
