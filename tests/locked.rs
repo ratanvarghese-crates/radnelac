@@ -19,6 +19,8 @@ use radnelac::calendar::HasIntercalaryDays;
 use radnelac::calendar::HasLeapYears;
 use radnelac::calendar::Holocene;
 use radnelac::calendar::HoloceneMonth;
+use radnelac::calendar::Julian;
+use radnelac::calendar::JulianMonth;
 use radnelac::calendar::Positivist;
 use radnelac::calendar::PositivistMonth;
 use radnelac::calendar::ToFromCommonDate;
@@ -109,6 +111,47 @@ proptest! {
         locked::<HoloceneMonth, GregorianMonth, Holocene, Gregorian>(d);
         locked_alt::<HoloceneMonth, GregorianMonth, Holocene, Gregorian>(d, 10000);
     }
+
+    #[test]
+    fn coptic_to_julian_month_boundaries(year in -MAX_YEARS..MAX_YEARS) {
+        // https://en.wikipedia.org/wiki/Coptic_calendar
+        prop_assume!(year != -285);
+        let cy = year;
+        let jy = year + if year > -285 { 283 } else { 282 };
+        let correction = if (year % 4) == 0 { 1 } else { 0 };
+        let d_list = [
+            (CommonDate::new(cy, 1, 1), CommonDate::new(jy, 8, 29 + correction)),
+            (CommonDate::new(cy, 1, 30), CommonDate::new(jy, 9, 27 + correction)),
+            (CommonDate::new(cy, 2, 1), CommonDate::new(jy, 9, 28 + correction)),
+            (CommonDate::new(cy, 2, 30), CommonDate::new(jy, 10, 27 + correction)),
+            (CommonDate::new(cy, 3, 1), CommonDate::new(jy, 10, 28 + correction)),
+            (CommonDate::new(cy, 3, 30), CommonDate::new(jy, 11, 26 + correction)),
+            (CommonDate::new(cy, 4, 1), CommonDate::new(jy, 11, 27 + correction)),
+            (CommonDate::new(cy, 4, 30), CommonDate::new(jy, 12, 26 + correction)),
+            (CommonDate::new(cy, 5, 1), CommonDate::new(jy, 12, 27 + correction)),
+            (CommonDate::new(cy, 5, 30), CommonDate::new(jy + 1, 1, 25 + correction)),
+            (CommonDate::new(cy, 6, 1), CommonDate::new(jy + 1, 1, 26 + correction)),
+            (CommonDate::new(cy, 6, 30), CommonDate::new(jy + 1, 2, 24 + correction)),
+            (CommonDate::new(cy, 7, 1), CommonDate::new(jy + 1, 2, 25 + correction)),
+            (CommonDate::new(cy, 7, 30), CommonDate::new(jy + 1, 3, 26)),
+            (CommonDate::new(cy, 8, 1), CommonDate::new(jy + 1, 3, 27)),
+            (CommonDate::new(cy, 8, 30), CommonDate::new(jy + 1, 4, 25)),
+            (CommonDate::new(cy, 9, 1), CommonDate::new(jy + 1, 4, 26)),
+            (CommonDate::new(cy, 9, 30), CommonDate::new(jy + 1, 5, 25)),
+            (CommonDate::new(cy, 10, 1), CommonDate::new(jy + 1, 5, 26)),
+            (CommonDate::new(cy, 10, 30), CommonDate::new(jy + 1, 6, 24)),
+            (CommonDate::new(cy, 11, 1), CommonDate::new(jy + 1, 6, 25)),
+            (CommonDate::new(cy, 11, 30), CommonDate::new(jy + 1, 7, 24)),
+            (CommonDate::new(cy, 12, 1), CommonDate::new(jy + 1, 7, 25)),
+            (CommonDate::new(cy, 12, 30), CommonDate::new(jy + 1, 8, 23)),
+            (CommonDate::new(cy, 13, 1), CommonDate::new(jy + 1, 8, 24)),
+            (CommonDate::new(cy, 13, 5), CommonDate::new(jy + 1, 8, 28)),
+        ];
+        for pair in d_list {
+            locked_alt_multi::<CopticMonth, JulianMonth, Coptic, Julian>(pair.0, pair.1);
+        }
+    }
+
 
     #[test]
     fn ethiopic_locked_to_coptic(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {

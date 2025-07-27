@@ -197,5 +197,14 @@ mod tests {
             assert_eq!(j.month(), JulianMonth::December);
             assert!(j.day() == 25 || j.day() == 26);
         }
+
+        #[test]
+        fn feast_of_neyrouz(y in i16::MIN..i16::MAX) {
+            // https://en.wikipedia.org/wiki/Coptic_calendar
+            let c = Coptic::try_from_common_date(CommonDate::new(y as i32, CopticMonth::Thoout as u8, 1))?;
+            let j = c.convert::<Julian>();
+            assert_eq!(j.month(), JulianMonth::August);
+            assert!(j.day() == 29 || j.day() == 30);
+        }
     }
 }
