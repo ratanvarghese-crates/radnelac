@@ -5,6 +5,8 @@ use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::OrdinalDate;
+use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
 use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
@@ -227,6 +229,59 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
     }
 }
 
+impl<const T: bool, const U: bool> ToFromOrdinalDate for Symmetry<T, U> {
+    fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {
+        // Not described by Dr. Bromberg
+        let new_year_0 = Self::new_year_day_unchecked(ord.year, Self::epoch().get_day_i());
+        let new_year_1 = Self::new_year_day_unchecked(ord.year + 1, Self::epoch().get_day_i());
+        let diff = new_year_1 - new_year_0;
+        if (ord.day_of_year as i64) < 1 || (ord.day_of_year as i64) > diff {
+            Err(CalendarError::InvalidDayOfYear)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        // Originally first part of from_fixed
+        let date = fixed_date.get_day_i();
+        let (sym_year, start_of_year) = Self::year_from_fixed(date, Self::epoch().get_day_i());
+        let day_of_year = (date - start_of_year + 1) as u16;
+        OrdinalDate {
+            year: sym_year,
+            day_of_year: day_of_year,
+        }
+    }
+
+    fn to_ordinal(self) -> OrdinalDate {
+        OrdinalDate {
+            year: self.0.year,
+            day_of_year: Self::day_of_year(self.0.month, self.0.day),
+        }
+    }
+
+    fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        // Originally second part of from_fixed
+        let (sym_year, day_of_year) = (ord.year, ord.day_of_year);
+        // Thank Ferris for div_ceil
+        let week_of_year = day_of_year.div_ceil(7);
+        debug_assert!(week_of_year > 0 && week_of_year < 54);
+        let quarter = (4 * week_of_year).div_ceil(53);
+        debug_assert!(quarter > 0 && quarter < 5);
+        let day_of_quarter = day_of_year - (91 * (quarter - 1));
+        let week_of_quarter = day_of_quarter.div_ceil(7);
+        let month_of_quarter = if T {
+            (2 * week_of_quarter).div_ceil(9)
+        } else {
+            (2 * day_of_quarter).div_ceil(61)
+        };
+        let sym_month = (3 * (quarter - 1) + month_of_quarter) as u8;
+        // Skipping optionals
+        let sym_day = (day_of_year - Self::days_before_month(sym_month)) as u8;
+        Self(CommonDate::new(sym_year, sym_month, sym_day))
+    }
+}
+
 impl<const T: bool, const U: bool> HasLeapYears for Symmetry<T, U> {
     /// Returns the fixed day number of a Symmetry year
     ///
@@ -249,25 +304,9 @@ impl<const T: bool, const U: bool> Epoch for Symmetry<T, U> {
 
 impl<const T: bool, const U: bool> FromFixed for Symmetry<T, U> {
     fn from_fixed(fixed_date: Fixed) -> Symmetry<T, U> {
-        let date = fixed_date.get_day_i();
-        let (sym_year, start_of_year) = Self::year_from_fixed(date, Self::epoch().get_day_i());
-        let day_of_year = (date - start_of_year + 1) as u16;
-        // Thank Ferris for div_ceil
-        let week_of_year = day_of_year.div_ceil(7);
-        debug_assert!(week_of_year > 0 && week_of_year < 54);
-        let quarter = (4 * week_of_year).div_ceil(53);
-        debug_assert!(quarter > 0 && quarter < 5);
-        let day_of_quarter = day_of_year - (91 * (quarter - 1));
-        let week_of_quarter = day_of_quarter.div_ceil(7);
-        let month_of_quarter = if T {
-            (2 * week_of_quarter).div_ceil(9)
-        } else {
-            (2 * day_of_quarter).div_ceil(61)
-        };
-        let sym_month = (3 * (quarter - 1) + month_of_quarter) as u8;
-        // Skipping optionals
-        let sym_day = (day_of_year - Self::days_before_month(sym_month)) as u8;
-        Self(CommonDate::new(sym_year, sym_month, sym_day))
+        // Compared to Dr. Bromberg's original, this function is split in two
+        let ord = Self::ordinal_from_fixed(fixed_date);
+        Self::from_ordinal_unchecked(ord)
     }
 }
 

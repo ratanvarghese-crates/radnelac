@@ -166,6 +166,14 @@ proptest! {
     }
 
     #[test]
+    fn symmetry_ordinal(t in FIXED_MIN..FIXED_MAX) {
+        one_more_day_ordinal::<Symmetry454>(t);
+        one_more_day_ordinal::<Symmetry010>(t);
+        one_more_day_ordinal::<Symmetry454Solstice>(t);
+        one_more_day_ordinal::<Symmetry010Solstice>(t);
+    }
+
+    #[test]
     fn tranquility(dt in FIXED_MIN..FIXED_MAX) {
         let t = TranquilityMoment::epoch().get() + dt;
         let tq0 = TranquilityMoment::from_fixed(Fixed::new(t));

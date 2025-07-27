@@ -126,6 +126,10 @@ proptest! {
         roundtrip::<Symmetry010>(t);
         roundtrip::<Symmetry454Solstice>(t);
         roundtrip::<Symmetry010Solstice>(t);
+        roundtrip_ordinal::<Symmetry454>(t);
+        roundtrip_ordinal::<Symmetry010>(t);
+        roundtrip_ordinal::<Symmetry454Solstice>(t);
+        roundtrip_ordinal::<Symmetry010Solstice>(t);
     }
 
     #[test]

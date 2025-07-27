@@ -219,6 +219,10 @@ proptest! {
         consistent_order::<SymmetryMonth, Symmetry010>(t0, t1);
         consistent_order::<SymmetryMonth, Symmetry454Solstice>(t0, t1);
         consistent_order::<SymmetryMonth, Symmetry010Solstice>(t0, t1);
+        consistent_order_ordinal::<Symmetry454>(t0, t1);
+        consistent_order_ordinal::<Symmetry010>(t0, t1);
+        consistent_order_ordinal::<Symmetry454Solstice>(t0, t1);
+        consistent_order_ordinal::<Symmetry010Solstice>(t0, t1);
     }
 
     #[test]
@@ -227,6 +231,10 @@ proptest! {
         consistent_order::<SymmetryMonth, Symmetry010>(t0, t0 + (diff as f64));
         consistent_order::<SymmetryMonth, Symmetry454Solstice>(t0, t0 + (diff as f64));
         consistent_order::<SymmetryMonth, Symmetry010Solstice>(t0, t0 + (diff as f64));
+        consistent_order_ordinal::<Symmetry454>(t0, t0 + (diff as f64));
+        consistent_order_ordinal::<Symmetry010>(t0, t0 + (diff as f64));
+        consistent_order_ordinal::<Symmetry454Solstice>(t0, t0 + (diff as f64));
+        consistent_order_ordinal::<Symmetry010Solstice>(t0, t0 + (diff as f64));
     }
 
     #[test]
