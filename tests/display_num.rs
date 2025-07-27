@@ -1,43 +1,35 @@
+#[cfg(feature = "display")]
 use proptest::prelude::TestCaseError;
+#[cfg(feature = "display")]
 use proptest::prop_assume;
+#[cfg(feature = "display")]
 use proptest::proptest;
-use radnelac::day_count::BoundedDayCount;
-use radnelac::calendar::Armenian;
-use radnelac::calendar::Coptic;
-use radnelac::calendar::Cotsworth;
-use radnelac::calendar::Egyptian;
-use radnelac::calendar::Ethiopic;
-use radnelac::calendar::FrenchRevArith;
-use radnelac::calendar::Gregorian;
-use radnelac::calendar::Holocene;
-use radnelac::calendar::Julian;
-use radnelac::calendar::Positivist;
-use radnelac::calendar::Symmetry010;
-use radnelac::calendar::Symmetry010Solstice;
-use radnelac::calendar::Symmetry454;
-use radnelac::calendar::Symmetry454Solstice;
-use radnelac::calendar::TranquilityMoment;
-use radnelac::calendar::ISO;
-use radnelac::calendar::PerennialWithComplementaryDay;
-use radnelac::day_count::Epoch;
-use radnelac::day_count::Fixed;
-use radnelac::day_count::FromFixed;
-use radnelac::display::PresetDisplay;
-use radnelac::display::PresetFormat;
-use radnelac::display::DDMMYYYY_SLASH;
-use radnelac::display::MMDDYYYY_SLASH;
-use radnelac::display::YEAR_WEEK_DAY;
-use radnelac::display::YYYYMMDD_DASH;
-use radnelac::display::YYYYMMDD_SLASH;
-use radnelac::display::YYYYYMMDD_DASH;
+#[cfg(feature = "display")]
+use radnelac::calendar::*;
+#[cfg(feature = "display")]
+use radnelac::day_count::*;
+#[cfg(feature = "display")]
+use radnelac::display::*;
 
+#[cfg(feature = "display")]
 const MAX_4DIGIT: f64 = 8000.0 * 365.25;
+
+#[cfg(feature = "display")]
 const MIN_4DIGIT: f64 = 1000.0 * 365.25;
+
+#[cfg(feature = "display")]
 const FR_MIN_4DIGIT: f64 = 1795.0 * 365.25;
+
+#[cfg(feature = "display")]
 const HL_MIN_5DIGIT: f64 = -9000.0 * 365.25;
+
+#[cfg(feature = "display")]
 const HL_MAX_5DIGIT: f64 = 87000.0 * 365.25;
+
+#[cfg(feature = "display")]
 const TQ_MIN_4DIGIT: f64 = 1975.0 * 365.25;
 
+#[cfg(feature = "display")]
 fn ymd_order_raw<T: FromFixed + PresetDisplay + PartialOrd>(preset: PresetFormat, d0: T, d1: T) {
     let s0 = d0.preset_str(preset);
     let s1 = d1.preset_str(preset);
@@ -48,6 +40,7 @@ fn ymd_order_raw<T: FromFixed + PresetDisplay + PartialOrd>(preset: PresetFormat
     assert_eq!(d0 > d1, s0 > s1, "> {} {}", s0, s1);
 }
 
+#[cfg(feature = "display")]
 fn ymd_order<T: FromFixed + PresetDisplay + Epoch + PartialOrd>(
     preset: PresetFormat,
     t0: f64,
@@ -60,6 +53,7 @@ fn ymd_order<T: FromFixed + PresetDisplay + Epoch + PartialOrd>(
     ymd_order_raw::<T>(preset, d0, d1);
 }
 
+#[cfg(feature = "display")]
 fn ymd_order_tq(preset: PresetFormat, t0: f64, t1: f64) -> Result<(), TestCaseError> {
     let f0 = Fixed::new(t0).to_day();
     let f1 = Fixed::new(t1).to_day();
@@ -70,6 +64,7 @@ fn ymd_order_tq(preset: PresetFormat, t0: f64, t1: f64) -> Result<(), TestCaseEr
     Ok(())
 }
 
+#[cfg(feature = "display")]
 fn ymd_vs_dmy_vs_mdy<T: FromFixed + PresetDisplay + Epoch + PartialOrd>(t: f64) {
     let d = T::from_fixed(Fixed::new(t).to_day());
     let ymd0 = d.preset_str(YYYYMMDD_SLASH);
@@ -87,6 +82,7 @@ fn ymd_vs_dmy_vs_mdy<T: FromFixed + PresetDisplay + Epoch + PartialOrd>(t: f64) 
     assert_eq!(&ymd0[8..10], &ymd3[8..10]);
 }
 
+#[cfg(feature = "display")]
 proptest! {
     #[test]
     fn armenian(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
@@ -131,7 +127,6 @@ proptest! {
         ymd_vs_dmy_vs_mdy::<FrenchRevArith<false>>(t1);
         ymd_vs_dmy_vs_mdy::<FrenchRevArith<true>>(t0);
         ymd_vs_dmy_vs_mdy::<FrenchRevArith<false>>(t1);
-
     }
 
     #[test]
@@ -181,7 +176,6 @@ proptest! {
         ymd_vs_dmy_vs_mdy::<Symmetry010Solstice>(t1);
         ymd_vs_dmy_vs_mdy::<Symmetry454Solstice>(t0);
         ymd_vs_dmy_vs_mdy::<Symmetry454Solstice>(t1);
-
     }
 
     #[test]

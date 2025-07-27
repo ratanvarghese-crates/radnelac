@@ -19,9 +19,19 @@
 //! assert_eq!(j.to_common_date(), CommonDate::new(2025, 7, 13));
 //! ```
 //!
+//! ## Crate Features
+//!
+//! Some functionality in this crate can be enabled and disabled using the Cargo "features"
+//! mechanism. Applications should disable features they are not using to reduce the number
+//! of dependencies, size of binaries and time spent compiling.
+//!
+//! The following feature is available:
+//!
+//! - `display` (*enabled by default*): implements [std::fmt::Display] and string conversion for all supported timekeeping systems
+//!
 //! ## Limitations
 //!
-//! ### Out-of-Scope Features
+//! ### Out-of-Scope Functionality
 //!
 //! This crate is focused on *calendrical* calculations involving days, weeks, months
 //! and years. Measurements of time more precise than a day are not usable by most
@@ -195,6 +205,10 @@ pub mod calendar {
     pub use tranquility::TranquilityMonth;
 }
 /// Formatting datestamps and timestamps
+/// ## Crate Features
+///
+/// This module is only available if `display` is enabled.
+#[cfg(feature = "display")]
 #[allow(unused)]
 pub mod display {
     mod prelude;

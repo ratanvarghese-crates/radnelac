@@ -158,45 +158,95 @@ const I_COMPL_ONLY: [Item<'_>; 1] = [Item::new(
 )];
 
 /// Represents a date format
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct PresetFormat<'a>(&'a [Item<'a>]);
 
 /// HH:MM:SS time format
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 pub const HHMMSS_COLON: PresetFormat<'static> = PresetFormat::<'static>(&I_HHMMSS_COLON);
 /// YYYY-MM-DD numeric date format
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 pub const YYYYMMDD_DASH: PresetFormat<'static> = PresetFormat::<'static>(&I_YYYYMMDD_DASH);
 /// YYYYY-MM-DD numeric date format
 ///
-/// This is intended for the Holocene Calendar
+/// This is intended for the Holocene Calendar.
+///
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 pub const YYYYYMMDD_DASH: PresetFormat<'static> = PresetFormat::<'static>(&I_YYYYYMMDD_DASH);
 /// YYYY/MM/DD numeric date format
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 pub const YYYYMMDD_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&I_YYYYMMDD_SLASH);
 /// DD/MM/YYYY numeric date format
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 pub const DDMMYYYY_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&I_DDMMYYYY_SLASH);
 /// DD.MM.YYYY numeric date format
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 pub const DDMMYYYY_DOT: PresetFormat<'static> = PresetFormat::<'static>(&I_DDMMYYYY_DOT);
 /// MM/DD/YYYY numeric date format
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 pub const MMDDYYYY_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&I_MMDDYYYY_SLASH);
 /// Calendar-specific long date format
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 pub const LONG_DATE: PresetFormat<'static> = PresetFormat::<'static>(&I_LONG_DATE);
 /// Calendar-specific long complementary day format
 ///
-/// This is intended for calendars with complementary days
+/// This is intended for calendars with complementary days.
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 pub const LONG_COMPL: PresetFormat<'static> = PresetFormat::<'static>(&I_LONG_COMPL);
 /// YYYY-Www-DD alphanumeric date format
 ///
-/// This is inteded for the ISO calendar
+/// This is inteded for the ISO calendar.
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 pub const YEAR_WEEK_DAY: PresetFormat<'static> = PresetFormat::<'static>(&I_YEAR_WEEK_DAY);
 /// Y-mDD alphanumeric date format, where Y has variable length, m is a single character
 ///
 /// This is intended for the Tranquility calendar
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 pub const YEAR_MDD: PresetFormat<'static> = PresetFormat::<'static>(&I_YEAR_MDD);
-/// Y-CCC alphanumeric date format, where Y has variable length, CCC is the complementary day
+/// Y-CCC alphanumeric date format, where Y has variable length, CCC is the complementary day.
+///
+/// This is intended for calendars with complementary days.
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 pub const YEAR_COMPL: PresetFormat<'static> = PresetFormat::<'static>(&I_YEAR_COMPL);
 /// Format which is the full name of a the complementary day
+///
+/// This is intended for calendars with complementary days.
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 pub const COMPL_ONLY: PresetFormat<'static> = PresetFormat::<'static>(&I_COMPL_ONLY);
 
 /// Format a date in a preset format
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
 pub trait PresetDisplay: DisplayItem {
     /// Format a date in any `PresetFormat`
     fn preset_str(&self, preset: PresetFormat) -> String {

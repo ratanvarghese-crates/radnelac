@@ -1,5 +1,3 @@
-use radnelac::day_count::BoundedDayCount;
-use radnelac::day_count::EffectiveBound;
 use radnelac::calendar::Armenian;
 use radnelac::calendar::Coptic;
 use radnelac::calendar::Cotsworth;
@@ -19,6 +17,8 @@ use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::TranquilityMoment;
 use radnelac::calendar::ISO;
 use radnelac::clock::TimeOfDay;
+use radnelac::day_count::BoundedDayCount;
+use radnelac::day_count::EffectiveBound;
 use radnelac::day_count::Fixed;
 use radnelac::day_count::FromFixed;
 use radnelac::day_count::JulianDay;
@@ -51,6 +51,66 @@ fn print_today() {
     print_t(t_fixed);
 }
 
+#[cfg(not(feature = "display"))]
+fn print_t(t_fixed: Fixed) {
+    let m_clk = TimeOfDay::from_fixed(t_fixed);
+    let t_unix = UnixMoment::from_fixed(t_fixed);
+    let t_jd = JulianDay::from_fixed(t_fixed);
+    let t_mjd = ModifiedJulianDay::from_fixed(t_fixed);
+    let t_rd = RataDie::from_fixed(t_fixed);
+    let w_week = Weekday::from_fixed(t_fixed);
+    let w_akan = Akan::from_fixed(t_fixed);
+    let d_egyptian = Egyptian::from_fixed(t_fixed);
+    let d_armenian = Armenian::from_fixed(t_fixed);
+    let d_gregorian = Gregorian::from_fixed(t_fixed);
+    let d_julian = Julian::from_fixed(t_fixed);
+    let d_roman = Roman::from_fixed(t_fixed);
+    let d_coptic = Coptic::from_fixed(t_fixed);
+    let d_ethiopic = Ethiopic::from_fixed(t_fixed);
+    let d_iso = ISO::from_fixed(t_fixed);
+    let d_holocene = Holocene::from_fixed(t_fixed);
+    let d_french0 = FrenchRevArith::<true>::from_fixed(t_fixed);
+    let d_french1 = FrenchRevArith::<false>::from_fixed(t_fixed);
+    let d_positivist = Positivist::from_fixed(t_fixed);
+    let d_cotsworth = Cotsworth::from_fixed(t_fixed);
+    let d_symmetry454 = Symmetry454::from_fixed(t_fixed);
+    let d_symmetry010 = Symmetry010::from_fixed(t_fixed);
+    let d_symmetry454s = Symmetry454Solstice::from_fixed(t_fixed);
+    let d_symmetry010s = Symmetry010Solstice::from_fixed(t_fixed);
+    let d_tranquility = TranquilityMoment::from_fixed(t_fixed);
+    let y_roman = Roman::auc_year_from_julian(d_julian.year());
+    let y_olympiad = Olympiad::from_julian_year(d_julian.year());
+
+    println!("{:?}", m_clk);
+    println!("{:?}", t_unix);
+    println!("{:?}", t_jd);
+    println!("{:?}", t_mjd);
+    println!("{:?}", t_rd);
+    println!("{:?}", w_week);
+    println!("{:?}", w_akan);
+    println!("{:?}", d_egyptian);
+    println!("{:?}", d_armenian);
+    println!("{:?}", d_gregorian);
+    println!("{:?}", d_julian);
+    println!("{:?}", d_coptic);
+    println!("{:?}", d_ethiopic);
+    println!("{:?}", d_roman);
+    println!("{:?}", d_iso);
+    println!("{:?}", d_holocene);
+    println!("{:?} mode: {:?}", d_french0, d_french0.is_adjusted());
+    println!("{:?} mode: {:?}", d_french1, d_french1.is_adjusted());
+    println!("{:?}", d_positivist);
+    println!("{:?}", d_cotsworth);
+    println!("{:?} mode: {:?}", d_symmetry454, d_symmetry454.mode());
+    println!("{:?} mode: {:?}", d_symmetry010, d_symmetry010.mode());
+    println!("{:?} mode: {:?}", d_symmetry454s, d_symmetry454s.mode());
+    println!("{:?} mode: {:?}", d_symmetry010s, d_symmetry010s.mode());
+    println!("{:?}", d_tranquility);
+    println!("{:?} AUC", y_roman);
+    println!("{:?}", y_olympiad);
+}
+
+#[cfg(feature = "display")]
 fn print_t(t_fixed: Fixed) {
     let m_clk = TimeOfDay::from_fixed(t_fixed);
     let t_unix = UnixMoment::from_fixed(t_fixed);
