@@ -88,11 +88,13 @@ proptest! {
     #[test]
     fn armenian(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
         consistent_order::<ArmenianMonth, Armenian>(t0, t1);
+        consistent_order_ordinal::<Armenian>(t0, t1);
     }
 
     #[test]
     fn armenian_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
         consistent_order::<ArmenianMonth, Armenian>(t0, t0 + (diff as f64));
+        consistent_order_ordinal::<Armenian>(t0, t0 + (diff as f64));
     }
 
     #[test]

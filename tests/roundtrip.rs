@@ -59,6 +59,7 @@ proptest! {
     #[test]
     fn armenian(t in FIXED_MIN..FIXED_MAX) {
         roundtrip::<Armenian>(t);
+        roundtrip_ordinal::<Armenian>(t);
     }
 
     #[test]

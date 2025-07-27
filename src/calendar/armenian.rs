@@ -4,6 +4,8 @@ use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::HasIntercalaryDays;
+use crate::calendar::OrdinalDate;
+use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
 use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
@@ -99,6 +101,30 @@ impl Armenian {
         } else {
             ArmenianDaysOfMonth::from_u8(self.0.day)
         }
+    }
+}
+
+impl ToFromOrdinalDate for Armenian {
+    fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {
+        Egyptian::valid_ordinal(ord)
+    }
+
+    fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        let f = Fixed::new(
+            fixed_date.get() + Egyptian::epoch().to_day().get() - Armenian::epoch().get(),
+        );
+        Egyptian::ordinal_from_fixed(f)
+    }
+
+    fn to_ordinal(self) -> OrdinalDate {
+        let e =
+            Egyptian::try_from_common_date(self.to_common_date()).expect("Same month/day validity");
+        e.to_ordinal()
+    }
+
+    fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        let e = Egyptian::from_ordinal_unchecked(ord);
+        Armenian::try_from_common_date(e.to_common_date()).expect("Same month/day validity")
     }
 }
 

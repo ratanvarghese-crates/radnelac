@@ -2,6 +2,8 @@ use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
 use proptest::prop_assume;
 use proptest::proptest;
+use radnelac::calendar::Armenian;
+use radnelac::calendar::ArmenianMonth;
 use radnelac::calendar::Cotsworth;
 use radnelac::calendar::CotsworthMonth;
 use radnelac::calendar::Egyptian;
@@ -48,6 +50,25 @@ fn year_start<
 }
 
 proptest! {
+    #[test]
+    fn valid_armenian(year: i32, day in 1..365) {
+        let ord = OrdinalDate{ year: year, day_of_year: day as u16 };
+        Armenian::valid_ordinal(ord).unwrap();
+    }
+
+    #[test]
+    fn invalid_armenian(year: i32, day in 366..u16::MAX) {
+        let ord0 = OrdinalDate{ year: year, day_of_year: 0 };
+        let ord1 = OrdinalDate{ year: year, day_of_year: day as u16 };
+        assert!(Armenian::valid_ordinal(ord0).is_err());
+        assert!(Armenian::valid_ordinal(ord1).is_err());
+    }
+
+    #[test]
+    fn year_start_armenian(year in -MAX_YEARS..MAX_YEARS) {
+        year_start::<ArmenianMonth, Armenian>(year, 365);
+    }
+
     #[test]
     fn valid_cotsworth(year: i32, day in 1..365) {
         let ord = OrdinalDate{ year: year, day_of_year: day as u16 };

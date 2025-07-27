@@ -89,6 +89,11 @@ proptest! {
     }
 
     #[test]
+    fn armenian_ordinal(t in FIXED_MIN..FIXED_MAX) {
+        one_more_day_ordinal::<Armenian>(t);
+    }
+
+    #[test]
     fn coptic(t in FIXED_MIN..FIXED_MAX) {
         one_more_day::<CopticMonth, Coptic>(t);
     }
