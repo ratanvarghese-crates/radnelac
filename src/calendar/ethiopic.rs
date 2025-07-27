@@ -1,7 +1,6 @@
 use crate::calendar::coptic::Coptic;
 use crate::calendar::julian::Julian;
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonDay;
 use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::GuaranteedMonth;
@@ -102,7 +101,7 @@ impl ToFixed for Ethiopic {
     }
 }
 
-impl ToFromCommonDate for Ethiopic {
+impl ToFromCommonDate<EthiopicMonth> for Ethiopic {
     fn to_common_date(self) -> CommonDate {
         self.0
     }
@@ -140,7 +139,6 @@ impl Quarter for Ethiopic {
     }
 }
 
-impl CommonYear for Ethiopic {}
+impl CommonYear<EthiopicMonth> for Ethiopic {}
 impl GuaranteedMonth<EthiopicMonth> for Ethiopic {}
-impl CommonDay for Ethiopic {}
-impl CommonWeekOfYear for Ethiopic {}
+impl CommonWeekOfYear<EthiopicMonth> for Ethiopic {}

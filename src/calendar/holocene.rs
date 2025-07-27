@@ -3,7 +3,6 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::gregorian::GregorianMonth;
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonDay;
 use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::GuaranteedMonth;
@@ -18,7 +17,7 @@ use crate::day_count::FromFixed;
 use crate::day_count::ToFixed;
 use std::num::NonZero;
 
-const HOLOCENE_YEAR_OFFSET: i16 = -10000;
+const HOLOCENE_YEAR_OFFSET: i32 = -10000;
 
 /// Represents a month in the Holocene calendar
 pub type HoloceneMonth = GregorianMonth;
@@ -77,7 +76,7 @@ impl ToFixed for Holocene {
     }
 }
 
-impl ToFromCommonDate for Holocene {
+impl ToFromCommonDate<HoloceneMonth> for Holocene {
     fn to_common_date(self) -> CommonDate {
         self.0
     }
@@ -102,10 +101,9 @@ impl Quarter for Holocene {
     }
 }
 
-impl CommonYear for Holocene {}
+impl CommonYear<HoloceneMonth> for Holocene {}
 impl GuaranteedMonth<HoloceneMonth> for Holocene {}
-impl CommonDay for Holocene {}
-impl CommonWeekOfYear for Holocene {}
+impl CommonWeekOfYear<HoloceneMonth> for Holocene {}
 
 #[cfg(test)]
 mod tests {

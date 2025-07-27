@@ -1,26 +1,40 @@
+use num_traits::FromPrimitive;
+use num_traits::ToPrimitive;
 use proptest::prop_assume;
 use proptest::proptest;
 use radnelac::calendar::Armenian;
+use radnelac::calendar::ArmenianMonth;
+use radnelac::calendar::CommonDate;
 use radnelac::calendar::Coptic;
+use radnelac::calendar::CopticMonth;
 use radnelac::calendar::Cotsworth;
+use radnelac::calendar::CotsworthMonth;
 use radnelac::calendar::Egyptian;
+use radnelac::calendar::EgyptianMonth;
 use radnelac::calendar::Ethiopic;
+use radnelac::calendar::EthiopicMonth;
 use radnelac::calendar::FrenchRevArith;
+use radnelac::calendar::FrenchRevMonth;
 use radnelac::calendar::Gregorian;
+use radnelac::calendar::GregorianMonth;
 use radnelac::calendar::Holocene;
+use radnelac::calendar::HoloceneMonth;
 use radnelac::calendar::Julian;
+use radnelac::calendar::JulianMonth;
 use radnelac::calendar::Positivist;
+use radnelac::calendar::PositivistMonth;
+use radnelac::calendar::Quarter;
 use radnelac::calendar::Roman;
 use radnelac::calendar::Symmetry010;
 use radnelac::calendar::Symmetry010Solstice;
 use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
+use radnelac::calendar::SymmetryMonth;
+use radnelac::calendar::ToFromCommonDate;
 use radnelac::calendar::TranquilityMoment;
+use radnelac::calendar::TranquilityMonth;
 use radnelac::calendar::ISO;
 use radnelac::day_count::BoundedDayCount;
-use radnelac::calendar::CommonDate;
-use radnelac::calendar::Quarter;
-use radnelac::calendar::ToFromCommonDate;
 use radnelac::day_count::Fixed;
 use radnelac::day_count::FromFixed;
 use radnelac::day_count::FIXED_MAX;
@@ -42,7 +56,14 @@ fn quarter_tomorrow<T: Quarter + FromFixed>(f: f64) {
     }
 }
 
-fn quarter_boundary<T: Quarter + FromFixed + ToFromCommonDate>(year: i32, month: u8, q0: u8) {
+fn quarter_boundary<
+    S: FromPrimitive + ToPrimitive,
+    T: Quarter + FromFixed + ToFromCommonDate<S>,
+>(
+    year: i32,
+    month: u8,
+    q0: u8,
+) {
     let c = CommonDate::new(year, month, 1);
     let q1 = T::try_from_common_date(c).unwrap().quarter().get();
     assert_eq!(
@@ -52,20 +73,30 @@ fn quarter_boundary<T: Quarter + FromFixed + ToFromCommonDate>(year: i32, month:
     );
 }
 
-fn quarter_boundary_m12<T: Quarter + FromFixed + ToFromCommonDate>(year: i32) {
-    quarter_boundary::<T>(year, 1, 1);
-    quarter_boundary::<T>(year, 3, 1);
-    quarter_boundary::<T>(year, 4, 2);
-    quarter_boundary::<T>(year, 6, 2);
-    quarter_boundary::<T>(year, 7, 3);
-    quarter_boundary::<T>(year, 9, 3);
-    quarter_boundary::<T>(year, 10, 4);
-    quarter_boundary::<T>(year, 12, 4);
+fn quarter_boundary_m12<
+    S: FromPrimitive + ToPrimitive,
+    T: Quarter + FromFixed + ToFromCommonDate<S>,
+>(
+    year: i32,
+) {
+    quarter_boundary::<S, T>(year, 1, 1);
+    quarter_boundary::<S, T>(year, 3, 1);
+    quarter_boundary::<S, T>(year, 4, 2);
+    quarter_boundary::<S, T>(year, 6, 2);
+    quarter_boundary::<S, T>(year, 7, 3);
+    quarter_boundary::<S, T>(year, 9, 3);
+    quarter_boundary::<S, T>(year, 10, 4);
+    quarter_boundary::<S, T>(year, 12, 4);
 }
 
-fn quarter_boundary_m13<T: Quarter + FromFixed + ToFromCommonDate>(year: i32) {
-    quarter_boundary_m12::<T>(year);
-    quarter_boundary::<T>(year, 13, 4);
+fn quarter_boundary_m13<
+    S: FromPrimitive + ToPrimitive,
+    T: Quarter + FromFixed + ToFromCommonDate<S>,
+>(
+    year: i32,
+) {
+    quarter_boundary_m12::<S, T>(year);
+    quarter_boundary::<S, T>(year, 13, 4);
 }
 
 proptest! {
@@ -76,7 +107,7 @@ proptest! {
 
     #[test]
     fn armenian_boundary(y in -MAX_YEARS..MAX_YEARS) {
-        quarter_boundary_m13::<Armenian>(y);
+        quarter_boundary_m13::<ArmenianMonth, Armenian>(y);
     }
 
     #[test]
@@ -86,7 +117,7 @@ proptest! {
 
     #[test]
     fn coptic_boundary(y in -MAX_YEARS..MAX_YEARS) {
-        quarter_boundary_m13::<Coptic>(y);
+        quarter_boundary_m13::<CopticMonth, Coptic>(y);
     }
 
     #[test]
@@ -96,7 +127,7 @@ proptest! {
 
     #[test]
     fn cotsworth_boundary(y in -MAX_YEARS..MAX_YEARS) {
-        quarter_boundary_m13::<Cotsworth>(y);
+        quarter_boundary_m13::<CotsworthMonth, Cotsworth>(y);
     }
 
     #[test]
@@ -106,7 +137,7 @@ proptest! {
 
     #[test]
     fn egyptian_boundary(y in -MAX_YEARS..MAX_YEARS) {
-        quarter_boundary_m13::<Egyptian>(y);
+        quarter_boundary_m13::<EgyptianMonth, Egyptian>(y);
     }
 
     #[test]
@@ -116,7 +147,7 @@ proptest! {
 
     #[test]
     fn ethiopic_boundary(y in -MAX_YEARS..MAX_YEARS) {
-        quarter_boundary_m13::<Ethiopic>(y);
+        quarter_boundary_m13::<EthiopicMonth, Ethiopic>(y);
     }
 
     #[test]
@@ -127,8 +158,8 @@ proptest! {
 
     #[test]
     fn french_rev_arith_boundary(y in -MAX_YEARS..MAX_YEARS) {
-        quarter_boundary_m13::<FrenchRevArith<true>>(y);
-        quarter_boundary_m13::<FrenchRevArith<false>>(y);
+        quarter_boundary_m13::<FrenchRevMonth, FrenchRevArith<true>>(y);
+        quarter_boundary_m13::<FrenchRevMonth, FrenchRevArith<false>>(y);
     }
 
     #[test]
@@ -138,7 +169,7 @@ proptest! {
 
     #[test]
     fn gregorian_boundary(y in -MAX_YEARS..MAX_YEARS) {
-        quarter_boundary_m12::<Gregorian>(y);
+        quarter_boundary_m12::<GregorianMonth, Gregorian>(y);
     }
 
     #[test]
@@ -148,7 +179,7 @@ proptest! {
 
     #[test]
     fn holocene_boundary(y in -MAX_YEARS..MAX_YEARS) {
-        quarter_boundary_m12::<Holocene>(y);
+        quarter_boundary_m12::<HoloceneMonth, Holocene>(y);
     }
 
     #[test]
@@ -164,7 +195,7 @@ proptest! {
     #[test]
     fn julian_boundary(y in -MAX_YEARS..MAX_YEARS) {
         prop_assume!(y != 0);
-        quarter_boundary_m12::<Julian>(y);
+        quarter_boundary_m12::<JulianMonth, Julian>(y);
     }
 
     #[test]
@@ -174,7 +205,7 @@ proptest! {
 
     #[test]
     fn positivist_boundary(y in -MAX_YEARS..MAX_YEARS) {
-        quarter_boundary_m13::<Positivist>(y);
+        quarter_boundary_m13::<PositivistMonth, Positivist>(y);
     }
 
     #[test]
@@ -192,10 +223,10 @@ proptest! {
 
     #[test]
     fn symmetry_boundary(y in -MAX_YEARS..MAX_YEARS) {
-        quarter_boundary_m12::<Symmetry454>(y);
-        quarter_boundary_m12::<Symmetry010>(y);
-        quarter_boundary_m12::<Symmetry454Solstice>(y);
-        quarter_boundary_m12::<Symmetry010Solstice>(y);
+        quarter_boundary_m12::<SymmetryMonth, Symmetry454>(y);
+        quarter_boundary_m12::<SymmetryMonth, Symmetry010>(y);
+        quarter_boundary_m12::<SymmetryMonth, Symmetry454Solstice>(y);
+        quarter_boundary_m12::<SymmetryMonth, Symmetry010Solstice>(y);
     }
 
     #[test]
@@ -206,6 +237,6 @@ proptest! {
     #[test]
     fn tranquility_boundary(y in -MAX_YEARS..MAX_YEARS) {
         prop_assume!(y != 0 && y != -1);
-        quarter_boundary_m13::<TranquilityMoment>(y);
+        quarter_boundary_m13::<TranquilityMonth, TranquilityMoment>(y);
     }
 }

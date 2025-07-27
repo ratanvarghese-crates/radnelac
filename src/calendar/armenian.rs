@@ -1,11 +1,9 @@
 use crate::calendar::egyptian::Egyptian;
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonDay;
 use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
-use crate::calendar::prelude::TryMonth;
 use crate::common::error::CalendarError;
 use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
@@ -130,7 +128,7 @@ impl ToFixed for Armenian {
 
 /// The epagomenal days at the end of the Armenian calendar year are represented
 /// as month 13 when converting to and from a CommonDate.
-impl ToFromCommonDate for Armenian {
+impl ToFromCommonDate<ArmenianMonth> for Armenian {
     fn to_common_date(self) -> CommonDate {
         self.0
     }
@@ -160,10 +158,8 @@ impl Quarter for Armenian {
     }
 }
 
-impl CommonYear for Armenian {}
-impl TryMonth<ArmenianMonth> for Armenian {}
-impl CommonDay for Armenian {}
-impl CommonWeekOfYear for Armenian {}
+impl CommonYear<ArmenianMonth> for Armenian {}
+impl CommonWeekOfYear<ArmenianMonth> for Armenian {}
 
 #[cfg(test)]
 mod tests {

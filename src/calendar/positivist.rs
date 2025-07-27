@@ -1,14 +1,11 @@
 // Calendier Positiviste Page 52-53
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonDay;
 use crate::calendar::prelude::CommonYear;
-use crate::calendar::prelude::ComplementaryWeekOfYear;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::PerennialWithComplementaryDay;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
-use crate::calendar::prelude::TryMonth;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -23,7 +20,7 @@ use std::num::NonZero;
 #[allow(unused_imports)] //FromPrimitive is needed for derive
 use num_traits::FromPrimitive;
 
-const POSITIVIST_YEAR_OFFSET: i16 = 1789 - 1;
+const POSITIVIST_YEAR_OFFSET: i32 = 1789 - 1;
 const NON_MONTH: u8 = 14;
 
 /// Represents a month of the Positivist Calendar
@@ -79,7 +76,9 @@ pub enum PositivistComplementaryDay {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Positivist(CommonDate);
 
-impl PerennialWithComplementaryDay<PositivistComplementaryDay, Weekday> for Positivist {
+impl PerennialWithComplementaryDay<PositivistMonth, PositivistComplementaryDay, Weekday>
+    for Positivist
+{
     // Calendier Positiviste Page 8
     fn complementary(self) -> Option<PositivistComplementaryDay> {
         if self.0.month == NON_MONTH {
@@ -118,7 +117,7 @@ impl PerennialWithComplementaryDay<PositivistComplementaryDay, Weekday> for Posi
 impl HasLeapYears for Positivist {
     // Not sure about the source for this...
     fn is_leap(p_year: i32) -> bool {
-        Gregorian::is_leap((POSITIVIST_YEAR_OFFSET as i32) + p_year)
+        Gregorian::is_leap(POSITIVIST_YEAR_OFFSET + p_year)
     }
 }
 
@@ -133,7 +132,7 @@ impl Epoch for Positivist {
 impl FromFixed for Positivist {
     fn from_fixed(date: Fixed) -> Positivist {
         let ord = Gregorian::ordinal_from_fixed(date);
-        let year = ord.year - (POSITIVIST_YEAR_OFFSET as i32);
+        let year = ord.year - POSITIVIST_YEAR_OFFSET;
         let month = (((ord.day_of_year - 1) as i64).div_euclid(28) + 1) as u8;
         let day = (ord.day_of_year as i64).adjusted_remainder(28) as u8;
         debug_assert!(day > 0 && day < 29);
@@ -143,7 +142,7 @@ impl FromFixed for Positivist {
 
 impl ToFixed for Positivist {
     fn to_fixed(self) -> Fixed {
-        let y = self.0.year + (POSITIVIST_YEAR_OFFSET as i32);
+        let y = self.0.year + POSITIVIST_YEAR_OFFSET;
         let offset_y = Gregorian::try_from_common_date(CommonDate::new(y, 1, 1))
             .expect("month 1, day 1 is always valid for Gregorian")
             .to_fixed()
@@ -154,7 +153,7 @@ impl ToFixed for Positivist {
     }
 }
 
-impl ToFromCommonDate for Positivist {
+impl ToFromCommonDate<PositivistMonth> for Positivist {
     fn to_common_date(self) -> CommonDate {
         self.0
     }
@@ -192,11 +191,7 @@ impl Quarter for Positivist {
     }
 }
 
-impl CommonYear for Positivist {}
-impl TryMonth<PositivistMonth> for Positivist {}
-impl CommonDay for Positivist {}
-
-impl ComplementaryWeekOfYear<PositivistMonth, PositivistComplementaryDay, Weekday> for Positivist {}
+impl CommonYear<PositivistMonth> for Positivist {}
 
 #[cfg(test)]
 mod tests {

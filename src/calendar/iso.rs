@@ -57,7 +57,7 @@ impl ISO {
         (self.day as u8).adjusted_remainder(7)
     }
 
-    pub fn is_long_year(i_year: i16) -> bool {
+    pub fn is_long_year(i_year: i32) -> bool {
         let jan1 = Gregorian::year_start(i_year).convert::<Weekday>();
         let dec31 = Gregorian::year_end(i_year).convert::<Weekday>();
         jan1 == Weekday::Thursday || dec31 == Weekday::Thursday

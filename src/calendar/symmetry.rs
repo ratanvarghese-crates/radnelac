@@ -1,6 +1,5 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonDay;
 use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::GuaranteedMonth;
@@ -281,7 +280,7 @@ impl<const T: bool, const U: bool> ToFixed for Symmetry<T, U> {
     }
 }
 
-impl<const T: bool, const U: bool> ToFromCommonDate for Symmetry<T, U> {
+impl<const T: bool, const U: bool> ToFromCommonDate<SymmetryMonth> for Symmetry<T, U> {
     fn to_common_date(self) -> CommonDate {
         self.0
     }
@@ -323,10 +322,9 @@ impl<const T: bool, const U: bool> Quarter for Symmetry<T, U> {
     }
 }
 
-impl<const T: bool, const U: bool> CommonYear for Symmetry<T, U> {}
+impl<const T: bool, const U: bool> CommonYear<SymmetryMonth> for Symmetry<T, U> {}
 impl<const T: bool, const U: bool> GuaranteedMonth<SymmetryMonth> for Symmetry<T, U> {}
-impl<const T: bool, const U: bool> CommonDay for Symmetry<T, U> {}
-impl<const T: bool, const U: bool> CommonWeekOfYear for Symmetry<T, U> {}
+impl<const T: bool, const U: bool> CommonWeekOfYear<SymmetryMonth> for Symmetry<T, U> {}
 
 #[cfg(test)]
 mod tests {

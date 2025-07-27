@@ -3,6 +3,7 @@ use proptest::prop_assume;
 use proptest::proptest;
 use radnelac::calendar::Armenian;
 use radnelac::calendar::ArmenianMonth;
+use radnelac::calendar::CommonDate;
 use radnelac::calendar::Coptic;
 use radnelac::calendar::CopticMonth;
 use radnelac::calendar::Cotsworth;
@@ -15,6 +16,7 @@ use radnelac::calendar::FrenchRevArith;
 use radnelac::calendar::FrenchRevMonth;
 use radnelac::calendar::Gregorian;
 use radnelac::calendar::GregorianMonth;
+use radnelac::calendar::HasLeapYears;
 use radnelac::calendar::Holocene;
 use radnelac::calendar::HoloceneMonth;
 use radnelac::calendar::Julian;
@@ -26,16 +28,14 @@ use radnelac::calendar::Symmetry010Solstice;
 use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::SymmetryMonth;
+use radnelac::calendar::ToFromCommonDate;
 use radnelac::calendar::TranquilityMoment;
 use radnelac::calendar::TranquilityMonth;
-use radnelac::calendar::CommonDate;
-use radnelac::calendar::HasLeapYears;
-use radnelac::calendar::TryMonth;
 use radnelac::day_count::FIXED_MAX;
 
 const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 
-fn common_date_roundtrip<T: FromPrimitive, U: TryMonth<T>, const V: bool>(d: CommonDate) {
+fn common_date_roundtrip<T: FromPrimitive, U: ToFromCommonDate<T>, const V: bool>(d: CommonDate) {
     let e0 = U::try_from_common_date(d).unwrap();
     let m = e0.try_month();
     if V {
@@ -46,7 +46,7 @@ fn common_date_roundtrip<T: FromPrimitive, U: TryMonth<T>, const V: bool>(d: Com
     assert_eq!(e0.to_common_date(), d);
 }
 
-fn month_is_some<T: FromPrimitive, U: TryMonth<T>>(year: i32, month: u8, day: u8) {
+fn month_is_some<T: FromPrimitive, U: ToFromCommonDate<T>>(year: i32, month: u8, day: u8) {
     let d = CommonDate {
         year: year,
         month: month as u8,
@@ -55,7 +55,7 @@ fn month_is_some<T: FromPrimitive, U: TryMonth<T>>(year: i32, month: u8, day: u8
     common_date_roundtrip::<T, U, true>(d);
 }
 
-fn month_is_none<T: FromPrimitive, U: TryMonth<T>>(year: i32, month: u8, day: u8) {
+fn month_is_none<T: FromPrimitive, U: ToFromCommonDate<T>>(year: i32, month: u8, day: u8) {
     let d = CommonDate {
         year: year,
         month: month as u8,

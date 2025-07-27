@@ -1,8 +1,6 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonDay;
 use crate::calendar::prelude::CommonYear;
-use crate::calendar::prelude::ComplementaryWeekOfYear;
 use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::PerennialWithComplementaryDay;
@@ -69,7 +67,9 @@ pub enum CotsworthComplementaryDay {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Cotsworth(CommonDate);
 
-impl PerennialWithComplementaryDay<CotsworthComplementaryDay, Weekday> for Cotsworth {
+impl PerennialWithComplementaryDay<CotsworthMonth, CotsworthComplementaryDay, Weekday>
+    for Cotsworth
+{
     fn complementary(self) -> Option<CotsworthComplementaryDay> {
         if self.0.day == 29 && self.0.month == (CotsworthMonth::December as u8) {
             Some(CotsworthComplementaryDay::YearDay)
@@ -155,7 +155,7 @@ impl ToFixed for Cotsworth {
     }
 }
 
-impl ToFromCommonDate for Cotsworth {
+impl ToFromCommonDate<CotsworthMonth> for Cotsworth {
     fn to_common_date(self) -> CommonDate {
         self.0
     }
@@ -197,8 +197,5 @@ impl Quarter for Cotsworth {
     }
 }
 
-impl CommonYear for Cotsworth {}
+impl CommonYear<CotsworthMonth> for Cotsworth {}
 impl GuaranteedMonth<CotsworthMonth> for Cotsworth {}
-impl CommonDay for Cotsworth {}
-
-impl ComplementaryWeekOfYear<CotsworthMonth, CotsworthComplementaryDay, Weekday> for Cotsworth {}

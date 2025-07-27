@@ -1,10 +1,8 @@
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonDay;
 use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
-use crate::calendar::prelude::TryMonth;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -106,7 +104,7 @@ impl ToFixed for Egyptian {
     }
 }
 
-impl ToFromCommonDate for Egyptian {
+impl ToFromCommonDate<EgyptianMonth> for Egyptian {
     fn to_common_date(self) -> CommonDate {
         self.0
     }
@@ -146,7 +144,5 @@ impl Quarter for Egyptian {
     }
 }
 
-impl CommonYear for Egyptian {}
-impl TryMonth<EgyptianMonth> for Egyptian {}
-impl CommonDay for Egyptian {}
-impl CommonWeekOfYear for Egyptian {}
+impl CommonYear<EgyptianMonth> for Egyptian {}
+impl CommonWeekOfYear<EgyptianMonth> for Egyptian {}

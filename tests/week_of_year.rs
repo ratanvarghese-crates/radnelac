@@ -1,20 +1,28 @@
 use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
 use proptest::proptest;
-use radnelac::day_count::BoundedDayCount;
 use radnelac::calendar::Armenian;
+use radnelac::calendar::ArmenianMonth;
+use radnelac::calendar::CommonWeekOfYear;
 use radnelac::calendar::Coptic;
+use radnelac::calendar::CopticMonth;
 use radnelac::calendar::Cotsworth;
 use radnelac::calendar::CotsworthComplementaryDay;
 use radnelac::calendar::CotsworthMonth;
 use radnelac::calendar::Egyptian;
+use radnelac::calendar::EgyptianMonth;
 use radnelac::calendar::Ethiopic;
+use radnelac::calendar::EthiopicMonth;
 use radnelac::calendar::FrenchRevArith;
 use radnelac::calendar::FrenchRevMonth;
 use radnelac::calendar::FrenchRevWeekday;
 use radnelac::calendar::Gregorian;
+use radnelac::calendar::GregorianMonth;
 use radnelac::calendar::Holocene;
+use radnelac::calendar::HoloceneMonth;
 use radnelac::calendar::Julian;
+use radnelac::calendar::JulianMonth;
+use radnelac::calendar::PerennialWithComplementaryDay;
 use radnelac::calendar::Positivist;
 use radnelac::calendar::PositivistComplementaryDay;
 use radnelac::calendar::PositivistMonth;
@@ -23,12 +31,12 @@ use radnelac::calendar::Symmetry010;
 use radnelac::calendar::Symmetry010Solstice;
 use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
+use radnelac::calendar::SymmetryMonth;
 use radnelac::calendar::TranquilityComplementaryDay;
 use radnelac::calendar::TranquilityMoment;
 use radnelac::calendar::TranquilityMonth;
 use radnelac::calendar::ISO;
-use radnelac::calendar::CommonWeekOfYear;
-use radnelac::calendar::ComplementaryWeekOfYear;
+use radnelac::day_count::BoundedDayCount;
 use radnelac::day_count::Fixed;
 use radnelac::day_count::FromFixed;
 use radnelac::day_count::FIXED_MAX;
@@ -62,7 +70,11 @@ fn within_1_week(max: u8, w0: u8, w1: u8) {
     assert!(w1 == w0 || w1 == (w0 + 1)); //Assumes weekdays at start of year
 }
 
-fn common_week_of_year<T: FromFixed + CommonWeekOfYear>(max: u8, t: f64, dt: u8) {
+fn common_week_of_year<S: ToPrimitive + FromPrimitive, T: FromFixed + CommonWeekOfYear<S>>(
+    max: u8,
+    t: f64,
+    dt: u8,
+) {
     let f0 = Fixed::new(t);
     let f1 = Fixed::new(t + (dt as f64));
     let f2 = Fixed::new(t + 7.0);
@@ -77,7 +89,7 @@ where
     S: ToPrimitive + FromPrimitive,
     T: ToPrimitive + FromPrimitive,
     U: ToPrimitive + FromPrimitive,
-    V: ComplementaryWeekOfYear<S, T, U> + FromFixed,
+    V: PerennialWithComplementaryDay<S, T, U> + FromFixed,
 {
     let f0 = Fixed::new(t);
     let f1 = Fixed::new(t + (dt as f64));
@@ -106,12 +118,12 @@ where
 proptest! {
     #[test]
     fn armenian(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
-        common_week_of_year::<Armenian>(53, t, dt as u8);
+        common_week_of_year::<ArmenianMonth, Armenian>(53, t, dt as u8);
     }
 
     #[test]
     fn coptic(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
-        common_week_of_year::<Coptic>(53, t, dt as u8);
+        common_week_of_year::<CopticMonth, Coptic>(53, t, dt as u8);
     }
 
     #[test]
@@ -121,12 +133,12 @@ proptest! {
 
     #[test]
     fn egyptian(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
-        common_week_of_year::<Egyptian>(53, t, dt as u8);
+        common_week_of_year::<EgyptianMonth, Egyptian>(53, t, dt as u8);
     }
 
     #[test]
     fn ethiopic(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
-        common_week_of_year::<Ethiopic>(53, t, dt as u8);
+        common_week_of_year::<EthiopicMonth, Ethiopic>(53, t, dt as u8);
     }
 
     #[test]
@@ -137,12 +149,12 @@ proptest! {
 
     #[test]
     fn gregorian(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
-        common_week_of_year::<Gregorian>(53, t, dt as u8);
+        common_week_of_year::<GregorianMonth, Gregorian>(53, t, dt as u8);
     }
 
     #[test]
     fn holocene(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
-        common_week_of_year::<Holocene>(53, t, dt as u8);
+        common_week_of_year::<HoloceneMonth, Holocene>(53, t, dt as u8);
     }
 
     #[test]
@@ -158,7 +170,7 @@ proptest! {
 
     #[test]
     fn julian(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
-        common_week_of_year::<Julian>(53, t, dt as u8);
+        common_week_of_year::<JulianMonth, Julian>(53, t, dt as u8);
     }
 
     #[test]
@@ -168,10 +180,10 @@ proptest! {
 
     #[test]
     fn symmetry(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
-        common_week_of_year::<Symmetry010>(53, t, dt as u8);
-        common_week_of_year::<Symmetry454>(53, t, dt as u8);
-        common_week_of_year::<Symmetry010Solstice>(53, t, dt as u8);
-        common_week_of_year::<Symmetry454Solstice>(53, t, dt as u8);
+        common_week_of_year::<SymmetryMonth, Symmetry010>(53, t, dt as u8);
+        common_week_of_year::<SymmetryMonth, Symmetry454>(53, t, dt as u8);
+        common_week_of_year::<SymmetryMonth, Symmetry010Solstice>(53, t, dt as u8);
+        common_week_of_year::<SymmetryMonth, Symmetry454Solstice>(53, t, dt as u8);
     }
 
     #[test]

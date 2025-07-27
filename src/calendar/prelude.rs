@@ -5,18 +5,6 @@ use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
 use std::num::NonZero;
 
-pub trait PerennialWithComplementaryDay<T, U>
-where
-    T: FromPrimitive + ToPrimitive,
-    U: FromPrimitive + ToPrimitive,
-{
-    fn complementary(self) -> Option<T>;
-    fn weekday(self) -> Option<U>;
-    fn complementary_count(year: i32) -> u8;
-    fn days_per_week() -> u8;
-    fn weeks_per_month() -> u8;
-}
-
 pub trait HasLeapYears {
     fn is_leap(year: i32) -> bool;
 }
@@ -37,7 +25,7 @@ impl CommonDate {
     }
 }
 
-pub trait ToFromCommonDate: Sized + EffectiveBound {
+pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
     fn to_common_date(self) -> CommonDate;
     fn from_common_date_unchecked(d: CommonDate) -> Self;
     fn valid_month_day(d: CommonDate) -> Result<(), CalendarError>;
@@ -59,71 +47,51 @@ pub trait ToFromCommonDate: Sized + EffectiveBound {
         }
     }
 
-    fn year_start(year: i16) -> Self {
-        let d = Self::year_start_date(year as i32);
+    fn year_start(year: i32) -> Self {
+        let d = Self::year_start_date(year);
         debug_assert!(Self::in_effective_bounds(d));
-        Self::try_from_common_date(d).expect("Known to be in range")
+        Self::try_from_common_date(d).expect("Known to be valid date")
     }
 
-    fn year_end(year: i16) -> Self {
-        let d = Self::year_end_date(year as i32);
+    fn year_end(year: i32) -> Self {
+        let d = Self::year_end_date(year);
         debug_assert!(Self::in_effective_bounds(d));
-        Self::try_from_common_date(d).expect("Known to be in range")
+        Self::try_from_common_date(d).expect("Known to be valid date")
     }
-}
 
-pub trait CommonYear: ToFromCommonDate {
-    fn year(self) -> i32 {
-        self.to_common_date().year
+    fn day(self) -> u8 {
+        self.to_common_date().day
     }
-}
 
-pub trait TryMonth<T: FromPrimitive>: ToFromCommonDate {
     fn try_month(self) -> Option<T> {
         T::from_u8(self.to_common_date().month)
     }
 }
 
-pub trait GuaranteedMonth<T: FromPrimitive>: ToFromCommonDate {
+pub trait CommonYear<T: FromPrimitive>: ToFromCommonDate<T> {
+    fn year(self) -> i32 {
+        self.to_common_date().year
+    }
+}
+
+pub trait GuaranteedMonth<T: FromPrimitive>: ToFromCommonDate<T> {
     fn month(self) -> T {
-        T::from_u8(self.to_common_date().month).expect("Will not allow setting invalid value.")
+        self.try_month().expect("Month is guaranteed")
     }
 }
 
-impl<T: FromPrimitive + ToPrimitive, U: GuaranteedMonth<T>> TryMonth<T> for U {
-    fn try_month(self) -> Option<T> {
-        Some(self.month())
-    }
-}
-
-pub trait CommonDay: ToFromCommonDate {
-    fn day(self) -> u8 {
-        self.to_common_date().day
-    }
-}
-
-pub trait Quarter {
-    fn quarter(self) -> NonZero<u8>;
-}
-
-pub trait CommonWeekOfYear: ToFromCommonDate + ToFixed + CommonYear {
-    fn week_of_year(self) -> u8 {
-        let today = self.to_fixed();
-        let start = Self::try_from_common_date(Self::year_start_date(self.year()))
-            .expect("New year should be valid for any date")
-            .to_fixed();
-        let diff = today.get_day_i() - start.get_day_i();
-        (diff.div_euclid(7) + 1) as u8
-    }
-}
-
-pub trait ComplementaryWeekOfYear<S, T, U>:
-    CommonDay + TryMonth<S> + PerennialWithComplementaryDay<T, U>
+pub trait PerennialWithComplementaryDay<S, T, U>: ToFromCommonDate<S>
 where
     S: ToPrimitive + FromPrimitive,
-    T: ToPrimitive + FromPrimitive,
-    U: ToPrimitive + FromPrimitive,
+    T: FromPrimitive + ToPrimitive,
+    U: FromPrimitive + ToPrimitive,
 {
+    fn complementary(self) -> Option<T>;
+    fn weekday(self) -> Option<U>;
+    fn complementary_count(year: i32) -> u8;
+    fn days_per_week() -> u8;
+    fn weeks_per_month() -> u8;
+
     fn try_week_of_year(self) -> Option<u8> {
         match (self.complementary(), self.try_month()) {
             (None, Some(month)) => {
@@ -136,6 +104,21 @@ where
             }
             (_, _) => None,
         }
+    }
+}
+
+pub trait Quarter {
+    fn quarter(self) -> NonZero<u8>;
+}
+
+pub trait CommonWeekOfYear<T: FromPrimitive>:
+    ToFromCommonDate<T> + ToFixed + CommonYear<T>
+{
+    fn week_of_year(self) -> u8 {
+        let today = self.to_fixed();
+        let start = Self::year_start(self.year()).to_fixed();
+        let diff = today.get_day_i() - start.get_day_i();
+        (diff.div_euclid(7) + 1) as u8
     }
 }
 

@@ -1,5 +1,4 @@
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonDay;
 use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::GuaranteedMonth;
@@ -216,7 +215,7 @@ impl ToFixed for Gregorian {
     }
 }
 
-impl ToFromCommonDate for Gregorian {
+impl ToFromCommonDate<GregorianMonth> for Gregorian {
     fn to_common_date(self) -> CommonDate {
         self.0
     }
@@ -251,10 +250,9 @@ impl Quarter for Gregorian {
     }
 }
 
-impl CommonYear for Gregorian {}
+impl CommonYear<GregorianMonth> for Gregorian {}
 impl GuaranteedMonth<GregorianMonth> for Gregorian {}
-impl CommonDay for Gregorian {}
-impl CommonWeekOfYear for Gregorian {}
+impl CommonWeekOfYear<GregorianMonth> for Gregorian {}
 
 #[cfg(test)]
 mod tests {

@@ -1,23 +1,37 @@
+use num_traits::FromPrimitive;
+use num_traits::ToPrimitive;
 use proptest::prop_assume;
 use proptest::proptest;
-use radnelac::day_count::BoundedDayCount;
 use radnelac::calendar::Armenian;
+use radnelac::calendar::ArmenianMonth;
 use radnelac::calendar::Coptic;
+use radnelac::calendar::CopticMonth;
 use radnelac::calendar::Cotsworth;
+use radnelac::calendar::CotsworthMonth;
 use radnelac::calendar::Egyptian;
+use radnelac::calendar::EgyptianMonth;
 use radnelac::calendar::Ethiopic;
+use radnelac::calendar::EthiopicMonth;
 use radnelac::calendar::FrenchRevArith;
+use radnelac::calendar::FrenchRevMonth;
 use radnelac::calendar::Gregorian;
+use radnelac::calendar::GregorianMonth;
 use radnelac::calendar::Holocene;
+use radnelac::calendar::HoloceneMonth;
 use radnelac::calendar::Julian;
+use radnelac::calendar::JulianMonth;
+use radnelac::calendar::PerennialWithComplementaryDay;
 use radnelac::calendar::Positivist;
+use radnelac::calendar::PositivistMonth;
 use radnelac::calendar::Symmetry010;
 use radnelac::calendar::Symmetry010Solstice;
 use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
-use radnelac::calendar::TranquilityMoment;
-use radnelac::calendar::PerennialWithComplementaryDay;
+use radnelac::calendar::SymmetryMonth;
 use radnelac::calendar::ToFromCommonDate;
+use radnelac::calendar::TranquilityMoment;
+use radnelac::calendar::TranquilityMonth;
+use radnelac::day_count::BoundedDayCount;
 use radnelac::day_count::Epoch;
 use radnelac::day_count::Fixed;
 use radnelac::day_count::FromFixed;
@@ -25,7 +39,9 @@ use radnelac::day_count::FIXED_MAX;
 use radnelac::day_count::FIXED_MIN;
 use std::fmt::Debug;
 
-fn one_more_day<T: ToFromCommonDate + FromFixed + Debug>(t: f64) {
+fn one_more_day<S: FromPrimitive + ToPrimitive, T: ToFromCommonDate<S> + FromFixed + Debug>(
+    t: f64,
+) {
     let f0 = Fixed::new(t);
     let f1 = Fixed::new(t + 1.0);
     let d0 = T::from_fixed(f0).to_common_date();
@@ -52,68 +68,68 @@ fn one_more_day<T: ToFromCommonDate + FromFixed + Debug>(t: f64) {
 proptest! {
     #[test]
     fn armenian(t in FIXED_MIN..FIXED_MAX) {
-        one_more_day::<Armenian>(t);
+        one_more_day::<ArmenianMonth, Armenian>(t);
     }
 
     #[test]
     fn coptic(t in FIXED_MIN..FIXED_MAX) {
-        one_more_day::<Coptic>(t);
+        one_more_day::<CopticMonth, Coptic>(t);
     }
 
     #[test]
     fn cotsworth(t in FIXED_MIN..FIXED_MAX) {
-        one_more_day::<Cotsworth>(t);
+        one_more_day::<CotsworthMonth, Cotsworth>(t);
     }
 
     #[test]
     fn egyptian(t in FIXED_MIN..FIXED_MAX) {
-        one_more_day::<Egyptian>(t);
+        one_more_day::<EgyptianMonth, Egyptian>(t);
     }
 
     #[test]
     fn ethiopic(t in FIXED_MIN..FIXED_MAX) {
-        one_more_day::<Ethiopic>(t);
+        one_more_day::<EthiopicMonth, Ethiopic>(t);
     }
 
     #[test]
     fn french_rev_arith(t in FIXED_MIN..FIXED_MAX) {
-        one_more_day::<FrenchRevArith<true>>(t);
-        one_more_day::<FrenchRevArith<false>>(t);
+        one_more_day::<FrenchRevMonth, FrenchRevArith<true>>(t);
+        one_more_day::<FrenchRevMonth, FrenchRevArith<false>>(t);
     }
 
     #[test]
     fn gregorian(t in FIXED_MIN..FIXED_MAX) {
-        one_more_day::<Gregorian>(t);
+        one_more_day::<GregorianMonth, Gregorian>(t);
     }
 
     #[test]
     fn holocene(t in FIXED_MIN..FIXED_MAX) {
-        one_more_day::<Holocene>(t);
+        one_more_day::<HoloceneMonth, Holocene>(t);
     }
 
     #[test]
     fn julian_ad(t in FIXED_MIN..-367.0) {
         //Avoiding year 0
-        one_more_day::<Julian>(t);
+        one_more_day::<JulianMonth, Julian>(t);
     }
 
     #[test]
     fn julian_bc(t in 367.0..FIXED_MAX) {
         //Avoiding year 0
-        one_more_day::<Julian>(t);
+        one_more_day::<JulianMonth, Julian>(t);
     }
 
     #[test]
     fn positivist(t in FIXED_MIN..FIXED_MAX) {
-        one_more_day::<Positivist>(t);
+        one_more_day::<PositivistMonth, Positivist>(t);
     }
 
     #[test]
     fn symmetry(t in FIXED_MIN..FIXED_MAX) {
-        one_more_day::<Symmetry454>(t);
-        one_more_day::<Symmetry010>(t);
-        one_more_day::<Symmetry454Solstice>(t);
-        one_more_day::<Symmetry010Solstice>(t);
+        one_more_day::<SymmetryMonth, Symmetry454>(t);
+        one_more_day::<SymmetryMonth, Symmetry010>(t);
+        one_more_day::<SymmetryMonth, Symmetry454Solstice>(t);
+        one_more_day::<SymmetryMonth, Symmetry010Solstice>(t);
     }
 
     #[test]
@@ -124,7 +140,7 @@ proptest! {
         let tq1 = TranquilityMoment::from_fixed(Fixed::new(t + 1.0));
         prop_assume!(tq0.complementary().is_none());
         prop_assume!(tq1.complementary().is_none());
-        one_more_day::<TranquilityMoment>(t);
+        one_more_day::<TranquilityMonth, TranquilityMoment>(t);
     }
 
     #[test]
@@ -135,7 +151,7 @@ proptest! {
         let tq1 = TranquilityMoment::from_fixed(Fixed::new(t + 1.0));
         prop_assume!(tq0.complementary().is_none());
         prop_assume!(tq1.complementary().is_none());
-        one_more_day::<TranquilityMoment>(t);
+        one_more_day::<TranquilityMonth, TranquilityMoment>(t);
     }
 
 }

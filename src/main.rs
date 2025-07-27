@@ -78,8 +78,8 @@ fn print_t(t_fixed: Fixed) {
     let d_symmetry454s = Symmetry454Solstice::from_fixed(t_fixed);
     let d_symmetry010s = Symmetry010Solstice::from_fixed(t_fixed);
     let d_tranquility = TranquilityMoment::from_fixed(t_fixed);
-    let y_roman = Roman::auc_year_from_julian(d_julian.year());
-    let y_olympiad = Olympiad::from_julian_year(d_julian.year());
+    let y_roman = Roman::auc_year_from_julian(d_julian.nz_year());
+    let y_olympiad = Olympiad::from_julian_year(d_julian.nz_year());
 
     println!("{:?}", m_clk);
     println!("{:?}", t_unix);
@@ -137,8 +137,8 @@ fn print_t(t_fixed: Fixed) {
     let d_symmetry454s = Symmetry454Solstice::from_fixed(t_fixed);
     let d_symmetry010s = Symmetry010Solstice::from_fixed(t_fixed);
     let d_tranquility = TranquilityMoment::from_fixed(t_fixed);
-    let y_roman = Roman::auc_year_from_julian(d_julian.year());
-    let y_olympiad = Olympiad::from_julian_year(d_julian.year());
+    let y_roman = Roman::auc_year_from_julian(d_julian.nz_year());
+    let y_olympiad = Olympiad::from_julian_year(d_julian.nz_year());
 
     println!("{} ({:?})", m_clk, m_clk);
     println!("{:?}", t_unix);

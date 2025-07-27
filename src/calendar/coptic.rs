@@ -1,6 +1,5 @@
 use crate::calendar::julian::Julian;
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonDay;
 use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::GuaranteedMonth;
@@ -111,7 +110,7 @@ impl ToFixed for Coptic {
     }
 }
 
-impl ToFromCommonDate for Coptic {
+impl ToFromCommonDate<CopticMonth> for Coptic {
     fn to_common_date(self) -> CommonDate {
         self.0
     }
@@ -150,10 +149,9 @@ impl Quarter for Coptic {
     }
 }
 
-impl CommonYear for Coptic {}
+impl CommonYear<CopticMonth> for Coptic {}
 impl GuaranteedMonth<CopticMonth> for Coptic {}
-impl CommonDay for Coptic {}
-impl CommonWeekOfYear for Coptic {}
+impl CommonWeekOfYear<CopticMonth> for Coptic {}
 
 #[cfg(test)]
 mod tests {

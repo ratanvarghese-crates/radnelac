@@ -1,6 +1,5 @@
 use crate::calendar::gregorian::GregorianMonth;
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonDay;
 use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::GuaranteedMonth;
@@ -38,7 +37,7 @@ const JULIAN_EPOCH_RD: i32 = -1;
 pub struct Julian(CommonDate);
 
 impl Julian {
-    pub fn year(self) -> NonZero<i32> {
+    pub fn nz_year(self) -> NonZero<i32> {
         NonZero::new(self.0.year).expect("Will not be assigned zero")
     }
 
@@ -135,7 +134,7 @@ impl ToFixed for Julian {
     }
 }
 
-impl ToFromCommonDate for Julian {
+impl ToFromCommonDate<JulianMonth> for Julian {
     fn to_common_date(self) -> CommonDate {
         self.0
     }
@@ -172,10 +171,9 @@ impl Quarter for Julian {
     }
 }
 
-impl CommonYear for Julian {}
+impl CommonYear<JulianMonth> for Julian {}
 impl GuaranteedMonth<JulianMonth> for Julian {}
-impl CommonDay for Julian {}
-impl CommonWeekOfYear for Julian {}
+impl CommonWeekOfYear<JulianMonth> for Julian {}
 
 #[cfg(test)]
 mod tests {

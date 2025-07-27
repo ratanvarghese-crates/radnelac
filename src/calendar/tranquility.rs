@@ -1,13 +1,10 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonDay;
-use crate::calendar::prelude::ComplementaryWeekOfYear;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::OrdinalDate;
 use crate::calendar::prelude::PerennialWithComplementaryDay;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
-use crate::calendar::prelude::TryMonth;
 use crate::clock::ClockTime;
 use crate::clock::TimeOfDay;
 use crate::common::error::CalendarError;
@@ -253,7 +250,9 @@ impl PartialOrd for TranquilityMoment {
     }
 }
 
-impl PerennialWithComplementaryDay<TranquilityComplementaryDay, Weekday> for TranquilityMoment {
+impl PerennialWithComplementaryDay<TranquilityMonth, TranquilityComplementaryDay, Weekday>
+    for TranquilityMoment
+{
     fn complementary(self) -> Option<TranquilityComplementaryDay> {
         if self.date.month == NON_MONTH {
             TranquilityComplementaryDay::from_u8(self.date.day)
@@ -350,7 +349,7 @@ impl ToFixed for TranquilityMoment {
     }
 }
 
-impl ToFromCommonDate for TranquilityMoment {
+impl ToFromCommonDate<TranquilityMonth> for TranquilityMoment {
     fn to_common_date(self) -> CommonDate {
         self.date
     }
@@ -411,14 +410,6 @@ impl Quarter for TranquilityMoment {
             NonZero::new(((m - 1) / 3) + 1).expect("(m - 1)/3 > -1")
         }
     }
-}
-
-impl CommonDay for TranquilityMoment {}
-impl TryMonth<TranquilityMonth> for TranquilityMoment {}
-
-impl ComplementaryWeekOfYear<TranquilityMonth, TranquilityComplementaryDay, Weekday>
-    for TranquilityMoment
-{
 }
 
 #[cfg(test)]

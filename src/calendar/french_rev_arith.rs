@@ -1,13 +1,10 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonDay;
 use crate::calendar::prelude::CommonYear;
-use crate::calendar::prelude::ComplementaryWeekOfYear;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::PerennialWithComplementaryDay;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
-use crate::calendar::prelude::TryMonth;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -142,7 +139,7 @@ impl<const L: bool> FrenchRevArith<L> {
     }
 }
 
-impl<const L: bool> PerennialWithComplementaryDay<Sansculottide, FrenchRevWeekday>
+impl<const L: bool> PerennialWithComplementaryDay<FrenchRevMonth, Sansculottide, FrenchRevWeekday>
     for FrenchRevArith<L>
 {
     fn complementary(self) -> Option<Sansculottide> {
@@ -236,7 +233,7 @@ impl<const L: bool> ToFixed for FrenchRevArith<L> {
     }
 }
 
-impl<const L: bool> ToFromCommonDate for FrenchRevArith<L> {
+impl<const L: bool> ToFromCommonDate<FrenchRevMonth> for FrenchRevArith<L> {
     fn to_common_date(self) -> CommonDate {
         self.0
     }
@@ -282,14 +279,7 @@ impl<const L: bool> Quarter for FrenchRevArith<L> {
     }
 }
 
-impl<const L: bool> CommonYear for FrenchRevArith<L> {}
-impl<const L: bool> TryMonth<FrenchRevMonth> for FrenchRevArith<L> {}
-impl<const L: bool> CommonDay for FrenchRevArith<L> {}
-
-impl<const L: bool> ComplementaryWeekOfYear<FrenchRevMonth, Sansculottide, FrenchRevWeekday>
-    for FrenchRevArith<L>
-{
-}
+impl<const L: bool> CommonYear<FrenchRevMonth> for FrenchRevArith<L> {}
 
 #[cfg(test)]
 mod tests {
