@@ -6,6 +6,7 @@ use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
+use crate::calendar::HasIntercalaryDays;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -76,7 +77,7 @@ pub enum PositivistComplementaryDay {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Positivist(CommonDate);
 
-impl Perennial<PositivistMonth, PositivistComplementaryDay, Weekday> for Positivist {
+impl HasIntercalaryDays<PositivistComplementaryDay> for Positivist {
     // Calendier Positiviste Page 8
     fn complementary(self) -> Option<PositivistComplementaryDay> {
         if self.0.month == NON_MONTH {
@@ -86,20 +87,22 @@ impl Perennial<PositivistMonth, PositivistComplementaryDay, Weekday> for Positiv
         }
     }
 
+    fn complementary_count(p_year: i32) -> u8 {
+        if Positivist::is_leap(p_year) {
+            2
+        } else {
+            1
+        }
+    }
+}
+
+impl Perennial<PositivistMonth, Weekday> for Positivist {
     // Calendier Positiviste Page 23-30
     fn weekday(self) -> Option<Weekday> {
         if self.0.month == NON_MONTH {
             None
         } else {
             Weekday::from_i64((self.0.day as i64).modulus(7))
-        }
-    }
-
-    fn complementary_count(p_year: i32) -> u8 {
-        if Positivist::is_leap(p_year) {
-            2
-        } else {
-            1
         }
     }
 

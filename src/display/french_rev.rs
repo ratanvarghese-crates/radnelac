@@ -1,6 +1,7 @@
 // TODO: Seperate EN and FR strings
 
 use crate::calendar::FrenchRevArith;
+use crate::calendar::HasIntercalaryDays;
 use crate::calendar::Perennial;
 use crate::calendar::ToFromCommonDate;
 use crate::clock::TimeOfDay;

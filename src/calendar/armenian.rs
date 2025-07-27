@@ -3,6 +3,7 @@ use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::HasIntercalaryDays;
 use crate::common::error::CalendarError;
 use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
@@ -143,6 +144,20 @@ impl ToFromCommonDate<ArmenianMonth> for Armenian {
 
     fn year_end_date(year: i32) -> CommonDate {
         Egyptian::year_end_date(year)
+    }
+}
+
+impl HasIntercalaryDays<u8> for Armenian {
+    fn complementary(self) -> Option<u8> {
+        if self.0.month == NON_MONTH {
+            Some(self.0.day)
+        } else {
+            None
+        }
+    }
+
+    fn complementary_count(_year: i32) -> u8 {
+        5
     }
 }
 

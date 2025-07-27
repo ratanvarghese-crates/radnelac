@@ -1,3 +1,4 @@
+use crate::calendar::HasIntercalaryDays;
 use crate::calendar::Perennial;
 use crate::calendar::Positivist;
 use crate::calendar::ToFromCommonDate;

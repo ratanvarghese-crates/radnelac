@@ -7,7 +7,6 @@ use radnelac::calendar::CommonWeekOfYear;
 use radnelac::calendar::Coptic;
 use radnelac::calendar::CopticMonth;
 use radnelac::calendar::Cotsworth;
-use radnelac::calendar::CotsworthComplementaryDay;
 use radnelac::calendar::CotsworthMonth;
 use radnelac::calendar::Egyptian;
 use radnelac::calendar::EgyptianMonth;
@@ -24,15 +23,12 @@ use radnelac::calendar::Julian;
 use radnelac::calendar::JulianMonth;
 use radnelac::calendar::Perennial;
 use radnelac::calendar::Positivist;
-use radnelac::calendar::PositivistComplementaryDay;
 use radnelac::calendar::PositivistMonth;
-use radnelac::calendar::Sansculottide;
 use radnelac::calendar::Symmetry010;
 use radnelac::calendar::Symmetry010Solstice;
 use radnelac::calendar::Symmetry454;
 use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::SymmetryMonth;
-use radnelac::calendar::TranquilityComplementaryDay;
 use radnelac::calendar::TranquilityMoment;
 use radnelac::calendar::TranquilityMonth;
 use radnelac::calendar::ISO;
@@ -84,12 +80,11 @@ fn common_week_of_year<S: ToPrimitive + FromPrimitive, T: FromFixed + CommonWeek
     between_2_weeks(false, max, w0, w1, w2);
 }
 
-fn complementary_week_of_year<S, T, U, V>(allow_same_week: bool, max: u8, t: f64, dt: u8)
+fn complementary_week_of_year<S, U, V>(allow_same_week: bool, max: u8, t: f64, dt: u8)
 where
     S: ToPrimitive + FromPrimitive,
-    T: ToPrimitive + FromPrimitive,
     U: ToPrimitive + FromPrimitive,
-    V: Perennial<S, T, U> + FromFixed,
+    V: Perennial<S, U> + FromFixed,
 {
     let f0 = Fixed::new(t);
     let f1 = Fixed::new(t + (dt as f64));
@@ -128,7 +123,7 @@ proptest! {
 
     #[test]
     fn cotsworth(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
-        complementary_week_of_year::<CotsworthMonth, CotsworthComplementaryDay, Weekday, Cotsworth>(false, 53, t, dt as u8);
+        complementary_week_of_year::<CotsworthMonth, Weekday, Cotsworth>(false, 53, t, dt as u8);
     }
 
     #[test]
@@ -143,8 +138,8 @@ proptest! {
 
     #[test]
     fn french_rev_arith(t in FIXED_MIN..FIXED_MAX, dt in 1..9) {
-        complementary_week_of_year::<FrenchRevMonth, Sansculottide, FrenchRevWeekday, FrenchRevArith<true>>(false, 36, t, dt as u8);
-        complementary_week_of_year::<FrenchRevMonth, Sansculottide, FrenchRevWeekday, FrenchRevArith<false>>(false, 36, t, dt as u8);
+        complementary_week_of_year::<FrenchRevMonth, FrenchRevWeekday, FrenchRevArith<true>>(false, 36, t, dt as u8);
+        complementary_week_of_year::<FrenchRevMonth, FrenchRevWeekday, FrenchRevArith<false>>(false, 36, t, dt as u8);
     }
 
     #[test]
@@ -175,7 +170,7 @@ proptest! {
 
     #[test]
     fn positivist(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
-        complementary_week_of_year::<PositivistMonth, PositivistComplementaryDay, Weekday, Positivist>(false, 53, t, dt as u8);
+        complementary_week_of_year::<PositivistMonth, Weekday, Positivist>(false, 53, t, dt as u8);
     }
 
     #[test]
@@ -188,7 +183,7 @@ proptest! {
 
     #[test]
     fn tranquility(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
-        complementary_week_of_year::<TranquilityMonth, TranquilityComplementaryDay, Weekday, TranquilityMoment>(true, 53, t, dt as u8);
+        complementary_week_of_year::<TranquilityMonth, Weekday, TranquilityMoment>(true, 53, t, dt as u8);
     }
 
 }

@@ -4,6 +4,7 @@ use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::HasIntercalaryDays;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -138,9 +139,7 @@ impl<const L: bool> FrenchRevArith<L> {
     }
 }
 
-impl<const L: bool> Perennial<FrenchRevMonth, Sansculottide, FrenchRevWeekday>
-    for FrenchRevArith<L>
-{
+impl<const L: bool> HasIntercalaryDays<Sansculottide> for FrenchRevArith<L> {
     fn complementary(self) -> Option<Sansculottide> {
         if self.0.month == NON_MONTH {
             Sansculottide::from_u8(self.0.day)
@@ -149,19 +148,21 @@ impl<const L: bool> Perennial<FrenchRevMonth, Sansculottide, FrenchRevWeekday>
         }
     }
 
-    fn weekday(self) -> Option<FrenchRevWeekday> {
-        if self.0.month == NON_MONTH {
-            None
-        } else {
-            FrenchRevWeekday::from_i64((self.0.day as i64).adjusted_remainder(10))
-        }
-    }
-
     fn complementary_count(f_year: i32) -> u8 {
         if FrenchRevArith::<L>::is_leap(f_year) {
             6
         } else {
             5
+        }
+    }
+}
+
+impl<const L: bool> Perennial<FrenchRevMonth, FrenchRevWeekday> for FrenchRevArith<L> {
+    fn weekday(self) -> Option<FrenchRevWeekday> {
+        if self.0.month == NON_MONTH {
+            None
+        } else {
+            FrenchRevWeekday::from_i64((self.0.day as i64).adjusted_remainder(10))
         }
     }
 

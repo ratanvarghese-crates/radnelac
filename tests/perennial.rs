@@ -8,6 +8,7 @@ use radnelac::calendar::CotsworthMonth;
 use radnelac::calendar::FrenchRevArith;
 use radnelac::calendar::FrenchRevMonth;
 use radnelac::calendar::FrenchRevWeekday;
+use radnelac::calendar::HasIntercalaryDays;
 use radnelac::calendar::Positivist;
 use radnelac::calendar::PositivistComplementaryDay;
 use radnelac::calendar::PositivistMonth;
@@ -37,7 +38,7 @@ fn complementary_xor_weekday<
     S: FromPrimitive + ToPrimitive,
     T: FromPrimitive + ToPrimitive,
     U: FromPrimitive + ToPrimitive,
-    V: Perennial<S, T, U> + FromFixed,
+    V: Perennial<S, U> + FromFixed + HasIntercalaryDays<T>,
 >(
     t: f64,
 ) {
@@ -51,9 +52,8 @@ fn complementary_xor_weekday<
 
 fn perennial<
     S: FromPrimitive + ToPrimitive,
-    T: FromPrimitive + ToPrimitive,
     U: std::cmp::PartialEq + std::fmt::Debug + FromPrimitive + ToPrimitive,
-    V: Perennial<S, T, U> + ToFromCommonDate<S>,
+    V: Perennial<S, U> + ToFromCommonDate<S>,
 >(
     y0: i32,
     y1: i32,
@@ -86,7 +86,7 @@ proptest! {
 
     #[test]
     fn cotsworth_perennial(y0 in -MAX_YEARS..MAX_YEARS, y1 in -MAX_YEARS..MAX_YEARS, month in 1..13, day in 1..28) {
-        perennial::<CotsworthMonth, CotsworthComplementaryDay, Weekday, Cotsworth>(y0, y1, month as u8, day as u8);
+        perennial::<CotsworthMonth, Weekday, Cotsworth>(y0, y1, month as u8, day as u8);
     }
 
     #[test]
@@ -97,8 +97,8 @@ proptest! {
 
     #[test]
     fn french_rev_arith_perennial(y0 in -MAX_YEARS..MAX_YEARS, y1 in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
-        perennial::<FrenchRevMonth, Sansculottide, FrenchRevWeekday, FrenchRevArith<true>>(y0, y1, month as u8, day as u8);
-        perennial::<FrenchRevMonth, Sansculottide, FrenchRevWeekday, FrenchRevArith<false>>(y0, y1, month as u8, day as u8);
+        perennial::<FrenchRevMonth, FrenchRevWeekday, FrenchRevArith<true>>(y0, y1, month as u8, day as u8);
+        perennial::<FrenchRevMonth, FrenchRevWeekday, FrenchRevArith<false>>(y0, y1, month as u8, day as u8);
     }
 
     #[test]
@@ -108,7 +108,7 @@ proptest! {
 
     #[test]
     fn positivist_perennial(y0 in -MAX_YEARS..MAX_YEARS, y1 in -MAX_YEARS..MAX_YEARS, month in 1..13, day in 1..28) {
-        perennial::<PositivistMonth, PositivistComplementaryDay, Weekday, Positivist>(y0, y1, month as u8, day as u8);
+        perennial::<PositivistMonth, Weekday, Positivist>(y0, y1, month as u8, day as u8);
     }
 
     #[test]
@@ -118,7 +118,7 @@ proptest! {
 
     #[test]
     fn tranquility_perennial(y0 in -MAX_YEARS..MAX_YEARS, y1 in -MAX_YEARS..MAX_YEARS, month in 1..13, day in 1..28) {
-        perennial::<TranquilityMonth, TranquilityComplementaryDay, Weekday, TranquilityMoment>(y0, y1, month as u8, day as u8);
+        perennial::<TranquilityMonth, Weekday, TranquilityMoment>(y0, y1, month as u8, day as u8);
     }
 
     #[test]

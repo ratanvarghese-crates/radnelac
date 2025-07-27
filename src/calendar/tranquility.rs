@@ -6,6 +6,7 @@ use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
+use crate::calendar::HasIntercalaryDays;
 use crate::clock::ClockTime;
 use crate::clock::TimeOfDay;
 use crate::common::error::CalendarError;
@@ -245,20 +246,12 @@ impl PartialOrd for TranquilityMoment {
     }
 }
 
-impl Perennial<TranquilityMonth, TranquilityComplementaryDay, Weekday> for TranquilityMoment {
+impl HasIntercalaryDays<TranquilityComplementaryDay> for TranquilityMoment {
     fn complementary(self) -> Option<TranquilityComplementaryDay> {
         if self.date.month == NON_MONTH {
             TranquilityComplementaryDay::from_u8(self.date.day)
         } else {
             None
-        }
-    }
-
-    fn weekday(self) -> Option<Weekday> {
-        if self.complementary().is_some() {
-            None
-        } else {
-            Weekday::from_i64(((self.date.day as i64) + 4).modulus(7))
         }
     }
 
@@ -270,6 +263,16 @@ impl Perennial<TranquilityMonth, TranquilityComplementaryDay, Weekday> for Tranq
             0
         } else {
             1
+        }
+    }
+}
+
+impl Perennial<TranquilityMonth, Weekday> for TranquilityMoment {
+    fn weekday(self) -> Option<Weekday> {
+        if self.complementary().is_some() {
+            None
+        } else {
+            Weekday::from_i64(((self.date.day as i64) + 4).modulus(7))
         }
     }
 

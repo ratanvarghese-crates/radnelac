@@ -15,6 +15,7 @@ use radnelac::calendar::Ethiopic;
 use radnelac::calendar::EthiopicMonth;
 use radnelac::calendar::Gregorian;
 use radnelac::calendar::GregorianMonth;
+use radnelac::calendar::HasIntercalaryDays;
 use radnelac::calendar::HasLeapYears;
 use radnelac::calendar::Holocene;
 use radnelac::calendar::HoloceneMonth;
@@ -88,6 +89,18 @@ proptest! {
     fn armenian_locked_to_egyptian(year in -MAX_YEARS..MAX_YEARS, month in 1..12, day in 1..30) {
         let d = CommonDate{ year: year, month: month as u8, day: day as u8 };
         locked::<ArmenianMonth, EgyptianMonth, Armenian, Egyptian>(d);
+        let a = Armenian::try_from_common_date(d).unwrap();
+        let e = Egyptian::try_from_common_date(d).unwrap();
+        assert_eq!(a.complementary().is_some(), e.complementary().is_some());
+    }
+
+    #[test]
+    fn armenian_locked_to_egyptian_epagomenae(year in -MAX_YEARS..MAX_YEARS, day in 1..5) {
+        let d = CommonDate{ year: year, month: 13, day: day as u8 };
+        locked::<ArmenianMonth, EgyptianMonth, Armenian, Egyptian>(d);
+        let a = Armenian::try_from_common_date(d).unwrap();
+        let e = Egyptian::try_from_common_date(d).unwrap();
+        assert_eq!(a.complementary().is_some(), e.complementary().is_some());
     }
 
     #[test]

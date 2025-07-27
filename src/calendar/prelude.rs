@@ -81,21 +81,23 @@ pub trait GuaranteedMonth<T: FromPrimitive>: ToFromCommonDate<T> {
     }
 }
 
-pub trait Perennial<S, T, U>: ToFromCommonDate<S>
+pub trait HasIntercalaryDays<T: FromPrimitive + ToPrimitive> {
+    fn complementary(self) -> Option<T>;
+    fn complementary_count(year: i32) -> u8;
+}
+
+pub trait Perennial<S, T>: ToFromCommonDate<S>
 where
     S: ToPrimitive + FromPrimitive,
     T: FromPrimitive + ToPrimitive,
-    U: FromPrimitive + ToPrimitive,
 {
-    fn complementary(self) -> Option<T>;
-    fn weekday(self) -> Option<U>;
-    fn complementary_count(year: i32) -> u8;
+    fn weekday(self) -> Option<T>;
     fn days_per_week() -> u8;
     fn weeks_per_month() -> u8;
 
     fn try_week_of_year(self) -> Option<u8> {
-        match (self.complementary(), self.try_month()) {
-            (None, Some(month)) => {
+        match (self.weekday(), self.try_month()) {
+            (Some(_), Some(month)) => {
                 let d = self.day() as i64;
                 let m = month.to_i64().expect("Guaranteed in range");
                 let dpw = Self::days_per_week() as i64;

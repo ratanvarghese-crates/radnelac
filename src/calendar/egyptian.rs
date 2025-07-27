@@ -2,6 +2,7 @@ use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::HasIntercalaryDays;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -61,16 +62,6 @@ pub enum EgyptianDaysUponTheYear {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Egyptian(CommonDate);
 
-impl Egyptian {
-    pub fn complementary(self) -> Option<EgyptianDaysUponTheYear> {
-        if self.0.month == NON_MONTH {
-            EgyptianDaysUponTheYear::from_u8(self.0.day)
-        } else {
-            None
-        }
-    }
-}
-
 impl CalculatedBounds for Egyptian {}
 
 impl Epoch for Egyptian {
@@ -129,6 +120,20 @@ impl ToFromCommonDate<EgyptianMonth> for Egyptian {
 
     fn year_end_date(year: i32) -> CommonDate {
         CommonDate::new(year, NON_MONTH, 5)
+    }
+}
+
+impl HasIntercalaryDays<EgyptianDaysUponTheYear> for Egyptian {
+    fn complementary(self) -> Option<EgyptianDaysUponTheYear> {
+        if self.0.month == NON_MONTH {
+            EgyptianDaysUponTheYear::from_u8(self.0.day)
+        } else {
+            None
+        }
+    }
+
+    fn complementary_count(_year: i32) -> u8 {
+        5
     }
 }
 

@@ -1,7 +1,8 @@
-use crate::calendar::Egyptian;
-use crate::clock::TimeOfDay;
 use crate::calendar::CommonWeekOfYear;
+use crate::calendar::Egyptian;
+use crate::calendar::HasIntercalaryDays;
 use crate::calendar::ToFromCommonDate;
+use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
 use crate::display::prelude::PresetDisplay;
