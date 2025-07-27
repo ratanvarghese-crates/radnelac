@@ -12,6 +12,11 @@ use radnelac::calendar::HasLeapYears;
 use radnelac::calendar::OrdinalDate;
 use radnelac::calendar::Positivist;
 use radnelac::calendar::PositivistMonth;
+use radnelac::calendar::Symmetry010;
+use radnelac::calendar::Symmetry010Solstice;
+use radnelac::calendar::Symmetry454;
+use radnelac::calendar::Symmetry454Solstice;
+use radnelac::calendar::SymmetryMonth;
 use radnelac::calendar::ToFromCommonDate;
 use radnelac::calendar::ToFromOrdinalDate;
 use radnelac::calendar::TranquilityMoment;
@@ -126,6 +131,44 @@ proptest! {
     fn year_start_positivist(year in -MAX_YEARS..MAX_YEARS) {
         let len = if Positivist::is_leap(year) { 366 } else { 365 };
         year_start::<PositivistMonth, Positivist>(year, len);
+    }
+
+    #[test]
+    fn valid_symmetry(year: i32, day in 1..364) {
+        let ord = OrdinalDate{ year: year, day_of_year: day as u16 };
+        Symmetry454::valid_ordinal(ord).unwrap();
+        Symmetry010::valid_ordinal(ord).unwrap();
+        Symmetry454Solstice::valid_ordinal(ord).unwrap();
+        Symmetry010Solstice::valid_ordinal(ord).unwrap();
+    }
+
+    #[test]
+    fn invalid_symmetry(year: i32, day in 372..u16::MAX) {
+        let ord0 = OrdinalDate{ year: year, day_of_year: 0 };
+        let ord1 = OrdinalDate{ year: year, day_of_year: day as u16 };
+        let ord2 = OrdinalDate{ year: year, day_of_year: 365 };
+        assert!(Symmetry454::valid_ordinal(ord0).is_err());
+        assert!(Symmetry454::valid_ordinal(ord1).is_err());
+        assert_eq!(Symmetry454::valid_ordinal(ord2).is_err(), !Symmetry454::is_leap(year));
+        assert!(Symmetry010::valid_ordinal(ord0).is_err());
+        assert!(Symmetry010::valid_ordinal(ord1).is_err());
+        assert_eq!(Symmetry010::valid_ordinal(ord2).is_err(), !Symmetry010::is_leap(year));
+        assert!(Symmetry454Solstice::valid_ordinal(ord0).is_err());
+        assert!(Symmetry454Solstice::valid_ordinal(ord1).is_err());
+        assert_eq!(Symmetry454Solstice::valid_ordinal(ord2).is_err(), !Symmetry454Solstice::is_leap(year));
+        assert!(Symmetry010Solstice::valid_ordinal(ord0).is_err());
+        assert!(Symmetry010Solstice::valid_ordinal(ord1).is_err());
+        assert_eq!(Symmetry010Solstice::valid_ordinal(ord2).is_err(), !Symmetry010Solstice::is_leap(year));
+    }
+
+    #[test]
+    fn year_start_symmetery(year in -MAX_YEARS..MAX_YEARS) {
+        let len = if Symmetry454::is_leap(year) { 371 } else { 364 };
+        year_start::<SymmetryMonth, Symmetry454>(year, len);
+        year_start::<SymmetryMonth, Symmetry010>(year, len);
+        let slen = if Symmetry454Solstice::is_leap(year) { 371 } else { 364 };
+        year_start::<SymmetryMonth, Symmetry454Solstice>(year, slen);
+        year_start::<SymmetryMonth, Symmetry010Solstice>(year, slen);
     }
 
     #[test]
