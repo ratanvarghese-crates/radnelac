@@ -69,6 +69,7 @@ proptest! {
     #[test]
     fn cotsworth(t in FIXED_MIN..FIXED_MAX) {
         roundtrip::<Cotsworth>(t);
+        roundtrip_ordinal::<Cotsworth>(t);
     }
 
     #[test]
@@ -111,6 +112,7 @@ proptest! {
     #[test]
     fn positivist(t in FIXED_MIN..FIXED_MAX) {
         roundtrip::<Positivist>(t);
+        roundtrip_ordinal::<Positivist>(t);
     }
 
     #[test]

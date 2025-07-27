@@ -7,6 +7,7 @@ use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
 use crate::calendar::HasIntercalaryDays;
+use crate::calendar::OrdinalDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -77,6 +78,41 @@ pub enum PositivistComplementaryDay {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Positivist(CommonDate);
 
+impl ToFromOrdinalDate for Positivist {
+    fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {
+        let ord_g = OrdinalDate {
+            year: ord.year + POSITIVIST_YEAR_OFFSET,
+            day_of_year: ord.day_of_year,
+        };
+        Gregorian::valid_ordinal(ord_g)
+    }
+
+    fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        let ord_g = Gregorian::ordinal_from_fixed(fixed_date);
+        OrdinalDate {
+            year: ord_g.year - POSITIVIST_YEAR_OFFSET,
+            day_of_year: ord_g.day_of_year,
+        }
+    }
+
+    fn to_ordinal(self) -> OrdinalDate {
+        let offset_m = ((self.0.month as i64) - 1) * 28;
+        let doy = (offset_m as u16) + (self.0.day as u16);
+        OrdinalDate {
+            year: self.0.year,
+            day_of_year: doy,
+        }
+    }
+
+    fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        let year = ord.year;
+        let month = (((ord.day_of_year - 1) as i64).div_euclid(28) + 1) as u8;
+        let day = (ord.day_of_year as i64).adjusted_remainder(28) as u8;
+        debug_assert!(day > 0 && day < 29);
+        Positivist(CommonDate::new(year, month, day))
+    }
+}
+
 impl HasIntercalaryDays<PositivistComplementaryDay> for Positivist {
     // Calendier Positiviste Page 8
     fn complementary(self) -> Option<PositivistComplementaryDay> {
@@ -132,25 +168,21 @@ impl Epoch for Positivist {
 
 impl FromFixed for Positivist {
     fn from_fixed(date: Fixed) -> Positivist {
-        let ord = Gregorian::ordinal_from_fixed(date);
-        let year = ord.year - POSITIVIST_YEAR_OFFSET;
-        let month = (((ord.day_of_year - 1) as i64).div_euclid(28) + 1) as u8;
-        let day = (ord.day_of_year as i64).adjusted_remainder(28) as u8;
-        debug_assert!(day > 0 && day < 29);
-        Positivist(CommonDate::new(year, month, day))
+        let ord_g = Gregorian::ordinal_from_fixed(date);
+        let ord = OrdinalDate {
+            year: ord_g.year - POSITIVIST_YEAR_OFFSET,
+            day_of_year: ord_g.day_of_year,
+        };
+        Self::from_ordinal_unchecked(ord)
     }
 }
 
 impl ToFixed for Positivist {
     fn to_fixed(self) -> Fixed {
         let y = self.0.year + POSITIVIST_YEAR_OFFSET;
-        let offset_y = Gregorian::try_from_common_date(CommonDate::new(y, 1, 1))
-            .expect("month 1, day 1 is always valid for Gregorian")
-            .to_fixed()
-            .get_day_i()
-            - 1;
-        let offset_m = ((self.0.month as i64) - 1) * 28;
-        Fixed::cast_new(offset_y + offset_m + (self.0.day as i64))
+        let offset_y = Gregorian::year_start(y).to_fixed().get_day_i() - 1;
+        let doy = self.to_ordinal().day_of_year as i64;
+        Fixed::cast_new(offset_y + doy)
     }
 }
 

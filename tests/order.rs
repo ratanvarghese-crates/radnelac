@@ -108,11 +108,13 @@ proptest! {
     #[test]
     fn cotsworth(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
         consistent_order::<CotsworthMonth, Cotsworth>(t0, t1);
+        consistent_order_ordinal::<Cotsworth>(t0, t1);
     }
 
     #[test]
     fn cotsworth_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
         consistent_order::<CotsworthMonth, Cotsworth>(t0, t0 + (diff as f64));
+        consistent_order_ordinal::<Cotsworth>(t0, t0 + (diff as f64));
     }
 
     #[test]
@@ -192,11 +194,13 @@ proptest! {
     #[test]
     fn positivist(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
         consistent_order::<PositivistMonth, Positivist>(t0, t1);
+        consistent_order_ordinal::<Positivist>(t0, t1);
     }
 
     #[test]
     fn positivist_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
         consistent_order::<PositivistMonth, Positivist>(t0, t0 + (diff as f64));
+        consistent_order_ordinal::<Positivist>(t0, t0 + (diff as f64));
     }
 
     #[test]

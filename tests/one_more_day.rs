@@ -97,6 +97,11 @@ proptest! {
     }
 
     #[test]
+    fn cotsworth_ordinal(t in FIXED_MIN..FIXED_MAX) {
+        one_more_day_ordinal::<Cotsworth>(t);
+    }
+
+    #[test]
     fn egyptian(t in FIXED_MIN..FIXED_MAX) {
         one_more_day::<EgyptianMonth, Egyptian>(t);
     }
@@ -143,6 +148,11 @@ proptest! {
     #[test]
     fn positivist(t in FIXED_MIN..FIXED_MAX) {
         one_more_day::<PositivistMonth, Positivist>(t);
+    }
+
+    #[test]
+    fn positivist_ordinal(t in FIXED_MIN..FIXED_MAX) {
+        one_more_day_ordinal::<Positivist>(t);
     }
 
     #[test]

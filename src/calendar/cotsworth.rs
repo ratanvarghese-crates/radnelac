@@ -7,6 +7,7 @@ use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
 use crate::calendar::HasIntercalaryDays;
+use crate::calendar::OrdinalDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -68,6 +69,46 @@ pub enum CotsworthComplementaryDay {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Cotsworth(CommonDate);
 
+impl ToFromOrdinalDate for Cotsworth {
+    fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {
+        Gregorian::valid_ordinal(ord)
+    }
+
+    fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        Gregorian::ordinal_from_fixed(fixed_date)
+    }
+
+    fn to_ordinal(self) -> OrdinalDate {
+        let approx_m = ((self.0.month as i64) - 1) * 28;
+        let offset_m = if self.0.month > 6 && Cotsworth::is_leap(self.0.year) {
+            approx_m + 1
+        } else {
+            approx_m
+        };
+        let doy = (offset_m as u16) + (self.0.day as u16);
+        OrdinalDate {
+            year: self.0.year,
+            day_of_year: doy,
+        }
+    }
+
+    fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        const LEAP_DAY_ORD: u16 = (6 * 28) + 1;
+        let result = match (ord.day_of_year, Cotsworth::is_leap(ord.year)) {
+            (366, true) => CommonDate::new(ord.year, 13, 29),
+            (365, false) => CommonDate::new(ord.year, 13, 29),
+            (LEAP_DAY_ORD, true) => CommonDate::new(ord.year, 6, 29),
+            (doy, is_leap) => {
+                let correction = if doy < LEAP_DAY_ORD || !is_leap { 0 } else { 1 };
+                let month = ((((doy - correction) - 1) as i64).div_euclid(28) + 1) as u8;
+                let day = ((doy - correction) as i64).adjusted_remainder(28) as u8;
+                CommonDate::new(ord.year, month, day)
+            }
+        };
+        Cotsworth(result)
+    }
+}
+
 impl HasIntercalaryDays<CotsworthComplementaryDay> for Cotsworth {
     fn complementary(self) -> Option<CotsworthComplementaryDay> {
         if self.0.day == 29 && self.0.month == (CotsworthMonth::December as u8) {
@@ -122,37 +163,16 @@ impl Epoch for Cotsworth {
 
 impl FromFixed for Cotsworth {
     fn from_fixed(fixed_date: Fixed) -> Cotsworth {
-        let ord = Gregorian::ordinal_from_fixed(fixed_date);
-        const LEAP_DAY_ORD: u16 = (6 * 28) + 1;
-        let result = match (ord.day_of_year, Cotsworth::is_leap(ord.year)) {
-            (366, true) => CommonDate::new(ord.year, 13, 29),
-            (365, false) => CommonDate::new(ord.year, 13, 29),
-            (LEAP_DAY_ORD, true) => CommonDate::new(ord.year, 6, 29),
-            (doy, is_leap) => {
-                let correction = if doy < LEAP_DAY_ORD || !is_leap { 0 } else { 1 };
-                let month = ((((doy - correction) - 1) as i64).div_euclid(28) + 1) as u8;
-                let day = ((doy - correction) as i64).adjusted_remainder(28) as u8;
-                CommonDate::new(ord.year, month, day)
-            }
-        };
-        Cotsworth(result)
+        let ord = Self::ordinal_from_fixed(fixed_date);
+        Self::from_ordinal_unchecked(ord)
     }
 }
 
 impl ToFixed for Cotsworth {
     fn to_fixed(self) -> Fixed {
-        let offset_y = Gregorian::try_from_common_date(CommonDate::new(self.0.year, 1, 1))
-            .expect("month 1, day 1 should always be a valid Gregorian date")
-            .to_fixed()
-            .get_day_i()
-            - 1;
-        let approx_m = ((self.0.month as i64) - 1) * 28;
-        let offset_m = if self.0.month > 6 && Cotsworth::is_leap(self.0.year) {
-            approx_m + 1
-        } else {
-            approx_m
-        };
-        Fixed::cast_new(offset_y + offset_m + (self.0.day as i64))
+        let offset_y = Gregorian::year_start(self.0.year).to_fixed().get_day_i() - 1;
+        let ord = self.to_ordinal();
+        Fixed::cast_new(offset_y + (ord.day_of_year as i64))
     }
 }
 
