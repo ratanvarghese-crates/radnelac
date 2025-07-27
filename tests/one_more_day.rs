@@ -99,6 +99,11 @@ proptest! {
     }
 
     #[test]
+    fn coptic_ordinal(t in FIXED_MIN..FIXED_MAX) {
+        one_more_day_ordinal::<Coptic>(t);
+    }
+
+    #[test]
     fn cotsworth(t in FIXED_MIN..FIXED_MAX) {
         one_more_day::<CotsworthMonth, Cotsworth>(t);
     }

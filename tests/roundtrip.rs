@@ -65,6 +65,7 @@ proptest! {
     #[test]
     fn coptic(t in FIXED_MIN..FIXED_MAX) {
         roundtrip::<Coptic>(t);
+        roundtrip_ordinal::<Coptic>(t);
     }
 
     #[test]

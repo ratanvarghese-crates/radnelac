@@ -5,6 +5,8 @@ use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::OrdinalDate;
+use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -67,6 +69,43 @@ impl CopticMonth {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Coptic(CommonDate);
 
+impl ToFromOrdinalDate for Coptic {
+    fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {
+        let correction = if Coptic::is_leap(ord.year) { 1 } else { 0 };
+        if ord.day_of_year > 0 && ord.day_of_year <= (365 + correction) {
+            Ok(())
+        } else {
+            Err(CalendarError::InvalidDayOfYear)
+        }
+    }
+
+    fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        let date = fixed_date.get_day_i();
+        let epoch = Coptic::epoch().get_day_i();
+        let year = (4 * (date - epoch) + 1463).div_euclid(1461) as i32;
+        let year_start = Coptic::to_fixed(Coptic(CommonDate::new(year, 1, 1)));
+        let doy = ((date - year_start.get_day_i()) + 1) as u16;
+        OrdinalDate {
+            year: year,
+            day_of_year: doy,
+        }
+    }
+
+    fn to_ordinal(self) -> OrdinalDate {
+        OrdinalDate {
+            year: self.0.year,
+            day_of_year: (30 * ((self.0.month as u16) - 1) + (self.0.day as u16)),
+        }
+    }
+
+    fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        let month = ((ord.day_of_year - 1).div_euclid(30) + 1) as u8;
+        let month_start = Coptic(CommonDate::new(ord.year, month, 1)).to_ordinal();
+        let day = (ord.day_of_year - month_start.day_of_year + 1) as u8;
+        Coptic(CommonDate::new(ord.year, month, day))
+    }
+}
+
 impl HasLeapYears for Coptic {
     fn is_leap(year: i32) -> bool {
         year.modulus(4) == 3
@@ -85,27 +124,19 @@ impl Epoch for Coptic {
 
 impl FromFixed for Coptic {
     fn from_fixed(fixed_date: Fixed) -> Coptic {
-        let date = fixed_date.get_day_i();
-        let epoch = Coptic::epoch().get_day_i();
-        let year = (4 * (date - epoch) + 1463).div_euclid(1461) as i32;
-        let year_start = Coptic::to_fixed(Coptic(CommonDate::new(year, 1, 1)));
-        let month = ((date - year_start.get_day_i()).div_euclid(30) + 1) as u8;
-        let month_start = Coptic::to_fixed(Coptic(CommonDate::new(year, month, 1)));
-
-        let day = (date - month_start.get_day_i() + 1) as u8;
-        Coptic(CommonDate::new(year, month, day))
+        //Split compared to original
+        let ord = Self::ordinal_from_fixed(fixed_date);
+        Self::from_ordinal_unchecked(ord)
     }
 }
 
 impl ToFixed for Coptic {
     fn to_fixed(self) -> Fixed {
+        //Split compared to original
         let year = self.0.year as i64;
-        let month = self.0.month as i64;
-        let day = self.0.day as i64;
         let epoch = Coptic::epoch().get_day_i();
-        Fixed::cast_new(
-            epoch - 1 + (365 * (year - 1)) + year.div_euclid(4) + (30 * (month - 1)) + day,
-        )
+        let doy = self.to_ordinal().day_of_year as i64;
+        Fixed::cast_new(epoch - 1 + (365 * (year - 1)) + year.div_euclid(4) + doy)
     }
 }
 

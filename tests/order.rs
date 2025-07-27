@@ -105,6 +105,7 @@ proptest! {
     #[test]
     fn coptic_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
         consistent_order::<CopticMonth, Coptic>(t0, t0 + (diff as f64));
+        consistent_order_ordinal::<Coptic>(t0, t0 + (diff as f64));
     }
 
     #[test]
