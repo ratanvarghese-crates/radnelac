@@ -88,10 +88,6 @@ impl GregorianMonth {
 pub struct Gregorian(CommonDate);
 
 impl Gregorian {
-    pub fn month(self) -> GregorianMonth {
-        GregorianMonth::from_u8(self.0.month).expect("Will not allow setting invalid value.")
-    }
-
     pub fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
         let date = fixed_date.get_day_i();
         let epoch = Gregorian::epoch().get_day_i();
