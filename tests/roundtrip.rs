@@ -109,6 +109,7 @@ proptest! {
     #[test]
     fn julian(t in FIXED_MIN..FIXED_MAX) {
         roundtrip::<Julian>(t);
+        roundtrip_ordinal::<Julian>(t);
     }
 
     #[test]

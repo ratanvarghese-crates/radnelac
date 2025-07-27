@@ -142,16 +142,29 @@ proptest! {
     }
 
     #[test]
-    fn julian_ad(t in FIXED_MIN..-367.0) {
+    fn julian_ad(t in FIXED_MIN..-7.0) {
         //Avoiding year 0
         one_more_day::<JulianMonth, Julian>(t);
     }
 
     #[test]
-    fn julian_bc(t in 367.0..FIXED_MAX) {
+    fn julian_bc(t in 7.0..FIXED_MAX) {
         //Avoiding year 0
         one_more_day::<JulianMonth, Julian>(t);
     }
+
+    #[test]
+    fn julian_ad_ordinal(t in FIXED_MIN..-7.0) {
+        //Avoiding year 0
+        one_more_day_ordinal::<Julian>(t);
+    }
+
+    #[test]
+    fn julian_bc_ordinal(t in 7.0..FIXED_MAX) {
+        //Avoiding year 0
+        one_more_day_ordinal::<Julian>(t);
+    }
+
 
     #[test]
     fn positivist(t in FIXED_MIN..FIXED_MAX) {

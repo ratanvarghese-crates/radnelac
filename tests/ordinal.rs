@@ -11,6 +11,8 @@ use radnelac::calendar::EgyptianMonth;
 use radnelac::calendar::Gregorian;
 use radnelac::calendar::GregorianMonth;
 use radnelac::calendar::HasLeapYears;
+use radnelac::calendar::Julian;
+use radnelac::calendar::JulianMonth;
 use radnelac::calendar::OrdinalDate;
 use radnelac::calendar::Positivist;
 use radnelac::calendar::PositivistMonth;
@@ -130,6 +132,28 @@ proptest! {
     fn year_start_gregorian(year in -MAX_YEARS..MAX_YEARS) {
         let len = if Gregorian::is_leap(year) { 366 } else { 365 };
         year_start::<GregorianMonth, Gregorian>(year, len);
+    }
+
+    #[test]
+    fn valid_julian(year: i32, day in 1..365) {
+        let ord = OrdinalDate{ year: year, day_of_year: day as u16 };
+        Julian::valid_ordinal(ord).unwrap();
+    }
+
+    #[test]
+    fn invalid_julian(year: i32, day in 367..u16::MAX) {
+        let ord0 = OrdinalDate{ year: year, day_of_year: 0 };
+        let ord1 = OrdinalDate{ year: year, day_of_year: day as u16 };
+        let ord2 = OrdinalDate{ year: year, day_of_year: 366 };
+        assert!(Julian::valid_ordinal(ord0).is_err());
+        assert!(Julian::valid_ordinal(ord1).is_err());
+        assert_eq!(Julian::valid_ordinal(ord2).is_err(), !Julian::is_leap(year));
+    }
+
+    #[test]
+    fn year_start_julian(year in -MAX_YEARS..MAX_YEARS) {
+        let len = if Julian::is_leap(year) { 366 } else { 365 };
+        year_start::<JulianMonth, Julian>(year, len);
     }
 
     #[test]

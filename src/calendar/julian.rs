@@ -5,6 +5,8 @@ use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::OrdinalDate;
+use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -50,6 +52,68 @@ impl Julian {
     }
 }
 
+impl ToFromOrdinalDate for Julian {
+    fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {
+        let correction = if Julian::is_leap(ord.year) { 1 } else { 0 };
+        if ord.day_of_year > 0 && ord.day_of_year <= (365 + correction) {
+            Ok(())
+        } else {
+            Err(CalendarError::InvalidDayOfYear)
+        }
+    }
+
+    fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        let date = fixed_date.get_day_i();
+        let epoch = Julian::epoch().get_day_i();
+        let approx = ((4 * (date - epoch)) + 1464).div_euclid(1461);
+        let year = if approx <= 0 { approx - 1 } else { approx } as i32;
+        let year_start = Julian(CommonDate::new(year, 1, 1)).to_fixed().get_day_i();
+        let prior_days = (date - year_start) as u16;
+        OrdinalDate {
+            year: year,
+            day_of_year: prior_days + 1,
+        }
+    }
+
+    fn to_ordinal(self) -> OrdinalDate {
+        let year = self.0.year;
+        let month = self.0.month as i64;
+        let day = self.0.day as i64;
+        let offset_m = ((367 * month) - 362).div_euclid(12);
+        let offset_x = if month <= 2 {
+            0
+        } else if Julian::is_leap(year) {
+            -1
+        } else {
+            -2
+        };
+        let offset_d = day;
+
+        OrdinalDate {
+            year: year,
+            day_of_year: (offset_m + offset_x + offset_d) as u16,
+        }
+    }
+
+    fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        let year = ord.year;
+        let prior_days = ord.day_of_year - 1;
+        let march1 = Julian(CommonDate::new(year, 3, 1)).to_ordinal(); //Modification
+        let correction = if ord < march1 {
+            0
+        } else if Julian::is_leap(year) {
+            1
+        } else {
+            2
+        };
+        let month = (12 * (prior_days + correction) + 373).div_euclid(367) as u8;
+        let month_start = Julian(CommonDate::new(year, month, 1)).to_ordinal();
+        let day = ((ord.day_of_year - month_start.day_of_year) as u8) + 1;
+        debug_assert!(day > 0);
+        Julian(CommonDate { year, month, day })
+    }
+}
+
 impl HasLeapYears for Julian {
     fn is_leap(j_year: i32) -> bool {
         let m4 = j_year.modulus(4);
@@ -71,47 +135,18 @@ impl Epoch for Julian {
 
 impl FromFixed for Julian {
     fn from_fixed(fixed_date: Fixed) -> Julian {
-        let date = fixed_date.get_day_i();
-        let epoch = Julian::epoch().get_day_i();
-        let approx = ((4 * (date - epoch)) + 1464).div_euclid(1461);
-        let year = if approx <= 0 { approx - 1 } else { approx } as i32;
-        let year_start = Julian(CommonDate::new(year, 1, 1)).to_fixed().get_day_i();
-        let prior_days = date - year_start;
-        let march1 = Julian(CommonDate::new(year, 3, 1)).to_fixed().get_day_i();
-        let correction = if date < march1 {
-            0
-        } else if Julian::is_leap(year) {
-            1
-        } else {
-            2
-        };
-        let month = (12 * (prior_days + correction) + 373).div_euclid(367) as u8;
-        let month_start = Julian(CommonDate::new(year, month, 1))
-            .to_fixed()
-            .get_day_i();
-        let day = ((date - month_start) as u8) + 1;
-        debug_assert!(day > 0);
-        Julian(CommonDate { year, month, day })
+        //Split compared to original
+        let ord = Self::ordinal_from_fixed(fixed_date);
+        Self::from_ordinal_unchecked(ord)
     }
 }
 
 impl ToFixed for Julian {
     fn to_fixed(self) -> Fixed {
-        let year = self.0.year;
-        let month = self.0.month as i64;
-        let day = self.0.day as i64;
-
-        let offset_prior = Julian::prior_elapsed_days(year);
-        let offset_m = ((367 * month) - 362).div_euclid(12);
-        let offset_x = if month <= 2 {
-            0
-        } else if Julian::is_leap(year) {
-            -1
-        } else {
-            -2
-        };
-        let offset_d = day;
-        Fixed::cast_new(offset_prior + offset_m + offset_x + offset_d)
+        //Split compared to original
+        let offset_prior = Julian::prior_elapsed_days(self.0.year);
+        let ord = self.to_ordinal();
+        Fixed::cast_new(offset_prior + (ord.day_of_year as i64))
     }
 }
 

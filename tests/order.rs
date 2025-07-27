@@ -188,11 +188,13 @@ proptest! {
     #[test]
     fn julian(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
         consistent_order::<JulianMonth, Julian>(t0, t1);
+        consistent_order_ordinal::<Julian>(t0, t1);
     }
 
     #[test]
     fn julian_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
         consistent_order::<JulianMonth, Julian>(t0, t0 + (diff as f64));
+        consistent_order_ordinal::<Julian>(t0, t0 + (diff as f64));
     }
 
     #[test]
