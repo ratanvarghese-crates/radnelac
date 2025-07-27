@@ -60,8 +60,12 @@ impl ISO {
     }
 
     pub fn is_long_year(i_year: i32) -> bool {
-        let jan1 = Gregorian::year_start(i_year).convert::<Weekday>();
-        let dec31 = Gregorian::year_end(i_year).convert::<Weekday>();
+        let jan1 = Gregorian::try_year_start(i_year)
+            .expect("Year known to be valid")
+            .convert::<Weekday>();
+        let dec31 = Gregorian::try_year_end(i_year)
+            .expect("Year known to be valid")
+            .convert::<Weekday>();
         jan1 == Weekday::Thursday || dec31 == Weekday::Thursday
     }
 

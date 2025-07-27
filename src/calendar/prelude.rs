@@ -50,16 +50,18 @@ pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
         }
     }
 
-    fn year_start(year: i32) -> Self {
+    fn try_year_start(year: i32) -> Result<Self, CalendarError> {
+        //Might be invalid for calendars without year 0
         let d = Self::year_start_date(year);
         debug_assert!(Self::in_effective_bounds(d));
-        Self::try_from_common_date(d).expect("Known to be valid date")
+        Self::try_from_common_date(d)
     }
 
-    fn year_end(year: i32) -> Self {
+    fn try_year_end(year: i32) -> Result<Self, CalendarError> {
+        //Might be invalid for calendars without year 0
         let d = Self::year_end_date(year);
         debug_assert!(Self::in_effective_bounds(d));
-        Self::try_from_common_date(d).expect("Known to be valid date")
+        Self::try_from_common_date(d)
     }
 
     fn day(self) -> u8 {
@@ -117,7 +119,9 @@ pub trait Quarter {
 pub trait CommonWeekOfYear<T: FromPrimitive>: ToFromCommonDate<T> + ToFixed {
     fn week_of_year(self) -> u8 {
         let today = self.to_fixed();
-        let start = Self::year_start(self.year()).to_fixed();
+        let start = Self::try_year_start(self.year())
+            .expect("Year known to be valid")
+            .to_fixed();
         let diff = today.get_day_i() - start.get_day_i();
         (diff.div_euclid(7) + 1) as u8
     }

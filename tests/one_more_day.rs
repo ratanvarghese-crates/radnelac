@@ -4,6 +4,7 @@ use proptest::prop_assume;
 use proptest::proptest;
 use radnelac::calendar::Armenian;
 use radnelac::calendar::ArmenianMonth;
+use radnelac::calendar::CommonDate;
 use radnelac::calendar::Coptic;
 use radnelac::calendar::CopticMonth;
 use radnelac::calendar::Cotsworth;
@@ -30,6 +31,7 @@ use radnelac::calendar::Symmetry454Solstice;
 use radnelac::calendar::SymmetryMonth;
 use radnelac::calendar::ToFromCommonDate;
 use radnelac::calendar::ToFromOrdinalDate;
+use radnelac::calendar::TranquilityComplementaryDay;
 use radnelac::calendar::TranquilityMoment;
 use radnelac::calendar::TranquilityMonth;
 use radnelac::day_count::BoundedDayCount;
@@ -164,26 +166,26 @@ proptest! {
     }
 
     #[test]
-    fn tranquility_bt(dt in FIXED_MIN..-367.0) {
-        //Avoiding year 0 and complementary days
+    fn tranquility(dt in FIXED_MIN..FIXED_MAX) {
         let t = TranquilityMoment::epoch().get() + dt;
         let tq0 = TranquilityMoment::from_fixed(Fixed::new(t));
         let tq1 = TranquilityMoment::from_fixed(Fixed::new(t + 1.0));
-        prop_assume!(tq0.complementary().is_none());
-        prop_assume!(tq1.complementary().is_none());
-        one_more_day::<TranquilityMonth, TranquilityMoment>(t);
-    }
-
-    #[test]
-    fn tranquility_at(dt in 367.0..FIXED_MAX) {
-        //Avoiding year 0 and complementary days
-        let t = TranquilityMoment::epoch().get() + dt;
-        let tq0 = TranquilityMoment::from_fixed(Fixed::new(t));
-        let tq1 = TranquilityMoment::from_fixed(Fixed::new(t + 1.0));
-        prop_assume!(tq0.complementary().is_none());
-        prop_assume!(tq1.complementary().is_none());
-        one_more_day::<TranquilityMonth, TranquilityMoment>(t);
-        one_more_day_ordinal::<TranquilityMoment>(t);
+        match (tq0.complementary(), tq1.complementary()) {
+            (None, None) => one_more_day::<TranquilityMonth, TranquilityMoment>(t),
+            (None, Some(TranquilityComplementaryDay::AldrinDay)) => {
+                assert_eq!(tq0.to_common_date(), CommonDate::new(tq0.year(), 8, 27))
+            },
+            (None, _) => {
+                assert_eq!(tq0.to_common_date(), CommonDate::new(tq0.year(), 13, 28))
+            },
+            (Some(TranquilityComplementaryDay::AldrinDay), None) => {
+                assert_eq!(tq1.to_common_date(), CommonDate::new(tq1.year(), 8, 28))
+            },
+            (_, None) => {
+                assert_eq!(tq1.to_common_date(), CommonDate::new(tq1.year(), 1, 1))
+            },
+            (_, _) => panic!("Impossible")
+        }
     }
 
     #[test]

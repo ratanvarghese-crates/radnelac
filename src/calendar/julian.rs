@@ -48,24 +48,6 @@ impl Julian {
         let offset_leap = (y - 1).div_euclid(4);
         offset_e + offset_y + offset_leap
     }
-
-    pub fn new_year(g_year: NonZero<i16>) -> Fixed {
-        Julian(CommonDate {
-            year: g_year.get() as i32,
-            month: JulianMonth::January as u8,
-            day: 1,
-        })
-        .to_fixed()
-    }
-
-    pub fn year_end(g_year: NonZero<i16>) -> Fixed {
-        Julian(CommonDate {
-            year: g_year.get() as i32,
-            month: JulianMonth::December as u8,
-            day: 31,
-        })
-        .to_fixed()
-    }
 }
 
 impl HasLeapYears for Julian {
@@ -177,6 +159,7 @@ impl CommonWeekOfYear<JulianMonth> for Julian {}
 mod tests {
     use super::*;
     use crate::calendar::gregorian::Gregorian;
+    use proptest::proptest;
 
     #[test]
     fn julian_gregorian_conversion() {
@@ -226,8 +209,18 @@ mod tests {
 
     #[test]
     fn cross_epoch() {
-        let new_years_eve = Julian::year_end(NonZero::new(-1).unwrap());
-        let new_years_day = Julian::new_year(NonZero::new(1).unwrap());
+        let new_years_eve = Julian::try_year_end(-1).unwrap().to_fixed();
+        let new_years_day = Julian::try_year_start(1).unwrap().to_fixed();
         assert_eq!(new_years_day.get_day_i(), new_years_eve.get_day_i() + 1);
+        assert!(Julian::try_year_start(0).is_err());
+        assert!(Julian::try_year_end(0).is_err());
+    }
+
+    proptest! {
+        #[test]
+        fn invalid_year_0(month in 1..12, day in 1..28) {
+            let c = CommonDate::new(0, month as u8, day as u8);
+            assert!(Julian::try_from_common_date(c).is_err())
+        }
     }
 }

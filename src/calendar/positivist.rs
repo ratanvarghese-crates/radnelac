@@ -162,7 +162,9 @@ impl CalculatedBounds for Positivist {}
 
 impl Epoch for Positivist {
     fn epoch() -> Fixed {
-        Gregorian::year_start(POSITIVIST_YEAR_OFFSET).to_fixed()
+        Gregorian::try_year_start(POSITIVIST_YEAR_OFFSET)
+            .expect("Year known to be valid")
+            .to_fixed()
     }
 }
 
@@ -180,7 +182,11 @@ impl FromFixed for Positivist {
 impl ToFixed for Positivist {
     fn to_fixed(self) -> Fixed {
         let y = self.0.year + POSITIVIST_YEAR_OFFSET;
-        let offset_y = Gregorian::year_start(y).to_fixed().get_day_i() - 1;
+        let offset_y = Gregorian::try_year_start(y)
+            .expect("Year known to be valid")
+            .to_fixed()
+            .get_day_i()
+            - 1;
         let doy = self.to_ordinal().day_of_year as i64;
         Fixed::cast_new(offset_y + doy)
     }

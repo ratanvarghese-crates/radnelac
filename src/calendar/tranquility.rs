@@ -137,16 +137,15 @@ impl TranquilityMoment {
         }
     }
 
-    pub fn hour(self) -> u8 {
-        self.time.hours
+    pub fn time(self) -> ClockTime {
+        self.time
     }
 
-    pub fn minute(self) -> u8 {
-        self.time.minutes
-    }
-
-    pub fn second(self) -> f32 {
-        self.time.seconds
+    pub fn same_day_at_time(self, t: ClockTime) -> Self {
+        TranquilityMoment {
+            date: self.date,
+            time: t,
+        }
     }
 
     pub fn prior_elapsed_days(year: i32) -> i64 {
@@ -405,12 +404,34 @@ impl ToFromCommonDate<TranquilityMonth> for TranquilityMoment {
         }
     }
 
+    fn year_start_date(year: i32) -> CommonDate {
+        if year == 0 {
+            CommonDate::new(
+                year,
+                NON_MONTH,
+                TranquilityComplementaryDay::MoonLandingDay as u8,
+            )
+        } else {
+            CommonDate::new(year, 1, 1)
+        }
+    }
+
     fn year_end_date(year: i32) -> CommonDate {
-        CommonDate::new(
-            year,
-            NON_MONTH,
-            TranquilityComplementaryDay::ArmstrongDay as u8,
-        )
+        if year == 0 {
+            CommonDate::new(
+                year,
+                NON_MONTH,
+                TranquilityComplementaryDay::MoonLandingDay as u8,
+            )
+        } else if year == -1 {
+            CommonDate::new(year, TranquilityMonth::Mendel as u8, 28)
+        } else {
+            CommonDate::new(
+                year,
+                NON_MONTH,
+                TranquilityComplementaryDay::ArmstrongDay as u8,
+            )
+        }
     }
 }
 
@@ -445,10 +466,21 @@ mod tests {
     #[test]
     fn moon_landing_edge_cases() {
         let f0 = TranquilityMoment::epoch();
-        let q = TranquilityMoment::from_fixed(f0);
-        assert_eq!(q.to_common_date(), CommonDate::new(0, 0, 0));
-        let f1 = q.to_fixed();
+        let q0 = TranquilityMoment::from_fixed(f0);
+        let c = CommonDate::new(0, 0, 0);
+        assert_eq!(q0.to_common_date(), c);
+        let f1 = q0.to_fixed();
         assert_eq!(f0, f1);
+        let q1 = TranquilityMoment::try_from_common_date(c).unwrap();
+        assert_eq!(q0, q1.same_day_at_time(q0.time()));
+        assert_eq!(c, TranquilityMoment::year_end_date(0));
+        assert_eq!(c, TranquilityMoment::year_start_date(0));
+    }
+
+    #[test]
+    fn one_bt_edge_cases() {
+        let c = CommonDate::new(-1, 13, 28);
+        assert_eq!(c, TranquilityMoment::year_end_date(-1));
     }
 
     #[test]

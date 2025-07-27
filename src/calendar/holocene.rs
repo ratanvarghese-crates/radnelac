@@ -48,7 +48,9 @@ impl CalculatedBounds for Holocene {}
 
 impl Epoch for Holocene {
     fn epoch() -> Fixed {
-        Gregorian::year_start(HOLOCENE_YEAR_OFFSET + 1).to_fixed()
+        Gregorian::try_year_start(HOLOCENE_YEAR_OFFSET + 1)
+            .expect("Year known to be valid")
+            .to_fixed()
     }
 }
 

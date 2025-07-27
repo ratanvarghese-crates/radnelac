@@ -26,8 +26,8 @@ fn year_start<
     year: i32,
     year_len: u16,
 ) {
-    let d0 = T::year_start(year);
-    let d1 = T::year_end(year);
+    let d0 = T::try_year_start(year).unwrap();
+    let d1 = T::try_year_end(year).unwrap();
     let ord0 = OrdinalDate {
         year: year,
         day_of_year: 1,

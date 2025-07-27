@@ -170,7 +170,11 @@ impl FromFixed for Cotsworth {
 
 impl ToFixed for Cotsworth {
     fn to_fixed(self) -> Fixed {
-        let offset_y = Gregorian::year_start(self.0.year).to_fixed().get_day_i() - 1;
+        let offset_y = Gregorian::try_year_start(self.0.year)
+            .expect("Year known to be valid")
+            .to_fixed()
+            .get_day_i()
+            - 1;
         let ord = self.to_ordinal();
         Fixed::cast_new(offset_y + (ord.day_of_year as i64))
     }
