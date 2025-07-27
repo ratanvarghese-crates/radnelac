@@ -79,7 +79,7 @@ pub enum Sansculottide {
 }
 
 /// Represents a date in the algorithmic approximation of the French Revolutionary calendar
-/// (ie French Republican calendar)
+/// (ie. French Republican calendar)
 ///
 /// The calendar actually implemented during the French First Republic relied on astronomical
 /// observations to determine whether a given year was a leap year. **FrenchRevArith does not
