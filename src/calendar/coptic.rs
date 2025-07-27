@@ -1,7 +1,6 @@
 use crate::calendar::julian::Julian;
 use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::CommonWeekOfYear;
-use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
@@ -149,7 +148,6 @@ impl Quarter for Coptic {
     }
 }
 
-impl CommonYear<CopticMonth> for Coptic {}
 impl GuaranteedMonth<CopticMonth> for Coptic {}
 impl CommonWeekOfYear<CopticMonth> for Coptic {}
 

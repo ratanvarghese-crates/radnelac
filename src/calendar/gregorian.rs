@@ -1,6 +1,5 @@
 use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::CommonWeekOfYear;
-use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::OrdinalDate;
@@ -250,7 +249,6 @@ impl Quarter for Gregorian {
     }
 }
 
-impl CommonYear<GregorianMonth> for Gregorian {}
 impl GuaranteedMonth<GregorianMonth> for Gregorian {}
 impl CommonWeekOfYear<GregorianMonth> for Gregorian {}
 

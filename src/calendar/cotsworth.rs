@@ -1,6 +1,5 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::PerennialWithComplementaryDay;
@@ -197,5 +196,4 @@ impl Quarter for Cotsworth {
     }
 }
 
-impl CommonYear<CotsworthMonth> for Cotsworth {}
 impl GuaranteedMonth<CotsworthMonth> for Cotsworth {}

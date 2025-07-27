@@ -1,7 +1,6 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::CommonWeekOfYear;
-use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
@@ -322,7 +321,6 @@ impl<const T: bool, const U: bool> Quarter for Symmetry<T, U> {
     }
 }
 
-impl<const T: bool, const U: bool> CommonYear<SymmetryMonth> for Symmetry<T, U> {}
 impl<const T: bool, const U: bool> GuaranteedMonth<SymmetryMonth> for Symmetry<T, U> {}
 impl<const T: bool, const U: bool> CommonWeekOfYear<SymmetryMonth> for Symmetry<T, U> {}
 

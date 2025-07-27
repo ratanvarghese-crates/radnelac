@@ -1,6 +1,5 @@
 use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::CommonWeekOfYear;
-use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::common::error::CalendarError;
@@ -144,5 +143,4 @@ impl Quarter for Egyptian {
     }
 }
 
-impl CommonYear<EgyptianMonth> for Egyptian {}
 impl CommonWeekOfYear<EgyptianMonth> for Egyptian {}

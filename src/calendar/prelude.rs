@@ -66,9 +66,7 @@ pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
     fn try_month(self) -> Option<T> {
         T::from_u8(self.to_common_date().month)
     }
-}
 
-pub trait CommonYear<T: FromPrimitive>: ToFromCommonDate<T> {
     fn year(self) -> i32 {
         self.to_common_date().year
     }
@@ -111,9 +109,7 @@ pub trait Quarter {
     fn quarter(self) -> NonZero<u8>;
 }
 
-pub trait CommonWeekOfYear<T: FromPrimitive>:
-    ToFromCommonDate<T> + ToFixed + CommonYear<T>
-{
+pub trait CommonWeekOfYear<T: FromPrimitive>: ToFromCommonDate<T> + ToFixed {
     fn week_of_year(self) -> u8 {
         let today = self.to_fixed();
         let start = Self::year_start(self.year()).to_fixed();

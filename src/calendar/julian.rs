@@ -1,7 +1,6 @@
 use crate::calendar::gregorian::GregorianMonth;
 use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::CommonWeekOfYear;
-use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
@@ -171,7 +170,6 @@ impl Quarter for Julian {
     }
 }
 
-impl CommonYear<JulianMonth> for Julian {}
 impl GuaranteedMonth<JulianMonth> for Julian {}
 impl CommonWeekOfYear<JulianMonth> for Julian {}
 

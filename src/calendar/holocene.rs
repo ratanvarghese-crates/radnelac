@@ -4,7 +4,6 @@ use crate::calendar::gregorian::Gregorian;
 use crate::calendar::gregorian::GregorianMonth;
 use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::CommonWeekOfYear;
-use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
@@ -101,7 +100,6 @@ impl Quarter for Holocene {
     }
 }
 
-impl CommonYear<HoloceneMonth> for Holocene {}
 impl GuaranteedMonth<HoloceneMonth> for Holocene {}
 impl CommonWeekOfYear<HoloceneMonth> for Holocene {}
 

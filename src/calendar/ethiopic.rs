@@ -2,7 +2,6 @@ use crate::calendar::coptic::Coptic;
 use crate::calendar::julian::Julian;
 use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::CommonWeekOfYear;
-use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
@@ -139,6 +138,5 @@ impl Quarter for Ethiopic {
     }
 }
 
-impl CommonYear<EthiopicMonth> for Ethiopic {}
 impl GuaranteedMonth<EthiopicMonth> for Ethiopic {}
 impl CommonWeekOfYear<EthiopicMonth> for Ethiopic {}

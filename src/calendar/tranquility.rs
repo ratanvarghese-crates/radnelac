@@ -127,14 +127,6 @@ pub struct TranquilityMoment {
 }
 
 impl TranquilityMoment {
-    pub fn year(self) -> Option<i32> {
-        if self.date.day == 0 {
-            None
-        } else {
-            Some(self.date.year)
-        }
-    }
-
     pub fn is_after_tranquility(self) -> bool {
         if self.date.year == 0 {
             self.time > TRANQUILITY_EPOCH_CLOCK
@@ -779,7 +771,7 @@ mod tests {
         for pair in d_list {
             let f = Gregorian::try_from_common_date(pair.0).unwrap().to_fixed();
             let dq = TranquilityMoment::from_fixed(f);
-            assert_eq!(dq.year().unwrap(), pair.1);
+            assert_eq!(dq.year(), pair.1);
         }
     }
 

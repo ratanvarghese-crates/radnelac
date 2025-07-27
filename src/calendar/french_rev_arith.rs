@@ -1,6 +1,5 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::PerennialWithComplementaryDay;
 use crate::calendar::prelude::Quarter;
@@ -278,8 +277,6 @@ impl<const L: bool> Quarter for FrenchRevArith<L> {
         }
     }
 }
-
-impl<const L: bool> CommonYear<FrenchRevMonth> for FrenchRevArith<L> {}
 
 #[cfg(test)]
 mod tests {

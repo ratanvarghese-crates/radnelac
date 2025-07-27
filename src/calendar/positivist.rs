@@ -1,7 +1,6 @@
 // Calendier Positiviste Page 52-53
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::prelude::CommonDate;
-use crate::calendar::prelude::CommonYear;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::PerennialWithComplementaryDay;
 use crate::calendar::prelude::Quarter;
@@ -190,8 +189,6 @@ impl Quarter for Positivist {
         }
     }
 }
-
-impl CommonYear<PositivistMonth> for Positivist {}
 
 #[cfg(test)]
 mod tests {
