@@ -1,5 +1,5 @@
 use crate::calendar::Cotsworth;
-use crate::calendar::PerennialWithComplementaryDay;
+use crate::calendar::Perennial;
 use crate::calendar::ToFromCommonDate;
 use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;

@@ -2,7 +2,7 @@ use crate::calendar::gregorian::Gregorian;
 use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
-use crate::calendar::prelude::PerennialWithComplementaryDay;
+use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::common::error::CalendarError;
@@ -66,7 +66,7 @@ pub enum CotsworthComplementaryDay {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Cotsworth(CommonDate);
 
-impl PerennialWithComplementaryDay<CotsworthMonth, CotsworthComplementaryDay, Weekday>
+impl Perennial<CotsworthMonth, CotsworthComplementaryDay, Weekday>
     for Cotsworth
 {
     fn complementary(self) -> Option<CotsworthComplementaryDay> {

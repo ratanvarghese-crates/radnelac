@@ -1,7 +1,7 @@
 // TODO: Seperate EN and FR strings
 
 use crate::calendar::FrenchRevArith;
-use crate::calendar::PerennialWithComplementaryDay;
+use crate::calendar::Perennial;
 use crate::calendar::ToFromCommonDate;
 use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;

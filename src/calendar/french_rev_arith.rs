@@ -1,7 +1,7 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::HasLeapYears;
-use crate::calendar::prelude::PerennialWithComplementaryDay;
+use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::common::error::CalendarError;
@@ -138,7 +138,7 @@ impl<const L: bool> FrenchRevArith<L> {
     }
 }
 
-impl<const L: bool> PerennialWithComplementaryDay<FrenchRevMonth, Sansculottide, FrenchRevWeekday>
+impl<const L: bool> Perennial<FrenchRevMonth, Sansculottide, FrenchRevWeekday>
     for FrenchRevArith<L>
 {
     fn complementary(self) -> Option<Sansculottide> {

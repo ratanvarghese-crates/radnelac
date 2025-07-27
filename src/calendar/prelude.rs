@@ -78,7 +78,7 @@ pub trait GuaranteedMonth<T: FromPrimitive>: ToFromCommonDate<T> {
     }
 }
 
-pub trait PerennialWithComplementaryDay<S, T, U>: ToFromCommonDate<S>
+pub trait Perennial<S, T, U>: ToFromCommonDate<S>
 where
     S: ToPrimitive + FromPrimitive,
     T: FromPrimitive + ToPrimitive,

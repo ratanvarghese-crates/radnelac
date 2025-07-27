@@ -2,7 +2,7 @@
 use crate::calendar::gregorian::Gregorian;
 use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::HasLeapYears;
-use crate::calendar::prelude::PerennialWithComplementaryDay;
+use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::common::error::CalendarError;
@@ -75,7 +75,7 @@ pub enum PositivistComplementaryDay {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Positivist(CommonDate);
 
-impl PerennialWithComplementaryDay<PositivistMonth, PositivistComplementaryDay, Weekday>
+impl Perennial<PositivistMonth, PositivistComplementaryDay, Weekday>
     for Positivist
 {
     // Calendier Positiviste Page 8

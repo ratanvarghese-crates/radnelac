@@ -2,7 +2,7 @@ use crate::calendar::gregorian::Gregorian;
 use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::OrdinalDate;
-use crate::calendar::prelude::PerennialWithComplementaryDay;
+use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::clock::ClockTime;
@@ -242,7 +242,7 @@ impl PartialOrd for TranquilityMoment {
     }
 }
 
-impl PerennialWithComplementaryDay<TranquilityMonth, TranquilityComplementaryDay, Weekday>
+impl Perennial<TranquilityMonth, TranquilityComplementaryDay, Weekday>
     for TranquilityMoment
 {
     fn complementary(self) -> Option<TranquilityComplementaryDay> {

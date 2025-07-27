@@ -29,7 +29,7 @@ use radnelac::day_count::FIXED_MAX;
 use radnelac::day_count::FIXED_MIN;
 use radnelac::day_cycle::Weekday;
 
-use radnelac::calendar::PerennialWithComplementaryDay;
+use radnelac::calendar::Perennial;
 
 const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 
@@ -37,7 +37,7 @@ fn complementary_xor_weekday<
     S: FromPrimitive + ToPrimitive,
     T: FromPrimitive + ToPrimitive,
     U: FromPrimitive + ToPrimitive,
-    V: PerennialWithComplementaryDay<S, T, U> + FromFixed,
+    V: Perennial<S, T, U> + FromFixed,
 >(
     t: f64,
 ) {
@@ -53,7 +53,7 @@ fn perennial<
     S: FromPrimitive + ToPrimitive,
     T: FromPrimitive + ToPrimitive,
     U: std::cmp::PartialEq + std::fmt::Debug + FromPrimitive + ToPrimitive,
-    V: PerennialWithComplementaryDay<S, T, U> + ToFromCommonDate<S>,
+    V: Perennial<S, T, U> + ToFromCommonDate<S>,
 >(
     y0: i32,
     y1: i32,

@@ -22,7 +22,7 @@ use radnelac::calendar::Holocene;
 use radnelac::calendar::HoloceneMonth;
 use radnelac::calendar::Julian;
 use radnelac::calendar::JulianMonth;
-use radnelac::calendar::PerennialWithComplementaryDay;
+use radnelac::calendar::Perennial;
 use radnelac::calendar::Positivist;
 use radnelac::calendar::PositivistComplementaryDay;
 use radnelac::calendar::PositivistMonth;
@@ -89,7 +89,7 @@ where
     S: ToPrimitive + FromPrimitive,
     T: ToPrimitive + FromPrimitive,
     U: ToPrimitive + FromPrimitive,
-    V: PerennialWithComplementaryDay<S, T, U> + FromFixed,
+    V: Perennial<S, T, U> + FromFixed,
 {
     let f0 = Fixed::new(t);
     let f1 = Fixed::new(t + (dt as f64));

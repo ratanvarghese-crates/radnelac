@@ -1,4 +1,4 @@
-use crate::calendar::PerennialWithComplementaryDay;
+use crate::calendar::Perennial;
 use crate::calendar::ToFromCommonDate;
 use crate::calendar::TranquilityComplementaryDay;
 use crate::calendar::TranquilityMoment;

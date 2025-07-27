@@ -20,7 +20,7 @@ use radnelac::calendar::Holocene;
 use radnelac::calendar::HoloceneMonth;
 use radnelac::calendar::Julian;
 use radnelac::calendar::JulianMonth;
-use radnelac::calendar::PerennialWithComplementaryDay;
+use radnelac::calendar::Perennial;
 use radnelac::calendar::Positivist;
 use radnelac::calendar::PositivistMonth;
 use radnelac::calendar::Symmetry010;
