@@ -10,6 +10,8 @@ use radnelac::calendar::Cotsworth;
 use radnelac::calendar::CotsworthMonth;
 use radnelac::calendar::Egyptian;
 use radnelac::calendar::EgyptianMonth;
+use radnelac::calendar::Ethiopic;
+use radnelac::calendar::EthiopicMonth;
 use radnelac::calendar::Gregorian;
 use radnelac::calendar::GregorianMonth;
 use radnelac::calendar::HasLeapYears;
@@ -134,6 +136,28 @@ proptest! {
     #[test]
     fn year_start_egyptian(year in -MAX_YEARS..MAX_YEARS) {
         year_start::<EgyptianMonth, Egyptian>(year, 365);
+    }
+
+    #[test]
+    fn valid_ethiopic(year: i32, day in 1..365) {
+        let ord = OrdinalDate{ year: year, day_of_year: day as u16 };
+        Ethiopic::valid_ordinal(ord).unwrap();
+    }
+
+    #[test]
+    fn invalid_ethiopic(year: i32, day in 367..u16::MAX) {
+        let ord0 = OrdinalDate{ year: year, day_of_year: 0 };
+        let ord1 = OrdinalDate{ year: year, day_of_year: day as u16 };
+        let ord2 = OrdinalDate{ year: year, day_of_year: 366 };
+        assert!(Ethiopic::valid_ordinal(ord0).is_err());
+        assert!(Ethiopic::valid_ordinal(ord1).is_err());
+        assert_eq!(Ethiopic::valid_ordinal(ord2).is_err(), !Ethiopic::is_leap(year));
+    }
+
+    #[test]
+    fn year_start_ethiopic(year in -MAX_YEARS..MAX_YEARS) {
+        let len = if Coptic::is_leap(year) { 366 } else { 365 };
+        year_start::<EthiopicMonth, Ethiopic>(year, len);
     }
 
     #[test]

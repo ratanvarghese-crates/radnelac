@@ -122,6 +122,7 @@ proptest! {
     #[test]
     fn ethiopic(t in FIXED_MIN..FIXED_MAX) {
         one_more_day::<EthiopicMonth, Ethiopic>(t);
+        one_more_day_ordinal::<Ethiopic>(t);
     }
 
     #[test]

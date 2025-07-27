@@ -6,6 +6,8 @@ use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::OrdinalDate;
+use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -67,6 +69,33 @@ impl EthiopicMonth {
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Ethiopic_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Ethiopic(CommonDate);
+
+impl ToFromOrdinalDate for Ethiopic {
+    fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {
+        let correction = if Ethiopic::is_leap(ord.year) { 1 } else { 0 };
+        if ord.day_of_year > 0 && ord.day_of_year <= (365 + correction) {
+            Ok(())
+        } else {
+            Err(CalendarError::InvalidDayOfYear)
+        }
+    }
+
+    fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        let f = Fixed::new(fixed_date.get() + Coptic::epoch().get() - Ethiopic::epoch().get());
+        Coptic::ordinal_from_fixed(f)
+    }
+
+    fn to_ordinal(self) -> OrdinalDate {
+        let e =
+            Coptic::try_from_common_date(self.to_common_date()).expect("Same month/day validity");
+        e.to_ordinal()
+    }
+
+    fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        let e = Coptic::from_ordinal_unchecked(ord);
+        Ethiopic::try_from_common_date(e.to_common_date()).expect("Same month/day validity")
+    }
+}
 
 impl HasLeapYears for Ethiopic {
     fn is_leap(year: i32) -> bool {

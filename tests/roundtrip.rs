@@ -83,6 +83,7 @@ proptest! {
     #[test]
     fn ethiopic(t in FIXED_MIN..FIXED_MAX) {
         roundtrip::<Ethiopic>(t);
+        roundtrip_ordinal::<Ethiopic>(t);
     }
 
     #[test]
