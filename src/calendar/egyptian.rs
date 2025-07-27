@@ -3,6 +3,8 @@ use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::HasIntercalaryDays;
+use crate::calendar::OrdinalDate;
+use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -61,6 +63,42 @@ pub enum EgyptianDaysUponTheYear {
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Egyptian_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Egyptian(CommonDate);
+
+impl ToFromOrdinalDate for Egyptian {
+    fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {
+        if ord.day_of_year < 1 || ord.day_of_year > 365 {
+            Err(CalendarError::InvalidDayOfYear)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        let days = fixed_date.get_day_i() - Egyptian::epoch().get_day_i();
+        let year = (days.div_euclid(365) + 1) as i32;
+        let doy = (days.modulus(365) + 1) as u16;
+        OrdinalDate {
+            year: year,
+            day_of_year: doy,
+        }
+    }
+
+    fn to_ordinal(self) -> OrdinalDate {
+        let month = self.0.month as i64;
+        let day = self.0.day as i64;
+        let offset = ((30 * (month - 1)) + day) as u16;
+        OrdinalDate {
+            year: self.0.year,
+            day_of_year: offset,
+        }
+    }
+
+    fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        let month = (ord.day_of_year - 1).div_euclid(30) + 1;
+        let day = ord.day_of_year - (30 * (month - 1));
+        Egyptian(CommonDate::new(ord.year, month as u8, day as u8))
+    }
+}
 
 impl CalculatedBounds for Egyptian {}
 

@@ -75,6 +75,7 @@ proptest! {
     #[test]
     fn egyptian(t in FIXED_MIN..FIXED_MAX) {
         roundtrip::<Egyptian>(t);
+        roundtrip_ordinal::<Egyptian>(t);
     }
 
     #[test]

@@ -4,6 +4,8 @@ use proptest::prop_assume;
 use proptest::proptest;
 use radnelac::calendar::Cotsworth;
 use radnelac::calendar::CotsworthMonth;
+use radnelac::calendar::Egyptian;
+use radnelac::calendar::EgyptianMonth;
 use radnelac::calendar::Gregorian;
 use radnelac::calendar::GregorianMonth;
 use radnelac::calendar::HasLeapYears;
@@ -63,6 +65,24 @@ proptest! {
         year_start::<CotsworthMonth, Cotsworth>(year, len);
     }
 
+    #[test]
+    fn valid_egyptian(year: i32, day in 1..365) {
+        let ord = OrdinalDate{ year: year, day_of_year: day as u16 };
+        Egyptian::valid_ordinal(ord).unwrap();
+    }
+
+    #[test]
+    fn invalid_egyptian(year: i32, day in 366..u16::MAX) {
+        let ord0 = OrdinalDate{ year: year, day_of_year: 0 };
+        let ord1 = OrdinalDate{ year: year, day_of_year: day as u16 };
+        assert!(Egyptian::valid_ordinal(ord0).is_err());
+        assert!(Egyptian::valid_ordinal(ord1).is_err());
+    }
+
+    #[test]
+    fn year_start_egyptian(year in -MAX_YEARS..MAX_YEARS) {
+        year_start::<EgyptianMonth, Egyptian>(year, 365);
+    }
 
     #[test]
     fn valid_gregorian(year: i32, day in 1..365) {
