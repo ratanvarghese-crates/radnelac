@@ -82,14 +82,10 @@ impl Akan {
         self.prefix
     }
 
-    pub fn unchecked_on_or_before(self, date: Fixed) -> i64 {
+    pub fn on_or_before(self, date: Fixed) -> Fixed {
         let date = date.get_day_i();
         let diff = Akan::from_fixed(Fixed::cast_new(0)).name_difference(self) as i64;
-        diff.interval_modulus(date, date - 42)
-    }
-
-    pub fn on_or_before(self, date: Fixed) -> Fixed {
-        Fixed::cast_new(self.unchecked_on_or_before(date))
+        Fixed::cast_new(diff.interval_modulus(date, date - 42))
     }
 }
 

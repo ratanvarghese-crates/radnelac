@@ -149,12 +149,11 @@ impl Gregorian {
 
     //Arguments swapped from the original
     pub fn nth_kday(self, nz: NonZero<i16>, k: Weekday) -> Fixed {
-        let x = self.to_fixed().get_day_i();
         let n = nz.get();
         let result = if n > 0 {
-            k.unchecked_before(x) + (7 * n as i64)
+            k.before(self.to_fixed()).get_day_i() + (7 * n as i64)
         } else {
-            k.unchecked_after(x) + (7 * n as i64)
+            k.after(self.to_fixed()).get_day_i() + (7 * n as i64)
         };
 
         Fixed::cast_new(result)

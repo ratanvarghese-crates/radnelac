@@ -35,45 +35,29 @@ impl FromFixed for Weekday {
 }
 
 impl Weekday {
-    pub fn unchecked_on_or_before(self, date: i64) -> i64 {
+    fn raw_on_or_before(self, date: i64) -> Fixed {
         let k = self as i64;
-        date - (Weekday::from_unbounded(date - k) as i64)
+        Fixed::cast_new(date - (Weekday::from_unbounded(date - k) as i64))
     }
 
     pub fn on_or_before(self, date: Fixed) -> Fixed {
-        Fixed::cast_new(self.unchecked_on_or_before(date.get_day_i()))
-    }
-
-    pub fn unchecked_on_or_after(self, date: i64) -> i64 {
-        self.unchecked_on_or_before(date + 6)
+        self.raw_on_or_before(date.get_day_i())
     }
 
     pub fn on_or_after(self, date: Fixed) -> Fixed {
-        Fixed::cast_new(self.unchecked_on_or_after(date.get_day_i()))
-    }
-
-    pub fn unchecked_nearest(self, date: i64) -> i64 {
-        self.unchecked_on_or_before(date + 3)
+        self.raw_on_or_before(date.get_day_i() + 6)
     }
 
     pub fn nearest(self, date: Fixed) -> Fixed {
-        Fixed::cast_new(self.unchecked_on_or_before(date.get_day_i() + 3))
-    }
-
-    pub fn unchecked_before(self, date: i64) -> i64 {
-        self.unchecked_on_or_before(date - 1)
+        self.raw_on_or_before(date.get_day_i() + 3)
     }
 
     pub fn before(self, date: Fixed) -> Fixed {
-        Fixed::cast_new(self.unchecked_on_or_before(date.get_day_i() - 1))
-    }
-
-    pub fn unchecked_after(self, date: i64) -> i64 {
-        self.unchecked_on_or_before(date + 7)
+        self.raw_on_or_before(date.get_day_i() - 1)
     }
 
     pub fn after(self, date: Fixed) -> Fixed {
-        Fixed::cast_new(self.unchecked_on_or_before(date.get_day_i() + 7))
+        self.raw_on_or_before(date.get_day_i() + 7)
     }
 }
 
