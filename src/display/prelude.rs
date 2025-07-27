@@ -134,9 +134,9 @@ const I_LONG_COMPL: [Item<'_>; 5] = [
 const I_YEAR_WEEK_DAY: [Item<'_>; 5] = [
     Item::new(Content::Numeric(NumericContent::Year), O_LITERAL),
     Item::new(Content::Literal("-W"), O_LITERAL),
-    Item::new(Content::Numeric(NumericContent::WeekOfYear), O_LITERAL),
+    Item::new(Content::Numeric(NumericContent::WeekOfYear), O_N2),
     Item::new(Content::Literal("-"), O_LITERAL),
-    Item::new(Content::Numeric(NumericContent::DayOfWeek), O_LITERAL),
+    Item::new(Content::Numeric(NumericContent::DayOfWeek), O_N1),
 ];
 
 const I_YEAR_MDD: [Item<'_>; 4] = [

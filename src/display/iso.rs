@@ -73,3 +73,19 @@ impl fmt::Display for ISO {
         write!(f, "{}", self.long_date())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::calendar::CommonDate;
+    use crate::calendar::Gregorian;
+    use crate::calendar::ToFromCommonDate;
+
+    #[test]
+    fn w1() {
+        let dg = Gregorian::try_from_common_date(CommonDate::new(2007, 1, 1)).unwrap();
+        let di = dg.convert::<ISO>();
+        let s = di.short_date();
+        assert_eq!(&s, "2007-W01-1")
+    }
+}
