@@ -150,6 +150,11 @@ proptest! {
     }
 
     #[test]
+    fn holocene_ordinal(t in FIXED_MIN..FIXED_MAX) {
+        one_more_day_ordinal::<Holocene>(t);
+    }
+
+    #[test]
     fn julian_ad(t in FIXED_MIN..-7.0) {
         //Avoiding year 0
         one_more_day::<JulianMonth, Julian>(t);

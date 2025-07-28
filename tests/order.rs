@@ -175,6 +175,7 @@ proptest! {
     #[test]
     fn holocene(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
         consistent_order::<HoloceneMonth, Holocene>(t0, t1);
+        consistent_order_ordinal::<Holocene>(t0, t1);
     }
 
     #[test]

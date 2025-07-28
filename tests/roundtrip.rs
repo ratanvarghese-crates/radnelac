@@ -103,6 +103,7 @@ proptest! {
     #[test]
     fn holocene(t in FIXED_MIN..FIXED_MAX) {
         roundtrip::<Holocene>(t);
+        roundtrip_ordinal::<Holocene>(t);
     }
 
     #[test]

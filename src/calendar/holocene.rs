@@ -8,6 +8,8 @@ use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::OrdinalDate;
+use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
 use crate::day_count::CalculatedBounds;
 use crate::day_count::Epoch;
@@ -37,6 +39,31 @@ pub type HoloceneMonth = GregorianMonth;
 /// + [Kurzgesagt](https://www.youtube.com/watch?v=czgOWmtGVGs)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Holocene(CommonDate);
+
+impl ToFromOrdinalDate for Holocene {
+    fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {
+        Gregorian::valid_ordinal(ord)
+    }
+
+    fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        let g_ord = Gregorian::ordinal_from_fixed(fixed_date);
+        OrdinalDate {
+            year: (g_ord.year - HOLOCENE_YEAR_OFFSET),
+            day_of_year: g_ord.day_of_year,
+        }
+    }
+
+    fn to_ordinal(self) -> OrdinalDate {
+        let g = Gregorian::try_from_common_date(self.to_common_date())
+            .expect("Same month/day validity");
+        g.to_ordinal()
+    }
+
+    fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        let e = Gregorian::from_ordinal_unchecked(ord);
+        Holocene::try_from_common_date(e.to_common_date()).expect("Same month/day validity")
+    }
+}
 
 impl HasLeapYears for Holocene {
     fn is_leap(h_year: i32) -> bool {
