@@ -129,6 +129,8 @@ proptest! {
     fn french_rev_arith(t in FIXED_MIN..FIXED_MAX) {
         one_more_day::<FrenchRevMonth, FrenchRevArith<true>>(t);
         one_more_day::<FrenchRevMonth, FrenchRevArith<false>>(t);
+        one_more_day_ordinal::<FrenchRevArith<true>>(t);
+        one_more_day_ordinal::<FrenchRevArith<false>>(t);
     }
 
     #[test]

@@ -90,6 +90,8 @@ proptest! {
     fn french_rev_arith(t in FIXED_MIN..FIXED_MAX) {
         roundtrip::<FrenchRevArith<true>>(t);
         roundtrip::<FrenchRevArith<false>>(t);
+        roundtrip_ordinal::<FrenchRevArith<true>>(t);
+        roundtrip_ordinal::<FrenchRevArith<false>>(t);
     }
 
     #[test]

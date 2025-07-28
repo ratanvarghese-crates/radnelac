@@ -12,6 +12,8 @@ use radnelac::calendar::Egyptian;
 use radnelac::calendar::EgyptianMonth;
 use radnelac::calendar::Ethiopic;
 use radnelac::calendar::EthiopicMonth;
+use radnelac::calendar::FrenchRevArith;
+use radnelac::calendar::FrenchRevMonth;
 use radnelac::calendar::Gregorian;
 use radnelac::calendar::GregorianMonth;
 use radnelac::calendar::HasLeapYears;
@@ -158,6 +160,35 @@ proptest! {
     fn year_start_ethiopic(year in -MAX_YEARS..MAX_YEARS) {
         let len = if Coptic::is_leap(year) { 366 } else { 365 };
         year_start::<EthiopicMonth, Ethiopic>(year, len);
+    }
+
+    #[test]
+    fn valid_french_rev_arith(year: i32, day in 1..365) {
+        let ord = OrdinalDate{ year: year, day_of_year: day as u16 };
+        FrenchRevArith::<true>::valid_ordinal(ord).unwrap();
+        FrenchRevArith::<false>::valid_ordinal(ord).unwrap();
+    }
+
+    #[test]
+    fn invalid_french_rev_arith(year: i32, day in 367..u16::MAX) {
+        let ord0 = OrdinalDate{ year: year, day_of_year: 0 };
+        let ord1 = OrdinalDate{ year: year, day_of_year: day as u16 };
+        let ord2 = OrdinalDate{ year: year, day_of_year: 366 };
+        assert!(FrenchRevArith::<true>::valid_ordinal(ord0).is_err());
+        assert!(FrenchRevArith::<true>::valid_ordinal(ord1).is_err());
+        assert_eq!(FrenchRevArith::<true>::valid_ordinal(ord2).is_err(), !FrenchRevArith::<true>::is_leap(year));
+        assert!(FrenchRevArith::<false>::valid_ordinal(ord0).is_err());
+        assert!(FrenchRevArith::<false>::valid_ordinal(ord1).is_err());
+        assert_eq!(FrenchRevArith::<false>::valid_ordinal(ord2).is_err(), !FrenchRevArith::<false>::is_leap(year));
+
+    }
+
+    #[test]
+    fn year_start_french_rev_arith(year in -MAX_YEARS..MAX_YEARS) {
+        let len0 = if FrenchRevArith::<true>::is_leap(year) { 366 } else { 365 };
+        year_start::<FrenchRevMonth, FrenchRevArith::<true>>(year, len0);
+        let len1 = if FrenchRevArith::<false>::is_leap(year) { 366 } else { 365 };
+        year_start::<FrenchRevMonth, FrenchRevArith::<false>>(year, len1);
     }
 
     #[test]

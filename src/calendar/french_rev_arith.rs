@@ -5,6 +5,8 @@ use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::HasIntercalaryDays;
+use crate::calendar::OrdinalDate;
+use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
@@ -132,6 +134,51 @@ pub enum Sansculottide {
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct FrenchRevArith<const L: bool>(CommonDate);
 
+impl<const L: bool> ToFromOrdinalDate for FrenchRevArith<L> {
+    fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {
+        let correction = if Self::is_leap(ord.year) { 1 } else { 0 };
+        if ord.day_of_year > 0 && ord.day_of_year <= (365 + correction) {
+            Ok(())
+        } else {
+            Err(CalendarError::InvalidDayOfYear)
+        }
+    }
+
+    fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        let date = fixed_date.get_day_i();
+        let epoch = Self::epoch().get_day_i();
+        let approx = ((4000 * (date - epoch + 2)).div_euclid(1460969) + 1) as i32;
+        let approx_start = Self(CommonDate::new(approx, 1, 1)).to_fixed().get_day_i();
+        let year = if date < approx_start {
+            approx - 1
+        } else {
+            approx
+        };
+        let year_start = Self(CommonDate::new(year, 1, 1)).to_fixed().get_day_i();
+        let doy = (date - year_start + 1) as u16;
+        OrdinalDate {
+            year: year,
+            day_of_year: doy,
+        }
+    }
+
+    fn to_ordinal(self) -> OrdinalDate {
+        let offset_m = 30 * ((self.0.month as u16) - 1);
+        let offset_d = self.0.day as u16;
+        OrdinalDate {
+            year: self.0.year,
+            day_of_year: offset_m + offset_d,
+        }
+    }
+
+    fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        let month = (1 + (ord.day_of_year - 1).div_euclid(30)) as u8;
+        let month_start = Self(CommonDate::new(ord.year, month, 1)).to_ordinal();
+        let day = (1 + ord.day_of_year - month_start.day_of_year) as u8;
+        FrenchRevArith(CommonDate::new(ord.year, month, day))
+    }
+}
+
 impl<const L: bool> FrenchRevArith<L> {
     /// Returns L
     pub fn is_adjusted(self) -> bool {
@@ -197,29 +244,16 @@ impl<const L: bool> Epoch for FrenchRevArith<L> {
 
 impl<const L: bool> FromFixed for FrenchRevArith<L> {
     fn from_fixed(fixed_date: Fixed) -> FrenchRevArith<L> {
-        let date = fixed_date.get_day_i();
-        let epoch = Self::epoch().get_day_i();
-        let approx = ((4000 * (date - epoch + 2)).div_euclid(1460969) + 1) as i32;
-        let approx_start = Self(CommonDate::new(approx, 1, 1)).to_fixed().get_day_i();
-        let year = if date < approx_start {
-            approx - 1
-        } else {
-            approx
-        };
-        let year_start = Self(CommonDate::new(year, 1, 1)).to_fixed().get_day_i();
-        let month = (1 + (date - year_start).div_euclid(30)) as u8;
-        let month_start = Self(CommonDate::new(year, month, 1)).to_fixed().get_day_i();
-        let day = (1 + date - month_start) as u8;
-
-        FrenchRevArith(CommonDate::new(year, month, day))
+        //Split compared to original
+        let ord = Self::ordinal_from_fixed(fixed_date);
+        Self::from_ordinal_unchecked(ord)
     }
 }
 
 impl<const L: bool> ToFixed for FrenchRevArith<L> {
     fn to_fixed(self) -> Fixed {
+        //Split compared to original
         let year = self.0.year as i64;
-        let month = self.0.month as i64;
-        let day = self.0.day as i64;
         let y_adj = if L { 1 } else { 0 };
 
         let offset_e = Self::epoch().get_day_i() - 1;
@@ -227,9 +261,8 @@ impl<const L: bool> ToFixed for FrenchRevArith<L> {
         let offset_leap = (year + y_adj - 1).div_euclid(4) - (year + y_adj - 1).div_euclid(100)
             + (year + y_adj - 1).div_euclid(400)
             - (year + y_adj - 1).div_euclid(4000);
-        let offset_m = 30 * (month - 1);
-        let offset_d = day;
-        Fixed::cast_new(offset_e + offset_y + offset_leap + offset_m + offset_d)
+        let ord = self.to_ordinal().day_of_year as i64;
+        Fixed::cast_new(offset_e + offset_y + offset_leap + ord)
     }
 }
 

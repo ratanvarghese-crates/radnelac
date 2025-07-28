@@ -148,12 +148,16 @@ proptest! {
     fn french_rev_arith(t0 in FIXED_MIN..FIXED_MAX, t1 in FIXED_MIN..FIXED_MAX) {
         consistent_order::<FrenchRevMonth, FrenchRevArith<true>>(t0, t1);
         consistent_order::<FrenchRevMonth, FrenchRevArith<false>>(t0, t1);
+        consistent_order_ordinal::<FrenchRevArith<true>>(t0, t1);
+        consistent_order_ordinal::<FrenchRevArith<false>>(t0, t1);
     }
 
     #[test]
     fn french_rev_arith_small(t0 in FIXED_MIN..FIXED_MAX, diff in i8::MIN..i8::MAX) {
         consistent_order::<FrenchRevMonth, FrenchRevArith<true>>(t0, t0 + (diff as f64));
         consistent_order::<FrenchRevMonth, FrenchRevArith<false>>(t0, t0 + (diff as f64));
+        consistent_order_ordinal::<FrenchRevArith<true>>(t0, t0 + (diff as f64));
+        consistent_order_ordinal::<FrenchRevArith<false>>(t0, t0 + (diff as f64));
     }
 
     #[test]
