@@ -4,7 +4,6 @@ use crate::display::private::fmt_string;
 use crate::display::private::Content;
 use crate::display::private::DisplayItem;
 use crate::display::private::Item;
-use crate::display::private::Locale;
 use crate::display::private::NumericContent;
 use crate::display::private::Sign;
 use crate::display::private::TextContent;
@@ -41,13 +40,13 @@ impl DisplayItem for Weekday {
 
 impl fmt::Display for Weekday {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        const O: DisplayOptions = DisplayOptions { numerals: None,
+        const O: DisplayOptions = DisplayOptions {
+            numerals: None,
             width: None,
             align: None,
             padding: None,
             case: None,
             sign: Sign::Never,
-            locale: Locale::en_CA,
         };
         let item = Item::new(Content::Text(TextContent::DayOfWeekName), O);
         write!(f, "{}", self.fmt_item(item))

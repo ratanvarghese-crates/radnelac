@@ -3,7 +3,6 @@ use crate::display::private::Content;
 use crate::display::private::DisplayItem;
 use crate::display::private::DisplayOptions;
 use crate::display::private::Item;
-use crate::display::private::Locale;
 use crate::display::private::NumericContent;
 use crate::display::private::Sign;
 use crate::display::private::TextContent;
@@ -15,7 +14,6 @@ const O_LITERAL: DisplayOptions = DisplayOptions {
     padding: None,
     case: None,
     sign: Sign::OnlyNegative,
-    locale: Locale::en_CA,
 };
 
 const O_YEAR_IN_ERA: DisplayOptions = DisplayOptions {
@@ -25,7 +23,6 @@ const O_YEAR_IN_ERA: DisplayOptions = DisplayOptions {
     padding: None,
     case: None,
     sign: Sign::Never,
-    locale: Locale::en_CA,
 };
 
 const O_N1: DisplayOptions = DisplayOptions {
@@ -35,7 +32,6 @@ const O_N1: DisplayOptions = DisplayOptions {
     padding: None,
     case: Some(Case::Upper),
     sign: Sign::Never,
-    locale: Locale::en_CA,
 };
 
 const O_N2: DisplayOptions = DisplayOptions {
@@ -45,7 +41,6 @@ const O_N2: DisplayOptions = DisplayOptions {
     padding: Some('0'),
     case: Some(Case::Upper),
     sign: Sign::Never,
-    locale: Locale::en_CA,
 };
 
 const O_N3: DisplayOptions = DisplayOptions {
@@ -55,7 +50,6 @@ const O_N3: DisplayOptions = DisplayOptions {
     padding: None,
     case: Some(Case::Upper),
     sign: Sign::Never,
-    locale: Locale::en_CA,
 };
 
 macro_rules! NumericDateItems {
@@ -70,7 +64,6 @@ macro_rules! NumericDateItems {
                     padding: Some('0'),
                     case: None,
                     sign: Sign::OnlyNegative,
-                    locale: Locale::en_CA,
                 },
             ),
             Item::new(Content::Literal($sep), O_LITERAL),
@@ -83,7 +76,6 @@ macro_rules! NumericDateItems {
                     padding: Some('0'),
                     case: None,
                     sign: Sign::OnlyNegative,
-                    locale: Locale::en_CA,
                 },
             ),
             Item::new(Content::Literal($sep), O_LITERAL),
@@ -96,7 +88,6 @@ macro_rules! NumericDateItems {
                     padding: Some('0'),
                     case: None,
                     sign: Sign::OnlyNegative,
-                    locale: Locale::en_CA,
                 },
             ),
         ];

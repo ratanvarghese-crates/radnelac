@@ -1,6 +1,6 @@
-use crate::day_count::BoundedDayCount;
 use crate::calendar::CommonDate;
 use crate::calendar::Quarter;
+use crate::day_count::BoundedDayCount;
 use crate::day_count::Epoch;
 use crate::day_count::ToFixed;
 use convert_case;
@@ -69,12 +69,6 @@ pub enum Sign {
 }
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
-#[allow(non_camel_case_types)]
-pub enum Locale {
-    en_CA,
-}
-
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub enum Numerals {
     HinduArabic,
     Roman,
@@ -88,7 +82,6 @@ pub struct DisplayOptions {
     pub padding: Option<char>,
     pub numerals: Option<Numerals>,
     pub sign: Sign,
-    pub locale: Locale,
 }
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
@@ -233,7 +226,6 @@ impl DisplayItem for CommonDate {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::display::private::Locale;
 
     #[test]
     fn basic_number() {
@@ -244,7 +236,6 @@ mod tests {
             padding: None,
             case: None,
             sign: Sign::Never,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_number(2025, opt_0), "2025");
         assert_eq!(fmt_number(-2025, opt_0), "2025");
@@ -255,7 +246,6 @@ mod tests {
             padding: None,
             case: None,
             sign: Sign::Always,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_number(2025, opt_1), "+2025");
         assert_eq!(fmt_number(-2025, opt_1), "-2025");
@@ -266,7 +256,6 @@ mod tests {
             padding: None,
             case: None,
             sign: Sign::OnlyNegative,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_number(2025, opt_2), "2025");
         assert_eq!(fmt_number(-2025, opt_2), "-2025");
@@ -281,7 +270,6 @@ mod tests {
             padding: None,
             case: None,
             sign: Sign::Never,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_string("January", opt_0), "January");
     }
@@ -295,7 +283,6 @@ mod tests {
             padding: None,
             case: Some(Case::Upper),
             sign: Sign::Never,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_string("mAy", opt_0), "MAY");
         let opt_1 = DisplayOptions {
@@ -305,7 +292,6 @@ mod tests {
             padding: None,
             case: Some(Case::Lower),
             sign: Sign::Never,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_string("mAy", opt_1), "may");
         let opt_2 = DisplayOptions {
@@ -315,7 +301,6 @@ mod tests {
             padding: None,
             case: Some(Case::Title),
             sign: Sign::Never,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_string("mAy", opt_2), "MAy");
         let opt_3 = DisplayOptions {
@@ -325,7 +310,6 @@ mod tests {
             padding: None,
             case: None,
             sign: Sign::Never,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_string("mAy", opt_3), "mAy");
     }
@@ -339,7 +323,6 @@ mod tests {
             padding: Some('@'),
             case: None,
             sign: Sign::Never,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_number(2025, opt_0), "@@@@2025");
         assert_eq!(fmt_number(-2025, opt_0), "@@@@2025");
@@ -350,7 +333,6 @@ mod tests {
             padding: Some('@'),
             case: None,
             sign: Sign::Always,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_number(2025, opt_1), "@@@+2025");
         assert_eq!(fmt_number(-2025, opt_1), "@@@-2025");
@@ -361,7 +343,6 @@ mod tests {
             padding: Some('0'),
             case: None,
             sign: Sign::Always,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_number(2025, opt_2), "+0002025");
         assert_eq!(fmt_number(-2025, opt_2), "-0002025");
@@ -376,7 +357,6 @@ mod tests {
             padding: Some('@'),
             case: None,
             sign: Sign::OnlyNegative,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_number(2025, opt_0), "@@@@2025");
         assert_eq!(fmt_number(-2025, opt_0), "@@@-2025");
@@ -387,7 +367,6 @@ mod tests {
             padding: Some('@'),
             case: None,
             sign: Sign::OnlyNegative,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_number(2025, opt_1), "2025@@@@");
         assert_eq!(fmt_number(-2025, opt_1), "-2025@@@");
@@ -398,7 +377,6 @@ mod tests {
             padding: Some('@'),
             case: None,
             sign: Sign::OnlyNegative,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_number(2025, opt_2), "@@2025@@");
         assert_eq!(fmt_number(-2025, opt_2), "@@-2025@");
@@ -413,7 +391,6 @@ mod tests {
             padding: None,
             case: None,
             sign: Sign::OnlyNegative,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_number(2025, opt_0), "20");
         assert_eq!(fmt_number(-2025, opt_0), "-2");
@@ -428,7 +405,6 @@ mod tests {
             padding: Some('@'),
             case: None,
             sign: Sign::Never,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_string("June", opt_0), "@@@@June");
         let opt_1 = DisplayOptions {
@@ -438,7 +414,6 @@ mod tests {
             padding: Some('@'),
             case: None,
             sign: Sign::Never,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_string("June", opt_1), "June@@@@");
         let opt_2 = DisplayOptions {
@@ -448,7 +423,6 @@ mod tests {
             padding: Some('@'),
             case: None,
             sign: Sign::Never,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_string("June", opt_2), "@@June@@");
     }
@@ -462,7 +436,6 @@ mod tests {
             padding: None,
             case: None,
             sign: Sign::Never,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_string("January", opt_0), "Jan");
     }
@@ -476,7 +449,6 @@ mod tests {
             padding: None,
             case: None,
             sign: Sign::Never,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_string("😀", opt_0), "");
         assert_eq!(fmt_string("😀😂", opt_0), "");
@@ -487,7 +459,6 @@ mod tests {
             padding: None,
             case: None,
             sign: Sign::Never,
-            locale: Locale::en_CA,
         };
         assert_eq!(fmt_string("😀", opt_1), "😀");
         assert_eq!(fmt_string("😀😂", opt_1), "😀");
