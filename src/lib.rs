@@ -213,6 +213,11 @@ pub mod calendar {
 pub mod display {
     mod prelude;
     mod private;
+    mod text {
+        pub mod en;
+        pub mod fr;
+        pub mod prelude;
+    }
 
     mod akan;
     mod armenian;

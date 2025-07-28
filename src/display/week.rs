@@ -7,6 +7,8 @@ use crate::display::private::Item;
 use crate::display::private::NumericContent;
 use crate::display::private::Sign;
 use crate::display::private::TextContent;
+use crate::display::text::en::EN_WEEKDAYS;
+use crate::display::text::fr::FR_WEEKDAYS;
 use std::fmt;
 
 use crate::display::private::DisplayOptions;
@@ -22,13 +24,13 @@ impl DisplayItem for Weekday {
         match t {
             TextContent::DayOfWeekName => {
                 const DAYS: [&str; 7] = [
-                    "Sunday",
-                    "Monday",
-                    "Tuesday",
-                    "Wednesday",
-                    "Thursday",
-                    "Friday",
-                    "Saturday",
+                    EN_WEEKDAYS.sunday,
+                    EN_WEEKDAYS.monday,
+                    EN_WEEKDAYS.tuesday,
+                    EN_WEEKDAYS.wednesday,
+                    EN_WEEKDAYS.thursday,
+                    EN_WEEKDAYS.friday,
+                    EN_WEEKDAYS.saturday,
                 ];
                 let name = DAYS[*self as usize];
                 fmt_string(name, opt)
