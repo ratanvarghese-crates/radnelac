@@ -14,9 +14,9 @@
 //! use radnelac::calendar::*;
 //! use radnelac::day_count::*;
 //!
-//! let g = Gregorian::try_from_common_date(CommonDate::new(2025, 7, 26)).unwrap();
+//! let g = Gregorian::try_new(2025, GregorianMonth::July, 26).unwrap();
 //! let j = g.convert::<Julian>();
-//! assert_eq!(j.to_common_date(), CommonDate::new(2025, 7, 13));
+//! assert_eq!(j, Julian::try_new(2025, JulianMonth::July, 13).unwrap());
 //! ```
 //!
 //! ## Crate Features

@@ -77,9 +77,14 @@ pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
     }
 }
 
-pub trait GuaranteedMonth<T: FromPrimitive>: ToFromCommonDate<T> {
+pub trait GuaranteedMonth<T: ToPrimitive + FromPrimitive>: ToFromCommonDate<T> {
     fn month(self) -> T {
         self.try_month().expect("Month is guaranteed")
+    }
+
+    fn try_new(year: i32, month: T, day: u8) -> Result<Self, CalendarError> {
+        let m = month.to_u8().expect("Month is correct type");
+        Self::try_from_common_date(CommonDate::new(year, m, day))
     }
 }
 
