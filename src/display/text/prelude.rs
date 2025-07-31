@@ -1,7 +1,25 @@
+/// Represents a written and spoken language
+///
+/// Languages are identified by their ISO 639-1 language code.
+///
+/// For functions that take a Language parameter, the following strings may be output in
+/// the specified language:
+///
+/// + names of epochs
+/// + names of months
+/// + names of days of weeks
+/// + names of days of month
+///
+/// Currently, Language::EN (English) is supported for all timekeeping systems, and
+/// Language::FR (French) is only supported for a subset of timekeeping systems.
+///
+/// # Further Reading
+/// + [Wikipedia](//https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub enum Language {
-    //https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
+    /// English
     EN,
+    /// French
     FR,
 }
 
