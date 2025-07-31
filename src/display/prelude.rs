@@ -6,6 +6,7 @@ use crate::display::private::Item;
 use crate::display::private::NumericContent;
 use crate::display::private::Sign;
 use crate::display::private::TextContent;
+pub use crate::display::text::prelude::Language;
 
 const O_LITERAL: DisplayOptions = DisplayOptions {
     numerals: None,
@@ -240,21 +241,21 @@ pub const COMPL_ONLY: PresetFormat<'static> = PresetFormat::<'static>(&I_COMPL_O
 /// This is only available if `display` is enabled.
 pub trait PresetDisplay: DisplayItem {
     /// Format a date in any `PresetFormat`
-    fn preset_str(&self, preset: PresetFormat) -> String {
+    fn preset_str(&self, lang: Language, preset: PresetFormat) -> String {
         let mut result = String::new();
         for item in preset.0 {
-            result.push_str(&self.fmt_item(*item))
+            result.push_str(&self.fmt_item(lang, *item))
         }
         result
     }
 
     /// Format a date in a calendar-specific long format
     fn long_date(&self) -> String {
-        self.preset_str(LONG_DATE)
+        self.preset_str(Language::EN, LONG_DATE)
     }
 
     /// Format a date in a calendar-specific short format
     fn short_date(&self) -> String {
-        self.preset_str(YYYYMMDD_DASH)
+        self.preset_str(Language::EN, YYYYMMDD_DASH)
     }
 }

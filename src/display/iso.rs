@@ -8,13 +8,19 @@ use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
 use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
+use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
 use crate::display::private::DisplayOptions;
 use crate::display::private::NumericContent;
 use crate::display::private::TextContent;
+use crate::display::text::prelude::Language;
 use std::fmt;
 
 impl DisplayItem for ISO {
+    fn supported_lang(lang: Language) -> bool {
+        get_dict(lang).iso.as_ref().is_some()
+    }
+
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
             NumericContent::Month | NumericContent::DayOfMonth => "".to_string(),
@@ -31,40 +37,38 @@ impl DisplayItem for ISO {
             NumericContent::WeekOfYear => fmt_number(self.week().get() as i8, opt),
         }
     }
-    fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String {
-        match t {
-            TextContent::MonthName
-            | TextContent::DayOfMonthName
-            | TextContent::ComplementaryDayName => fmt_string("", opt),
-            TextContent::DayOfWeekName => self.day().fmt_text(t, opt),
-            TextContent::HalfDayName | TextContent::HalfDayAbbrev => {
-                self.convert::<TimeOfDay>().fmt_text(t, opt)
+    fn fmt_text(&self, t: TextContent, lang: Language, opt: DisplayOptions) -> String {
+        match (t, get_dict(lang).iso.as_ref()) {
+            (TextContent::DayOfWeekName, _) => self.day().fmt_text(t, lang, opt),
+            (TextContent::HalfDayName | TextContent::HalfDayAbbrev, _) => {
+                self.convert::<TimeOfDay>().fmt_text(t, lang, opt)
             }
-            TextContent::EraName => {
+            (TextContent::EraName, Some(dict)) => {
                 if self.year() < 0 {
-                    fmt_string("Before ISO Era", opt)
+                    fmt_string(dict.before_epoch_full, opt)
                 } else {
-                    fmt_string("ISO Era", opt)
+                    fmt_string(dict.after_epoch_full, opt)
                 }
             }
-            TextContent::EraAbbreviation => {
+            (TextContent::EraAbbreviation, Some(dict)) => {
                 if self.year() < 0 {
-                    fmt_string("BIE", opt)
+                    fmt_string(dict.before_epoch_abr, opt)
                 } else {
-                    fmt_string("IE", opt)
+                    fmt_string(dict.after_epoch_abr, opt)
                 }
             }
+            (_, _) => String::from(""),
         }
     }
 }
 
 impl PresetDisplay for ISO {
     fn long_date(&self) -> String {
-        self.preset_str(YEAR_WEEK_DAY)
+        self.preset_str(Language::EN, YEAR_WEEK_DAY)
     }
 
     fn short_date(&self) -> String {
-        self.preset_str(YEAR_WEEK_DAY)
+        self.preset_str(Language::EN, YEAR_WEEK_DAY)
     }
 }
 

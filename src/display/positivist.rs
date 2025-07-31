@@ -12,13 +12,19 @@ use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
 use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
+use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
 use crate::display::private::DisplayOptions;
 use crate::display::private::NumericContent;
 use crate::display::private::TextContent;
+use crate::display::text::prelude::Language;
 use std::fmt;
 
 impl DisplayItem for Positivist {
+    fn supported_lang(lang: Language) -> bool {
+        get_dict(lang).positivist.as_ref().is_some()
+    }
+
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
             NumericContent::Month | NumericContent::DayOfMonth | NumericContent::Year => {
@@ -45,60 +51,61 @@ impl DisplayItem for Positivist {
             },
         }
     }
-    fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String {
-        match t {
-            TextContent::MonthName => {
-                const MONTHS: [&str; 13] = [
-                    "Moses",
-                    "Homer",
-                    "Aristotle",
-                    "Archimedes",
-                    "Caesar",
-                    "Saint Paul",
-                    "Charlemagne",
-                    "Dante",
-                    "Gutenburg",
-                    "Shakespeare",
-                    "Descartes",
-                    "Frederick",
-                    "Bichat",
+    fn fmt_text(&self, t: TextContent, lang: Language, opt: DisplayOptions) -> String {
+        match (t, get_dict(lang).positivist.as_ref()) {
+            (TextContent::MonthName, Some(dict)) => {
+                let months: [&str; 13] = [
+                    dict.moses,
+                    dict.homer,
+                    dict.aristotle,
+                    dict.archimedes,
+                    dict.caesar,
+                    dict.saint_paul,
+                    dict.charlemagne,
+                    dict.dante,
+                    dict.gutenburg,
+                    dict.shakespeare,
+                    dict.descartes,
+                    dict.frederick,
+                    dict.bichat,
                 ];
                 let name = match self.try_month() {
-                    Some(m) => MONTHS[(m as usize) - 1],
+                    Some(m) => months[(m as usize) - 1],
                     None => "",
                 };
                 fmt_string(name, opt)
             }
-            TextContent::DayOfMonthName => fmt_string("", opt),
-            TextContent::DayOfWeekName => match self.weekday() {
-                Some(m) => m.fmt_text(t, opt),
+            (TextContent::DayOfMonthName, _) => fmt_string("", opt),
+            (TextContent::DayOfWeekName, _) => match self.weekday() {
+                Some(m) => m.fmt_text(t, lang, opt),
                 None => fmt_string("", opt),
             },
-            TextContent::HalfDayName | TextContent::HalfDayAbbrev => {
-                self.convert::<TimeOfDay>().fmt_text(t, opt)
+            (TextContent::HalfDayName | TextContent::HalfDayAbbrev, _) => {
+                self.convert::<TimeOfDay>().fmt_text(t, lang, opt)
             }
-            TextContent::EraName => {
+            (TextContent::EraName, Some(dict)) => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("Before the Great Crisis", opt)
+                    fmt_string(dict.before_crisis_full, opt)
                 } else {
-                    fmt_string("After the Great Crisis", opt)
+                    fmt_string(dict.after_crisis_full, opt)
                 }
             }
-            TextContent::EraAbbreviation => {
+            (TextContent::EraAbbreviation, Some(dict)) => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("BGC", opt)
+                    fmt_string(dict.before_crisis_abr, opt)
                 } else {
-                    fmt_string("AGC", opt)
+                    fmt_string(dict.after_crisis_abr, opt)
                 }
             }
-            TextContent::ComplementaryDayName => {
-                const COMPL: [&str; 2] = ["Festival Of The Dead", "Festival Of Holy Women"];
+            (TextContent::ComplementaryDayName, Some(dict)) => {
+                let compl: [&str; 2] = [dict.festival_of_dead, dict.festival_of_holy_women];
                 let name = match self.complementary() {
-                    Some(d) => COMPL[(d as usize) - 1],
+                    Some(d) => compl[(d as usize) - 1],
                     None => "",
                 };
                 fmt_string(name, opt)
             }
+            (_, _) => String::from(""),
         }
     }
 }
@@ -106,9 +113,9 @@ impl DisplayItem for Positivist {
 impl PresetDisplay for Positivist {
     fn long_date(&self) -> String {
         if self.complementary().is_some() {
-            self.preset_str(LONG_COMPL)
+            self.preset_str(Language::EN, LONG_COMPL)
         } else {
-            self.preset_str(LONG_DATE)
+            self.preset_str(Language::EN, LONG_DATE)
         }
     }
 }

@@ -16,13 +16,19 @@ use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
 use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
+use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
 use crate::display::private::DisplayOptions;
 use crate::display::private::NumericContent;
 use crate::display::private::TextContent;
+use crate::display::text::prelude::Language;
 use std::fmt;
 
 impl DisplayItem for TranquilityMoment {
+    fn supported_lang(lang: Language) -> bool {
+        get_dict(lang).tranquility.as_ref().is_some()
+    }
+
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
             NumericContent::Month | NumericContent::DayOfMonth | NumericContent::Year => {
@@ -49,60 +55,61 @@ impl DisplayItem for TranquilityMoment {
             },
         }
     }
-    fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String {
-        match t {
-            TextContent::MonthName => {
-                const MONTHS: [&str; 13] = [
-                    "Archimedes",
-                    "Brahe",
-                    "Copernicus",
-                    "Darwin",
-                    "Einstein",
-                    "Faraday",
-                    "Galileo",
-                    "Hippocrates",
-                    "Imhotep",
-                    "Jung",
-                    "Kepler",
-                    "Lavoisier",
-                    "Mendel",
+    fn fmt_text(&self, t: TextContent, lang: Language, opt: DisplayOptions) -> String {
+        match (t, get_dict(lang).tranquility.as_ref()) {
+            (TextContent::MonthName, Some(dict)) => {
+                let months: [&str; 13] = [
+                    dict.archimedes,
+                    dict.brahe,
+                    dict.copernicus,
+                    dict.darwin,
+                    dict.einstein,
+                    dict.faraday,
+                    dict.galileo,
+                    dict.hippocrates,
+                    dict.imhotep,
+                    dict.jung,
+                    dict.kepler,
+                    dict.lavoisier,
+                    dict.mendel,
                 ];
                 let name = match self.try_month() {
-                    Some(m) => MONTHS[(m as usize) - 1],
+                    Some(m) => months[(m as usize) - 1],
                     None => "",
                 };
                 fmt_string(name, opt)
             }
-            TextContent::DayOfMonthName => fmt_string("", opt),
-            TextContent::DayOfWeekName => match self.weekday() {
-                Some(m) => m.fmt_text(t, opt),
+            (TextContent::DayOfMonthName, _) => fmt_string("", opt),
+            (TextContent::DayOfWeekName, _) => match self.weekday() {
+                Some(m) => m.fmt_text(t, lang, opt),
                 None => fmt_string("", opt),
             },
-            TextContent::HalfDayName | TextContent::HalfDayAbbrev => {
-                self.convert::<TimeOfDay>().fmt_text(t, opt)
+            (TextContent::HalfDayName | TextContent::HalfDayAbbrev, _) => {
+                self.convert::<TimeOfDay>().fmt_text(t, lang, opt)
             }
-            TextContent::EraName => {
+            (TextContent::EraName, Some(dict)) => {
                 if self.is_after_tranquility() {
-                    fmt_string("After Tranquility", opt)
+                    fmt_string(dict.after_tranquility_full, opt)
                 } else {
-                    fmt_string("Before Tranquility", opt)
+                    fmt_string(dict.before_tranquility_full, opt)
                 }
             }
-            TextContent::EraAbbreviation => {
+            (TextContent::EraAbbreviation, Some(dict)) => {
                 if self.is_after_tranquility() {
-                    fmt_string("AT", opt)
+                    fmt_string(dict.after_tranquility_abr, opt)
                 } else {
-                    fmt_string("BT", opt)
+                    fmt_string(dict.before_tranquility_abr, opt)
                 }
             }
-            TextContent::ComplementaryDayName => {
-                const COMPL: [&str; 3] = ["Moon Landing Day", "Armstrong Day", "Aldrin Day"];
+            (TextContent::ComplementaryDayName, Some(dict)) => {
+                let compl: [&str; 3] = [dict.moon_landing_day, dict.armstrong_day, dict.aldrin_day];
                 let name = match self.complementary() {
-                    Some(d) => COMPL[d as usize],
+                    Some(d) => compl[d as usize],
                     None => "",
                 };
                 fmt_string(name, opt)
             }
+            (_, _) => String::from(""),
         }
     }
 }
@@ -114,7 +121,7 @@ impl PresetDisplay for TranquilityMoment {
             Some(TranquilityComplementaryDay::MoonLandingDay) => COMPL_ONLY,
             Some(_) => LONG_COMPL,
         };
-        self.preset_str(p)
+        self.preset_str(Language::EN, p)
     }
 
     fn short_date(&self) -> String {
@@ -122,7 +129,7 @@ impl PresetDisplay for TranquilityMoment {
             None => YEAR_MDD,
             Some(_) => YEAR_COMPL,
         };
-        self.preset_str(p)
+        self.preset_str(Language::EN, p)
     }
 }
 

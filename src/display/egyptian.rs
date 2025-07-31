@@ -11,8 +11,10 @@ use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
 use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
+use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
 use crate::display::private::NumericContent;
+use crate::display::text::prelude::Language;
 use std::fmt;
 
 use crate::display::private::TextContent;
@@ -20,6 +22,10 @@ use crate::display::private::TextContent;
 use crate::display::private::DisplayOptions;
 
 impl DisplayItem for Egyptian {
+    fn supported_lang(lang: Language) -> bool {
+        get_dict(lang).egyptian.as_ref().is_some()
+    }
+
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
             NumericContent::Month | NumericContent::DayOfMonth | NumericContent::Year => {
@@ -40,64 +46,65 @@ impl DisplayItem for Egyptian {
             NumericContent::WeekOfYear => fmt_number(self.week_of_year() as i16, opt),
         }
     }
-    fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String {
-        match t {
-            TextContent::MonthName => {
-                const MONTHS: [&str; 12] = [
-                    "Thoth",
-                    "Phaophi",
-                    "Athyr",
-                    "Choiak",
-                    "Tybi",
-                    "Mechir",
-                    "Phamenoth",
-                    "Pharmuthi",
-                    "Pachon",
-                    "Payni",
-                    "Epiphi",
-                    "Mesori",
+    fn fmt_text(&self, t: TextContent, lang: Language, opt: DisplayOptions) -> String {
+        match (t, get_dict(lang).egyptian.as_ref()) {
+            (TextContent::MonthName, Some(dict)) => {
+                let months: [&str; 12] = [
+                    dict.thoth,
+                    dict.phaophi,
+                    dict.athyr,
+                    dict.choiak,
+                    dict.tybi,
+                    dict.mechir,
+                    dict.phamenoth,
+                    dict.pharmuthi,
+                    dict.pachon,
+                    dict.payni,
+                    dict.epiphi,
+                    dict.mesori,
                 ];
                 let m = self.to_common_date().month;
                 if m > 12 {
                     fmt_string("", opt)
                 } else {
-                    let name = MONTHS[m as usize - 1];
+                    let name = months[m as usize - 1];
                     fmt_string(name, opt)
                 }
             }
-            TextContent::DayOfMonthName => fmt_string("", opt),
-            TextContent::DayOfWeekName => self.convert::<Weekday>().fmt_text(t, opt),
-            TextContent::HalfDayName | TextContent::HalfDayAbbrev => {
-                self.convert::<TimeOfDay>().fmt_text(t, opt)
+            (TextContent::DayOfMonthName, _) => fmt_string("", opt),
+            (TextContent::DayOfWeekName, _) => self.convert::<Weekday>().fmt_text(t, lang, opt),
+            (TextContent::HalfDayName | TextContent::HalfDayAbbrev, _) => {
+                self.convert::<TimeOfDay>().fmt_text(t, lang, opt)
             }
-            TextContent::EraName => {
+            (TextContent::EraName, Some(dict)) => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("Before Nabonassar Era", opt)
+                    fmt_string(dict.before_nabonassar_full, opt)
                 } else {
-                    fmt_string("Nabonassar Era", opt)
+                    fmt_string(dict.after_nabonassar_full, opt)
                 }
             }
-            TextContent::EraAbbreviation => {
+            (TextContent::EraAbbreviation, Some(dict)) => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("BNE", opt)
+                    fmt_string(dict.before_nabonassar_abr, opt)
                 } else {
-                    fmt_string("NE", opt)
+                    fmt_string(dict.after_nabonassar_abr, opt)
                 }
             }
-            TextContent::ComplementaryDayName => {
+            (TextContent::ComplementaryDayName, Some(dict)) => {
                 // https://helda.helsinki.fi/server/api/core/bitstreams/4ed34849-903b-416b-97d6-a9a76eb1fb1d/content
-                const DAYS: [&str; 5] = [
-                    "Birth of Osiris",
-                    "Birth of Horus",
-                    "Birth of Seth",
-                    "Birth of Isis",
-                    "Birth of Nephthys",
+                let days: [&str; 5] = [
+                    dict.birth_of_osiris,
+                    dict.birth_of_horus,
+                    dict.birth_of_seth,
+                    dict.birth_of_isis,
+                    dict.birth_of_nephthys,
                 ];
                 match self.complementary() {
-                    Some(d) => fmt_string(DAYS[d as usize - 1], opt),
+                    Some(d) => fmt_string(days[d as usize - 1], opt),
                     None => fmt_string("", opt),
                 }
             }
+            (_, _) => fmt_string("", opt),
         }
     }
 }

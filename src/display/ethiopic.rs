@@ -1,7 +1,7 @@
-use crate::calendar::Ethiopic;
-use crate::clock::TimeOfDay;
 use crate::calendar::CommonWeekOfYear;
+use crate::calendar::Ethiopic;
 use crate::calendar::ToFromCommonDate;
+use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
 use crate::display::prelude::PresetDisplay;
@@ -10,14 +10,20 @@ use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
 use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
+use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
 use crate::display::private::DisplayOptions;
 use crate::display::private::NumericContent;
 use crate::display::private::TextContent;
+use crate::display::text::prelude::Language;
 use std::fmt;
 //use crate::calendar::EthiopicMonth;
 
 impl DisplayItem for Ethiopic {
+    fn supported_lang(lang: Language) -> bool {
+        get_dict(lang).ethiopic.as_ref().is_some()
+    }
+
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
             NumericContent::Month | NumericContent::DayOfMonth | NumericContent::Year => {
@@ -36,47 +42,47 @@ impl DisplayItem for Ethiopic {
         }
     }
 
-    fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String {
-        match t {
-            TextContent::MonthName => {
-                const MONTHS: [&str; 13] = [
-                    "Mäskäräm",
-                    "Ṭəqəmt",
-                    "Ḫədar",
-                    "Taḫśaś",
-                    "Ṭərr",
-                    "Yäkatit",
-                    "Mägabit",
-                    "Miyazya",
-                    "Gənbo",
-                    "Säne",
-                    "Ḥamle",
-                    "Nähase",
-                    "Ṗagʷəmen",
+    fn fmt_text(&self, t: TextContent, lang: Language, opt: DisplayOptions) -> String {
+        match (t, get_dict(lang).ethiopic.as_ref()) {
+            (TextContent::MonthName, Some(dict)) => {
+                let months: [&str; 13] = [
+                    dict.maskaram,
+                    dict.teqemt,
+                    dict.hedar,
+                    dict.takhsas,
+                    dict.ter,
+                    dict.yakatit,
+                    dict.magabit,
+                    dict.miyazya,
+                    dict.genbot,
+                    dict.sane,
+                    dict.hamle,
+                    dict.nahase,
+                    dict.paguemen,
                 ];
-                let name = MONTHS[self.to_common_date().month as usize - 1];
+                let name = months[self.to_common_date().month as usize - 1];
                 fmt_string(name, opt)
             }
-            TextContent::DayOfMonthName => fmt_string("", opt),
-            TextContent::DayOfWeekName => self.convert::<Weekday>().fmt_text(t, opt),
-            TextContent::HalfDayName | TextContent::HalfDayAbbrev => {
-                self.convert::<TimeOfDay>().fmt_text(t, opt)
+            (TextContent::DayOfMonthName, _) => fmt_string("", opt),
+            (TextContent::DayOfWeekName, _) => self.convert::<Weekday>().fmt_text(t, lang, opt),
+            (TextContent::HalfDayName | TextContent::HalfDayAbbrev, _) => {
+                self.convert::<TimeOfDay>().fmt_text(t, lang, opt)
             }
-            TextContent::EraName => {
+            (TextContent::EraName, Some(dict)) => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("Before Incarnation Era", opt)
+                    fmt_string(dict.before_incarnation_full, opt)
                 } else {
-                    fmt_string("Incarnation Era", opt)
+                    fmt_string(dict.after_incarnation_full, opt)
                 }
             }
-            TextContent::EraAbbreviation => {
+            (TextContent::EraAbbreviation, Some(dict)) => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("BD", opt)
+                    fmt_string(dict.before_incarnation_abr, opt)
                 } else {
-                    fmt_string("AM", opt)
+                    fmt_string(dict.after_incarnation_abr, opt)
                 }
             }
-            TextContent::ComplementaryDayName => String::from(""),
+            (_, _) => String::from(""),
         }
     }
 }

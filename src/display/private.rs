@@ -3,6 +3,10 @@ use crate::calendar::Quarter;
 use crate::day_count::BoundedDayCount;
 use crate::day_count::Epoch;
 use crate::day_count::ToFixed;
+use crate::display::text::en::EN_DICTIONARY;
+use crate::display::text::fr::FR_DICTIONARY;
+use crate::display::text::prelude::Dictionary;
+use crate::display::text::prelude::Language;
 use convert_case;
 use convert_case::Casing;
 use num_traits::NumAssign;
@@ -100,14 +104,15 @@ impl<'a> Item<'a> {
 }
 
 pub trait DisplayItem {
+    fn supported_lang(lang: Language) -> bool;
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String;
-    fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String;
+    fn fmt_text(&self, t: TextContent, lang: Language, opt: DisplayOptions) -> String;
 
-    fn fmt_item(&self, item: Item) -> String {
+    fn fmt_item(&self, lang: Language, item: Item) -> String {
         match item.content {
             Content::Literal(s) => String::from(s),
             Content::Numeric(n) => self.fmt_numeric(n, item.options),
-            Content::Text(t) => self.fmt_text(t, item.options),
+            Content::Text(t) => self.fmt_text(t, lang, item.options),
         }
     }
 }
@@ -210,6 +215,10 @@ pub fn fmt_quarter<T: Quarter>(t: T, opt: DisplayOptions) -> String {
 }
 
 impl DisplayItem for CommonDate {
+    fn supported_lang(_lang: Language) -> bool {
+        true
+    }
+
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
             NumericContent::Month => fmt_number(self.month as i16, opt),
@@ -218,8 +227,15 @@ impl DisplayItem for CommonDate {
             _ => String::from(""),
         }
     }
-    fn fmt_text(&self, _t: TextContent, _opt: DisplayOptions) -> String {
+    fn fmt_text(&self, _t: TextContent, lang: Language, _opt: DisplayOptions) -> String {
         String::from("")
+    }
+}
+
+pub fn get_dict(lang: Language) -> &'static Dictionary<'static> {
+    match (lang) {
+        Language::EN => &EN_DICTIONARY,
+        Language::FR => &FR_DICTIONARY,
     }
 }
 

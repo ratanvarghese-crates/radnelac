@@ -1,7 +1,7 @@
-use crate::calendar::Julian;
-use crate::clock::TimeOfDay;
 use crate::calendar::CommonWeekOfYear;
+use crate::calendar::Julian;
 use crate::calendar::ToFromCommonDate;
+use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
 use crate::display::prelude::PresetDisplay;
@@ -10,13 +10,19 @@ use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
 use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
+use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
 use crate::display::private::DisplayOptions;
 use crate::display::private::NumericContent;
 use crate::display::private::TextContent;
+use crate::display::text::prelude::Language;
 use std::fmt;
 
 impl DisplayItem for Julian {
+    fn supported_lang(lang: Language) -> bool {
+        get_dict(lang).julian.as_ref().is_some()
+    }
+
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
             NumericContent::Month | NumericContent::DayOfMonth | NumericContent::Year => {
@@ -35,46 +41,46 @@ impl DisplayItem for Julian {
         }
     }
 
-    fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String {
-        match t {
-            TextContent::MonthName => {
-                const MONTHS: [&str; 12] = [
-                    "January",
-                    "February",
-                    "March",
-                    "April",
-                    "May",
-                    "June",
-                    "July",
-                    "August",
-                    "September",
-                    "October",
-                    "November",
-                    "December",
+    fn fmt_text(&self, t: TextContent, lang: Language, opt: DisplayOptions) -> String {
+        match (t, get_dict(lang).julian.as_ref()) {
+            (TextContent::MonthName, Some(dict)) => {
+                let months: [&str; 12] = [
+                    dict.january,
+                    dict.february,
+                    dict.march,
+                    dict.april,
+                    dict.may,
+                    dict.june,
+                    dict.july,
+                    dict.august,
+                    dict.september,
+                    dict.october,
+                    dict.november,
+                    dict.december,
                 ];
-                let name = MONTHS[self.to_common_date().month as usize - 1];
+                let name = months[self.to_common_date().month as usize - 1];
                 fmt_string(name, opt)
             }
-            TextContent::DayOfMonthName => fmt_string("", opt),
-            TextContent::DayOfWeekName => self.convert::<Weekday>().fmt_text(t, opt),
-            TextContent::HalfDayName | TextContent::HalfDayAbbrev => {
-                self.convert::<TimeOfDay>().fmt_text(t, opt)
+            (TextContent::DayOfMonthName, _) => fmt_string("", opt),
+            (TextContent::DayOfWeekName, _) => self.convert::<Weekday>().fmt_text(t, lang, opt),
+            (TextContent::HalfDayName | TextContent::HalfDayAbbrev, _) => {
+                self.convert::<TimeOfDay>().fmt_text(t, lang, opt)
             }
-            TextContent::EraName => {
+            (TextContent::EraName, Some(dict)) => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("Before Christ", opt)
+                    fmt_string(dict.before_christ_full, opt)
                 } else {
-                    fmt_string("Anno Domini", opt)
+                    fmt_string(dict.anno_domini_full, opt)
                 }
             }
-            TextContent::EraAbbreviation => {
+            (TextContent::EraAbbreviation, Some(dict)) => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("BC", opt)
+                    fmt_string(dict.before_christ_abr, opt)
                 } else {
-                    fmt_string("AD", opt)
+                    fmt_string(dict.anno_domini_abr, opt)
                 }
             }
-            TextContent::ComplementaryDayName => String::from(""),
+            (_, _) => String::from(""),
         }
     }
 }

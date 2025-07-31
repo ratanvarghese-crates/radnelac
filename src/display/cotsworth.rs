@@ -10,13 +10,19 @@ use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
 use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
+use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
 use crate::display::private::DisplayOptions;
 use crate::display::private::NumericContent;
 use crate::display::private::TextContent;
+use crate::display::text::prelude::Language;
 use std::fmt;
 
 impl DisplayItem for Cotsworth {
+    fn supported_lang(lang: Language) -> bool {
+        get_dict(lang).cotsworth.as_ref().is_some()
+    }
+
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
             NumericContent::Month | NumericContent::DayOfMonth | NumericContent::Year => {
@@ -43,60 +49,60 @@ impl DisplayItem for Cotsworth {
             },
         }
     }
-    fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String {
-        match t {
-            TextContent::MonthName => {
-                const MONTHS: [&str; 13] = [
-                    "January",
-                    "February",
-                    "March",
-                    "April",
-                    "May",
-                    "June",
-                    "Sol",
-                    "July",
-                    "August",
-                    "September",
-                    "October",
-                    "November",
-                    "December",
+    fn fmt_text(&self, t: TextContent, lang: Language, opt: DisplayOptions) -> String {
+        match (t, get_dict(lang).cotsworth.as_ref()) {
+            (TextContent::MonthName, Some(dict)) => {
+                let months: [&str; 13] = [
+                    dict.january,
+                    dict.february,
+                    dict.march,
+                    dict.april,
+                    dict.may,
+                    dict.june,
+                    dict.sol,
+                    dict.july,
+                    dict.august,
+                    dict.september,
+                    dict.october,
+                    dict.november,
+                    dict.december,
                 ];
                 let name = match self.try_month() {
-                    Some(m) => MONTHS[(m as usize) - 1],
+                    Some(m) => months[(m as usize) - 1],
                     None => "",
                 };
                 fmt_string(name, opt)
             }
-            TextContent::DayOfMonthName => fmt_string("", opt),
-            TextContent::DayOfWeekName => match self.weekday() {
-                Some(m) => m.fmt_text(t, opt),
+            (TextContent::DayOfWeekName, _) => match self.weekday() {
+                Some(m) => m.fmt_text(t, lang, opt),
                 None => fmt_string("", opt),
             },
-            TextContent::HalfDayName | TextContent::HalfDayAbbrev => {
-                self.convert::<TimeOfDay>().fmt_text(t, opt)
+            (TextContent::HalfDayName | TextContent::HalfDayAbbrev, _) => {
+                self.convert::<TimeOfDay>().fmt_text(t, lang, opt)
             }
-            TextContent::EraName => {
+            (TextContent::EraName, Some(dict)) => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("Before Cotsworth Era", opt)
+                    fmt_string(dict.before_epoch_full, opt)
                 } else {
-                    fmt_string("Cotsworth Era", opt)
+                    fmt_string(dict.after_epoch_full, opt)
                 }
             }
-            TextContent::EraAbbreviation => {
+            (TextContent::EraAbbreviation, Some(dict)) => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("BCE", opt)
+                    fmt_string(dict.before_epoch_abr, opt)
                 } else {
-                    fmt_string("CE", opt)
+                    fmt_string(dict.after_epoch_abr, opt)
                 }
             }
-            TextContent::ComplementaryDayName => {
-                const COMPL: [&str; 2] = ["Year Day", "Leap Day"];
+            (TextContent::ComplementaryDayName, Some(dict)) => {
+                let compl: [&str; 2] = [dict.year_day, dict.leap_day];
                 let name = match self.complementary() {
-                    Some(d) => COMPL[(d as usize) - 1],
+                    Some(d) => compl[(d as usize) - 1],
                     None => "",
                 };
                 fmt_string(name, opt)
             }
+            (_, _) => fmt_string("", opt),
         }
     }
 }

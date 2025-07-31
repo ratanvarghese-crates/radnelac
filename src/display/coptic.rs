@@ -1,7 +1,7 @@
-use crate::calendar::Coptic;
-use crate::clock::TimeOfDay;
 use crate::calendar::CommonWeekOfYear;
+use crate::calendar::Coptic;
 use crate::calendar::ToFromCommonDate;
+use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
 use crate::display::prelude::PresetDisplay;
@@ -10,14 +10,20 @@ use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
 use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
+use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
 use crate::display::private::DisplayOptions;
 use crate::display::private::NumericContent;
 use crate::display::private::TextContent;
+use crate::display::text::prelude::Language;
 use std::fmt;
 //use crate::calendar::CopticMonth;
 
 impl DisplayItem for Coptic {
+    fn supported_lang(lang: Language) -> bool {
+        get_dict(lang).coptic.as_ref().is_some()
+    }
+
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
             NumericContent::Month | NumericContent::DayOfMonth | NumericContent::Year => {
@@ -36,47 +42,46 @@ impl DisplayItem for Coptic {
         }
     }
 
-    fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String {
-        match t {
-            TextContent::MonthName => {
-                const MONTHS: [&str; 13] = [
-                    "Thoout",
-                    "Paope",
-                    "Athor",
-                    "Koiak",
-                    "Tobe",
-                    "Meshir",
-                    "Paremotep",
-                    "Parmoute",
-                    "Pashons",
-                    "Paone",
-                    "Epep",
-                    "Mesore",
-                    "Epagomene",
+    fn fmt_text(&self, t: TextContent, lang: Language, opt: DisplayOptions) -> String {
+        match (t, get_dict(lang).coptic.as_ref()) {
+            (TextContent::MonthName, Some(dict)) => {
+                let months: [&str; 13] = [
+                    dict.thoout,
+                    dict.paope,
+                    dict.athor,
+                    dict.koiak,
+                    dict.tobe,
+                    dict.meshir,
+                    dict.paremotep,
+                    dict.parmoute,
+                    dict.pashons,
+                    dict.paone,
+                    dict.epep,
+                    dict.mesore,
+                    dict.epagomene,
                 ];
-                let name = MONTHS[self.to_common_date().month as usize - 1];
+                let name = months[self.to_common_date().month as usize - 1];
                 fmt_string(name, opt)
             }
-            TextContent::DayOfMonthName => fmt_string("", opt),
-            TextContent::DayOfWeekName => self.convert::<Weekday>().fmt_text(t, opt),
-            TextContent::HalfDayName | TextContent::HalfDayAbbrev => {
-                self.convert::<TimeOfDay>().fmt_text(t, opt)
+            (TextContent::DayOfWeekName, _) => self.convert::<Weekday>().fmt_text(t, lang, opt),
+            (TextContent::HalfDayName | TextContent::HalfDayAbbrev, _) => {
+                self.convert::<TimeOfDay>().fmt_text(t, lang, opt)
             }
-            TextContent::EraName => {
+            (TextContent::EraName, Some(dict)) => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("Before Diocletian", opt)
+                    fmt_string(dict.before_martyrs_full, opt)
                 } else {
-                    fmt_string("Anno Martyrum", opt)
+                    fmt_string(dict.after_martyrs_full, opt)
                 }
             }
-            TextContent::EraAbbreviation => {
+            (TextContent::EraAbbreviation, Some(dict)) => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("BD", opt)
+                    fmt_string(dict.before_martyrs_abr, opt)
                 } else {
-                    fmt_string("AM", opt)
+                    fmt_string(dict.after_martyrs_abr, opt)
                 }
             }
-            TextContent::ComplementaryDayName => String::from(""),
+            (_, _) => String::from(""),
         }
     }
 }

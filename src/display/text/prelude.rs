@@ -1,3 +1,10 @@
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+pub enum Language {
+    //https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
+    EN,
+    FR,
+}
+
 #[derive(Debug)]
 pub struct AkanCycleDictionary<'a> {
     //Prefix
@@ -217,8 +224,8 @@ pub struct FrenchRevolutionaryDictionary<'a> {
     //Epoch
     pub before_republic_full: &'a str,
     pub after_republic_full: &'a str,
-    pub before_republicn_abr: &'a str,
-    pub after_republicn_abr: &'a str,
+    pub before_republic_abr: &'a str,
+    pub after_republic_abr: &'a str,
 }
 
 #[derive(Debug)]
@@ -237,10 +244,10 @@ pub struct GregorianDictionary<'a> {
     pub november: &'a str,
     pub december: &'a str,
     //Epoch
-    pub before_epoch_full: &'a str,
-    pub after_epoch_full: &'a str,
-    pub before_epoch_abr: &'a str,
-    pub after_epoch_abr: &'a str,
+    pub before_common_era_full: &'a str,
+    pub common_era_full: &'a str,
+    pub before_common_era_abr: &'a str,
+    pub common_era_abr: &'a str,
 }
 
 #[derive(Debug)]
@@ -259,10 +266,10 @@ pub struct HoloceneDictionary<'a> {
     pub november: &'a str,
     pub december: &'a str,
     //Epoch
-    pub before_epoch_full: &'a str,
-    pub after_epoch_full: &'a str,
-    pub before_epoch_abr: &'a str,
-    pub after_epoch_abr: &'a str,
+    pub before_human_era_full: &'a str,
+    pub human_era_full: &'a str,
+    pub before_human_era_abr: &'a str,
+    pub human_era_abr: &'a str,
 }
 
 #[derive(Debug)]
@@ -304,7 +311,7 @@ pub struct PositivistDictionary<'a> {
     pub aristotle: &'a str,
     pub archimedes: &'a str,
     pub caesar: &'a str,
-    pub saint: &'a str,
+    pub saint_paul: &'a str,
     pub charlemagne: &'a str,
     pub dante: &'a str,
     pub gutenburg: &'a str,

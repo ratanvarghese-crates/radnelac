@@ -10,8 +10,10 @@ use crate::display::private::fmt_number;
 use crate::display::private::fmt_quarter;
 use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
+use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
 use crate::display::private::NumericContent;
+use crate::display::text::prelude::Language;
 use std::fmt;
 
 use crate::display::private::TextContent;
@@ -19,6 +21,10 @@ use crate::display::private::TextContent;
 use crate::display::private::DisplayOptions;
 
 impl DisplayItem for Armenian {
+    fn supported_lang(lang: Language) -> bool {
+        get_dict(lang).armenian.as_ref().is_some()
+    }
+
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
             NumericContent::Month | NumericContent::DayOfMonth | NumericContent::Year => {
@@ -36,89 +42,91 @@ impl DisplayItem for Armenian {
             NumericContent::WeekOfYear => fmt_number(self.week_of_year() as i16, opt),
         }
     }
-    fn fmt_text(&self, t: TextContent, opt: DisplayOptions) -> String {
+    fn fmt_text(&self, t: TextContent, lang: Language, opt: DisplayOptions) -> String {
         //https://en.wikipedia.org/wiki/Armenian_calendar
-        match t {
-            TextContent::MonthName => {
-                const MONTHS: [&str; 12] = [
-                    "Nawasard",
-                    "Hoṙi",
-                    "Sahmi",
-                    "Trē",
-                    "Kʿałocʿ",
-                    "Aracʿ",
-                    "Mehekan",
-                    "Areg",
-                    "Ahekan",
-                    "Mareri",
-                    "Margacʿ",
-                    "Hroticʿ",
+        match (t, get_dict(lang).armenian.as_ref()) {
+            (TextContent::MonthName, Some(dict)) => {
+                let months: [&str; 12] = [
+                    dict.nawasardi,
+                    dict.hori,
+                    dict.sahmi,
+                    dict.tre,
+                    dict.kaloch,
+                    dict.arach,
+                    dict.mehekani,
+                    dict.areg,
+                    dict.ahekani,
+                    dict.mareri,
+                    dict.margach,
+                    dict.hrotich,
                 ];
                 let m = self.to_common_date().month;
                 if m > 12 {
                     fmt_string("", opt)
                 } else {
-                    let name = MONTHS[m as usize - 1];
+                    let name = months[m as usize - 1];
                     fmt_string(name, opt)
                 }
             }
-            TextContent::DayOfMonthName => {
-                const DAYS: [&str; 30] = [
-                    "Areg",
-                    "Hrand",
-                    "Aram",
-                    "Margar",
-                    "Ahrank’",
-                    "Mazdeł",
-                    "Astłik",
-                    "Mihr",
-                    "Jopaber",
-                    "Murç",
-                    "Erezhan",
-                    "Ani",
-                    "Parkhar",
-                    "Vanat",
-                    "Aramazd",
-                    "Mani",
-                    "Asak",
-                    "Masis",
-                    "Anahit",
-                    "Aragats",
-                    "Gorgor",
-                    "Kordvik",
-                    "Tsmak",
-                    "Lusnak",
-                    "Tsrōn",
-                    "Npat",
-                    "Vahagn",
-                    "Sim",
-                    "Varag",
-                    "Gišeravar",
+            (TextContent::DayOfMonthName, Some(dict)) => {
+                let days: [&str; 30] = [
+                    dict.areg_day,
+                    dict.hrand,
+                    dict.aram,
+                    dict.margar,
+                    dict.ahrank,
+                    dict.mazdel,
+                    dict.astlik,
+                    dict.mihr,
+                    dict.jopaber,
+                    dict.murc,
+                    dict.erezhan,
+                    dict.ani,
+                    dict.parkhar,
+                    dict.vanat,
+                    dict.aramazd,
+                    dict.mani,
+                    dict.asak,
+                    dict.masis,
+                    dict.anahit,
+                    dict.aragats,
+                    dict.gorgor,
+                    dict.kordvik,
+                    dict.tsmak,
+                    dict.lusnak,
+                    dict.tsron,
+                    dict.npat,
+                    dict.vahagn,
+                    dict.sim,
+                    dict.varag,
+                    dict.giseravar,
                 ];
                 match self.day_name() {
-                    Some(d) => fmt_string(DAYS[d as usize - 1], opt),
+                    Some(d) => fmt_string(days[d as usize - 1], opt),
                     None => fmt_string("", opt),
                 }
             }
-            TextContent::DayOfWeekName => self.convert::<Weekday>().fmt_text(t, opt),
-            TextContent::HalfDayName | TextContent::HalfDayAbbrev => {
-                self.convert::<TimeOfDay>().fmt_text(t, opt)
+            (TextContent::DayOfWeekName, Some(_)) => {
+                self.convert::<Weekday>().fmt_text(t, lang, opt)
             }
-            TextContent::EraName => {
+            (TextContent::HalfDayName | TextContent::HalfDayAbbrev, Some(_)) => {
+                self.convert::<TimeOfDay>().fmt_text(t, lang, opt)
+            }
+            (TextContent::EraName, Some(dict)) => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("Before Armenian Era", opt)
+                    fmt_string(dict.before_epoch_full, opt)
                 } else {
-                    fmt_string("Armenian Era", opt)
+                    fmt_string(dict.after_epoch_full, opt)
                 }
             }
-            TextContent::EraAbbreviation => {
+            (TextContent::EraAbbreviation, Some(dict)) => {
                 if self.to_common_date().year < 0 {
-                    fmt_string("BAE", opt)
+                    fmt_string(dict.before_epoch_abr, opt)
                 } else {
-                    fmt_string("AE", opt)
+                    fmt_string(dict.before_epoch_abr, opt)
                 }
             }
-            TextContent::ComplementaryDayName => fmt_string("", opt),
+            (_, _) => fmt_string("", opt),
         }
     }
 }

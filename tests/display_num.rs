@@ -31,8 +31,8 @@ const TQ_MIN_4DIGIT: f64 = 1975.0 * 365.25;
 
 #[cfg(feature = "display")]
 fn ymd_order_raw<T: FromFixed + PresetDisplay + PartialOrd>(preset: PresetFormat, d0: T, d1: T) {
-    let s0 = d0.preset_str(preset);
-    let s1 = d1.preset_str(preset);
+    let s0 = d0.preset_str(Language::EN, preset);
+    let s1 = d1.preset_str(Language::EN, preset);
     assert_eq!(d0 < d1, s0 < s1, "<  {} {}", s0, s1);
     assert_eq!(d0 <= d1, s0 <= s1, "<= {} {}", s0, s1);
     assert_eq!(d0 == d1, s0 == s1, "== {} {}", s0, s1);
@@ -67,10 +67,10 @@ fn ymd_order_tq(preset: PresetFormat, t0: f64, t1: f64) -> Result<(), TestCaseEr
 #[cfg(feature = "display")]
 fn ymd_vs_dmy_vs_mdy<T: FromFixed + PresetDisplay + Epoch + PartialOrd>(t: f64) {
     let d = T::from_fixed(Fixed::new(t).to_day());
-    let ymd0 = d.preset_str(YYYYMMDD_SLASH);
-    let ymd1 = d.preset_str(DDMMYYYY_SLASH);
-    let ymd2 = d.preset_str(MMDDYYYY_SLASH);
-    let ymd3 = d.preset_str(YYYYMMDD_DASH);
+    let ymd0 = d.preset_str(Language::EN, YYYYMMDD_SLASH);
+    let ymd1 = d.preset_str(Language::EN, DDMMYYYY_SLASH);
+    let ymd2 = d.preset_str(Language::EN, MMDDYYYY_SLASH);
+    let ymd3 = d.preset_str(Language::EN, YYYYMMDD_DASH);
     assert_eq!(&ymd0[0..4], &ymd1[6..10]);
     assert_eq!(&ymd0[5..7], &ymd1[3..5]);
     assert_eq!(&ymd0[8..10], &ymd1[0..2]);
