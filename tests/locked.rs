@@ -213,7 +213,7 @@ proptest! {
     }
 
     #[test]
-    fn positivist_to_gregorian_month_boundaries(year in -MAX_YEARS..MAX_YEARS) {
+    fn positivist_to_gregorian_month_boundaries(year in -(MAX_YEARS - 1788)..(MAX_YEARS - 1788)) {
         // https://books.google.ca/books?id=S_BRAAAAMAAJ
         // See the "Summary Tableau" right before the Appendix
         let py = year;
@@ -257,7 +257,7 @@ proptest! {
     }
 
     #[test]
-    fn positivist_to_gregorian_complementary_days(year in -MAX_YEARS..MAX_YEARS) {
+    fn positivist_to_gregorian_complementary_days(year in -(MAX_YEARS - 1788)..(MAX_YEARS - 1788)) {
         let d0 = CommonDate{ year: year, month: 14, day: 1 };
         let gy = year + 1788;
         let gm = 12;
@@ -272,7 +272,7 @@ proptest! {
     }
 
     #[test]
-    fn tranquility_to_gregorian_complementary_days(year in -MAX_YEARS..MAX_YEARS) {
+    fn tranquility_to_gregorian_complementary_days(year in -(MAX_YEARS - 1970)..(MAX_YEARS - 1970)) {
         prop_assume!(year != 0 && year != -1);
         let ty = year;
         let gy = year + if ty > 0 { 1969 } else { 1970 };
@@ -287,7 +287,7 @@ proptest! {
     }
 
     #[test]
-    fn tranquility_to_gregorian_month_boundaries(year in -MAX_YEARS..MAX_YEARS) {
+    fn tranquility_to_gregorian_month_boundaries(year in -(MAX_YEARS - 1970)..(MAX_YEARS - 1970)) {
         // https://web.archive.org/web/20180818233025/https://en.wikipedia.org/wiki/Tranquility_calendar
         prop_assume!(year != 0);
         let ty = year;
