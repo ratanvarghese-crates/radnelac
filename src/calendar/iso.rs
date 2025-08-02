@@ -4,6 +4,7 @@ use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
+use crate::calendar::HasLeapYears;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
@@ -59,16 +60,6 @@ impl ISO {
         (self.day as u8).adjusted_remainder(7)
     }
 
-    pub fn is_long_year(i_year: i32) -> bool {
-        let jan1 = Gregorian::try_year_start(i_year)
-            .expect("Year known to be valid")
-            .convert::<Weekday>();
-        let dec31 = Gregorian::try_year_end(i_year)
-            .expect("Year known to be valid")
-            .convert::<Weekday>();
-        jan1 == Weekday::Thursday || dec31 == Weekday::Thursday
-    }
-
     pub fn new_year(year: i32) -> Self {
         ISO {
             year: year,
@@ -99,6 +90,19 @@ impl CalculatedBounds for ISO {}
 impl Epoch for ISO {
     fn epoch() -> Fixed {
         Gregorian::epoch()
+    }
+}
+
+impl HasLeapYears for ISO {
+    fn is_leap(i_year: i32) -> bool {
+        //Originally is_long_year
+        let jan1 = Gregorian::try_year_start(i_year)
+            .expect("Year known to be valid")
+            .convert::<Weekday>();
+        let dec31 = Gregorian::try_year_end(i_year)
+            .expect("Year known to be valid")
+            .convert::<Weekday>();
+        jan1 == Weekday::Thursday || dec31 == Weekday::Thursday
     }
 }
 
