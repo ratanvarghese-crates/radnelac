@@ -219,7 +219,10 @@ mod tests {
             let expected_year: i32 = if expected_week == 1 { year } else { year - 1 };
             assert_eq!(i.day(), w);
             assert_eq!(i.week().get(), expected_week);
-            assert_eq!(i.year(), expected_year)
+            assert_eq!(i.year(), expected_year);
+            if expected_week == 53 {
+                assert!(ISO::is_leap(i.year()));
+            }
         }
 
         #[test]
