@@ -32,7 +32,9 @@ use radnelac::day_count::Fixed;
 use radnelac::day_count::FromFixed;
 use radnelac::day_count::JulianDay;
 use radnelac::day_count::ModifiedJulianDay;
+use radnelac::day_count::RataDie;
 use radnelac::day_count::ToFixed;
+use radnelac::day_count::UnixMoment;
 use radnelac::day_count::FIXED_MAX;
 use radnelac::day_cycle::Akan;
 use radnelac::day_cycle::AkanStem;
@@ -350,12 +352,23 @@ proptest! {
         assert_eq!(a, expected_a);
     }
 
-        #[test]
-        fn mjd_locked_to_jd(t in -FIXED_MAX..FIXED_MAX) {
-            let x = Fixed::new(t);
-            let j0 = JulianDay::from_fixed(x);
-            let mjd0 = ModifiedJulianDay::from_fixed(x);
-            assert_eq!(mjd0.get(), j0.get() - 2400000.5);
-        }
+    #[test]
+    fn mjd_locked_to_jd(t in -FIXED_MAX..FIXED_MAX) {
+        let x = Fixed::new(t).to_day();
+        let j0 = JulianDay::from_fixed(x);
+        let mjd0 = ModifiedJulianDay::from_fixed(x);
+        assert_eq!(mjd0.get(), j0.get() - 2400000.5);
+        assert_eq!(mjd0, ModifiedJulianDay::new(j0.get() - 2400000.5));
+    }
 
+    #[test]
+    fn unix_locked_to_rd(t in -FIXED_MAX..FIXED_MAX) {
+        let x0 = Fixed::new(t).to_day();
+        let rd = RataDie::from_fixed(x0);
+        let ux = UnixMoment::from_fixed(x0);
+        let ux_day = ux.get().div_euclid(24 * 60 * 60) as f64;
+        let diff = (UnixMoment::epoch().get() - RataDie::epoch().get()) as f64;
+        assert_eq!(ux_day.floor(), (rd.get() - diff).floor());
+        assert_eq!(ux, UnixMoment::new(((rd.get() - diff) as i64)*(24 * 60 * 60)))
+    }
 }
