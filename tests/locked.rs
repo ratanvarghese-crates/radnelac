@@ -28,8 +28,13 @@ use radnelac::calendar::TranquilityMoment;
 use radnelac::calendar::TranquilityMonth;
 use radnelac::day_count::BoundedDayCount;
 use radnelac::day_count::Epoch;
+use radnelac::day_count::Fixed;
+use radnelac::day_count::FromFixed;
 use radnelac::day_count::ToFixed;
 use radnelac::day_count::FIXED_MAX;
+use radnelac::day_cycle::Akan;
+use radnelac::day_cycle::AkanStem;
+use radnelac::day_cycle::Weekday;
 
 const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 
@@ -324,4 +329,23 @@ proptest! {
             locked_alt_multi::<TranquilityMonth, GregorianMonth, TranquilityMoment, Gregorian>(pair.0, pair.1);
         }
     }
+
+    #[test]
+    fn akan_stem_locked_to_weekday(x in ((-FIXED_MAX)+42.0)..(FIXED_MAX-42.0)) {
+        //https://en.wikipedia.org/wiki/Akan_calendar
+        let f = Fixed::new(x);
+        let w = Weekday::from_fixed(f);
+        let a = Akan::from_fixed(f).stem();
+        let expected_a = match w {
+            Weekday::Monday => AkanStem::Dwo,
+            Weekday::Tuesday => AkanStem::Bene,
+            Weekday::Wednesday => AkanStem::Wukuo,
+            Weekday::Thursday => AkanStem::Yaw,
+            Weekday::Friday => AkanStem::Fie,
+            Weekday::Saturday => AkanStem::Memene,
+            Weekday::Sunday => AkanStem::Kwasi,
+        };
+        assert_eq!(a, expected_a);
+    }
+
 }

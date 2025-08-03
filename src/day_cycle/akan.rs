@@ -4,11 +4,12 @@ use crate::day_count::Epoch;
 use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
 use crate::day_cycle::BoundedCycle;
+use crate::day_cycle::OnOrBefore;
 use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
 
 /// Represents a prefix in the Akan day cycle
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum AkanPrefix {
     Nwona = 1,
     Nkyi,
@@ -21,7 +22,7 @@ pub enum AkanPrefix {
 impl BoundedCycle<6, 1> for AkanPrefix {}
 
 /// Represents a stem in the Akan day cycle
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum AkanStem {
     Wukuo = 1,
     Yaw,
@@ -45,18 +46,19 @@ pub struct Akan {
 }
 
 const CYCLE_START: i64 = 37;
+const CYCLE_LENGTH: u8 = 42;
 
 impl Akan {
     /// Create a day in the Akan day cycle
-    pub fn new(stem: AkanStem, prefix: AkanPrefix) -> Akan {
-        Akan { stem, prefix }
+    pub fn new(prefix: AkanPrefix, stem: AkanStem) -> Akan {
+        Akan { prefix, stem }
     }
 
     /// Given a position in the Akan day cycle, return the day in the cycle.
     ///
     /// It is assumed that the first day in the cycle is Nwuna-Wukuo.
     pub fn day_name(n: i64) -> Akan {
-        Akan::new(AkanStem::from_unbounded(n), AkanPrefix::from_unbounded(n))
+        Akan::new(AkanPrefix::from_unbounded(n), AkanStem::from_unbounded(n))
     }
 
     /// Given two days in the Akan day cycle, return the difference in days.
@@ -69,7 +71,7 @@ impl Akan {
         let prefix_diff = prefix2 - prefix1;
         let stem_diff = stem2 - stem1;
 
-        (prefix_diff + 36 * (stem_diff - prefix_diff)).adjusted_remainder(42)
+        (prefix_diff + 36 * (stem_diff - prefix_diff)).adjusted_remainder(CYCLE_LENGTH as i16)
     }
 
     /// Given a day in the Akan cycle, return the stem
@@ -81,17 +83,11 @@ impl Akan {
     pub fn prefix(self) -> AkanPrefix {
         self.prefix
     }
-
-    pub fn on_or_before(self, date: Fixed) -> Fixed {
-        let date = date.get_day_i();
-        let diff = Akan::from_fixed(Fixed::cast_new(0)).name_difference(self) as i64;
-        Fixed::cast_new(diff.interval_modulus(date, date - 42))
-    }
 }
 
 impl FromFixed for Akan {
     fn from_fixed(t: Fixed) -> Akan {
-        Akan::day_name(t.get_day_i() - CYCLE_START)
+        Akan::day_name(t.get_day_i() - Akan::epoch().get_day_i())
     }
 }
 
@@ -105,9 +101,29 @@ impl FromPrimitive for Akan {
     }
 }
 
+impl ToPrimitive for Akan {
+    fn to_i64(&self) -> Option<i64> {
+        let a = Akan::new(AkanPrefix::Nwona, AkanStem::Wukuo);
+        Some(a.name_difference(*self) as i64)
+    }
+
+    fn to_u64(&self) -> Option<u64> {
+        Some(self.to_i64().expect("Guaranteed in range") as u64)
+    }
+}
+
 impl Epoch for Akan {
     fn epoch() -> Fixed {
         Fixed::new(CYCLE_START as f64)
+    }
+}
+
+impl BoundedCycle<CYCLE_LENGTH, 1> for Akan {}
+
+impl OnOrBefore<CYCLE_LENGTH, 1> for Akan {
+    fn raw_on_or_before(self, date: i64) -> Fixed {
+        let diff = Akan::from_fixed(Fixed::cast_new(0)).name_difference(self) as i64;
+        Fixed::cast_new(diff.interval_modulus(date, date - (CYCLE_LENGTH as i64)))
     }
 }
 
@@ -116,44 +132,9 @@ mod tests {
     use super::*;
     use crate::day_count::FIXED_MAX;
     use crate::day_count::FIXED_MIN;
-    use crate::day_cycle::Weekday;
     use proptest::proptest;
 
     proptest! {
-        #[test]
-        fn akan_stem_and_weekday(x in (FIXED_MIN+42.0)..(FIXED_MAX-42.0)) {
-            //https://en.wikipedia.org/wiki/Akan_calendar
-            let f = Fixed::new(x);
-            let w = Weekday::from_fixed(f);
-            let a = Akan::from_fixed(f).stem();
-            let expected_a = match w {
-                Weekday::Monday => AkanStem::Dwo,
-                Weekday::Tuesday => AkanStem::Bene,
-                Weekday::Wednesday => AkanStem::Wukuo,
-                Weekday::Thursday => AkanStem::Yaw,
-                Weekday::Friday => AkanStem::Fie,
-                Weekday::Saturday => AkanStem::Memene,
-                Weekday::Sunday => AkanStem::Kwasi,
-            };
-            assert_eq!(a, expected_a);
-        }
-
-        #[test]
-        fn akan_day_repeats(x in FIXED_MIN..(FIXED_MAX - 42.0), d in 1..41) {
-            let f1 = Fixed::new(x);
-            let f2 = Fixed::new(x + (d as f64));
-            let f3 = Fixed::new(x + 42.0);
-            let a1 = Akan::from_fixed(f1);
-            let a2 = Akan::from_fixed(f2);
-            let a3 = Akan::from_fixed(f3);
-            assert_ne!(a1, a2);
-            assert_eq!(a1, a3);
-            assert_eq!(a2.name_difference(a1), (42 - d) as i16);
-            assert_eq!(a3.name_difference(a1), 42);
-            assert_eq!(a1.on_or_before(f1).to_day(), f1.to_day());
-            assert_eq!(a1.on_or_before(f2).to_day(), f1.to_day());
-        }
-
         #[test]
         fn akan_prefix_stem_repeats(x in FIXED_MIN..(FIXED_MAX - 7.0), d in 1.0..5.0) {
             let a1 = Akan::from_fixed(Fixed::new(x));

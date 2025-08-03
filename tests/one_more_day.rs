@@ -40,6 +40,9 @@ use radnelac::day_count::Fixed;
 use radnelac::day_count::FromFixed;
 use radnelac::day_count::FIXED_MAX;
 use radnelac::day_count::FIXED_MIN;
+use radnelac::day_cycle::Akan;
+use radnelac::day_cycle::BoundedCycle;
+use radnelac::day_cycle::Weekday;
 use std::fmt::Debug;
 
 fn one_more_day<S: FromPrimitive + ToPrimitive, T: ToFromCommonDate<S> + FromFixed + Debug>(
@@ -79,6 +82,19 @@ fn one_more_day_ordinal<T: FromFixed + ToFromOrdinalDate>(t: f64) {
     } else {
         assert_eq!(ord1.year, ord0.year + 1);
         assert_eq!(ord1.day_of_year, 1);
+    }
+}
+
+fn one_more_day_cycle<const N: u8, const M: u8, T: FromFixed + BoundedCycle<N, M>>(t: f64) {
+    let f0 = Fixed::new(t);
+    let f1 = Fixed::new(t + 1.0);
+    let u0 = T::from_fixed(f0).to_unbounded();
+    let u1 = T::from_fixed(f1).to_unbounded();
+    if u0 < u1 {
+        assert_eq!(u1, u0 + 1);
+    } else {
+        assert_eq!(u0, T::max() as i64);
+        assert_eq!(u1, T::min() as i64);
     }
 }
 
@@ -234,4 +250,15 @@ proptest! {
         let t = TranquilityMoment::epoch().get() + dt;
         one_more_day_ordinal::<TranquilityMoment>(t);
     }
+
+    #[test]
+    fn weekday(t in FIXED_MIN..FIXED_MAX) {
+        one_more_day_cycle::<7, 0, Weekday>(t);
+    }
+
+    #[test]
+    fn akan(t in FIXED_MIN..FIXED_MAX) {
+        one_more_day_cycle::<42, 1, Akan>(t);
+    }
+
 }
