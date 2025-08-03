@@ -27,6 +27,11 @@ use radnelac::day_count::ToFixed;
 use radnelac::day_count::UnixMoment;
 use radnelac::day_count::FIXED_MAX;
 use radnelac::day_count::FIXED_MIN;
+use radnelac::day_cycle::Akan;
+use radnelac::day_cycle::AkanPrefix;
+use radnelac::day_cycle::AkanStem;
+use radnelac::day_cycle::BoundedCycle;
+use radnelac::day_cycle::Weekday;
 use std::fmt::Debug;
 
 fn roundtrip_inner<T: FromFixed + ToFixed + PartialEq + Debug>(f0: Fixed) {
@@ -53,6 +58,17 @@ fn roundtrip_ordinal<T: FromFixed + PartialEq + Debug + ToFromOrdinalDate>(t: f6
     let ord = d0.to_ordinal();
     let d1 = T::try_from_ordinal(ord).unwrap();
     assert_eq!(d1, d0);
+}
+
+fn roundtrip_cycle<const N: u8, const M: u8, T: BoundedCycle<N, M>>(x: i64) {
+    let w = T::from_i64(x).unwrap();
+    let y = w.to_i64().unwrap();
+    assert_eq!(x, y);
+
+    let xu = x as u64;
+    let wu = T::from_u64(xu).unwrap();
+    let yu = wu.to_u64().unwrap();
+    assert_eq!(xu, yu);
 }
 
 proptest! {
@@ -164,5 +180,25 @@ proptest! {
     #[test]
     fn rd(t in FIXED_MIN..FIXED_MAX) {
         roundtrip_moment::<RataDie>(t);
+    }
+
+    #[test]
+    fn week(x in 0..6) {
+        roundtrip_cycle::<7, 0, Weekday>(x as i64);
+    }
+
+    #[test]
+    fn akan(x in 1..42) {
+        roundtrip_cycle::<42, 1, Akan>(x as i64);
+    }
+
+    #[test]
+    fn akan_prefix(x in 1..6) {
+        roundtrip_cycle::<6, 1, AkanPrefix>(x as i64);
+    }
+
+    #[test]
+    fn akan_stem(x in 1..7) {
+        roundtrip_cycle::<7, 1, AkanStem>(x as i64);
     }
 }
