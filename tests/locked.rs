@@ -30,6 +30,8 @@ use radnelac::day_count::BoundedDayCount;
 use radnelac::day_count::Epoch;
 use radnelac::day_count::Fixed;
 use radnelac::day_count::FromFixed;
+use radnelac::day_count::JulianDay;
+use radnelac::day_count::ModifiedJulianDay;
 use radnelac::day_count::ToFixed;
 use radnelac::day_count::FIXED_MAX;
 use radnelac::day_cycle::Akan;
@@ -347,5 +349,13 @@ proptest! {
         };
         assert_eq!(a, expected_a);
     }
+
+        #[test]
+        fn mjd_locked_to_jd(t in -FIXED_MAX..FIXED_MAX) {
+            let x = Fixed::new(t);
+            let j0 = JulianDay::from_fixed(x);
+            let mjd0 = ModifiedJulianDay::from_fixed(x);
+            assert_eq!(mjd0.get(), j0.get() - 2400000.5);
+        }
 
 }

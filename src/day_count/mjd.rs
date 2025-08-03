@@ -53,25 +53,3 @@ impl BoundedDayCount<f64> for ModifiedJulianDay {
         self.0
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::common::math::TermNum;
-    use crate::day_count::fixed::Fixed;
-    use crate::day_count::jd::JulianDay;
-    use crate::day_count::FIXED_MAX;
-    use crate::day_count::FIXED_MIN;
-    use proptest::proptest;
-
-    proptest! {
-        #[test]
-        fn from_jd(t in FIXED_MIN..FIXED_MAX) {
-            let x = Fixed::new(t);
-            let j0 = JulianDay::from_fixed(x);
-            let mjd0 = ModifiedJulianDay::from_fixed(x);
-            assert!(mjd0.0.approx_eq(j0.get() - 2400000.5));
-        }
-
-    }
-}
