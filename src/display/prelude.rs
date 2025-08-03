@@ -149,6 +149,11 @@ const I_COMPL_ONLY: [Item<'_>; 1] = [Item::new(
     O_LITERAL,
 )];
 
+const I_WEEKDAY_NAME_ONLY: [Item<'_>; 1] = [Item::new(
+    Content::Text(TextContent::DayOfWeekName),
+    O_LITERAL,
+)];
+
 /// Represents a date format
 /// ## Crate Features
 ///
@@ -227,19 +232,30 @@ pub const YEAR_MDD: PresetFormat<'static> = PresetFormat::<'static>(&I_YEAR_MDD)
 ///
 /// This is only available if `display` is enabled.
 pub const YEAR_COMPL: PresetFormat<'static> = PresetFormat::<'static>(&I_YEAR_COMPL);
-/// Format which is the full name of a the complementary day
+/// Format which is the full name of the complementary day
 ///
 /// This is intended for calendars with complementary days.
 /// ## Crate Features
 ///
 /// This is only available if `display` is enabled.
 pub const COMPL_ONLY: PresetFormat<'static> = PresetFormat::<'static>(&I_COMPL_ONLY);
+/// Format which is the full name of the weekday
+///
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
+pub const WEEKDAY_NAME_ONLY: PresetFormat<'static> = PresetFormat::<'static>(&I_WEEKDAY_NAME_ONLY);
 
 /// Format a date in a preset format
 /// ## Crate Features
 ///
 /// This is only available if `display` is enabled.
 pub trait PresetDisplay: DisplayItem {
+    /// Checks if language is supported
+    fn supported_display_lang(lang: Language) -> bool {
+        Self::supported_lang(lang)
+    }
+
     /// Format a date in any `PresetFormat`
     fn preset_str(&self, lang: Language, preset: PresetFormat) -> String {
         let mut result = String::new();
