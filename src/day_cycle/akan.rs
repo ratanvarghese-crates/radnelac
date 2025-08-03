@@ -104,7 +104,8 @@ impl FromPrimitive for Akan {
 impl ToPrimitive for Akan {
     fn to_i64(&self) -> Option<i64> {
         let a = Akan::new(AkanPrefix::Nwona, AkanStem::Wukuo);
-        Some(a.name_difference(*self) as i64)
+        let diff = a.name_difference(*self) + 1;
+        Some(diff.adjusted_remainder(CYCLE_LENGTH as i16) as i64)
     }
 
     fn to_u64(&self) -> Option<u64> {
