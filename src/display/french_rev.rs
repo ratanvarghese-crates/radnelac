@@ -147,3 +147,16 @@ impl<const L: bool> fmt::Display for FrenchRevArith<L> {
         write!(f, "{}", self.long_date())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn expected_languages() {
+        assert!(FrenchRevArith::<true>::supported_lang(Language::EN));
+        assert!(FrenchRevArith::<true>::supported_lang(Language::EN));
+        assert!(FrenchRevArith::<false>::supported_lang(Language::FR));
+        assert!(FrenchRevArith::<false>::supported_lang(Language::FR));
+    }
+}

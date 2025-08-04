@@ -145,6 +145,11 @@ mod tests {
     use crate::calendar::CommonDate;
 
     #[test]
+    fn expected_languages() {
+        assert!(TranquilityMoment::supported_lang(Language::EN));
+    }
+
+    #[test]
     fn long_date() {
         let d_list = [
             (CommonDate::new(0, 0, 0), "Moon Landing Day"),

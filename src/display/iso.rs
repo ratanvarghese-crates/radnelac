@@ -86,6 +86,11 @@ mod tests {
     use crate::calendar::ToFromCommonDate;
 
     #[test]
+    fn expected_languages() {
+        assert!(ISO::supported_lang(Language::EN));
+    }
+
+    #[test]
     fn w1() {
         let dg = Gregorian::try_from_common_date(CommonDate::new(2007, 1, 1)).unwrap();
         let di = dg.convert::<ISO>();

@@ -105,6 +105,12 @@ mod tests {
     use crate::calendar::CommonDate;
 
     #[test]
+    fn expected_languages() {
+        assert!(Holocene::supported_lang(Language::EN));
+        assert!(Holocene::supported_lang(Language::FR));
+    }
+
+    #[test]
     fn long_date() {
         let d_list = [
             (

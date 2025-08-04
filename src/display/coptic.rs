@@ -93,3 +93,13 @@ impl fmt::Display for Coptic {
         write!(f, "{}", self.long_date())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn expected_languages() {
+        assert!(Coptic::supported_lang(Language::EN));
+    }
+}

@@ -147,3 +147,13 @@ impl fmt::Display for Armenian {
         write!(f, "{}", self.long_date())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn expected_languages() {
+        assert!(Armenian::supported_lang(Language::EN));
+    }
+}

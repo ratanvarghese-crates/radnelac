@@ -125,3 +125,14 @@ impl fmt::Display for Positivist {
         write!(f, "{}", self.long_date())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn expected_languages() {
+        assert!(Positivist::supported_lang(Language::EN));
+        assert!(Positivist::supported_lang(Language::FR));
+    }
+}

@@ -99,6 +99,12 @@ mod tests {
     use crate::calendar::CommonDate;
 
     #[test]
+    fn expected_languages() {
+        assert!(Gregorian::supported_lang(Language::EN));
+        assert!(Gregorian::supported_lang(Language::FR));
+    }
+
+    #[test]
     fn long_date() {
         let d_list = [
             (

@@ -94,3 +94,13 @@ impl fmt::Display for Ethiopic {
         write!(f, "{}", self.long_date())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn expected_languages() {
+        assert!(Ethiopic::supported_lang(Language::EN));
+    }
+}

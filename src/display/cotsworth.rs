@@ -114,3 +114,14 @@ impl fmt::Display for Cotsworth {
         write!(f, "{}", self.long_date())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn expected_languages() {
+        assert!(Cotsworth::supported_lang(Language::EN));
+        assert!(Cotsworth::supported_lang(Language::FR));
+    }
+}

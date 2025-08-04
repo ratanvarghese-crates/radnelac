@@ -93,3 +93,20 @@ impl<const T: bool, const U: bool> fmt::Display for Symmetry<T, U> {
         write!(f, "{}", self.long_date())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn expected_languages() {
+        assert!(Symmetry::<false, false>::supported_lang(Language::EN));
+        assert!(Symmetry::<false, false>::supported_lang(Language::FR));
+        assert!(Symmetry::<false, true>::supported_lang(Language::EN));
+        assert!(Symmetry::<false, true>::supported_lang(Language::FR));
+        assert!(Symmetry::<true, false>::supported_lang(Language::EN));
+        assert!(Symmetry::<true, false>::supported_lang(Language::FR));
+        assert!(Symmetry::<true, true>::supported_lang(Language::EN));
+        assert!(Symmetry::<true, true>::supported_lang(Language::FR));
+    }
+}

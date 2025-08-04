@@ -53,3 +53,14 @@ impl fmt::Display for TimeOfDay {
         write!(f, "{}", self.preset_str(Language::EN, HHMMSS_COLON))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn expected_languages() {
+        assert!(TimeOfDay::supported_lang(Language::EN));
+        assert!(TimeOfDay::supported_lang(Language::FR));
+    }
+}

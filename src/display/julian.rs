@@ -92,3 +92,14 @@ impl fmt::Display for Julian {
         write!(f, "{}", self.long_date())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn expected_languages() {
+        assert!(Julian::supported_lang(Language::EN));
+        assert!(Julian::supported_lang(Language::FR));
+    }
+}
