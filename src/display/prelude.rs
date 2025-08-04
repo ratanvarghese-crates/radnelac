@@ -115,6 +115,18 @@ const I_LONG_DATE: [Item<'_>; 9] = [
     Item::new(Content::Text(TextContent::EraName), O_LITERAL),
 ];
 
+const I_LONG_DAY_OF_MONTH: [Item<'_>; 9] = [
+    Item::new(Content::Text(TextContent::DayOfWeekName), O_LITERAL),
+    Item::new(Content::Literal(" "), O_LITERAL),
+    Item::new(Content::Text(TextContent::MonthName), O_LITERAL),
+    Item::new(Content::Literal(" "), O_LITERAL),
+    Item::new(Content::Text(TextContent::DayOfMonthName), O_LITERAL),
+    Item::new(Content::Literal(", "), O_LITERAL),
+    Item::new(Content::Numeric(NumericContent::Year), O_YEAR_IN_ERA),
+    Item::new(Content::Literal(" "), O_LITERAL),
+    Item::new(Content::Text(TextContent::EraName), O_LITERAL),
+];
+
 const I_LONG_COMPL: [Item<'_>; 5] = [
     Item::new(Content::Text(TextContent::ComplementaryDayName), O_LITERAL),
     Item::new(Content::Literal(", "), O_LITERAL),
@@ -204,6 +216,11 @@ pub const MMDDYYYY_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&I_MMD
 ///
 /// This is only available if `display` is enabled.
 pub const LONG_DATE: PresetFormat<'static> = PresetFormat::<'static>(&I_LONG_DATE);
+/// Calendar-specific long date format with day of month name
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
+pub const LONG_DAY_OF_MONTH: PresetFormat<'static> = PresetFormat::<'static>(&I_LONG_DAY_OF_MONTH);
 /// Calendar-specific long complementary day format
 ///
 /// This is intended for calendars with complementary days.

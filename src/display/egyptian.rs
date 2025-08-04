@@ -15,6 +15,8 @@ use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
 use crate::display::private::NumericContent;
 use crate::display::text::prelude::Language;
+use crate::display::LONG_COMPL;
+use crate::display::LONG_DATE;
 use std::fmt;
 
 use crate::display::private::TextContent;
@@ -49,7 +51,7 @@ impl DisplayItem for Egyptian {
     fn fmt_text(&self, t: TextContent, lang: Language, opt: DisplayOptions) -> String {
         match (t, get_dict(lang).egyptian.as_ref()) {
             (TextContent::MonthName, Some(dict)) => {
-                let months: [&str; 12] = [
+                let months: [&str; 13] = [
                     dict.thoth,
                     dict.phaophi,
                     dict.athyr,
@@ -62,14 +64,11 @@ impl DisplayItem for Egyptian {
                     dict.payni,
                     dict.epiphi,
                     dict.mesori,
+                    dict.epagomenae,
                 ];
                 let m = self.to_common_date().month;
-                if m > 12 {
-                    fmt_string("", opt)
-                } else {
-                    let name = months[m as usize - 1];
-                    fmt_string(name, opt)
-                }
+                let name = months[m as usize - 1];
+                fmt_string(name, opt)
             }
             (TextContent::DayOfMonthName, _) => fmt_string("", opt),
             (TextContent::DayOfWeekName, _) => self.convert::<Weekday>().fmt_text(t, lang, opt),
@@ -109,7 +108,15 @@ impl DisplayItem for Egyptian {
     }
 }
 
-impl PresetDisplay for Egyptian {}
+impl PresetDisplay for Egyptian {
+    fn long_date(&self) -> String {
+        let p = match self.complementary() {
+            None => LONG_DATE,
+            Some(_) => LONG_COMPL,
+        };
+        self.preset_str(Language::EN, p)
+    }
+}
 
 impl fmt::Display for Egyptian {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

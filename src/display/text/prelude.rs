@@ -60,6 +60,8 @@ pub struct ArmenianDictionary<'a> {
     pub mareri: &'a str,
     pub margach: &'a str,
     pub hrotich: &'a str,
+    //Epagomenal
+    pub aweleac: &'a str,
     //Days of month
     pub areg_day: &'a str, //Note that there is a month with a similar name
     pub hrand: &'a str,
@@ -170,6 +172,8 @@ pub struct EgyptianDictionary<'a> {
     pub payni: &'a str,
     pub epiphi: &'a str,
     pub mesori: &'a str,
+    //Epagomenae
+    pub epagomenae: &'a str,
     //Epoch
     pub before_nabonassar_full: &'a str,
     pub after_nabonassar_full: &'a str,

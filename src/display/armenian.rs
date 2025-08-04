@@ -1,5 +1,6 @@
 use crate::calendar::Armenian;
 use crate::calendar::CommonWeekOfYear;
+use crate::calendar::HasIntercalaryDays;
 use crate::calendar::ToFromCommonDate;
 use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;
@@ -14,6 +15,9 @@ use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
 use crate::display::private::NumericContent;
 use crate::display::text::prelude::Language;
+use crate::display::LONG_DATE;
+use crate::display::LONG_DAY_OF_MONTH;
+use crate::display::YYYYMMDD_DASH;
 use std::fmt;
 
 use crate::display::private::TextContent;
@@ -46,7 +50,7 @@ impl DisplayItem for Armenian {
         //https://en.wikipedia.org/wiki/Armenian_calendar
         match (t, get_dict(lang).armenian.as_ref()) {
             (TextContent::MonthName, Some(dict)) => {
-                let months: [&str; 12] = [
+                let months: [&str; 13] = [
                     dict.nawasardi,
                     dict.hori,
                     dict.sahmi,
@@ -59,14 +63,11 @@ impl DisplayItem for Armenian {
                     dict.mareri,
                     dict.margach,
                     dict.hrotich,
+                    dict.aweleac,
                 ];
                 let m = self.to_common_date().month;
-                if m > 12 {
-                    fmt_string("", opt)
-                } else {
-                    let name = months[m as usize - 1];
-                    fmt_string(name, opt)
-                }
+                let name = months[m as usize - 1];
+                fmt_string(name, opt)
             }
             (TextContent::DayOfMonthName, Some(dict)) => {
                 let days: [&str; 30] = [
@@ -131,7 +132,15 @@ impl DisplayItem for Armenian {
     }
 }
 
-impl PresetDisplay for Armenian {}
+impl PresetDisplay for Armenian {
+    fn long_date(&self) -> String {
+        let p = match self.complementary() {
+            None => LONG_DAY_OF_MONTH,
+            Some(_) => LONG_DATE,
+        };
+        self.preset_str(Language::EN, p)
+    }
+}
 
 impl fmt::Display for Armenian {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
