@@ -135,6 +135,38 @@ const I_LONG_COMPL: [Item<'_>; 5] = [
     Item::new(Content::Text(TextContent::EraName), O_LITERAL),
 ];
 
+const I_LONG_DATE_ERA_ABBR: [Item<'_>; 9] = [
+    Item::new(Content::Text(TextContent::DayOfWeekName), O_LITERAL),
+    Item::new(Content::Literal(" "), O_LITERAL),
+    Item::new(Content::Text(TextContent::MonthName), O_LITERAL),
+    Item::new(Content::Literal(" "), O_LITERAL),
+    Item::new(Content::Numeric(NumericContent::DayOfMonth), O_LITERAL),
+    Item::new(Content::Literal(", "), O_LITERAL),
+    Item::new(Content::Numeric(NumericContent::Year), O_YEAR_IN_ERA),
+    Item::new(Content::Literal(" "), O_LITERAL),
+    Item::new(Content::Text(TextContent::EraAbbreviation), O_LITERAL),
+];
+
+const I_LONG_DAY_OF_MONTH_ERA_ABBR: [Item<'_>; 9] = [
+    Item::new(Content::Text(TextContent::DayOfWeekName), O_LITERAL),
+    Item::new(Content::Literal(" "), O_LITERAL),
+    Item::new(Content::Text(TextContent::MonthName), O_LITERAL),
+    Item::new(Content::Literal(" "), O_LITERAL),
+    Item::new(Content::Text(TextContent::DayOfMonthName), O_LITERAL),
+    Item::new(Content::Literal(", "), O_LITERAL),
+    Item::new(Content::Numeric(NumericContent::Year), O_YEAR_IN_ERA),
+    Item::new(Content::Literal(" "), O_LITERAL),
+    Item::new(Content::Text(TextContent::EraAbbreviation), O_LITERAL),
+];
+
+const I_LONG_COMPL_ERA_ABBR: [Item<'_>; 5] = [
+    Item::new(Content::Text(TextContent::ComplementaryDayName), O_LITERAL),
+    Item::new(Content::Literal(", "), O_LITERAL),
+    Item::new(Content::Numeric(NumericContent::Year), O_YEAR_IN_ERA),
+    Item::new(Content::Literal(" "), O_LITERAL),
+    Item::new(Content::Text(TextContent::EraAbbreviation), O_LITERAL),
+];
+
 const I_YEAR_WEEK_DAY: [Item<'_>; 5] = [
     Item::new(Content::Numeric(NumericContent::Year), O_LITERAL),
     Item::new(Content::Literal("-W"), O_LITERAL),
@@ -228,6 +260,28 @@ pub const LONG_DAY_OF_MONTH: PresetFormat<'static> = PresetFormat::<'static>(&I_
 ///
 /// This is only available if `display` is enabled.
 pub const LONG_COMPL: PresetFormat<'static> = PresetFormat::<'static>(&I_LONG_COMPL);
+
+/// Calendar-specific long date format, with abbreviated era
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
+pub const LONG_DATE_ERA_ABBR: PresetFormat<'static> =
+    PresetFormat::<'static>(&I_LONG_DATE_ERA_ABBR);
+/// Calendar-specific long date format with day of month name and abbreviated era
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
+pub const LONG_DAY_OF_MONTH_ERA_ABBR: PresetFormat<'static> =
+    PresetFormat::<'static>(&I_LONG_DAY_OF_MONTH_ERA_ABBR);
+/// Calendar-specific long complementary day format, with abbreviated era
+///
+/// This is intended for calendars with complementary days.
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
+pub const LONG_COMPL_ERA_ABBR: PresetFormat<'static> =
+    PresetFormat::<'static>(&I_LONG_COMPL_ERA_ABBR);
+
 /// YYYY-Www-DD alphanumeric date format
 ///
 /// This is inteded for the ISO calendar.

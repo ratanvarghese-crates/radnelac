@@ -124,7 +124,7 @@ impl DisplayItem for Armenian {
                 if self.to_common_date().year < 0 {
                     fmt_string(dict.before_epoch_abr, opt)
                 } else {
-                    fmt_string(dict.before_epoch_abr, opt)
+                    fmt_string(dict.after_epoch_abr, opt)
                 }
             }
             (_, _) => fmt_string("", opt),
