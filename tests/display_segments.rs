@@ -173,10 +173,9 @@ where
 }
 
 #[cfg(feature = "display")]
-fn compare_era_abbrev<T, U>(t0: f64, t1: f64)
+fn compare_era_abbrev<U>(t0: f64, t1: f64)
 where
-    T: FromPrimitive + ToPrimitive + PartialEq,
-    U: ToFromCommonDate<T> + PresetDisplay + Epoch + FromFixed,
+    U: PresetDisplay + Epoch + FromFixed,
 {
     let f0 = Fixed::new(t0);
     let f1 = Fixed::new(t1);
@@ -218,7 +217,7 @@ proptest! {
 
     #[test]
     fn armenian_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_era_abbrev::<ArmenianMonth, Armenian>(t0, t1);
+        compare_era_abbrev::<Armenian>(t0, t1);
     }
 
     #[test]
@@ -238,7 +237,7 @@ proptest! {
 
     #[test]
     fn coptic_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_era_abbrev::<CopticMonth, Coptic>(t0, t1);
+        compare_era_abbrev::<Coptic>(t0, t1);
     }
 
     #[test]
@@ -258,7 +257,7 @@ proptest! {
 
     #[test]
     fn cotsworth_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_era_abbrev::<CotsworthMonth, Cotsworth>(t0, t1);
+        compare_era_abbrev::<Cotsworth>(t0, t1);
     }
 
     #[test]
@@ -282,7 +281,7 @@ proptest! {
 
     #[test]
     fn egyptian_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_era_abbrev::<EgyptianMonth, Egyptian>(t0, t1);
+        compare_era_abbrev::<Egyptian>(t0, t1);
     }
 
     #[test]
@@ -302,7 +301,7 @@ proptest! {
 
     #[test]
     fn ethiopic_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_era_abbrev::<EthiopicMonth, Ethiopic>(t0, t1);
+        compare_era_abbrev::<Ethiopic>(t0, t1);
     }
 
     #[test]
@@ -325,8 +324,8 @@ proptest! {
 
     #[test]
     fn french_rev_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_era_abbrev::<FrenchRevMonth, FrenchRevArith<false>>(t0, t1);
-        compare_era_abbrev::<FrenchRevMonth, FrenchRevArith<true>>(t0, t1);
+        compare_era_abbrev::<FrenchRevArith<false>>(t0, t1);
+        compare_era_abbrev::<FrenchRevArith<true>>(t0, t1);
     }
 
     #[test]
@@ -346,7 +345,7 @@ proptest! {
 
     #[test]
     fn gregorian_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_era_abbrev::<GregorianMonth, Gregorian>(t0, t1);
+        compare_era_abbrev::<Gregorian>(t0, t1);
     }
 
     #[test]
@@ -366,12 +365,17 @@ proptest! {
 
     #[test]
     fn holocene_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_era_abbrev::<HoloceneMonth, Holocene>(t0, t1);
+        compare_era_abbrev::<Holocene>(t0, t1);
     }
 
     #[test]
     fn iso_blanks(t0 in -FIXED_MAX..FIXED_MAX) {
         reasonable_blanks::<ISO>(t0);
+    }
+
+    #[test]
+    fn iso_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
+        compare_era_abbrev::<ISO>(t0, t1);
     }
 
     #[test]
@@ -391,7 +395,7 @@ proptest! {
 
     #[test]
     fn julian_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_era_abbrev::<JulianMonth, Julian>(t0, t1);
+        compare_era_abbrev::<Julian>(t0, t1);
     }
 
     #[test]
@@ -411,7 +415,7 @@ proptest! {
 
     #[test]
     fn positivist_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_era_abbrev::<PositivistMonth, Positivist>(t0, t1);
+        compare_era_abbrev::<Positivist>(t0, t1);
     }
 
     #[test]
@@ -440,10 +444,10 @@ proptest! {
 
     #[test]
     fn symmetry_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_era_abbrev::<SymmetryMonth, Symmetry010>(t0, t1);
-        compare_era_abbrev::<SymmetryMonth, Symmetry454>(t0, t1);
-        compare_era_abbrev::<SymmetryMonth, Symmetry010Solstice>(t0, t1);
-        compare_era_abbrev::<SymmetryMonth, Symmetry454Solstice>(t0, t1);
+        compare_era_abbrev::<Symmetry010>(t0, t1);
+        compare_era_abbrev::<Symmetry454>(t0, t1);
+        compare_era_abbrev::<Symmetry010Solstice>(t0, t1);
+        compare_era_abbrev::<Symmetry454Solstice>(t0, t1);
     }
 
     #[test]
@@ -463,6 +467,6 @@ proptest! {
 
     #[test]
     fn tranquility_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_era_abbrev::<TranquilityMonth, TranquilityMoment>(t0, t1);
+        compare_era_abbrev::<TranquilityMoment>(t0, t1);
     }
 }
