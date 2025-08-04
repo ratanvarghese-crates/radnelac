@@ -1,45 +1,87 @@
+#[cfg(feature = "display")]
 use num_traits::FromPrimitive;
+#[cfg(feature = "display")]
 use num_traits::ToPrimitive;
+#[cfg(feature = "display")]
 use proptest::proptest;
+#[cfg(feature = "display")]
 use radnelac::calendar::Armenian;
+#[cfg(feature = "display")]
 use radnelac::calendar::ArmenianMonth;
+#[cfg(feature = "display")]
 use radnelac::calendar::Coptic;
+#[cfg(feature = "display")]
 use radnelac::calendar::CopticMonth;
+#[cfg(feature = "display")]
 use radnelac::calendar::Cotsworth;
+#[cfg(feature = "display")]
 use radnelac::calendar::CotsworthMonth;
+#[cfg(feature = "display")]
 use radnelac::calendar::Egyptian;
+#[cfg(feature = "display")]
 use radnelac::calendar::EgyptianMonth;
+#[cfg(feature = "display")]
 use radnelac::calendar::Ethiopic;
+#[cfg(feature = "display")]
 use radnelac::calendar::EthiopicMonth;
+#[cfg(feature = "display")]
 use radnelac::calendar::FrenchRevArith;
+#[cfg(feature = "display")]
 use radnelac::calendar::FrenchRevMonth;
+#[cfg(feature = "display")]
 use radnelac::calendar::FrenchRevWeekday;
+#[cfg(feature = "display")]
 use radnelac::calendar::Gregorian;
+#[cfg(feature = "display")]
 use radnelac::calendar::GregorianMonth;
+#[cfg(feature = "display")]
 use radnelac::calendar::GuaranteedMonth;
+#[cfg(feature = "display")]
 use radnelac::calendar::HasIntercalaryDays;
+#[cfg(feature = "display")]
 use radnelac::calendar::Holocene;
+#[cfg(feature = "display")]
 use radnelac::calendar::HoloceneMonth;
+#[cfg(feature = "display")]
 use radnelac::calendar::Julian;
+#[cfg(feature = "display")]
 use radnelac::calendar::JulianMonth;
+#[cfg(feature = "display")]
 use radnelac::calendar::Perennial;
+#[cfg(feature = "display")]
 use radnelac::calendar::Positivist;
+#[cfg(feature = "display")]
 use radnelac::calendar::PositivistMonth;
+#[cfg(feature = "display")]
 use radnelac::calendar::Symmetry010;
+#[cfg(feature = "display")]
 use radnelac::calendar::Symmetry010Solstice;
+#[cfg(feature = "display")]
 use radnelac::calendar::Symmetry454;
+#[cfg(feature = "display")]
 use radnelac::calendar::Symmetry454Solstice;
+#[cfg(feature = "display")]
 use radnelac::calendar::SymmetryMonth;
+#[cfg(feature = "display")]
 use radnelac::calendar::ToFromCommonDate;
+#[cfg(feature = "display")]
 use radnelac::calendar::TranquilityMoment;
+#[cfg(feature = "display")]
 use radnelac::calendar::TranquilityMonth;
+#[cfg(feature = "display")]
 use radnelac::calendar::ISO;
+#[cfg(feature = "display")]
 use radnelac::day_count::BoundedDayCount;
+#[cfg(feature = "display")]
 use radnelac::day_count::Fixed;
+#[cfg(feature = "display")]
 use radnelac::day_count::FromFixed;
+#[cfg(feature = "display")]
 use radnelac::day_count::FIXED_MAX;
+#[cfg(feature = "display")]
 use radnelac::day_cycle::Weekday;
 
+#[cfg(feature = "display")]
 fn reasonable_blanks<U: ToString + FromFixed>(t0: f64) {
     let d = U::from_fixed(Fixed::new(t0));
     let s = d.to_string();
@@ -49,6 +91,7 @@ fn reasonable_blanks<U: ToString + FromFixed>(t0: f64) {
     assert!(s.find('\n').is_none());
 }
 
+#[cfg(feature = "display")]
 fn compare_month<T, U>(t0: f64, t1: f64, m_idx: usize)
 where
     T: FromPrimitive + ToPrimitive + PartialEq,
@@ -63,6 +106,7 @@ where
     assert_eq!(a0.month() == a1.month(), v0[m_idx] == v1[m_idx]);
 }
 
+#[cfg(feature = "display")]
 fn compare_possible_month<T, U>(t0: f64, t1: f64, m_idx: usize)
 where
     T: FromPrimitive + ToPrimitive + PartialEq,
@@ -79,6 +123,7 @@ where
     }
 }
 
+#[cfg(feature = "display")]
 fn compare_common_weekday<U: FromFixed + ToString>(t0: f64, t1: f64, m_idx: usize) {
     let f0 = Fixed::new(t0);
     let f1 = Fixed::new(t1);
@@ -101,6 +146,7 @@ fn compare_common_weekday<U: FromFixed + ToString>(t0: f64, t1: f64, m_idx: usiz
     );
 }
 
+#[cfg(feature = "display")]
 fn compare_perennial_weekday<S, T, U>(t0: f64, t1: f64, m_idx: usize)
 where
     S: ToPrimitive + FromPrimitive + PartialEq,
