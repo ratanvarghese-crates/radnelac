@@ -71,6 +71,10 @@ use radnelac::calendar::TranquilityMonth;
 #[cfg(feature = "display")]
 use radnelac::calendar::ISO;
 #[cfg(feature = "display")]
+use radnelac::clock::ClockTime;
+#[cfg(feature = "display")]
+use radnelac::clock::TimeOfDay;
+#[cfg(feature = "display")]
 use radnelac::day_count::BoundedDayCount;
 #[cfg(feature = "display")]
 use radnelac::day_count::Epoch;
@@ -86,6 +90,12 @@ use radnelac::day_cycle::Weekday;
 use radnelac::display::Language;
 #[cfg(feature = "display")]
 use radnelac::display::PresetDisplay;
+#[cfg(feature = "display")]
+use radnelac::display::PresetFormat;
+#[cfg(feature = "display")]
+use radnelac::display::HHMMSS_COLON;
+#[cfg(feature = "display")]
+use radnelac::display::HHMM_COLON_AMPM;
 #[cfg(feature = "display")]
 use radnelac::display::LONG_DATE_ERA_ABBR;
 
@@ -196,6 +206,13 @@ where
         s0,
         s1
     );
+}
+
+fn clock_segments(preset: PresetFormat, c: ClockTime, sep: &str, idx: usize, expected: &str) {
+    let t = TimeOfDay::new_from_clock(c);
+    let s = t.preset_str(Language::EN, preset);
+    let v: Vec<&str> = s.split(sep).collect();
+    assert_eq!(v[idx], expected);
 }
 
 #[cfg(feature = "display")]
@@ -468,5 +485,44 @@ proptest! {
     #[test]
     fn tranquility_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_era_abbrev::<TranquilityMoment>(t0, t1);
+    }
+
+    #[test]
+    fn clock_hh_mm_ss_zero_sec(h in 0..23, m in 0..60) {
+        let c = ClockTime{ hours: h as u8, minutes: m as u8, seconds: 0.0 };
+        clock_segments(HHMMSS_COLON, c, ":", 2, "00");
+    }
+
+    #[test]
+    fn clock_hh_mm_ss_zero_min(h in 0..23, s in 0.0..59.0) {
+        let c = ClockTime{ hours: h as u8, minutes: 0, seconds: s as f32 };
+        clock_segments(HHMMSS_COLON, c, ":", 1, "00");
+    }
+
+    #[test]
+    fn clock_hh_mm_ss_zero_hr(m in 0..59, s in 0.0..59.0) {
+        let c = ClockTime{ hours: 0, minutes: m as u8, seconds: s as f32};
+        clock_segments(HHMMSS_COLON, c, ":", 0, "00");
+    }
+
+    #[test]
+    fn clock_hh_mm_ss_default_str(h in 12..23, m in 0..59, s in 0.0..59.0) {
+        let c = ClockTime{ hours: h as u8, minutes: m as u8, seconds: s as f32 };
+        let t = TimeOfDay::new_from_clock(c);
+        let ts0 = t.preset_str(Language::EN, HHMMSS_COLON);
+        let ts1 = t.to_string();
+        assert_eq!(ts0, ts1);
+    }
+
+    #[test]
+    fn clock_am(h in 0..11, m in 0..59, s in 0.0..59.0) {
+        let c = ClockTime{ hours: h as u8, minutes: m as u8, seconds: s as f32 };
+        clock_segments(HHMM_COLON_AMPM, c, " ", 1, "AM");
+    }
+
+    #[test]
+    fn clock_pm(h in 12..23, m in 0..59, s in 0.0..59.0) {
+        let c = ClockTime{ hours: h as u8, minutes: m as u8, seconds: s as f32 };
+        clock_segments(HHMM_COLON_AMPM, c, " ", 1, "PM");
     }
 }
