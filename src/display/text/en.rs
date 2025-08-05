@@ -323,7 +323,7 @@ pub const EN_DICTIONARY: Dictionary = Dictionary {
         before_auc_abr: "BFC", //TODO: Not culturally/historically accurate
         after_auc_abr: "AUC",
         pridie: "pridie",
-        ante_diem: "ante_diem",
+        ante_diem: "ante diem",
         bissextum: "bissextum",
         x_of_y: "of", //TODO: more robust system than inserting "of"
     }),
