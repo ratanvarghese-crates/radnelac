@@ -1,220 +1,175 @@
 #[cfg(feature = "display")]
-use num_traits::FromPrimitive;
-#[cfg(feature = "display")]
-use num_traits::ToPrimitive;
-#[cfg(feature = "display")]
-use proptest::proptest;
-#[cfg(feature = "display")]
-use radnelac::calendar::Armenian;
-#[cfg(feature = "display")]
-use radnelac::calendar::ArmenianMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::Coptic;
-#[cfg(feature = "display")]
-use radnelac::calendar::CopticMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::Cotsworth;
-#[cfg(feature = "display")]
-use radnelac::calendar::CotsworthMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::Egyptian;
-#[cfg(feature = "display")]
-use radnelac::calendar::EgyptianMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::Ethiopic;
-#[cfg(feature = "display")]
-use radnelac::calendar::EthiopicMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::FrenchRevArith;
-#[cfg(feature = "display")]
-use radnelac::calendar::FrenchRevMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::FrenchRevWeekday;
-#[cfg(feature = "display")]
-use radnelac::calendar::Gregorian;
-#[cfg(feature = "display")]
-use radnelac::calendar::GregorianMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::GuaranteedMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::HasIntercalaryDays;
-#[cfg(feature = "display")]
-use radnelac::calendar::Holocene;
-#[cfg(feature = "display")]
-use radnelac::calendar::HoloceneMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::Julian;
-#[cfg(feature = "display")]
-use radnelac::calendar::JulianMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::Perennial;
-#[cfg(feature = "display")]
-use radnelac::calendar::Positivist;
-#[cfg(feature = "display")]
-use radnelac::calendar::PositivistMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::Symmetry010;
-#[cfg(feature = "display")]
-use radnelac::calendar::Symmetry010Solstice;
-#[cfg(feature = "display")]
-use radnelac::calendar::Symmetry454;
-#[cfg(feature = "display")]
-use radnelac::calendar::Symmetry454Solstice;
-#[cfg(feature = "display")]
-use radnelac::calendar::SymmetryMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::ToFromCommonDate;
-#[cfg(feature = "display")]
-use radnelac::calendar::TranquilityMoment;
-#[cfg(feature = "display")]
-use radnelac::calendar::TranquilityMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::ISO;
-#[cfg(feature = "display")]
-use radnelac::clock::ClockTime;
-#[cfg(feature = "display")]
-use radnelac::clock::TimeOfDay;
-#[cfg(feature = "display")]
-use radnelac::day_count::BoundedDayCount;
-#[cfg(feature = "display")]
-use radnelac::day_count::Epoch;
-#[cfg(feature = "display")]
-use radnelac::day_count::Fixed;
-#[cfg(feature = "display")]
-use radnelac::day_count::FromFixed;
-#[cfg(feature = "display")]
-use radnelac::day_count::FIXED_MAX;
-#[cfg(feature = "display")]
-use radnelac::day_cycle::Weekday;
-#[cfg(feature = "display")]
-use radnelac::display::Language;
-#[cfg(feature = "display")]
-use radnelac::display::PresetDisplay;
-#[cfg(feature = "display")]
-use radnelac::display::PresetFormat;
-#[cfg(feature = "display")]
-use radnelac::display::HHMMSS_COLON;
-#[cfg(feature = "display")]
-use radnelac::display::HHMM_COLON_AMPM;
-#[cfg(feature = "display")]
-use radnelac::display::LONG_DATE_ERA_ABBR;
+mod display_logic {
+    pub use num_traits::FromPrimitive;
+    pub use num_traits::ToPrimitive;
+    pub use proptest::proptest;
+    pub use radnelac::calendar::Armenian;
+    pub use radnelac::calendar::ArmenianMonth;
+    pub use radnelac::calendar::Coptic;
+    pub use radnelac::calendar::CopticMonth;
+    pub use radnelac::calendar::Cotsworth;
+    pub use radnelac::calendar::CotsworthMonth;
+    pub use radnelac::calendar::Egyptian;
+    pub use radnelac::calendar::EgyptianMonth;
+    pub use radnelac::calendar::Ethiopic;
+    pub use radnelac::calendar::EthiopicMonth;
+    pub use radnelac::calendar::FrenchRevArith;
+    pub use radnelac::calendar::FrenchRevMonth;
+    pub use radnelac::calendar::FrenchRevWeekday;
+    pub use radnelac::calendar::Gregorian;
+    pub use radnelac::calendar::GregorianMonth;
+    pub use radnelac::calendar::GuaranteedMonth;
+    pub use radnelac::calendar::HasIntercalaryDays;
+    pub use radnelac::calendar::Holocene;
+    pub use radnelac::calendar::HoloceneMonth;
+    pub use radnelac::calendar::Julian;
+    pub use radnelac::calendar::JulianMonth;
+    pub use radnelac::calendar::Perennial;
+    pub use radnelac::calendar::Positivist;
+    pub use radnelac::calendar::PositivistMonth;
+    pub use radnelac::calendar::Symmetry010;
+    pub use radnelac::calendar::Symmetry010Solstice;
+    pub use radnelac::calendar::Symmetry454;
+    pub use radnelac::calendar::Symmetry454Solstice;
+    pub use radnelac::calendar::SymmetryMonth;
+    pub use radnelac::calendar::ToFromCommonDate;
+    pub use radnelac::calendar::TranquilityMoment;
+    pub use radnelac::calendar::TranquilityMonth;
+    pub use radnelac::calendar::ISO;
+    pub use radnelac::clock::ClockTime;
+    pub use radnelac::clock::TimeOfDay;
+    pub use radnelac::day_count::BoundedDayCount;
+    pub use radnelac::day_count::Epoch;
+    pub use radnelac::day_count::Fixed;
+    pub use radnelac::day_count::FromFixed;
+    pub use radnelac::day_count::FIXED_MAX;
+    pub use radnelac::day_cycle::Weekday;
+    pub use radnelac::display::Language;
+    pub use radnelac::display::PresetDisplay;
+    pub use radnelac::display::PresetFormat;
+    pub use radnelac::display::HHMMSS_COLON;
+    pub use radnelac::display::HHMM_COLON_AMPM;
+    pub use radnelac::display::LONG_DATE_ERA_ABBR;
 
-#[cfg(feature = "display")]
-fn reasonable_blanks<U: ToString + FromFixed>(t0: f64) {
-    let d = U::from_fixed(Fixed::new(t0));
-    let s = d.to_string();
-    assert!(s.len() > 0);
-    assert!(s.find("  ").is_none());
-    assert!(s.find('\t').is_none());
-    assert!(s.find('\n').is_none());
-}
+    pub fn reasonable_blanks<U: ToString + FromFixed>(t0: f64) {
+        let d = U::from_fixed(Fixed::new(t0));
+        let s = d.to_string();
+        assert!(s.len() > 0);
+        assert!(s.find("  ").is_none());
+        assert!(s.find('\t').is_none());
+        assert!(s.find('\n').is_none());
+    }
 
-#[cfg(feature = "display")]
-fn compare_month<T, U>(t0: f64, t1: f64, m_idx: usize)
-where
-    T: FromPrimitive + ToPrimitive + PartialEq,
-    U: GuaranteedMonth<T> + ToString + FromFixed,
-{
-    let a0 = U::from_fixed(Fixed::new(t0));
-    let a1 = U::from_fixed(Fixed::new(t1));
-    let s0 = a0.to_string();
-    let s1 = a1.to_string();
-    let v0: Vec<&str> = s0.split(' ').collect();
-    let v1: Vec<&str> = s1.split(' ').collect();
-    assert_eq!(a0.month() == a1.month(), v0[m_idx] == v1[m_idx]);
-}
+    pub fn compare_month<T, U>(t0: f64, t1: f64, m_idx: usize)
+    where
+        T: FromPrimitive + ToPrimitive + PartialEq,
+        U: GuaranteedMonth<T> + ToString + FromFixed,
+    {
+        let a0 = U::from_fixed(Fixed::new(t0));
+        let a1 = U::from_fixed(Fixed::new(t1));
+        let s0 = a0.to_string();
+        let s1 = a1.to_string();
+        let v0: Vec<&str> = s0.split(' ').collect();
+        let v1: Vec<&str> = s1.split(' ').collect();
+        assert_eq!(a0.month() == a1.month(), v0[m_idx] == v1[m_idx]);
+    }
 
-#[cfg(feature = "display")]
-fn compare_possible_month<T, U>(t0: f64, t1: f64, m_idx: usize)
-where
-    T: FromPrimitive + ToPrimitive + PartialEq,
-    U: ToFromCommonDate<T> + ToString + FromFixed,
-{
-    let a0 = U::from_fixed(Fixed::new(t0));
-    let a1 = U::from_fixed(Fixed::new(t1));
-    let s0 = a0.to_string();
-    let s1 = a1.to_string();
-    let v0: Vec<&str> = s0.split(' ').collect();
-    let v1: Vec<&str> = s1.split(' ').collect();
-    if a0.try_month().is_some() && a1.try_month().is_some() {
-        assert_eq!(a0.try_month() == a1.try_month(), v0[m_idx] == v1[m_idx]);
+    pub fn compare_possible_month<T, U>(t0: f64, t1: f64, m_idx: usize)
+    where
+        T: FromPrimitive + ToPrimitive + PartialEq,
+        U: ToFromCommonDate<T> + ToString + FromFixed,
+    {
+        let a0 = U::from_fixed(Fixed::new(t0));
+        let a1 = U::from_fixed(Fixed::new(t1));
+        let s0 = a0.to_string();
+        let s1 = a1.to_string();
+        let v0: Vec<&str> = s0.split(' ').collect();
+        let v1: Vec<&str> = s1.split(' ').collect();
+        if a0.try_month().is_some() && a1.try_month().is_some() {
+            assert_eq!(a0.try_month() == a1.try_month(), v0[m_idx] == v1[m_idx]);
+        }
+    }
+
+    pub fn compare_common_weekday<U: FromFixed + ToString>(t0: f64, t1: f64, m_idx: usize) {
+        let f0 = Fixed::new(t0);
+        let f1 = Fixed::new(t1);
+        let w0 = Weekday::from_fixed(f0);
+        let w1 = Weekday::from_fixed(f1);
+        let a0 = U::from_fixed(f0);
+        let a1 = U::from_fixed(f1);
+        let s0 = a0.to_string();
+        let s1 = a1.to_string();
+        let v0: Vec<&str> = s0.split(' ').collect();
+        let v1: Vec<&str> = s1.split(' ').collect();
+        assert_eq!(
+            w0 == w1,
+            v0[m_idx] == v1[m_idx],
+            "{:?} {:?} {:?} {:?}",
+            f0,
+            f1,
+            s0,
+            s1
+        );
+    }
+
+    pub fn compare_perennial_weekday<S, T, U>(t0: f64, t1: f64, m_idx: usize)
+    where
+        S: ToPrimitive + FromPrimitive + PartialEq,
+        T: ToPrimitive + FromPrimitive + PartialEq,
+        U: Perennial<S, T> + FromFixed + ToString,
+    {
+        let a0 = U::from_fixed(Fixed::new(t0));
+        let a1 = U::from_fixed(Fixed::new(t1));
+        let s0 = a0.to_string();
+        let s1 = a1.to_string();
+        let v0: Vec<&str> = s0.split(' ').collect();
+        let v1: Vec<&str> = s1.split(' ').collect();
+        if a0.weekday().is_some() && a1.weekday().is_some() {
+            assert_eq!(a0.weekday() == a1.weekday(), v0[m_idx] == v1[m_idx]);
+        }
+    }
+
+    pub fn compare_era_abbrev<U>(t0: f64, t1: f64)
+    where
+        U: PresetDisplay + Epoch + FromFixed,
+    {
+        let f0 = Fixed::new(t0);
+        let f1 = Fixed::new(t1);
+        let a0 = U::from_fixed(f0);
+        let a1 = U::from_fixed(f1);
+        let e = U::epoch();
+        let s0 = a0.preset_str(Language::EN, LONG_DATE_ERA_ABBR);
+        let s1 = a1.preset_str(Language::EN, LONG_DATE_ERA_ABBR);
+        let v0: Vec<&str> = s0.split(' ').collect();
+        let v1: Vec<&str> = s1.split(' ').collect();
+        assert_eq!(
+            (f0 > e) == (f1 > e),
+            v0[v0.len() - 1] == v1[v1.len() - 1],
+            "{:?} {:?} {:?} {:?} {:?}",
+            f0,
+            f1,
+            e,
+            s0,
+            s1
+        );
+    }
+
+    pub fn clock_segments(
+        preset: PresetFormat,
+        c: ClockTime,
+        sep: &str,
+        idx: usize,
+        expected: &str,
+    ) {
+        let t = TimeOfDay::new_from_clock(c);
+        let s = t.preset_str(Language::EN, preset);
+        let v: Vec<&str> = s.split(sep).collect();
+        assert_eq!(v[idx], expected);
     }
 }
 
 #[cfg(feature = "display")]
-fn compare_common_weekday<U: FromFixed + ToString>(t0: f64, t1: f64, m_idx: usize) {
-    let f0 = Fixed::new(t0);
-    let f1 = Fixed::new(t1);
-    let w0 = Weekday::from_fixed(f0);
-    let w1 = Weekday::from_fixed(f1);
-    let a0 = U::from_fixed(f0);
-    let a1 = U::from_fixed(f1);
-    let s0 = a0.to_string();
-    let s1 = a1.to_string();
-    let v0: Vec<&str> = s0.split(' ').collect();
-    let v1: Vec<&str> = s1.split(' ').collect();
-    assert_eq!(
-        w0 == w1,
-        v0[m_idx] == v1[m_idx],
-        "{:?} {:?} {:?} {:?}",
-        f0,
-        f1,
-        s0,
-        s1
-    );
-}
-
-#[cfg(feature = "display")]
-fn compare_perennial_weekday<S, T, U>(t0: f64, t1: f64, m_idx: usize)
-where
-    S: ToPrimitive + FromPrimitive + PartialEq,
-    T: ToPrimitive + FromPrimitive + PartialEq,
-    U: Perennial<S, T> + FromFixed + ToString,
-{
-    let a0 = U::from_fixed(Fixed::new(t0));
-    let a1 = U::from_fixed(Fixed::new(t1));
-    let s0 = a0.to_string();
-    let s1 = a1.to_string();
-    let v0: Vec<&str> = s0.split(' ').collect();
-    let v1: Vec<&str> = s1.split(' ').collect();
-    if a0.weekday().is_some() && a1.weekday().is_some() {
-        assert_eq!(a0.weekday() == a1.weekday(), v0[m_idx] == v1[m_idx]);
-    }
-}
-
-#[cfg(feature = "display")]
-fn compare_era_abbrev<U>(t0: f64, t1: f64)
-where
-    U: PresetDisplay + Epoch + FromFixed,
-{
-    let f0 = Fixed::new(t0);
-    let f1 = Fixed::new(t1);
-    let a0 = U::from_fixed(f0);
-    let a1 = U::from_fixed(f1);
-    let e = U::epoch();
-    let s0 = a0.preset_str(Language::EN, LONG_DATE_ERA_ABBR);
-    let s1 = a1.preset_str(Language::EN, LONG_DATE_ERA_ABBR);
-    let v0: Vec<&str> = s0.split(' ').collect();
-    let v1: Vec<&str> = s1.split(' ').collect();
-    assert_eq!(
-        (f0 > e) == (f1 > e),
-        v0[v0.len() - 1] == v1[v1.len() - 1],
-        "{:?} {:?} {:?} {:?} {:?}",
-        f0,
-        f1,
-        e,
-        s0,
-        s1
-    );
-}
-
-#[cfg(feature = "display")]
-fn clock_segments(preset: PresetFormat, c: ClockTime, sep: &str, idx: usize, expected: &str) {
-    let t = TimeOfDay::new_from_clock(c);
-    let s = t.preset_str(Language::EN, preset);
-    let v: Vec<&str> = s.split(sep).collect();
-    assert_eq!(v[idx], expected);
-}
+use display_logic::*;
 
 #[cfg(feature = "display")]
 proptest! {

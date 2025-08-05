@@ -1,61 +1,42 @@
 #[cfg(feature = "display")]
-use proptest::proptest;
-#[cfg(feature = "display")]
-use radnelac::calendar::Armenian;
-#[cfg(feature = "display")]
-use radnelac::calendar::Coptic;
-#[cfg(feature = "display")]
-use radnelac::calendar::Cotsworth;
-#[cfg(feature = "display")]
-use radnelac::calendar::Egyptian;
-#[cfg(feature = "display")]
-use radnelac::calendar::Ethiopic;
-#[cfg(feature = "display")]
-use radnelac::calendar::FrenchRevArith;
-#[cfg(feature = "display")]
-use radnelac::calendar::Gregorian;
-#[cfg(feature = "display")]
-use radnelac::calendar::Holocene;
-#[cfg(feature = "display")]
-use radnelac::calendar::Julian;
-#[cfg(feature = "display")]
-use radnelac::calendar::Positivist;
-#[cfg(feature = "display")]
-use radnelac::calendar::Symmetry010;
-#[cfg(feature = "display")]
-use radnelac::calendar::Symmetry010Solstice;
-#[cfg(feature = "display")]
-use radnelac::calendar::Symmetry454;
-#[cfg(feature = "display")]
-use radnelac::calendar::Symmetry454Solstice;
-#[cfg(feature = "display")]
-use radnelac::day_count::BoundedDayCount;
-#[cfg(feature = "display")]
-use radnelac::day_count::Fixed;
-#[cfg(feature = "display")]
-use radnelac::day_count::FromFixed;
-#[cfg(feature = "display")]
-use radnelac::day_count::FIXED_MAX;
-#[cfg(feature = "display")]
-use radnelac::display::Language;
-#[cfg(feature = "display")]
-use radnelac::display::PresetDisplay;
-#[cfg(feature = "display")]
-use radnelac::display::PresetFormat;
-#[cfg(feature = "display")]
-use radnelac::display::HHMMSS_COLON;
+mod display_logic {
+    pub use proptest::proptest;
+    pub use radnelac::calendar::Armenian;
+    pub use radnelac::calendar::Coptic;
+    pub use radnelac::calendar::Cotsworth;
+    pub use radnelac::calendar::Egyptian;
+    pub use radnelac::calendar::Ethiopic;
+    pub use radnelac::calendar::FrenchRevArith;
+    pub use radnelac::calendar::Gregorian;
+    pub use radnelac::calendar::Holocene;
+    pub use radnelac::calendar::Julian;
+    pub use radnelac::calendar::Positivist;
+    pub use radnelac::calendar::Symmetry010;
+    pub use radnelac::calendar::Symmetry010Solstice;
+    pub use radnelac::calendar::Symmetry454;
+    pub use radnelac::calendar::Symmetry454Solstice;
+    pub use radnelac::day_count::BoundedDayCount;
+    pub use radnelac::day_count::Fixed;
+    pub use radnelac::day_count::FromFixed;
+    pub use radnelac::day_count::FIXED_MAX;
+    pub use radnelac::display::Language;
+    pub use radnelac::display::PresetDisplay;
+    pub use radnelac::display::PresetFormat;
+    pub use radnelac::display::HHMMSS_COLON;
 
-#[cfg(feature = "display")]
-fn display_exact<T: FromFixed + PresetDisplay>(t: f64, fmt: PresetFormat, s: &str) {
-    let d = T::from_fixed(Fixed::new(t));
-    let ds = d.preset_str(Language::EN, fmt);
-    assert_eq!(ds, s)
+    pub fn display_exact<T: FromFixed + PresetDisplay>(t: f64, fmt: PresetFormat, s: &str) {
+        let d = T::from_fixed(Fixed::new(t));
+        let ds = d.preset_str(Language::EN, fmt);
+        assert_eq!(ds, s)
+    }
+
+    pub fn display_midnight<T: FromFixed + PresetDisplay>(t: f64) {
+        display_exact::<T>(t, HHMMSS_COLON, "00:00:00");
+    }
 }
 
 #[cfg(feature = "display")]
-fn display_midnight<T: FromFixed + PresetDisplay>(t: f64) {
-    display_exact::<T>(t, HHMMSS_COLON, "00:00:00");
-}
+use display_logic::*;
 
 #[cfg(feature = "display")]
 proptest! {

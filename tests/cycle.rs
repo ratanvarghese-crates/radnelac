@@ -1,4 +1,3 @@
-use num_traits::cast::FromPrimitive;
 use proptest::proptest;
 use radnelac::day_count::BoundedDayCount;
 use radnelac::day_count::Fixed;

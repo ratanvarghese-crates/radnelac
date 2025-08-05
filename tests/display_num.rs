@@ -1,86 +1,75 @@
 #[cfg(feature = "display")]
-use proptest::prelude::TestCaseError;
-#[cfg(feature = "display")]
-use proptest::prop_assume;
-#[cfg(feature = "display")]
-use proptest::proptest;
-#[cfg(feature = "display")]
-use radnelac::calendar::*;
-#[cfg(feature = "display")]
-use radnelac::day_count::*;
-#[cfg(feature = "display")]
-use radnelac::display::*;
+mod display_logic {
+    pub use proptest::prelude::TestCaseError;
+    pub use proptest::prop_assume;
+    pub use proptest::proptest;
+    pub use radnelac::calendar::*;
+    pub use radnelac::day_count::*;
+    pub use radnelac::display::*;
 
-#[cfg(feature = "display")]
-const MAX_4DIGIT: f64 = 8000.0 * 365.25;
+    pub const MAX_4DIGIT: f64 = 8000.0 * 365.25;
+    pub const MIN_4DIGIT: f64 = 1000.0 * 365.25;
+    pub const FR_MIN_4DIGIT: f64 = 1795.0 * 365.25;
+    pub const HL_MIN_5DIGIT: f64 = -9000.0 * 365.25;
+    pub const HL_MAX_5DIGIT: f64 = 87000.0 * 365.25;
+    pub const TQ_MIN_4DIGIT: f64 = 1975.0 * 365.25;
 
-#[cfg(feature = "display")]
-const MIN_4DIGIT: f64 = 1000.0 * 365.25;
+    pub fn ymd_order_raw<T: FromFixed + PresetDisplay + PartialOrd>(
+        preset: PresetFormat,
+        d0: T,
+        d1: T,
+    ) {
+        let s0 = d0.preset_str(Language::EN, preset);
+        let s1 = d1.preset_str(Language::EN, preset);
+        assert_eq!(d0 < d1, s0 < s1, "<  {} {}", s0, s1);
+        assert_eq!(d0 <= d1, s0 <= s1, "<= {} {}", s0, s1);
+        assert_eq!(d0 == d1, s0 == s1, "== {} {}", s0, s1);
+        assert_eq!(d0 >= d1, s0 >= s1, ">= {} {}", s0, s1);
+        assert_eq!(d0 > d1, s0 > s1, "> {} {}", s0, s1);
+    }
 
-#[cfg(feature = "display")]
-const FR_MIN_4DIGIT: f64 = 1795.0 * 365.25;
+    pub fn ymd_order<T: FromFixed + PresetDisplay + Epoch + PartialOrd>(
+        preset: PresetFormat,
+        t0: f64,
+        t1: f64,
+    ) {
+        let f0 = Fixed::new(t0).to_day();
+        let f1 = Fixed::new(t1).to_day();
+        let d0 = T::from_fixed(f0);
+        let d1 = T::from_fixed(f1);
+        ymd_order_raw::<T>(preset, d0, d1);
+    }
 
-#[cfg(feature = "display")]
-const HL_MIN_5DIGIT: f64 = -9000.0 * 365.25;
+    pub fn ymd_order_tq(preset: PresetFormat, t0: f64, t1: f64) -> Result<(), TestCaseError> {
+        let f0 = Fixed::new(t0).to_day();
+        let f1 = Fixed::new(t1).to_day();
+        let d0 = TranquilityMoment::from_fixed(f0);
+        let d1 = TranquilityMoment::from_fixed(f1);
+        prop_assume!(d0.complementary().is_none() && d1.complementary().is_none());
+        ymd_order_raw::<TranquilityMoment>(preset, d0, d1);
+        Ok(())
+    }
 
-#[cfg(feature = "display")]
-const HL_MAX_5DIGIT: f64 = 87000.0 * 365.25;
-
-#[cfg(feature = "display")]
-const TQ_MIN_4DIGIT: f64 = 1975.0 * 365.25;
-
-#[cfg(feature = "display")]
-fn ymd_order_raw<T: FromFixed + PresetDisplay + PartialOrd>(preset: PresetFormat, d0: T, d1: T) {
-    let s0 = d0.preset_str(Language::EN, preset);
-    let s1 = d1.preset_str(Language::EN, preset);
-    assert_eq!(d0 < d1, s0 < s1, "<  {} {}", s0, s1);
-    assert_eq!(d0 <= d1, s0 <= s1, "<= {} {}", s0, s1);
-    assert_eq!(d0 == d1, s0 == s1, "== {} {}", s0, s1);
-    assert_eq!(d0 >= d1, s0 >= s1, ">= {} {}", s0, s1);
-    assert_eq!(d0 > d1, s0 > s1, "> {} {}", s0, s1);
+    pub fn ymd_vs_dmy_vs_mdy<T: FromFixed + PresetDisplay + Epoch + PartialOrd>(t: f64) {
+        let d = T::from_fixed(Fixed::new(t).to_day());
+        let ymd0 = d.preset_str(Language::EN, YYYYMMDD_SLASH);
+        let ymd1 = d.preset_str(Language::EN, DDMMYYYY_SLASH);
+        let ymd2 = d.preset_str(Language::EN, MMDDYYYY_SLASH);
+        let ymd3 = d.preset_str(Language::EN, YYYYMMDD_DASH);
+        assert_eq!(&ymd0[0..4], &ymd1[6..10]);
+        assert_eq!(&ymd0[5..7], &ymd1[3..5]);
+        assert_eq!(&ymd0[8..10], &ymd1[0..2]);
+        assert_eq!(&ymd0[0..4], &ymd2[6..10]);
+        assert_eq!(&ymd0[5..7], &ymd2[0..2]);
+        assert_eq!(&ymd0[8..10], &ymd2[3..5]);
+        assert_eq!(&ymd0[0..4], &ymd3[0..4]);
+        assert_eq!(&ymd0[5..7], &ymd3[5..7]);
+        assert_eq!(&ymd0[8..10], &ymd3[8..10]);
+    }
 }
 
 #[cfg(feature = "display")]
-fn ymd_order<T: FromFixed + PresetDisplay + Epoch + PartialOrd>(
-    preset: PresetFormat,
-    t0: f64,
-    t1: f64,
-) {
-    let f0 = Fixed::new(t0).to_day();
-    let f1 = Fixed::new(t1).to_day();
-    let d0 = T::from_fixed(f0);
-    let d1 = T::from_fixed(f1);
-    ymd_order_raw::<T>(preset, d0, d1);
-}
-
-#[cfg(feature = "display")]
-fn ymd_order_tq(preset: PresetFormat, t0: f64, t1: f64) -> Result<(), TestCaseError> {
-    let f0 = Fixed::new(t0).to_day();
-    let f1 = Fixed::new(t1).to_day();
-    let d0 = TranquilityMoment::from_fixed(f0);
-    let d1 = TranquilityMoment::from_fixed(f1);
-    prop_assume!(d0.complementary().is_none() && d1.complementary().is_none());
-    ymd_order_raw::<TranquilityMoment>(preset, d0, d1);
-    Ok(())
-}
-
-#[cfg(feature = "display")]
-fn ymd_vs_dmy_vs_mdy<T: FromFixed + PresetDisplay + Epoch + PartialOrd>(t: f64) {
-    let d = T::from_fixed(Fixed::new(t).to_day());
-    let ymd0 = d.preset_str(Language::EN, YYYYMMDD_SLASH);
-    let ymd1 = d.preset_str(Language::EN, DDMMYYYY_SLASH);
-    let ymd2 = d.preset_str(Language::EN, MMDDYYYY_SLASH);
-    let ymd3 = d.preset_str(Language::EN, YYYYMMDD_DASH);
-    assert_eq!(&ymd0[0..4], &ymd1[6..10]);
-    assert_eq!(&ymd0[5..7], &ymd1[3..5]);
-    assert_eq!(&ymd0[8..10], &ymd1[0..2]);
-    assert_eq!(&ymd0[0..4], &ymd2[6..10]);
-    assert_eq!(&ymd0[5..7], &ymd2[0..2]);
-    assert_eq!(&ymd0[8..10], &ymd2[3..5]);
-    assert_eq!(&ymd0[0..4], &ymd3[0..4]);
-    assert_eq!(&ymd0[5..7], &ymd3[5..7]);
-    assert_eq!(&ymd0[8..10], &ymd3[8..10]);
-}
+use display_logic::*;
 
 #[cfg(feature = "display")]
 proptest! {

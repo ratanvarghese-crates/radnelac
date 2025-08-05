@@ -1,96 +1,81 @@
 #[cfg(feature = "display")]
-use num_traits::cast::FromPrimitive;
-#[cfg(feature = "display")]
-use proptest::proptest;
-#[cfg(feature = "display")]
-use radnelac::calendar::Cotsworth;
-#[cfg(feature = "display")]
-use radnelac::calendar::CotsworthMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::Gregorian;
-#[cfg(feature = "display")]
-use radnelac::calendar::GregorianMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::GuaranteedMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::Holocene;
-#[cfg(feature = "display")]
-use radnelac::calendar::HoloceneMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::Julian;
-#[cfg(feature = "display")]
-use radnelac::calendar::JulianMonth;
-#[cfg(feature = "display")]
-use radnelac::calendar::Symmetry010;
-#[cfg(feature = "display")]
-use radnelac::calendar::Symmetry010Solstice;
-#[cfg(feature = "display")]
-use radnelac::calendar::Symmetry454;
-#[cfg(feature = "display")]
-use radnelac::calendar::Symmetry454Solstice;
-#[cfg(feature = "display")]
-use radnelac::calendar::SymmetryMonth;
-#[cfg(feature = "display")]
-use radnelac::display::Language;
-#[cfg(feature = "display")]
-use radnelac::display::PresetDisplay;
-#[cfg(feature = "display")]
-use radnelac::display::LONG_DATE;
+mod display_logic {
+    pub use num_traits::cast::FromPrimitive;
+    pub use proptest::proptest;
+    pub use radnelac::calendar::Cotsworth;
+    pub use radnelac::calendar::CotsworthMonth;
+    pub use radnelac::calendar::Gregorian;
+    pub use radnelac::calendar::GregorianMonth;
+    pub use radnelac::calendar::GuaranteedMonth;
+    pub use radnelac::calendar::Holocene;
+    pub use radnelac::calendar::HoloceneMonth;
+    pub use radnelac::calendar::Julian;
+    pub use radnelac::calendar::JulianMonth;
+    pub use radnelac::calendar::Symmetry010;
+    pub use radnelac::calendar::Symmetry010Solstice;
+    pub use radnelac::calendar::Symmetry454;
+    pub use radnelac::calendar::Symmetry454Solstice;
+    pub use radnelac::calendar::SymmetryMonth;
+    pub use radnelac::day_count::FIXED_MAX;
+    pub use radnelac::display::Language;
+    pub use radnelac::display::PresetDisplay;
+    pub use radnelac::display::LONG_DATE;
 
-use radnelac::day_count::FIXED_MAX;
+    pub const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
 
-#[cfg(feature = "display")]
-const MAX_YEARS: i32 = (FIXED_MAX / 365.25) as i32;
+    pub fn long_date_contains<T: PresetDisplay>(d: T, lang: Language, s: &str) {
+        assert!(d.preset_str(lang, LONG_DATE).contains(s));
+    }
 
-#[cfg(feature = "display")]
-fn long_date_contains<T: PresetDisplay>(d: T, lang: Language, s: &str) {
-    assert!(d.preset_str(lang, LONG_DATE).contains(s));
+    pub fn bilingual_long_date_contains<T: PresetDisplay + Copy>(d: T, s_en: &str, s_fr: &str) {
+        assert!(T::supported_lang(Language::EN));
+        assert!(T::supported_lang(Language::FR));
+        long_date_contains(d, Language::EN, s_en);
+        long_date_contains(d, Language::FR, s_fr);
+    }
+
+    pub fn gregorian_like_date_contains<
+        T: PresetDisplay + Copy + GuaranteedMonth<GregorianMonth>,
+    >(
+        d: T,
+    ) {
+        match d.month() {
+            GregorianMonth::January => bilingual_long_date_contains(d, "January", "janvier"),
+            GregorianMonth::February => bilingual_long_date_contains(d, "February", "février"),
+            GregorianMonth::March => bilingual_long_date_contains(d, "March", "mars"),
+            GregorianMonth::April => bilingual_long_date_contains(d, "April", "avril"),
+            GregorianMonth::May => bilingual_long_date_contains(d, "May", "mai"),
+            GregorianMonth::June => bilingual_long_date_contains(d, "June", "juin"),
+            GregorianMonth::July => bilingual_long_date_contains(d, "July", "juillet"),
+            GregorianMonth::August => bilingual_long_date_contains(d, "August", "août"),
+            GregorianMonth::September => bilingual_long_date_contains(d, "September", "septembre"),
+            GregorianMonth::October => bilingual_long_date_contains(d, "October", "octobre"),
+            GregorianMonth::November => bilingual_long_date_contains(d, "November", "novembre"),
+            GregorianMonth::December => bilingual_long_date_contains(d, "December", "decembre"),
+        };
+    }
+
+    pub fn symmetry_date_contains<T: PresetDisplay + Copy + GuaranteedMonth<SymmetryMonth>>(d: T) {
+        match d.month() {
+            SymmetryMonth::January => bilingual_long_date_contains(d, "January", "janvier"),
+            SymmetryMonth::February => bilingual_long_date_contains(d, "February", "février"),
+            SymmetryMonth::March => bilingual_long_date_contains(d, "March", "mars"),
+            SymmetryMonth::April => bilingual_long_date_contains(d, "April", "avril"),
+            SymmetryMonth::May => bilingual_long_date_contains(d, "May", "mai"),
+            SymmetryMonth::June => bilingual_long_date_contains(d, "June", "juin"),
+            SymmetryMonth::July => bilingual_long_date_contains(d, "July", "juillet"),
+            SymmetryMonth::August => bilingual_long_date_contains(d, "August", "août"),
+            SymmetryMonth::September => bilingual_long_date_contains(d, "September", "septembre"),
+            SymmetryMonth::October => bilingual_long_date_contains(d, "October", "octobre"),
+            SymmetryMonth::November => bilingual_long_date_contains(d, "November", "novembre"),
+            SymmetryMonth::December => bilingual_long_date_contains(d, "December", "decembre"),
+            SymmetryMonth::Irvember => bilingual_long_date_contains(d, "Irvember", "irvembre"),
+        };
+    }
 }
 
 #[cfg(feature = "display")]
-fn bilingual_long_date_contains<T: PresetDisplay + Copy>(d: T, s_en: &str, s_fr: &str) {
-    assert!(T::supported_lang(Language::EN));
-    assert!(T::supported_lang(Language::FR));
-    long_date_contains(d, Language::EN, s_en);
-    long_date_contains(d, Language::FR, s_fr);
-}
-
-#[cfg(feature = "display")]
-fn gregorian_like_date_contains<T: PresetDisplay + Copy + GuaranteedMonth<GregorianMonth>>(d: T) {
-    match d.month() {
-        GregorianMonth::January => bilingual_long_date_contains(d, "January", "janvier"),
-        GregorianMonth::February => bilingual_long_date_contains(d, "February", "février"),
-        GregorianMonth::March => bilingual_long_date_contains(d, "March", "mars"),
-        GregorianMonth::April => bilingual_long_date_contains(d, "April", "avril"),
-        GregorianMonth::May => bilingual_long_date_contains(d, "May", "mai"),
-        GregorianMonth::June => bilingual_long_date_contains(d, "June", "juin"),
-        GregorianMonth::July => bilingual_long_date_contains(d, "July", "juillet"),
-        GregorianMonth::August => bilingual_long_date_contains(d, "August", "août"),
-        GregorianMonth::September => bilingual_long_date_contains(d, "September", "septembre"),
-        GregorianMonth::October => bilingual_long_date_contains(d, "October", "octobre"),
-        GregorianMonth::November => bilingual_long_date_contains(d, "November", "novembre"),
-        GregorianMonth::December => bilingual_long_date_contains(d, "December", "decembre"),
-    };
-}
-
-#[cfg(feature = "display")]
-fn symmetry_date_contains<T: PresetDisplay + Copy + GuaranteedMonth<SymmetryMonth>>(d: T) {
-    match d.month() {
-        SymmetryMonth::January => bilingual_long_date_contains(d, "January", "janvier"),
-        SymmetryMonth::February => bilingual_long_date_contains(d, "February", "février"),
-        SymmetryMonth::March => bilingual_long_date_contains(d, "March", "mars"),
-        SymmetryMonth::April => bilingual_long_date_contains(d, "April", "avril"),
-        SymmetryMonth::May => bilingual_long_date_contains(d, "May", "mai"),
-        SymmetryMonth::June => bilingual_long_date_contains(d, "June", "juin"),
-        SymmetryMonth::July => bilingual_long_date_contains(d, "July", "juillet"),
-        SymmetryMonth::August => bilingual_long_date_contains(d, "August", "août"),
-        SymmetryMonth::September => bilingual_long_date_contains(d, "September", "septembre"),
-        SymmetryMonth::October => bilingual_long_date_contains(d, "October", "octobre"),
-        SymmetryMonth::November => bilingual_long_date_contains(d, "November", "novembre"),
-        SymmetryMonth::December => bilingual_long_date_contains(d, "December", "decembre"),
-        SymmetryMonth::Irvember => bilingual_long_date_contains(d, "Irvember", "irvembre"),
-    };
-}
+use display_logic::*;
 
 #[cfg(feature = "display")]
 proptest! {
