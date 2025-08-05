@@ -95,6 +95,34 @@ macro_rules! NumericDateItems {
     };
 }
 
+const I_HHMM_COLON_AMPM: [Item<'_>; 5] = [
+    Item::new(
+        Content::Numeric(NumericContent::Hour1to12),
+        DisplayOptions {
+            numerals: None,
+            width: Some(2),
+            align: None,
+            padding: Some('0'),
+            case: None,
+            sign: Sign::OnlyNegative,
+        },
+    ),
+    Item::new(Content::Literal(":"), O_LITERAL),
+    Item::new(
+        Content::Numeric(NumericContent::Minute),
+        DisplayOptions {
+            numerals: None,
+            width: Some(2),
+            align: None,
+            padding: Some('0'),
+            case: None,
+            sign: Sign::OnlyNegative,
+        },
+    ),
+    Item::new(Content::Literal(" "), O_LITERAL),
+    Item::new(Content::Text(TextContent::HalfDayAbbrev), O_LITERAL),
+];
+
 NumericDateItems!(I_HHMMSS_COLON, ":", Hour0to23, 2, Minute, 2, Second, 2);
 NumericDateItems!(I_YYYYMMDD_DASH, "-", Year, 4, Month, 2, DayOfMonth, 2);
 NumericDateItems!(I_YYYYYMMDD_DASH, "-", Year, 5, Month, 2, DayOfMonth, 2);
@@ -205,6 +233,11 @@ const I_WEEKDAY_NAME_ONLY: [Item<'_>; 1] = [Item::new(
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct PresetFormat<'a>(&'a [Item<'a>]);
 
+/// HH:MM AM/PM time format
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
+pub const HHMM_COLON_AMPM: PresetFormat<'static> = PresetFormat::<'static>(&I_HHMM_COLON_AMPM);
 /// HH:MM:SS time format
 /// ## Crate Features
 ///
