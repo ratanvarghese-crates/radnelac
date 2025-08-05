@@ -208,6 +208,7 @@ where
     );
 }
 
+#[cfg(feature = "display")]
 fn clock_segments(preset: PresetFormat, c: ClockTime, sep: &str, idx: usize, expected: &str) {
     let t = TimeOfDay::new_from_clock(c);
     let s = t.preset_str(Language::EN, preset);
