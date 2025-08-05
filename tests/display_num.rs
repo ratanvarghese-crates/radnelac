@@ -1,10 +1,13 @@
 #[cfg(feature = "display")]
 mod display_logic {
+    pub use num_traits::FromPrimitive;
+    pub use num_traits::ToPrimitive;
     pub use proptest::prelude::TestCaseError;
     pub use proptest::prop_assume;
     pub use proptest::proptest;
     pub use radnelac::calendar::*;
     pub use radnelac::day_count::*;
+    pub use radnelac::day_cycle::*;
     pub use radnelac::display::*;
 
     pub const MAX_4DIGIT: f64 = 8000.0 * 365.25;
@@ -84,6 +87,32 @@ mod display_logic {
         assert_eq!(d0 >= d1, s0 >= s1, ">= {} {}", s0, s1);
         assert_eq!(d0 > d1, s0 > s1, "> {} {}", s0, s1);
     }
+
+    pub fn perennial_week<S, T, U>(
+        preset: PresetFormat,
+        t0: f64,
+        t1: f64,
+    ) -> Result<(), TestCaseError>
+    where
+        S: ToPrimitive + FromPrimitive,
+        T: ToPrimitive + FromPrimitive,
+        U: FromFixed + Perennial<S, T> + PresetDisplay + PartialOrd,
+    {
+        let f0 = Fixed::new(t0).to_day();
+        let f1 = Fixed::new(t1).to_day();
+        let d0 = U::from_fixed(f0);
+        let d1 = U::from_fixed(f1);
+        prop_assume!(d0.weekday().is_some());
+        prop_assume!(d1.weekday().is_some());
+        let s0 = format!("{:0>20}", d0.preset_str(Language::EN, preset));
+        let s1 = format!("{:0>20}", d1.preset_str(Language::EN, preset));
+        assert_eq!(d0 < d1, s0 < s1, "<  {} {}", s0, s1);
+        assert_eq!(d0 <= d1, s0 <= s1, "<= {} {}", s0, s1);
+        assert_eq!(d0 == d1, s0 == s1, "== {} {}", s0, s1);
+        assert_eq!(d0 >= d1, s0 >= s1, ">= {} {}", s0, s1);
+        assert_eq!(d0 > d1, s0 > s1, "> {} {}", s0, s1);
+        Ok(())
+    }
 }
 
 #[cfg(feature = "display")]
@@ -131,6 +160,11 @@ proptest! {
     }
 
     #[test]
+    fn cotsworth_week(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
+        perennial_week::<CotsworthMonth, Weekday, Cotsworth>(YEAR_WEEK_DAY, t0, t1)?;
+    }
+
+    #[test]
     fn egyptian(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<Egyptian>(YYYYMMDD_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Egyptian>(t0);
@@ -172,6 +206,12 @@ proptest! {
         epoch_order::<FrenchRevArith<false>>(EPOCH_DAYS_ONLY, t0, t1);
         epoch_order::<FrenchRevArith<true>>(EPOCH_SECONDS_ONLY, t0, t1);
         epoch_order::<FrenchRevArith<true>>(EPOCH_DAYS_ONLY, t0, t1);
+    }
+
+    #[test]
+    fn french_rev_week(t0 in FR_MIN_4DIGIT..MAX_4DIGIT, t1 in FR_MIN_4DIGIT..MAX_4DIGIT) {
+        perennial_week::<FrenchRevMonth, FrenchRevWeekday, FrenchRevArith<false>>(YEAR_WEEK_DAY, t0, t1)?;
+        perennial_week::<FrenchRevMonth, FrenchRevWeekday, FrenchRevArith<true>>(YEAR_WEEK_DAY, t0, t1)?;
     }
 
     #[test]
@@ -222,6 +262,11 @@ proptest! {
     fn positivist_epoch(t0 in FR_MIN_4DIGIT..MAX_4DIGIT, t1 in FR_MIN_4DIGIT..MAX_4DIGIT) {
         epoch_order::<Positivist>(EPOCH_SECONDS_ONLY, t0, t1);
         epoch_order::<Positivist>(EPOCH_DAYS_ONLY, t0, t1);
+    }
+
+    #[test]
+    fn positivist_week(t0 in FR_MIN_4DIGIT..MAX_4DIGIT, t1 in FR_MIN_4DIGIT..MAX_4DIGIT) {
+        perennial_week::<PositivistMonth, Weekday, Positivist>(YEAR_WEEK_DAY, t0, t1)?;
     }
 
     #[test]
@@ -276,5 +321,10 @@ proptest! {
     fn tranquility_epoch(t0 in TQ_MIN_4DIGIT..MAX_4DIGIT, t1 in TQ_MIN_4DIGIT..MAX_4DIGIT) {
         epoch_order::<TranquilityMoment>(EPOCH_SECONDS_ONLY, t0, t1);
         epoch_order::<TranquilityMoment>(EPOCH_DAYS_ONLY, t0, t1);
+    }
+
+    #[test]
+    fn tranquility_week(t0 in TQ_MIN_4DIGIT..MAX_4DIGIT, t1 in TQ_MIN_4DIGIT..MAX_4DIGIT) {
+        perennial_week::<TranquilityMonth, Weekday, TranquilityMoment>(YEAR_WEEK_DAY, t0, t1)?;
     }
 }
