@@ -66,6 +66,24 @@ mod display_logic {
         assert_eq!(&ymd0[5..7], &ymd3[5..7]);
         assert_eq!(&ymd0[8..10], &ymd3[8..10]);
     }
+
+    pub fn epoch_order<T: FromFixed + PresetDisplay + PartialOrd>(
+        preset: PresetFormat,
+        t0: f64,
+        t1: f64,
+    ) {
+        let f0 = Fixed::new(t0).to_day();
+        let f1 = Fixed::new(t1).to_day();
+        let d0 = T::from_fixed(f0);
+        let d1 = T::from_fixed(f1);
+        let s0 = format!("{:0>100}", d0.preset_str(Language::EN, preset));
+        let s1 = format!("{:0>100}", d1.preset_str(Language::EN, preset));
+        assert_eq!(d0 < d1, s0 < s1, "<  {} {}", s0, s1);
+        assert_eq!(d0 <= d1, s0 <= s1, "<= {} {}", s0, s1);
+        assert_eq!(d0 == d1, s0 == s1, "== {} {}", s0, s1);
+        assert_eq!(d0 >= d1, s0 >= s1, ">= {} {}", s0, s1);
+        assert_eq!(d0 > d1, s0 > s1, "> {} {}", s0, s1);
+    }
 }
 
 #[cfg(feature = "display")]
@@ -81,10 +99,22 @@ proptest! {
     }
 
     #[test]
+    fn armenian_epoch(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
+        epoch_order::<Armenian>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<Armenian>(EPOCH_DAYS_ONLY, t0, t1);
+    }
+
+    #[test]
     fn coptic(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<Coptic>(YYYYMMDD_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Coptic>(t0);
         ymd_vs_dmy_vs_mdy::<Coptic>(t1);
+    }
+
+    #[test]
+    fn coptic_epoch(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
+        epoch_order::<Coptic>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<Coptic>(EPOCH_DAYS_ONLY, t0, t1);
     }
 
     #[test]
@@ -95,6 +125,12 @@ proptest! {
     }
 
     #[test]
+    fn cotsworth_epoch(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
+        epoch_order::<Cotsworth>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<Cotsworth>(EPOCH_DAYS_ONLY, t0, t1);
+    }
+
+    #[test]
     fn egyptian(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<Egyptian>(YYYYMMDD_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Egyptian>(t0);
@@ -102,10 +138,22 @@ proptest! {
     }
 
     #[test]
+    fn egyptian_epoch(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
+        epoch_order::<Egyptian>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<Egyptian>(EPOCH_DAYS_ONLY, t0, t1);
+    }
+
+    #[test]
     fn ethiopic(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<Ethiopic>(YYYYMMDD_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Ethiopic>(t0);
         ymd_vs_dmy_vs_mdy::<Ethiopic>(t1);
+    }
+
+    #[test]
+    fn ethiopic_epoch(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
+        epoch_order::<Ethiopic>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<Ethiopic>(EPOCH_DAYS_ONLY, t0, t1);
     }
 
     #[test]
@@ -119,10 +167,24 @@ proptest! {
     }
 
     #[test]
+    fn french_rev_epoch(t0 in FR_MIN_4DIGIT..MAX_4DIGIT, t1 in FR_MIN_4DIGIT..MAX_4DIGIT) {
+        epoch_order::<FrenchRevArith<false>>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<FrenchRevArith<false>>(EPOCH_DAYS_ONLY, t0, t1);
+        epoch_order::<FrenchRevArith<true>>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<FrenchRevArith<true>>(EPOCH_DAYS_ONLY, t0, t1);
+    }
+
+    #[test]
     fn gregorian(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<Gregorian>(YYYYMMDD_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Gregorian>(t0);
         ymd_vs_dmy_vs_mdy::<Gregorian>(t1);
+    }
+
+    #[test]
+    fn gregorian_epoch(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
+        epoch_order::<Gregorian>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<Gregorian>(EPOCH_DAYS_ONLY, t0, t1);
     }
 
     #[test]
@@ -133,8 +195,20 @@ proptest! {
     }
 
     #[test]
+    fn holocene_epoch(t0 in HL_MIN_5DIGIT..HL_MAX_5DIGIT, t1 in HL_MIN_5DIGIT..HL_MAX_5DIGIT) {
+        epoch_order::<Holocene>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<Holocene>(EPOCH_DAYS_ONLY, t0, t1);
+    }
+
+    #[test]
     fn iso(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<ISO>(YEAR_WEEK_DAY, t0, t1);
+    }
+
+    #[test]
+    fn iso_epoch(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
+        epoch_order::<ISO>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<ISO>(EPOCH_DAYS_ONLY, t0, t1);
     }
 
     #[test]
@@ -145,10 +219,22 @@ proptest! {
     }
 
     #[test]
+    fn positivist_epoch(t0 in FR_MIN_4DIGIT..MAX_4DIGIT, t1 in FR_MIN_4DIGIT..MAX_4DIGIT) {
+        epoch_order::<Positivist>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<Positivist>(EPOCH_DAYS_ONLY, t0, t1);
+    }
+
+    #[test]
     fn julian(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<Julian>(YYYYMMDD_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Julian>(t0);
         ymd_vs_dmy_vs_mdy::<Julian>(t1);
+    }
+
+    #[test]
+    fn julian_epoch(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
+        epoch_order::<Julian>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<Julian>(EPOCH_DAYS_ONLY, t0, t1);
     }
 
     #[test]
@@ -168,9 +254,27 @@ proptest! {
     }
 
     #[test]
+    fn symmetry_epoch(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
+        epoch_order::<Symmetry454>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<Symmetry454>(EPOCH_DAYS_ONLY, t0, t1);
+        epoch_order::<Symmetry010>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<Symmetry010>(EPOCH_DAYS_ONLY, t0, t1);
+        epoch_order::<Symmetry454Solstice>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<Symmetry454Solstice>(EPOCH_DAYS_ONLY, t0, t1);
+        epoch_order::<Symmetry010Solstice>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<Symmetry010Solstice>(EPOCH_DAYS_ONLY, t0, t1);
+    }
+
+    #[test]
     fn tranquility(t0 in TQ_MIN_4DIGIT..MAX_4DIGIT, t1 in TQ_MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order_tq(YYYYMMDD_DASH, t0, t1)?;
         ymd_vs_dmy_vs_mdy::<TranquilityMoment>(t0);
         ymd_vs_dmy_vs_mdy::<TranquilityMoment>(t1);
+    }
+
+    #[test]
+    fn tranquility_epoch(t0 in TQ_MIN_4DIGIT..MAX_4DIGIT, t1 in TQ_MIN_4DIGIT..MAX_4DIGIT) {
+        epoch_order::<TranquilityMoment>(EPOCH_SECONDS_ONLY, t0, t1);
+        epoch_order::<TranquilityMoment>(EPOCH_DAYS_ONLY, t0, t1);
     }
 }
