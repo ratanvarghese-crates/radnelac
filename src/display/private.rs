@@ -205,7 +205,7 @@ pub fn fmt_days_since_epoch<T: Epoch + ToFixed>(t: T, opt: DisplayOptions) -> St
 
 pub fn fmt_seconds_since_epoch<T: Epoch + ToFixed>(t: T, opt: DisplayOptions) -> String {
     fmt_number(
-        ((t.to_fixed().get() - T::epoch().get()) * (24.0 * 60.0 * 60.0)) as i16,
+        ((t.to_fixed().get() - T::epoch().get()) * (24.0 * 60.0 * 60.0)) as i64,
         opt,
     )
 }

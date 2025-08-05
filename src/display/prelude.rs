@@ -226,6 +226,16 @@ const I_WEEKDAY_NAME_ONLY: [Item<'_>; 1] = [Item::new(
     O_LITERAL,
 )];
 
+const I_EPOCH_SECONDS_ONLY: [Item<'_>; 1] = [Item::new(
+    Content::Numeric(NumericContent::SecondsSinceEpoch),
+    O_LITERAL,
+)];
+
+const I_EPOCH_DAYS_ONLY: [Item<'_>; 1] = [Item::new(
+    Content::Numeric(NumericContent::DaysSinceEpoch),
+    O_LITERAL,
+)];
+
 /// Represents a date format
 /// ## Crate Features
 ///
@@ -293,7 +303,6 @@ pub const LONG_DAY_OF_MONTH: PresetFormat<'static> = PresetFormat::<'static>(&I_
 ///
 /// This is only available if `display` is enabled.
 pub const LONG_COMPL: PresetFormat<'static> = PresetFormat::<'static>(&I_LONG_COMPL);
-
 /// Calendar-specific long date format, with abbreviated era
 /// ## Crate Features
 ///
@@ -314,7 +323,6 @@ pub const LONG_DAY_OF_MONTH_ERA_ABBR: PresetFormat<'static> =
 /// This is only available if `display` is enabled.
 pub const LONG_COMPL_ERA_ABBR: PresetFormat<'static> =
     PresetFormat::<'static>(&I_LONG_COMPL_ERA_ABBR);
-
 /// YYYY-Www-DD alphanumeric date format
 ///
 /// This is inteded for the ISO calendar.
@@ -349,6 +357,23 @@ pub const COMPL_ONLY: PresetFormat<'static> = PresetFormat::<'static>(&I_COMPL_O
 ///
 /// This is only available if `display` is enabled.
 pub const WEEKDAY_NAME_ONLY: PresetFormat<'static> = PresetFormat::<'static>(&I_WEEKDAY_NAME_ONLY);
+/// Format which is the seconds since an epoch only
+///
+/// The epoch is specific to the timekeeping system.
+///
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
+pub const EPOCH_SECONDS_ONLY: PresetFormat<'static> =
+    PresetFormat::<'static>(&I_EPOCH_SECONDS_ONLY);
+/// Format which is the days since an epoch only
+///
+/// The epoch is specific to the timekeeping system.
+///
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
+pub const EPOCH_DAYS_ONLY: PresetFormat<'static> = PresetFormat::<'static>(&I_EPOCH_DAYS_ONLY);
 
 /// Format a date in a preset format
 /// ## Crate Features
