@@ -54,6 +54,33 @@ const O_N3: DisplayOptions = DisplayOptions {
 };
 
 macro_rules! NumericDateItems {
+    ($name: ident, $sep: literal, $prefix: ident, $n_prefix: literal, $stem: ident, $n_stem: literal) => {
+        const $name: [Item<'_>; 3] = [
+            Item::new(
+                Content::Numeric(NumericContent::$prefix),
+                DisplayOptions {
+                    numerals: None,
+                    width: Some($n_prefix),
+                    align: None,
+                    padding: Some('0'),
+                    case: None,
+                    sign: Sign::OnlyNegative,
+                },
+            ),
+            Item::new(Content::Literal($sep), O_LITERAL),
+            Item::new(
+                Content::Numeric(NumericContent::$stem),
+                DisplayOptions {
+                    numerals: None,
+                    width: Some($n_stem),
+                    align: None,
+                    padding: Some('0'),
+                    case: None,
+                    sign: Sign::OnlyNegative,
+                },
+            ),
+        ];
+    };
     ($name: ident, $sep: literal, $prefix: ident, $n_prefix: literal, $stem: ident, $n_stem: literal, $suffix: ident, $n_suffix: literal) => {
         const $name: [Item<'_>; 5] = [
             Item::new(
@@ -130,6 +157,8 @@ NumericDateItems!(I_YYYYMMDD_SLASH, "/", Year, 4, Month, 2, DayOfMonth, 2);
 NumericDateItems!(I_DDMMYYYY_SLASH, "/", DayOfMonth, 2, Month, 2, Year, 4);
 NumericDateItems!(I_DDMMYYYY_DOT, ".", DayOfMonth, 2, Month, 2, Year, 4);
 NumericDateItems!(I_MMDDYYYY_SLASH, "/", Month, 2, DayOfMonth, 2, Year, 4);
+NumericDateItems!(I_YYYYOOO_DASH, "-", Year, 4, DayOfYear, 3);
+NumericDateItems!(I_YYYYYOOO_DASH, "-", Year, 5, DayOfYear, 3);
 
 const I_LONG_DATE: [Item<'_>; 9] = [
     Item::new(Content::Text(TextContent::DayOfWeekName), O_LITERAL),
@@ -286,6 +315,18 @@ pub const DDMMYYYY_DOT: PresetFormat<'static> = PresetFormat::<'static>(&I_DDMMY
 ///
 /// This is only available if `display` is enabled.
 pub const MMDDYYYY_SLASH: PresetFormat<'static> = PresetFormat::<'static>(&I_MMDDYYYY_SLASH);
+/// YYYY-OOO numeric date format, where OOO is day of year
+///
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
+pub const YYYYOOO_DASH: PresetFormat<'static> = PresetFormat::<'static>(&I_YYYYOOO_DASH);
+/// YYYY-OOO numeric date format, where OOO is day of year
+///
+/// ## Crate Features
+///
+/// This is only available if `display` is enabled.
+pub const YYYYYOOO_DASH: PresetFormat<'static> = PresetFormat::<'static>(&I_YYYYYOOO_DASH);
 /// Calendar-specific long date format
 /// ## Crate Features
 ///

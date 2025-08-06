@@ -1,6 +1,7 @@
 use crate::calendar::HasIntercalaryDays;
 use crate::calendar::Perennial;
 use crate::calendar::ToFromCommonDate;
+use crate::calendar::ToFromOrdinalDate;
 use crate::calendar::TranquilityComplementaryDay;
 use crate::calendar::TranquilityMoment;
 use crate::clock::TimeOfDay;
@@ -38,6 +39,7 @@ impl DisplayItem for TranquilityMoment {
                 Some(d) => d.fmt_numeric(n, opt),
                 None => "".to_string(),
             },
+            NumericContent::DayOfYear => self.to_ordinal().fmt_numeric(n, opt),
             NumericContent::Hour1to12
             | NumericContent::Hour0to23
             | NumericContent::Minute

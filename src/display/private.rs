@@ -1,4 +1,5 @@
 use crate::calendar::CommonDate;
+use crate::calendar::OrdinalDate;
 use crate::calendar::Quarter;
 use crate::day_count::BoundedDayCount;
 use crate::day_count::Epoch;
@@ -20,6 +21,7 @@ pub enum NumericContent {
     Month,
     DayOfWeek,
     DayOfMonth,
+    DayOfYear,
     Hour1to12,
     Hour0to23,
     Minute,
@@ -223,6 +225,23 @@ impl DisplayItem for CommonDate {
         match n {
             NumericContent::Month => fmt_number(self.month as i16, opt),
             NumericContent::DayOfMonth => fmt_number(self.day as i16, opt),
+            NumericContent::Year => fmt_number(self.year, opt),
+            _ => String::from(""),
+        }
+    }
+    fn fmt_text(&self, _t: TextContent, lang: Language, _opt: DisplayOptions) -> String {
+        String::from("")
+    }
+}
+
+impl DisplayItem for OrdinalDate {
+    fn supported_lang(_lang: Language) -> bool {
+        true
+    }
+
+    fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
+        match n {
+            NumericContent::DayOfYear => fmt_number(self.day_of_year as i16, opt),
             NumericContent::Year => fmt_number(self.year, opt),
             _ => String::from(""),
         }

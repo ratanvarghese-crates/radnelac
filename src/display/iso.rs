@@ -26,6 +26,7 @@ impl DisplayItem for ISO {
             NumericContent::Month | NumericContent::DayOfMonth => "".to_string(),
             NumericContent::Year => fmt_number(self.year(), opt),
             NumericContent::DayOfWeek => fmt_number(self.day_num() as i8, opt),
+            NumericContent::DayOfYear => "".to_string(),
             NumericContent::Hour1to12
             | NumericContent::Hour0to23
             | NumericContent::Minute

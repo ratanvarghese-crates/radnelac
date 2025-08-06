@@ -123,6 +123,7 @@ proptest! {
     #[test]
     fn armenian(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<Armenian>(YYYYMMDD_DASH, t0, t1);
+        ymd_order::<Armenian>(YYYYOOO_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Armenian>(t0);
         ymd_vs_dmy_vs_mdy::<Armenian>(t1);
     }
@@ -136,6 +137,7 @@ proptest! {
     #[test]
     fn coptic(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<Coptic>(YYYYMMDD_DASH, t0, t1);
+        ymd_order::<Coptic>(YYYYOOO_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Coptic>(t0);
         ymd_vs_dmy_vs_mdy::<Coptic>(t1);
     }
@@ -149,6 +151,7 @@ proptest! {
     #[test]
     fn cotsworth(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<Cotsworth>(YYYYMMDD_DASH, t0, t1);
+        ymd_order::<Cotsworth>(YYYYOOO_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Cotsworth>(t0);
         ymd_vs_dmy_vs_mdy::<Cotsworth>(t1);
     }
@@ -167,6 +170,7 @@ proptest! {
     #[test]
     fn egyptian(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<Egyptian>(YYYYMMDD_DASH, t0, t1);
+        ymd_order::<Egyptian>(YYYYOOO_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Egyptian>(t0);
         ymd_vs_dmy_vs_mdy::<Egyptian>(t1);
     }
@@ -180,6 +184,7 @@ proptest! {
     #[test]
     fn ethiopic(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<Ethiopic>(YYYYMMDD_DASH, t0, t1);
+        ymd_order::<Ethiopic>(YYYYOOO_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Ethiopic>(t0);
         ymd_vs_dmy_vs_mdy::<Ethiopic>(t1);
     }
@@ -194,6 +199,8 @@ proptest! {
     fn french_rev_arith(t0 in FR_MIN_4DIGIT..MAX_4DIGIT, t1 in FR_MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<FrenchRevArith<true>>(YYYYMMDD_DASH, t0, t1);
         ymd_order::<FrenchRevArith<false>>(YYYYMMDD_DASH, t0, t1);
+        ymd_order::<FrenchRevArith<true>>(YYYYOOO_DASH, t0, t1);
+        ymd_order::<FrenchRevArith<false>>(YYYYOOO_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<FrenchRevArith<true>>(t0);
         ymd_vs_dmy_vs_mdy::<FrenchRevArith<false>>(t1);
         ymd_vs_dmy_vs_mdy::<FrenchRevArith<true>>(t0);
@@ -217,6 +224,7 @@ proptest! {
     #[test]
     fn gregorian(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<Gregorian>(YYYYMMDD_DASH, t0, t1);
+        ymd_order::<Gregorian>(YYYYOOO_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Gregorian>(t0);
         ymd_vs_dmy_vs_mdy::<Gregorian>(t1);
     }
@@ -230,6 +238,7 @@ proptest! {
     #[test]
     fn holocene(t0 in HL_MIN_5DIGIT..HL_MAX_5DIGIT, t1 in HL_MIN_5DIGIT..HL_MAX_5DIGIT) {
         ymd_order::<Holocene>(YYYYYMMDD_DASH, t0, t1);
+        ymd_order::<Holocene>(YYYYYOOO_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Holocene>(t0);
         ymd_vs_dmy_vs_mdy::<Holocene>(t1);
     }
@@ -254,6 +263,7 @@ proptest! {
     #[test]
     fn positivist(t0 in FR_MIN_4DIGIT..MAX_4DIGIT, t1 in FR_MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<Positivist>(YYYYMMDD_DASH, t0, t1);
+        ymd_order::<Positivist>(YYYYOOO_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Positivist>(t0);
         ymd_vs_dmy_vs_mdy::<Positivist>(t1);
     }
@@ -272,6 +282,7 @@ proptest! {
     #[test]
     fn julian(t0 in MIN_4DIGIT..MAX_4DIGIT, t1 in MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order::<Julian>(YYYYMMDD_DASH, t0, t1);
+        ymd_order::<Julian>(YYYYOOO_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Julian>(t0);
         ymd_vs_dmy_vs_mdy::<Julian>(t1);
     }
@@ -288,6 +299,10 @@ proptest! {
         ymd_order::<Symmetry010>(YYYYMMDD_DASH, t0, t1);
         ymd_order::<Symmetry454Solstice>(YYYYMMDD_DASH, t0, t1);
         ymd_order::<Symmetry010Solstice>(YYYYMMDD_DASH, t0, t1);
+        ymd_order::<Symmetry454>(YYYYOOO_DASH, t0, t1);
+        ymd_order::<Symmetry010>(YYYYOOO_DASH, t0, t1);
+        ymd_order::<Symmetry454Solstice>(YYYYOOO_DASH, t0, t1);
+        ymd_order::<Symmetry010Solstice>(YYYYOOO_DASH, t0, t1);
         ymd_vs_dmy_vs_mdy::<Symmetry010>(t0);
         ymd_vs_dmy_vs_mdy::<Symmetry010>(t1);
         ymd_vs_dmy_vs_mdy::<Symmetry454>(t0);
@@ -313,6 +328,7 @@ proptest! {
     #[test]
     fn tranquility(t0 in TQ_MIN_4DIGIT..MAX_4DIGIT, t1 in TQ_MIN_4DIGIT..MAX_4DIGIT) {
         ymd_order_tq(YYYYMMDD_DASH, t0, t1)?;
+        ymd_order_tq(YYYYOOO_DASH, t0, t1)?;
         ymd_vs_dmy_vs_mdy::<TranquilityMoment>(t0);
         ymd_vs_dmy_vs_mdy::<TranquilityMoment>(t1);
     }

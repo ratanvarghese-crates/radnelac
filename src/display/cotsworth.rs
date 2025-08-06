@@ -2,6 +2,7 @@ use crate::calendar::Cotsworth;
 use crate::calendar::HasIntercalaryDays;
 use crate::calendar::Perennial;
 use crate::calendar::ToFromCommonDate;
+use crate::calendar::ToFromOrdinalDate;
 use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;
 use crate::display::prelude::PresetDisplay;
@@ -32,6 +33,7 @@ impl DisplayItem for Cotsworth {
                 Some(d) => d.fmt_numeric(n, opt),
                 None => "".to_string(),
             },
+            NumericContent::DayOfYear => self.to_ordinal().fmt_numeric(n, opt),
             NumericContent::Hour1to12
             | NumericContent::Hour0to23
             | NumericContent::Minute

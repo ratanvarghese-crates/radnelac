@@ -2,6 +2,7 @@ use crate::calendar::Armenian;
 use crate::calendar::CommonWeekOfYear;
 use crate::calendar::HasIntercalaryDays;
 use crate::calendar::ToFromCommonDate;
+use crate::calendar::ToFromOrdinalDate;
 use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
@@ -35,6 +36,7 @@ impl DisplayItem for Armenian {
                 self.to_common_date().fmt_numeric(n, opt)
             }
             NumericContent::DayOfWeek => self.convert::<Weekday>().fmt_numeric(n, opt),
+            NumericContent::DayOfYear => self.to_ordinal().fmt_numeric(n, opt),
             NumericContent::Hour1to12
             | NumericContent::Hour0to23
             | NumericContent::Minute
