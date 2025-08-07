@@ -92,10 +92,9 @@ extern crate num_derive;
 
 /// Timekeeping systems which focus on events within a single day
 pub mod clock {
-    mod clock_time;
     mod time_of_day;
 
-    pub use clock_time::ClockTime;
+    pub use time_of_day::ClockTime;
     pub use time_of_day::TimeOfDay;
 }
 mod common {

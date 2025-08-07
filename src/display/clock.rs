@@ -23,13 +23,12 @@ impl DisplayItem for TimeOfDay {
 
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
-            NumericContent::Hour1to12 => fmt_number(
-                (ClockTime::new(*self).hours as i64).adjusted_remainder(12),
-                opt,
-            ),
-            NumericContent::Hour0to23 => fmt_number(ClockTime::new(*self).hours as i16, opt),
-            NumericContent::Minute => fmt_number(ClockTime::new(*self).minutes as i16, opt),
-            NumericContent::Second => fmt_number(ClockTime::new(*self).seconds as i16, opt),
+            NumericContent::Hour1to12 => {
+                fmt_number((self.to_clock().hours as i64).adjusted_remainder(12), opt)
+            }
+            NumericContent::Hour0to23 => fmt_number(self.to_clock().hours as i16, opt),
+            NumericContent::Minute => fmt_number(self.to_clock().minutes as i16, opt),
+            NumericContent::Second => fmt_number(self.to_clock().seconds as i16, opt),
             _ => "".to_string(),
         }
     }

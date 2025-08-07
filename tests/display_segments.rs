@@ -161,7 +161,7 @@ mod display_logic {
         idx: usize,
         expected: &str,
     ) {
-        let t = TimeOfDay::new_from_clock(c);
+        let t = TimeOfDay::try_from_clock(c).unwrap();
         let s = t.preset_str(Language::EN, preset);
         let v: Vec<&str> = s.split(sep).collect();
         assert_eq!(v[idx], expected);
@@ -464,7 +464,7 @@ proptest! {
     #[test]
     fn clock_hh_mm_ss_default_str(h in 12..23, m in 0..59, s in 0.0..59.0) {
         let c = ClockTime{ hours: h as u8, minutes: m as u8, seconds: s as f32 };
-        let t = TimeOfDay::new_from_clock(c);
+        let t = TimeOfDay::try_from_clock(c).unwrap();
         let ts0 = t.preset_str(Language::EN, HHMMSS_COLON);
         let ts1 = t.to_string();
         assert_eq!(ts0, ts1);

@@ -344,7 +344,7 @@ impl Epoch for TranquilityMoment {
         let date = Gregorian::try_from_common_date(TRANQUILITY_EPOCH_GREGORIAN)
             .expect("Epoch known to be valid")
             .to_fixed();
-        let time = TimeOfDay::new_from_clock(TRANQUILITY_EPOCH_CLOCK);
+        let time = TimeOfDay::try_from_clock(TRANQUILITY_EPOCH_CLOCK).expect("Known valid");
         Fixed::new(date.get() + time.get())
     }
 }
@@ -354,14 +354,14 @@ impl FromFixed for TranquilityMoment {
         let ord = TranquilityMoment::ordinal_from_fixed(date);
         TranquilityMoment {
             date: TranquilityMoment::from_ordinal_unchecked(ord).date,
-            time: ClockTime::new(TimeOfDay::from_fixed(date)),
+            time: TimeOfDay::from_fixed(date).to_clock(),
         }
     }
 }
 
 impl ToFixed for TranquilityMoment {
     fn to_fixed(self) -> Fixed {
-        let t = TimeOfDay::new_from_clock(self.time);
+        let t = TimeOfDay::try_from_clock(self.time).expect("Should be valid");
         let ord = self.to_ordinal();
         let offset_prior = TranquilityMoment::prior_elapsed_days(ord.year);
         Fixed::new((offset_prior as f64) + (ord.day_of_year as f64) + t.get())
@@ -377,7 +377,11 @@ impl ToFromCommonDate<TranquilityMonth> for TranquilityMoment {
         debug_assert!(Self::valid_month_day(date).is_ok());
         Self {
             date,
-            time: ClockTime::default(),
+            time: ClockTime {
+                hours: 0,
+                minutes: 0,
+                seconds: 0.0,
+            },
         }
     }
 

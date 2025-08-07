@@ -1,8 +1,31 @@
-use crate::clock::ClockTime;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
 use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
+use crate::CalendarError;
+
+/// Represents a clock time as hours, minutes and seconds
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+pub struct ClockTime {
+    pub hours: u8,
+    pub minutes: u8,
+    pub seconds: f32,
+}
+
+impl ClockTime {
+    fn validate(self) -> Result<(), CalendarError> {
+        if self.hours > 23 {
+            Err(CalendarError::InvalidHour)
+        } else if self.minutes >= 60 {
+            Err(CalendarError::InvalidMinute)
+        } else if self.seconds > 60.0 {
+            //Allow 60.0 for leap second
+            Err(CalendarError::InvalidSecond)
+        } else {
+            Ok(())
+        }
+    }
+}
 
 /// Represents a clock time as a fraction of a day
 ///
@@ -27,8 +50,22 @@ impl TimeOfDay {
         self.0
     }
 
+    /// Split `TimeOfDay` into hours, minutes, and seconds and aggregate into `ClockTime`
+    pub fn to_clock(self) -> ClockTime {
+        let b = [24.0, 60.0, 60.0];
+        let mut a = [0.0, 0.0, 0.0, 0.0];
+        TermNum::to_mixed_radix(self.get(), &b, 0, &mut a)
+            .expect("Valid inputs, other failures are impossible.");
+        ClockTime {
+            hours: a[1] as u8,
+            minutes: a[2] as u8,
+            seconds: a[3] as f32,
+        }
+    }
+
     /// Aggregate `ClockTime` hours, minutes and second fields into a `TimeOfDay`
-    pub fn new_from_clock(clock: ClockTime) -> TimeOfDay {
+    pub fn try_from_clock(clock: ClockTime) -> Result<Self, CalendarError> {
+        clock.validate()?;
         let a = [
             0.0,
             clock.hours as f64,
@@ -36,7 +73,8 @@ impl TimeOfDay {
             clock.seconds as f64,
         ];
         let b = [24.0, 60.0, 60.0];
-        TimeOfDay::new(TermNum::from_mixed_radix(&a, &b, 0).expect("Inputs are valid"))
+        let t = TermNum::from_mixed_radix(&a, &b, 0)?;
+        Ok(TimeOfDay::new(t))
     }
 }
 
@@ -52,10 +90,110 @@ mod tests {
     use crate::day_count::BoundedDayCount;
     use crate::day_count::JulianDay;
     use crate::day_count::ToFixed;
+    use crate::day_count::FIXED_MAX;
+    use crate::day_count::FIXED_MIN;
+    use proptest::proptest;
 
     #[test]
     fn time() {
         let j0: JulianDay = JulianDay::new(0.0);
         assert_eq!(j0.convert::<TimeOfDay>().0, 0.5);
+    }
+
+    #[test]
+    fn obvious_clock_times() {
+        assert_eq!(
+            TimeOfDay::try_from_clock(ClockTime {
+                hours: 0,
+                minutes: 0,
+                seconds: 0.0
+            })
+            .unwrap(),
+            TimeOfDay::new(0.0)
+        );
+        assert_eq!(
+            TimeOfDay::try_from_clock(ClockTime {
+                hours: 0,
+                minutes: 0,
+                seconds: 1.0
+            })
+            .unwrap(),
+            TimeOfDay::new(1.0 / (24.0 * 60.0 * 60.0))
+        );
+        assert_eq!(
+            TimeOfDay::try_from_clock(ClockTime {
+                hours: 0,
+                minutes: 1,
+                seconds: 0.0
+            })
+            .unwrap(),
+            TimeOfDay::new(1.0 / (24.0 * 60.0))
+        );
+        assert_eq!(
+            TimeOfDay::try_from_clock(ClockTime {
+                hours: 6,
+                minutes: 0,
+                seconds: 0.0
+            })
+            .unwrap(),
+            TimeOfDay::new(0.25)
+        );
+        assert_eq!(
+            TimeOfDay::try_from_clock(ClockTime {
+                hours: 12,
+                minutes: 0,
+                seconds: 0.0
+            })
+            .unwrap(),
+            TimeOfDay::new(0.5)
+        );
+        assert_eq!(
+            TimeOfDay::try_from_clock(ClockTime {
+                hours: 18,
+                minutes: 0,
+                seconds: 0.0
+            })
+            .unwrap(),
+            TimeOfDay::new(0.75)
+        );
+    }
+
+    proptest! {
+        #[test]
+        fn clock_time_round_trip(ahr in 0..24,amn in 0..59,asc in 0..59) {
+            let hours = ahr as u8;
+            let minutes = amn as u8;
+            let seconds = asc as f32;
+            let c0 = ClockTime { hours, minutes, seconds };
+            let t = TimeOfDay::try_from_clock(c0).unwrap();
+            let c1 = t.to_clock();
+            assert_eq!(c0, c1);
+        }
+
+        #[test]
+        fn clock_time_from_moment(x in FIXED_MIN..FIXED_MAX) {
+            let t = TimeOfDay::from_fixed(Fixed::new(x));
+            let c = t.to_clock();
+            c.validate().unwrap();
+        }
+
+        #[test]
+        fn invalid_hour(ahr in 25..u8::MAX,amn in 0..59,asc in 0..59) {
+            let c0 = ClockTime { hours: ahr as u8, minutes: amn as u8, seconds: asc as f32 };
+            assert!(TimeOfDay::try_from_clock(c0).is_err());
+        }
+
+        #[test]
+        fn invalid_minute(ahr in 0..59,amn in 60..u8::MAX,asc in 0..59) {
+            let c0 = ClockTime { hours: ahr as u8, minutes: amn as u8, seconds: asc as f32 };
+            assert!(TimeOfDay::try_from_clock(c0).is_err());
+        }
+
+        #[test]
+        fn invalid_second(ahr in 0..59,amn in 0..59,asc in 61..u8::MAX) {
+            let c0 = ClockTime { hours: ahr as u8, minutes: amn as u8, seconds: asc as f32 };
+            assert!(TimeOfDay::try_from_clock(c0).is_err());
+        }
+
     }
 }
