@@ -22,6 +22,7 @@ use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
 use std::num::NonZero;
 
+/// Represents an instant in time using calendar system T
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct CalendarMoment<T> {
     date: T,
@@ -29,6 +30,7 @@ pub struct CalendarMoment<T> {
 }
 
 impl<T> CalendarMoment<T> {
+    /// Create a CalendarMoment with the given date and time
     pub fn new(date: T, t: TimeOfDay) -> Self {
         Self {
             date: date,
