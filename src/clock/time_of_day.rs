@@ -13,7 +13,7 @@ pub struct ClockTime {
 }
 
 impl ClockTime {
-    fn validate(self) -> Result<(), CalendarError> {
+    pub fn validate(self) -> Result<(), CalendarError> {
         if self.hours > 23 {
             Err(CalendarError::InvalidHour)
         } else if self.minutes >= 60 {
@@ -24,6 +24,10 @@ impl ClockTime {
         } else {
             Ok(())
         }
+    }
+
+    pub fn hour_1_to_12(self) -> u8 {
+        (self.hours as i64).adjusted_remainder(12) as u8
     }
 }
 
@@ -47,6 +51,10 @@ impl TimeOfDay {
 
     pub fn midnight() -> Self {
         TimeOfDay(0.0)
+    }
+
+    pub fn noon() -> Self {
+        TimeOfDay(0.5)
     }
 
     /// Get underlying floating point from `TimeOfDay`
@@ -84,7 +92,7 @@ impl TimeOfDay {
 
 impl FromFixed for TimeOfDay {
     fn from_fixed(t: Fixed) -> TimeOfDay {
-        TimeOfDay::new(t.get().modulus(1.0))
+        TimeOfDay::new(t.to_time_of_day().get())
     }
 }
 

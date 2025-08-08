@@ -38,10 +38,12 @@ impl<T> CalendarMoment<T> {
         }
     }
 
+    /// Date of the given CalendarMoment
     pub fn date(self) -> T {
         self.date
     }
 
+    /// Time of day of the given CalendarMoment
     pub fn time_of_day(self) -> ClockTime {
         self.time
     }

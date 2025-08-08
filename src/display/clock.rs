@@ -20,9 +20,7 @@ impl DisplayItem for ClockTime {
 
     fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
         match n {
-            NumericContent::Hour1to12 => {
-                fmt_number((self.hours as i64).adjusted_remainder(12), opt)
-            }
+            NumericContent::Hour1to12 => fmt_number(self.hour_1_to_12() as i64, opt),
             NumericContent::Hour0to23 => fmt_number(self.hours as i16, opt),
             NumericContent::Minute => fmt_number(self.minutes as i16, opt),
             NumericContent::Second => fmt_number(self.seconds as i16, opt),
@@ -32,7 +30,7 @@ impl DisplayItem for ClockTime {
 
     fn fmt_text(&self, t: TextContent, lang: Language, opt: DisplayOptions) -> String {
         let dict_opt = get_dict(lang).common_clock.as_ref();
-        let before_noon = self.hours < 12;
+        let before_noon = *self < TimeOfDay::noon().to_clock();
         match (t, dict_opt, before_noon) {
             (TextContent::HalfDayName, Some(dict), true) => fmt_string(dict.am_full, opt),
             (TextContent::HalfDayName, Some(dict), false) => fmt_string(dict.pm_full, opt),
