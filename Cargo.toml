@@ -7,7 +7,7 @@ edition = "2024"
 num-traits = "0.2"
 num-derive = "0.4"
 itoa = { version = "1.0", optional = true }
-convert_case = { version = "0.8", optional = true }
+convert_case = { version = "0.8", optional = true, default-features = false }
 numerals = { version = "0.1", optional = true }
 
 [features] 
