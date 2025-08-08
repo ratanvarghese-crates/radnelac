@@ -1,37 +1,7 @@
 use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
 use proptest::proptest;
-use radnelac::calendar::Armenian;
-use radnelac::calendar::ArmenianMonth;
-use radnelac::calendar::CommonWeekOfYear;
-use radnelac::calendar::Coptic;
-use radnelac::calendar::CopticMonth;
-use radnelac::calendar::Cotsworth;
-use radnelac::calendar::CotsworthMonth;
-use radnelac::calendar::Egyptian;
-use radnelac::calendar::EgyptianMonth;
-use radnelac::calendar::Ethiopic;
-use radnelac::calendar::EthiopicMonth;
-use radnelac::calendar::FrenchRevArith;
-use radnelac::calendar::FrenchRevMonth;
-use radnelac::calendar::FrenchRevWeekday;
-use radnelac::calendar::Gregorian;
-use radnelac::calendar::GregorianMonth;
-use radnelac::calendar::Holocene;
-use radnelac::calendar::HoloceneMonth;
-use radnelac::calendar::Julian;
-use radnelac::calendar::JulianMonth;
-use radnelac::calendar::Perennial;
-use radnelac::calendar::Positivist;
-use radnelac::calendar::PositivistMonth;
-use radnelac::calendar::Symmetry010;
-use radnelac::calendar::Symmetry010Solstice;
-use radnelac::calendar::Symmetry454;
-use radnelac::calendar::Symmetry454Solstice;
-use radnelac::calendar::SymmetryMonth;
-use radnelac::calendar::TranquilityMoment;
-use radnelac::calendar::TranquilityMonth;
-use radnelac::calendar::ISO;
+use radnelac::calendar::*;
 use radnelac::day_count::BoundedDayCount;
 use radnelac::day_count::Fixed;
 use radnelac::day_count::FromFixed;
@@ -114,42 +84,51 @@ proptest! {
     #[test]
     fn armenian(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
         common_week_of_year::<ArmenianMonth, Armenian>(53, t, dt as u8);
+        common_week_of_year::<ArmenianMonth, ArmenianMoment>(53, t, dt as u8);
     }
 
     #[test]
     fn coptic(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
         common_week_of_year::<CopticMonth, Coptic>(53, t, dt as u8);
+        common_week_of_year::<CopticMonth, CopticMoment>(53, t, dt as u8);
     }
 
     #[test]
     fn cotsworth(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
         complementary_week_of_year::<CotsworthMonth, Weekday, Cotsworth>(false, 53, t, dt as u8);
+        complementary_week_of_year::<CotsworthMonth, Weekday, CotsworthMoment>(false, 53, t, dt as u8);
     }
 
     #[test]
     fn egyptian(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
         common_week_of_year::<EgyptianMonth, Egyptian>(53, t, dt as u8);
+        common_week_of_year::<EgyptianMonth, EgyptianMoment>(53, t, dt as u8);
     }
 
     #[test]
     fn ethiopic(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
         common_week_of_year::<EthiopicMonth, Ethiopic>(53, t, dt as u8);
+        common_week_of_year::<EthiopicMonth, EthiopicMoment>(53, t, dt as u8);
     }
 
     #[test]
     fn french_rev_arith(t in FIXED_MIN..FIXED_MAX, dt in 1..9) {
         complementary_week_of_year::<FrenchRevMonth, FrenchRevWeekday, FrenchRevArith<true>>(false, 36, t, dt as u8);
         complementary_week_of_year::<FrenchRevMonth, FrenchRevWeekday, FrenchRevArith<false>>(false, 36, t, dt as u8);
+        complementary_week_of_year::<FrenchRevMonth, FrenchRevWeekday, FrenchRevArithMoment<true>>(false, 36, t, dt as u8);
+        complementary_week_of_year::<FrenchRevMonth, FrenchRevWeekday, FrenchRevArithMoment<false>>(false, 36, t, dt as u8);
     }
 
     #[test]
     fn gregorian(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
         common_week_of_year::<GregorianMonth, Gregorian>(53, t, dt as u8);
+        common_week_of_year::<GregorianMonth, GregorianMoment>(53, t, dt as u8);
     }
 
     #[test]
     fn holocene(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
         common_week_of_year::<HoloceneMonth, Holocene>(53, t, dt as u8);
+        common_week_of_year::<HoloceneMonth, HoloceneMoment>(53, t, dt as u8);
     }
 
     #[test]
@@ -161,16 +140,23 @@ proptest! {
         let w1 = ISO::from_fixed(f1).week().get();
         let w2 = ISO::from_fixed(f2).week().get();
         between_2_weeks(false, 53, w0, w1, w2);
+        let wm0 = ISOMoment::from_fixed(f0).week().get();
+        let wm1 = ISOMoment::from_fixed(f1).week().get();
+        let wm2 = ISOMoment::from_fixed(f2).week().get();
+        between_2_weeks(false, 53, wm0, wm1, wm2);
+
     }
 
     #[test]
     fn julian(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
         common_week_of_year::<JulianMonth, Julian>(53, t, dt as u8);
+        common_week_of_year::<JulianMonth, JulianMoment>(53, t, dt as u8);
     }
 
     #[test]
     fn positivist(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
         complementary_week_of_year::<PositivistMonth, Weekday, Positivist>(false, 53, t, dt as u8);
+        complementary_week_of_year::<PositivistMonth, Weekday, PositivistMoment>(false, 53, t, dt as u8);
     }
 
     #[test]
@@ -179,10 +165,15 @@ proptest! {
         common_week_of_year::<SymmetryMonth, Symmetry454>(53, t, dt as u8);
         common_week_of_year::<SymmetryMonth, Symmetry010Solstice>(53, t, dt as u8);
         common_week_of_year::<SymmetryMonth, Symmetry454Solstice>(53, t, dt as u8);
+        common_week_of_year::<SymmetryMonth, Symmetry010Moment>(53, t, dt as u8);
+        common_week_of_year::<SymmetryMonth, Symmetry454Moment>(53, t, dt as u8);
+        common_week_of_year::<SymmetryMonth, Symmetry010SolsticeMoment>(53, t, dt as u8);
+        common_week_of_year::<SymmetryMonth, Symmetry454SolsticeMoment>(53, t, dt as u8);
     }
 
     #[test]
     fn tranquility(t in FIXED_MIN..FIXED_MAX, dt in 1..6) {
+        complementary_week_of_year::<TranquilityMonth, Weekday, Tranquility>(true, 53, t, dt as u8);
         complementary_week_of_year::<TranquilityMonth, Weekday, TranquilityMoment>(true, 53, t, dt as u8);
     }
 

@@ -1,10 +1,15 @@
 use crate::calendar::CommonWeekOfYear;
 use crate::calendar::Symmetry;
+use crate::calendar::Symmetry010;
+use crate::calendar::Symmetry010Solstice;
+use crate::calendar::Symmetry454;
+use crate::calendar::Symmetry454Solstice;
 use crate::calendar::ToFromCommonDate;
 use crate::calendar::ToFromOrdinalDate;
 use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
+use crate::display::moment::DisplayMomentItem;
 use crate::display::prelude::PresetDisplay;
 use crate::display::private::fmt_days_since_epoch;
 use crate::display::private::fmt_number;
@@ -95,6 +100,11 @@ impl<const T: bool, const U: bool> fmt::Display for Symmetry<T, U> {
         write!(f, "{}", self.long_date())
     }
 }
+
+impl DisplayMomentItem for Symmetry454 {}
+impl DisplayMomentItem for Symmetry010 {}
+impl DisplayMomentItem for Symmetry454Solstice {}
+impl DisplayMomentItem for Symmetry010Solstice {}
 
 #[cfg(test)]
 mod tests {

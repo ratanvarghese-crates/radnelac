@@ -3,47 +3,10 @@ mod display_logic {
     pub use num_traits::FromPrimitive;
     pub use num_traits::ToPrimitive;
     pub use proptest::proptest;
-    pub use radnelac::calendar::Armenian;
-    pub use radnelac::calendar::ArmenianMonth;
-    pub use radnelac::calendar::Coptic;
-    pub use radnelac::calendar::CopticMonth;
-    pub use radnelac::calendar::Cotsworth;
-    pub use radnelac::calendar::CotsworthMonth;
-    pub use radnelac::calendar::Egyptian;
-    pub use radnelac::calendar::EgyptianMonth;
-    pub use radnelac::calendar::Ethiopic;
-    pub use radnelac::calendar::EthiopicMonth;
-    pub use radnelac::calendar::FrenchRevArith;
-    pub use radnelac::calendar::FrenchRevMonth;
-    pub use radnelac::calendar::FrenchRevWeekday;
-    pub use radnelac::calendar::Gregorian;
-    pub use radnelac::calendar::GregorianMonth;
-    pub use radnelac::calendar::GuaranteedMonth;
-    pub use radnelac::calendar::HasIntercalaryDays;
-    pub use radnelac::calendar::Holocene;
-    pub use radnelac::calendar::HoloceneMonth;
-    pub use radnelac::calendar::Julian;
-    pub use radnelac::calendar::JulianMonth;
-    pub use radnelac::calendar::Perennial;
-    pub use radnelac::calendar::Positivist;
-    pub use radnelac::calendar::PositivistMonth;
-    pub use radnelac::calendar::Symmetry010;
-    pub use radnelac::calendar::Symmetry010Solstice;
-    pub use radnelac::calendar::Symmetry454;
-    pub use radnelac::calendar::Symmetry454Solstice;
-    pub use radnelac::calendar::SymmetryMonth;
-    pub use radnelac::calendar::ToFromCommonDate;
-    pub use radnelac::calendar::TranquilityMoment;
-    pub use radnelac::calendar::TranquilityMonth;
-    pub use radnelac::calendar::ISO;
-    pub use radnelac::clock::ClockTime;
-    pub use radnelac::clock::TimeOfDay;
-    pub use radnelac::day_count::BoundedDayCount;
-    pub use radnelac::day_count::Epoch;
-    pub use radnelac::day_count::Fixed;
-    pub use radnelac::day_count::FromFixed;
-    pub use radnelac::day_count::FIXED_MAX;
-    pub use radnelac::day_cycle::Weekday;
+    pub use radnelac::calendar::*;
+    pub use radnelac::clock::*;
+    pub use radnelac::day_count::*;
+    pub use radnelac::day_cycle::*;
     pub use radnelac::display::Language;
     pub use radnelac::display::PresetDisplay;
     pub use radnelac::display::PresetFormat;
@@ -55,7 +18,7 @@ mod display_logic {
         let d = U::from_fixed(Fixed::new(t0));
         let s = d.to_string();
         assert!(s.len() > 0);
-        assert!(s.find("  ").is_none());
+        assert!(s.find("  ").is_none(), "{}", s);
         assert!(s.find('\t').is_none());
         assert!(s.find('\n').is_none());
     }
@@ -87,6 +50,27 @@ mod display_logic {
         let v1: Vec<&str> = s1.split(' ').collect();
         if a0.try_month().is_some() && a1.try_month().is_some() {
             assert_eq!(a0.try_month() == a1.try_month(), v0[m_idx] == v1[m_idx]);
+        }
+    }
+
+    pub fn compare_cotsworth_month<T, U>(t0: f64, t1: f64, m_idx: usize)
+    where
+        T: FromPrimitive + ToPrimitive + PartialEq,
+        U: ToFromCommonDate<T> + ToString + FromFixed,
+    {
+        let a0 = U::from_fixed(Fixed::new(t0));
+        let a1 = U::from_fixed(Fixed::new(t1));
+        let s0 = a0.to_string();
+        let s1 = a1.to_string();
+        let v0: Vec<&str> = s0.split(' ').collect();
+        let v1: Vec<&str> = s1.split(' ').collect();
+        let idx_diff0 = if a0.day() < 29 { 0 } else { 1 };
+        let idx_diff1 = if a1.day() < 29 { 0 } else { 1 };
+        if a0.try_month().is_some() && a1.try_month().is_some() {
+            assert_eq!(
+                a0.try_month() == a1.try_month(),
+                v0[m_idx - idx_diff0] == v1[m_idx - idx_diff1]
+            );
         }
     }
 
@@ -176,71 +160,85 @@ proptest! {
     #[test]
     fn armenian_blanks(t0 in -FIXED_MAX..FIXED_MAX) {
         reasonable_blanks::<Armenian>(t0);
+        reasonable_blanks::<ArmenianMoment>(t0);
     }
 
     #[test]
     fn armenian_month(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_possible_month::<ArmenianMonth, Armenian>(t0, t1, 1);
+        compare_possible_month::<ArmenianMonth, ArmenianMoment>(t0, t1, 2);
     }
 
     #[test]
     fn armenian_weekday(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_common_weekday::<Armenian>(t0, t1, 0);
+        compare_common_weekday::<ArmenianMoment>(t0, t1, 1);
     }
 
     #[test]
     fn armenian_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_era_abbrev::<Armenian>(t0, t1);
+        compare_era_abbrev::<ArmenianMoment>(t0, t1);
     }
 
     #[test]
     fn coptic_blanks(t0 in -FIXED_MAX..FIXED_MAX) {
         reasonable_blanks::<Coptic>(t0);
+        reasonable_blanks::<CopticMoment>(t0);
     }
 
     #[test]
     fn coptic_month(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_month::<CopticMonth, Coptic>(t0, t1, 1);
+        compare_month::<CopticMonth, CopticMoment>(t0, t1, 2);
     }
 
     #[test]
     fn coptic_weekday(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_common_weekday::<Armenian>(t0, t1, 0);
+        compare_common_weekday::<Coptic>(t0, t1, 0);
+        compare_common_weekday::<CopticMoment>(t0, t1, 1);
     }
 
     #[test]
     fn coptic_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_era_abbrev::<Coptic>(t0, t1);
+        compare_era_abbrev::<CopticMoment>(t0, t1);
     }
 
     #[test]
     fn cotsworth_blanks(t0 in -FIXED_MAX..FIXED_MAX) {
         reasonable_blanks::<Cotsworth>(t0);
+        reasonable_blanks::<CotsworthMoment>(t0);
     }
 
     #[test]
     fn cotsworth_month(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_month::<CotsworthMonth, Cotsworth>(t0, t1, 1);
+        compare_cotsworth_month::<CotsworthMonth, Cotsworth>(t0, t1, 1);
+        compare_cotsworth_month::<CotsworthMonth, CotsworthMoment>(t0, t1, 2);
     }
 
     #[test]
     fn cotsworth_weekday(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_perennial_weekday::<CotsworthMonth, Weekday, Cotsworth>(t0, t1, 0);
+        compare_perennial_weekday::<CotsworthMonth, Weekday, CotsworthMoment>(t0, t1, 1);
     }
 
     #[test]
     fn cotsworth_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_era_abbrev::<Cotsworth>(t0, t1);
+        compare_era_abbrev::<CotsworthMoment>(t0, t1);
     }
 
     #[test]
     fn egyptian_blanks(t0 in -FIXED_MAX..FIXED_MAX) {
         reasonable_blanks::<Egyptian>(t0);
+        reasonable_blanks::<EgyptianMoment>(t0);
     }
 
     #[test]
     fn egyptian_month(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_possible_month::<EgyptianMonth, Egyptian>(t0, t1, 1);
+        compare_possible_month::<EgyptianMonth, EgyptianMoment>(t0, t1, 2);
     }
 
     #[test]
@@ -249,146 +247,178 @@ proptest! {
         let e1 = Egyptian::from_fixed(Fixed::new(t1));
         if e0.complementary().is_none() && e1.complementary().is_none() {
             compare_common_weekday::<Egyptian>(t0, t1, 0);
+            compare_common_weekday::<EgyptianMoment>(t0, t1, 1);
         }
     }
 
     #[test]
     fn egyptian_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_era_abbrev::<Egyptian>(t0, t1);
+        compare_era_abbrev::<EgyptianMoment>(t0, t1);
     }
 
     #[test]
     fn ethiopic_blanks(t0 in -FIXED_MAX..FIXED_MAX) {
         reasonable_blanks::<Ethiopic>(t0);
+        reasonable_blanks::<EthiopicMoment>(t0);
     }
 
     #[test]
     fn ethiopic_month(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_month::<EthiopicMonth, Ethiopic>(t0, t1, 1);
+        compare_month::<EthiopicMonth, EthiopicMoment>(t0, t1, 2);
     }
 
     #[test]
     fn ethiopic_weekday(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_common_weekday::<Ethiopic>(t0, t1, 0);
+        compare_common_weekday::<EthiopicMoment>(t0, t1, 1);
     }
 
     #[test]
     fn ethiopic_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_era_abbrev::<Ethiopic>(t0, t1);
+        compare_era_abbrev::<EthiopicMoment>(t0, t1);
     }
 
     #[test]
     fn french_rev_blanks(t0 in -FIXED_MAX..FIXED_MAX) {
         reasonable_blanks::<FrenchRevArith<false>>(t0);
         reasonable_blanks::<FrenchRevArith<true>>(t0);
+        reasonable_blanks::<FrenchRevArithMoment<false>>(t0);
+        reasonable_blanks::<FrenchRevArithMoment<true>>(t0);
     }
 
     #[test]
     fn french_rev_month(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_possible_month::<FrenchRevMonth, FrenchRevArith<false>>(t0, t1, 1);
         compare_possible_month::<FrenchRevMonth, FrenchRevArith<true>>(t0, t1, 1);
+        compare_possible_month::<FrenchRevMonth, FrenchRevArithMoment<false>>(t0, t1, 2);
+        compare_possible_month::<FrenchRevMonth, FrenchRevArithMoment<true>>(t0, t1, 2);
     }
 
     #[test]
     fn french_rev_weekday(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_perennial_weekday::<FrenchRevMonth, FrenchRevWeekday, FrenchRevArith<false>>(t0, t1, 0);
         compare_perennial_weekday::<FrenchRevMonth, FrenchRevWeekday, FrenchRevArith<true>>(t0, t1, 0);
+        compare_perennial_weekday::<FrenchRevMonth, FrenchRevWeekday, FrenchRevArithMoment<false>>(t0, t1, 1);
+        compare_perennial_weekday::<FrenchRevMonth, FrenchRevWeekday, FrenchRevArithMoment<true>>(t0, t1, 1);
     }
 
     #[test]
     fn french_rev_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_era_abbrev::<FrenchRevArith<false>>(t0, t1);
         compare_era_abbrev::<FrenchRevArith<true>>(t0, t1);
+        compare_era_abbrev::<FrenchRevArithMoment<false>>(t0, t1);
+        compare_era_abbrev::<FrenchRevArithMoment<true>>(t0, t1);
     }
 
     #[test]
     fn gregorian_blanks(t0 in -FIXED_MAX..FIXED_MAX) {
         reasonable_blanks::<Gregorian>(t0);
+        reasonable_blanks::<GregorianMoment>(t0);
     }
 
     #[test]
     fn gregorian_month(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_month::<GregorianMonth, Gregorian>(t0, t1, 1);
+        compare_month::<GregorianMonth, GregorianMoment>(t0, t1, 2);
     }
 
     #[test]
     fn gregorian_weekday(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_common_weekday::<Gregorian>(t0, t1, 0);
+        compare_common_weekday::<GregorianMoment>(t0, t1, 1);
     }
 
     #[test]
     fn gregorian_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_era_abbrev::<Gregorian>(t0, t1);
+        compare_era_abbrev::<GregorianMoment>(t0, t1);
     }
 
     #[test]
     fn holocene_blanks(t0 in -FIXED_MAX..FIXED_MAX) {
         reasonable_blanks::<Holocene>(t0);
+        reasonable_blanks::<HoloceneMoment>(t0);
     }
 
     #[test]
     fn holocene_month(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_month::<HoloceneMonth, Holocene>(t0, t1, 1);
+        compare_month::<HoloceneMonth, HoloceneMoment>(t0, t1, 2);
     }
 
     #[test]
     fn holocene_weekday(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_common_weekday::<Holocene>(t0, t1, 0);
+        compare_common_weekday::<HoloceneMoment>(t0, t1, 1);
     }
 
     #[test]
     fn holocene_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_era_abbrev::<Holocene>(t0, t1);
+        compare_era_abbrev::<HoloceneMoment>(t0, t1);
     }
 
     #[test]
     fn iso_blanks(t0 in -FIXED_MAX..FIXED_MAX) {
         reasonable_blanks::<ISO>(t0);
+        reasonable_blanks::<ISOMoment>(t0);
     }
 
     #[test]
     fn iso_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_era_abbrev::<ISO>(t0, t1);
+        compare_era_abbrev::<ISOMoment>(t0, t1);
     }
 
     #[test]
     fn julian_blanks(t0 in -FIXED_MAX..FIXED_MAX) {
         reasonable_blanks::<Julian>(t0);
+        reasonable_blanks::<JulianMoment>(t0);
     }
 
     #[test]
     fn julian_month(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_month::<JulianMonth, Julian>(t0, t1, 1);
+        compare_month::<JulianMonth, JulianMoment>(t0, t1, 2);
     }
 
     #[test]
     fn julian_weekday(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_common_weekday::<Julian>(t0, t1, 0);
+        compare_common_weekday::<JulianMoment>(t0, t1, 1);
     }
 
     #[test]
     fn julian_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_era_abbrev::<Julian>(t0, t1);
+        compare_era_abbrev::<JulianMoment>(t0, t1);
     }
 
     #[test]
     fn positivist_blanks(t0 in -FIXED_MAX..FIXED_MAX) {
         reasonable_blanks::<Positivist>(t0);
+        reasonable_blanks::<PositivistMoment>(t0);
     }
 
     #[test]
     fn positivist_month(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_possible_month::<PositivistMonth, Positivist>(t0, t1, 1);
+        compare_possible_month::<PositivistMonth, PositivistMoment>(t0, t1, 2);
     }
 
     #[test]
     fn positivist_weekday(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_perennial_weekday::<PositivistMonth, Weekday, Positivist>(t0, t1, 0);
+        compare_perennial_weekday::<PositivistMonth, Weekday, PositivistMoment>(t0, t1, 1);
     }
 
     #[test]
     fn positivist_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         compare_era_abbrev::<Positivist>(t0, t1);
+        compare_era_abbrev::<PositivistMoment>(t0, t1);
     }
 
     #[test]
@@ -397,6 +427,10 @@ proptest! {
         reasonable_blanks::<Symmetry454>(t0);
         reasonable_blanks::<Symmetry010Solstice>(t0);
         reasonable_blanks::<Symmetry454Solstice>(t0);
+        reasonable_blanks::<Symmetry010Moment>(t0);
+        reasonable_blanks::<Symmetry454Moment>(t0);
+        reasonable_blanks::<Symmetry010SolsticeMoment>(t0);
+        reasonable_blanks::<Symmetry454SolsticeMoment>(t0);
     }
 
     #[test]
@@ -405,6 +439,10 @@ proptest! {
         compare_month::<SymmetryMonth, Symmetry454>(t0, t1, 1);
         compare_month::<SymmetryMonth, Symmetry010Solstice>(t0, t1, 1);
         compare_month::<SymmetryMonth, Symmetry454Solstice>(t0, t1, 1);
+        compare_month::<SymmetryMonth, Symmetry010Moment>(t0, t1, 2);
+        compare_month::<SymmetryMonth, Symmetry454Moment>(t0, t1, 2);
+        compare_month::<SymmetryMonth, Symmetry010SolsticeMoment>(t0, t1, 2);
+        compare_month::<SymmetryMonth, Symmetry454SolsticeMoment>(t0, t1, 2);
     }
 
     #[test]
@@ -413,6 +451,10 @@ proptest! {
         compare_common_weekday::<Symmetry454>(t0, t1, 0);
         compare_common_weekday::<Symmetry010Solstice>(t0, t1, 0);
         compare_common_weekday::<Symmetry454Solstice>(t0, t1, 0);
+        compare_common_weekday::<Symmetry010Moment>(t0, t1, 1);
+        compare_common_weekday::<Symmetry454Moment>(t0, t1, 1);
+        compare_common_weekday::<Symmetry010SolsticeMoment>(t0, t1, 1);
+        compare_common_weekday::<Symmetry454SolsticeMoment>(t0, t1, 1);
     }
 
     #[test]
@@ -421,25 +463,33 @@ proptest! {
         compare_era_abbrev::<Symmetry454>(t0, t1);
         compare_era_abbrev::<Symmetry010Solstice>(t0, t1);
         compare_era_abbrev::<Symmetry454Solstice>(t0, t1);
+        compare_era_abbrev::<Symmetry010Moment>(t0, t1);
+        compare_era_abbrev::<Symmetry454Moment>(t0, t1);
+        compare_era_abbrev::<Symmetry010SolsticeMoment>(t0, t1);
+        compare_era_abbrev::<Symmetry454SolsticeMoment>(t0, t1);
     }
 
     #[test]
     fn tranquility_blanks(t0 in -FIXED_MAX..FIXED_MAX) {
+        reasonable_blanks::<Tranquility>(t0);
         reasonable_blanks::<TranquilityMoment>(t0);
     }
 
     #[test]
     fn tranquility_month(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_possible_month::<TranquilityMonth, TranquilityMoment>(t0, t1, 1);
+        compare_possible_month::<TranquilityMonth, Tranquility>(t0, t1, 1);
+        compare_possible_month::<TranquilityMonth, TranquilityMoment>(t0, t1, 2);
     }
 
     #[test]
     fn tranquility_weekday(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
-        compare_perennial_weekday::<TranquilityMonth, Weekday, TranquilityMoment>(t0, t1, 0);
+        compare_perennial_weekday::<TranquilityMonth, Weekday, Tranquility>(t0, t1, 0);
+        compare_perennial_weekday::<TranquilityMonth, Weekday, TranquilityMoment>(t0, t1, 1);
     }
 
     #[test]
     fn tranquility_era_abbrev(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
+        compare_era_abbrev::<Tranquility>(t0, t1);
         compare_era_abbrev::<TranquilityMoment>(t0, t1);
     }
 

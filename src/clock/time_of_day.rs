@@ -45,6 +45,10 @@ impl TimeOfDay {
         TimeOfDay(t)
     }
 
+    pub fn midnight() -> Self {
+        TimeOfDay(0.0)
+    }
+
     /// Get underlying floating point from `TimeOfDay`
     pub fn get(self) -> f64 {
         self.0

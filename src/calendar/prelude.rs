@@ -97,7 +97,7 @@ pub trait HasIntercalaryDays<T: FromPrimitive + ToPrimitive> {
 pub trait Perennial<S, T>: ToFromCommonDate<S>
 where
     S: ToPrimitive + FromPrimitive,
-    T: FromPrimitive + ToPrimitive,
+    T: ToPrimitive + FromPrimitive,
 {
     fn weekday(self) -> Option<T>;
     fn days_per_week() -> u8;

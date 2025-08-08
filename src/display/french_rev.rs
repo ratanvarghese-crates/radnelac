@@ -15,6 +15,7 @@ use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
 use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
+use crate::display::moment::DisplayMomentItem;
 use crate::display::private::NumericContent;
 use crate::display::private::TextContent;
 use crate::display::text::prelude::Language;
@@ -149,6 +150,8 @@ impl<const L: bool> fmt::Display for FrenchRevArith<L> {
         write!(f, "{}", self.long_date())
     }
 }
+
+impl<const L: bool> DisplayMomentItem for FrenchRevArith<L> {}
 
 #[cfg(test)]
 mod tests {

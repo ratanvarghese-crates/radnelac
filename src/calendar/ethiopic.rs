@@ -6,6 +6,7 @@ use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::CalendarMoment;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
@@ -169,3 +170,6 @@ impl Quarter for Ethiopic {
 
 impl GuaranteedMonth<EthiopicMonth> for Ethiopic {}
 impl CommonWeekOfYear<EthiopicMonth> for Ethiopic {}
+
+/// Represents a date *and time* in the Ethiopic Calendar
+pub type EthiopicMoment = CalendarMoment<Ethiopic>;

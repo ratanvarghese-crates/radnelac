@@ -5,6 +5,7 @@ use crate::calendar::ToFromCommonDate;
 use crate::calendar::ToFromOrdinalDate;
 use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;
+use crate::display::moment::DisplayMomentItem;
 use crate::display::prelude::PresetDisplay;
 use crate::display::private::fmt_days_since_epoch;
 use crate::display::private::fmt_number;
@@ -17,6 +18,8 @@ use crate::display::private::DisplayOptions;
 use crate::display::private::NumericContent;
 use crate::display::private::TextContent;
 use crate::display::text::prelude::Language;
+use crate::display::LONG_COMPL;
+use crate::display::LONG_DATE;
 use std::fmt;
 
 impl DisplayItem for Cotsworth {
@@ -109,13 +112,20 @@ impl DisplayItem for Cotsworth {
     }
 }
 
-impl PresetDisplay for Cotsworth {}
+impl PresetDisplay for Cotsworth {
+    fn long_date(&self) -> String {
+        //Avoid non-existent weekday
+        self.preset_str(Language::EN, LONG_DATE).trim().to_string()
+    }
+}
 
 impl fmt::Display for Cotsworth {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.long_date())
     }
 }
+
+impl DisplayMomentItem for Cotsworth {}
 
 #[cfg(test)]
 mod tests {

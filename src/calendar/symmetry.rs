@@ -5,6 +5,7 @@ use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::CalendarMoment;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
@@ -362,6 +363,18 @@ impl<const T: bool, const U: bool> Quarter for Symmetry<T, U> {
 
 impl<const T: bool, const U: bool> GuaranteedMonth<SymmetryMonth> for Symmetry<T, U> {}
 impl<const T: bool, const U: bool> CommonWeekOfYear<SymmetryMonth> for Symmetry<T, U> {}
+
+/// Represents a date *and time* in the Symmetry454 Calendar
+pub type Symmetry454Moment = CalendarMoment<Symmetry454>;
+
+/// Represents a date *and time* in the Symmetry010 Calendar
+pub type Symmetry010Moment = CalendarMoment<Symmetry010>;
+
+/// Represents a date *and time* in the Symmetry454 Calendar (solstice-approximating)
+pub type Symmetry454SolsticeMoment = CalendarMoment<Symmetry454Solstice>;
+
+/// Represents a date *and time* in the Symmetry010 Calendar (solstice-approximating)
+pub type Symmetry010SolsticeMoment = CalendarMoment<Symmetry010Solstice>;
 
 #[cfg(test)]
 mod tests {

@@ -14,6 +14,7 @@ use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
 use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
+use crate::display::moment::DisplayMomentItem;
 use crate::display::private::DisplayOptions;
 use crate::display::private::NumericContent;
 use crate::display::private::TextContent;
@@ -100,6 +101,8 @@ impl fmt::Display for Holocene {
         write!(f, "{}", self.long_date())
     }
 }
+
+impl DisplayMomentItem for Holocene {}
 
 #[cfg(test)]
 mod tests {

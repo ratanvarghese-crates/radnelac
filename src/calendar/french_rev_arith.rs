@@ -4,6 +4,7 @@ use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::CalendarMoment;
 use crate::calendar::HasIntercalaryDays;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
@@ -311,6 +312,9 @@ impl<const L: bool> Quarter for FrenchRevArith<L> {
         }
     }
 }
+
+/// Represents a date *and time* in the algorithmic approximation of the French Revolutionary Calendar
+pub type FrenchRevArithMoment<const L: bool> = CalendarMoment<FrenchRevArith<L>>;
 
 #[cfg(test)]
 mod tests {

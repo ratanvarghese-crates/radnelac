@@ -5,6 +5,7 @@ use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::OrdinalDate;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::CalendarMoment;
 use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
@@ -241,6 +242,9 @@ impl Quarter for Gregorian {
 
 impl GuaranteedMonth<GregorianMonth> for Gregorian {}
 impl CommonWeekOfYear<GregorianMonth> for Gregorian {}
+
+/// Represents a date *and time* in the Gregorian Calendar
+pub type GregorianMoment = CalendarMoment<Gregorian>;
 
 #[cfg(test)]
 mod tests {

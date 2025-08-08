@@ -2,8 +2,10 @@ use crate::calendar::HasIntercalaryDays;
 use crate::calendar::Perennial;
 use crate::calendar::ToFromCommonDate;
 use crate::calendar::ToFromOrdinalDate;
+use crate::calendar::Tranquility;
 use crate::calendar::TranquilityComplementaryDay;
 use crate::calendar::TranquilityMoment;
+use crate::clock::ClockTime;
 use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;
 use crate::display::prelude::PresetDisplay;
@@ -23,9 +25,10 @@ use crate::display::private::DisplayOptions;
 use crate::display::private::NumericContent;
 use crate::display::private::TextContent;
 use crate::display::text::prelude::Language;
+use crate::display::HHMMSS_COLON;
 use std::fmt;
 
-impl DisplayItem for TranquilityMoment {
+impl DisplayItem for Tranquility {
     fn supported_lang(lang: Language) -> bool {
         get_dict(lang).tranquility.as_ref().is_some()
     }
@@ -90,17 +93,21 @@ impl DisplayItem for TranquilityMoment {
                 self.convert::<TimeOfDay>().fmt_text(t, lang, opt)
             }
             (TextContent::EraName, Some(dict)) => {
-                if self.is_after_tranquility() {
+                if self.year() > 0 {
                     fmt_string(dict.after_tranquility_full, opt)
-                } else {
+                } else if self.year() < 0 {
                     fmt_string(dict.before_tranquility_full, opt)
+                } else {
+                    "".to_string()
                 }
             }
             (TextContent::EraAbbreviation, Some(dict)) => {
-                if self.is_after_tranquility() {
+                if self.year() > 0 {
                     fmt_string(dict.after_tranquility_abr, opt)
-                } else {
+                } else if self.year() < 0 {
                     fmt_string(dict.before_tranquility_abr, opt)
+                } else {
+                    "".to_string()
                 }
             }
             (TextContent::ComplementaryDayName, Some(dict)) => {
@@ -116,7 +123,7 @@ impl DisplayItem for TranquilityMoment {
     }
 }
 
-impl PresetDisplay for TranquilityMoment {
+impl PresetDisplay for Tranquility {
     fn long_date(&self) -> String {
         let p = match self.complementary() {
             None => LONG_DATE,
@@ -135,9 +142,66 @@ impl PresetDisplay for TranquilityMoment {
     }
 }
 
-impl fmt::Display for TranquilityMoment {
+impl fmt::Display for Tranquility {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.long_date())
+    }
+}
+
+impl DisplayItem for TranquilityMoment {
+    fn supported_lang(lang: Language) -> bool {
+        Tranquility::supported_lang(lang) && ClockTime::supported_lang(lang)
+    }
+
+    fn fmt_numeric(&self, n: NumericContent, opt: DisplayOptions) -> String {
+        match n {
+            NumericContent::Hour1to12
+            | NumericContent::Hour0to23
+            | NumericContent::Minute
+            | NumericContent::Second => self.clone().time_of_day().fmt_numeric(n, opt),
+            _ => self.clone().date().fmt_numeric(n, opt),
+        }
+    }
+
+    fn fmt_text(&self, t: TextContent, lang: Language, opt: DisplayOptions) -> String {
+        match (t, get_dict(lang).tranquility.as_ref()) {
+            (TextContent::HalfDayName, _) | (TextContent::HalfDayAbbrev, _) => {
+                self.clone().time_of_day().fmt_text(t, lang, opt)
+            }
+            (TextContent::EraName, Some(dict)) => {
+                if self.is_after_tranquility() {
+                    fmt_string(dict.after_tranquility_full, opt)
+                } else {
+                    fmt_string(dict.before_tranquility_full, opt)
+                }
+            }
+            (TextContent::EraAbbreviation, Some(dict)) => {
+                if self.is_after_tranquility() {
+                    fmt_string(dict.after_tranquility_abr, opt)
+                } else {
+                    fmt_string(dict.before_tranquility_abr, opt)
+                }
+            }
+
+            _ => self.clone().date().fmt_text(t, lang, opt),
+        }
+    }
+}
+
+impl PresetDisplay for TranquilityMoment {
+    fn long_date(&self) -> String {
+        self.clone().date().long_date()
+    }
+
+    fn short_date(&self) -> String {
+        self.clone().date().short_date()
+    }
+}
+
+impl fmt::Display for TranquilityMoment {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} ", self.preset_str(Language::EN, HHMMSS_COLON));
+        self.date().fmt(f)
     }
 }
 

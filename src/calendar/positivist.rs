@@ -6,6 +6,7 @@ use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
+use crate::calendar::CalendarMoment;
 use crate::calendar::HasIntercalaryDays;
 use crate::calendar::OrdinalDate;
 use crate::common::error::CalendarError;
@@ -229,6 +230,9 @@ impl Quarter for Positivist {
         }
     }
 }
+
+/// Represents a date *and time* in the Positivist Calendar
+pub type PositivistMoment = CalendarMoment<Positivist>;
 
 #[cfg(test)]
 mod tests {

@@ -6,6 +6,7 @@ use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
+use crate::calendar::CalendarMoment;
 use crate::calendar::HasIntercalaryDays;
 use crate::clock::ClockTime;
 use crate::clock::TimeOfDay;
@@ -80,7 +81,7 @@ pub enum TranquilityComplementaryDay {
     AldrinDay,
 }
 
-/// Represents a date *and time* in the Tranquility Calendar
+/// Represents a date in the Tranquility Calendar
 ///
 /// The Tranquility calendar was proposed by Jeff Siggins in the July 1989 issue of
 /// OMNI magazine. It is used by the Orion's Arm collaborative science fiction project.
@@ -121,33 +122,10 @@ pub enum TranquilityComplementaryDay {
 ///   + [archive.org copy of mithrandir.com](https://web.archive.org/web/20161025042320/http://www.mithrandir.com/Tranquility/tranquilityArticle.html)
 ///   + [archive.org copy of OMNI July 1989, pages 63, 64](https://archive.org/details/omni-archive/OMNI_1989_07/page/n63/mode/2up)
 ///   + [archive.org copy of OMNI July 1989, pages 65, 66](https://archive.org/details/omni-archive/OMNI_1989_07/page/n65/mode/2up)
-
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct TranquilityMoment {
-    date: CommonDate,
-    time: ClockTime,
-}
+pub struct Tranquility(CommonDate);
 
-impl TranquilityMoment {
-    pub fn is_after_tranquility(self) -> bool {
-        if self.date.year == 0 {
-            self.time > TRANQUILITY_EPOCH_CLOCK
-        } else {
-            self.date.year > 0
-        }
-    }
-
-    pub fn time(self) -> ClockTime {
-        self.time
-    }
-
-    pub fn same_day_at_time(self, t: ClockTime) -> Self {
-        TranquilityMoment {
-            date: self.date,
-            time: t,
-        }
-    }
-
+impl Tranquility {
     pub fn prior_elapsed_days(year: i32) -> i64 {
         if year == 0 {
             TranquilityMoment::epoch().get_day_i() - 1
@@ -164,7 +142,7 @@ impl TranquilityMoment {
     }
 }
 
-impl ToFromOrdinalDate for TranquilityMoment {
+impl ToFromOrdinalDate for Tranquility {
     fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {
         let correction = if TranquilityMoment::is_leap(ord.year) {
             1
@@ -220,14 +198,14 @@ impl ToFromOrdinalDate for TranquilityMoment {
     }
 
     fn to_ordinal(self) -> OrdinalDate {
-        let comp_count = Self::complementary_count(self.date.year) as i64;
+        let comp_count = Self::complementary_count(self.0.year) as i64;
         let ordinal_day = match self.complementary() {
             Some(TranquilityComplementaryDay::MoonLandingDay) => 1,
             Some(TranquilityComplementaryDay::ArmstrongDay) => 364 + comp_count,
             Some(TranquilityComplementaryDay::AldrinDay) => AFTER_H27,
             None => {
-                let month = self.date.month as i64;
-                let day = self.date.day as i64;
+                let month = self.0.month as i64;
+                let day = self.0.day as i64;
                 let approx = ((month - 1) * 28) + day;
                 let correction = if approx < AFTER_H27 || comp_count < 2 {
                     0
@@ -238,7 +216,7 @@ impl ToFromOrdinalDate for TranquilityMoment {
             }
         };
         OrdinalDate {
-            year: self.date.year,
+            year: self.0.year,
             day_of_year: ordinal_day as u16,
         }
     }
@@ -261,23 +239,14 @@ impl ToFromOrdinalDate for TranquilityMoment {
                 CommonDate::new(y, month, day)
             }
         };
-        TranquilityMoment {
-            date: date_tq,
-            time: ClockTime {
-                hours: 0,
-                minutes: 0,
-                seconds: 0.0,
-            },
-        }
+        Tranquility(date_tq)
     }
 }
 
-impl PartialOrd for TranquilityMoment {
+impl PartialOrd for Tranquility {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         if self == other {
             Some(Ordering::Equal)
-        } else if self.date == other.date {
-            self.time.partial_cmp(&other.time)
         } else {
             let self_ord = self.to_ordinal();
             let other_ord = other.to_ordinal();
@@ -286,10 +255,10 @@ impl PartialOrd for TranquilityMoment {
     }
 }
 
-impl HasIntercalaryDays<TranquilityComplementaryDay> for TranquilityMoment {
+impl HasIntercalaryDays<TranquilityComplementaryDay> for Tranquility {
     fn complementary(self) -> Option<TranquilityComplementaryDay> {
-        if self.date.month == NON_MONTH {
-            TranquilityComplementaryDay::from_u8(self.date.day)
+        if self.0.month == NON_MONTH {
+            TranquilityComplementaryDay::from_u8(self.0.day)
         } else {
             None
         }
@@ -307,12 +276,12 @@ impl HasIntercalaryDays<TranquilityComplementaryDay> for TranquilityMoment {
     }
 }
 
-impl Perennial<TranquilityMonth, Weekday> for TranquilityMoment {
+impl Perennial<TranquilityMonth, Weekday> for Tranquility {
     fn weekday(self) -> Option<Weekday> {
         if self.complementary().is_some() {
             None
         } else {
-            Weekday::from_i64(((self.date.day as i64) + 4).modulus(7))
+            Weekday::from_i64(((self.0.day as i64) + 4).modulus(7))
         }
     }
 
@@ -325,7 +294,7 @@ impl Perennial<TranquilityMonth, Weekday> for TranquilityMoment {
     }
 }
 
-impl HasLeapYears for TranquilityMoment {
+impl HasLeapYears for Tranquility {
     fn is_leap(t_year: i32) -> bool {
         if t_year > 0 {
             Gregorian::is_leap(t_year + TRANQUILITY_EPOCH_GREGORIAN.year)
@@ -337,9 +306,9 @@ impl HasLeapYears for TranquilityMoment {
     }
 }
 
-impl CalculatedBounds for TranquilityMoment {}
+impl CalculatedBounds for Tranquility {}
 
-impl Epoch for TranquilityMoment {
+impl Epoch for Tranquility {
     fn epoch() -> Fixed {
         let date = Gregorian::try_from_common_date(TRANQUILITY_EPOCH_GREGORIAN)
             .expect("Epoch known to be valid")
@@ -349,40 +318,29 @@ impl Epoch for TranquilityMoment {
     }
 }
 
-impl FromFixed for TranquilityMoment {
-    fn from_fixed(date: Fixed) -> TranquilityMoment {
-        let ord = TranquilityMoment::ordinal_from_fixed(date);
-        TranquilityMoment {
-            date: TranquilityMoment::from_ordinal_unchecked(ord).date,
-            time: TimeOfDay::from_fixed(date).to_clock(),
-        }
+impl FromFixed for Tranquility {
+    fn from_fixed(date: Fixed) -> Tranquility {
+        let ord = Tranquility::ordinal_from_fixed(date);
+        Tranquility::from_ordinal_unchecked(ord)
     }
 }
 
-impl ToFixed for TranquilityMoment {
+impl ToFixed for Tranquility {
     fn to_fixed(self) -> Fixed {
-        let t = TimeOfDay::try_from_clock(self.time).expect("Should be valid");
         let ord = self.to_ordinal();
-        let offset_prior = TranquilityMoment::prior_elapsed_days(ord.year);
-        Fixed::new((offset_prior as f64) + (ord.day_of_year as f64) + t.get())
+        let offset_prior = Tranquility::prior_elapsed_days(ord.year);
+        Fixed::new((offset_prior as f64) + (ord.day_of_year as f64))
     }
 }
 
-impl ToFromCommonDate<TranquilityMonth> for TranquilityMoment {
+impl ToFromCommonDate<TranquilityMonth> for Tranquility {
     fn to_common_date(self) -> CommonDate {
-        self.date
+        self.0
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
         debug_assert!(Self::valid_month_day(date).is_ok());
-        Self {
-            date,
-            time: ClockTime {
-                hours: 0,
-                minutes: 0,
-                seconds: 0.0,
-            },
-        }
+        Self(date)
     }
 
     fn valid_month_day(date: CommonDate) -> Result<(), CalendarError> {
@@ -439,7 +397,7 @@ impl ToFromCommonDate<TranquilityMonth> for TranquilityMoment {
     }
 }
 
-impl Quarter for TranquilityMoment {
+impl Quarter for Tranquility {
     fn quarter(self) -> NonZero<u8> {
         let m = self.to_common_date().month;
         if m == NON_MONTH {
@@ -453,6 +411,19 @@ impl Quarter for TranquilityMoment {
             NonZero::new(4 as u8).expect("4 != 0")
         } else {
             NonZero::new(((m - 1) / 3) + 1).expect("(m - 1)/3 > -1")
+        }
+    }
+}
+
+/// Represents a date *and time* in the Tranquility Calendar
+pub type TranquilityMoment = CalendarMoment<Tranquility>;
+
+impl TranquilityMoment {
+    pub fn is_after_tranquility(self) -> bool {
+        if self.date().0.year == 0 {
+            self.time_of_day() > TRANQUILITY_EPOCH_CLOCK
+        } else {
+            self.date().0.year > 0
         }
     }
 }
@@ -475,8 +446,6 @@ mod tests {
         assert_eq!(q0.to_common_date(), c);
         let f1 = q0.to_fixed();
         assert_eq!(f0, f1);
-        let q1 = TranquilityMoment::try_from_common_date(c).unwrap();
-        assert_eq!(q0, q1.same_day_at_time(q0.time()));
         assert_eq!(c, TranquilityMoment::year_end_date(0));
         assert_eq!(c, TranquilityMoment::year_start_date(0));
     }

@@ -5,6 +5,7 @@ use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::CalendarMoment;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
@@ -189,6 +190,9 @@ impl Quarter for Julian {
 
 impl GuaranteedMonth<JulianMonth> for Julian {}
 impl CommonWeekOfYear<JulianMonth> for Julian {}
+
+/// Represents a date *and time* in the Julian Calendar
+pub type JulianMoment = CalendarMoment<Julian>;
 
 #[cfg(test)]
 mod tests {

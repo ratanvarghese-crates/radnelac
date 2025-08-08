@@ -8,6 +8,7 @@ use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::CalendarMoment;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
@@ -131,6 +132,9 @@ impl Quarter for Holocene {
 
 impl GuaranteedMonth<HoloceneMonth> for Holocene {}
 impl CommonWeekOfYear<HoloceneMonth> for Holocene {}
+
+/// Represents a date *and time* in the Holocen Calendar
+pub type HoloceneMoment = CalendarMoment<Holocene>;
 
 #[cfg(test)]
 mod tests {

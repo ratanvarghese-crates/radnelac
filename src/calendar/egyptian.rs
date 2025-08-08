@@ -2,6 +2,7 @@ use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::CalendarMoment;
 use crate::calendar::HasIntercalaryDays;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
@@ -187,3 +188,6 @@ impl Quarter for Egyptian {
 }
 
 impl CommonWeekOfYear<EgyptianMonth> for Egyptian {}
+
+/// Represents a date *and time* in the Egyptian Calendar
+pub type EgyptianMoment = CalendarMoment<Egyptian>;

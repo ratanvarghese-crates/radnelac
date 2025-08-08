@@ -4,7 +4,9 @@ use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
+use crate::calendar::CalendarMoment;
 use crate::calendar::HasLeapYears;
+use crate::clock::TimeOfDay;
 use crate::common::math::TermNum;
 use crate::day_count::BoundedDayCount;
 use crate::day_count::CalculatedBounds;
@@ -162,6 +164,34 @@ impl ToFixed for ISO {
 impl Quarter for ISO {
     fn quarter(self) -> NonZero<u8> {
         NonZero::new(((self.week().get() - 1) / 14) + 1).expect("(m - 1)/14 > -1")
+    }
+}
+
+/// Represents a date *and time* in the ISO Calendar
+pub type ISOMoment = CalendarMoment<ISO>;
+
+impl ISOMoment {
+    pub fn year(self) -> i32 {
+        self.date().year()
+    }
+
+    pub fn week(self) -> NonZero<u8> {
+        self.date().week()
+    }
+
+    /// Note that the numeric values of the Weekday enum are not consistent with ISO-8601.
+    /// Use day_num for the numeric day number.
+    pub fn day(self) -> Weekday {
+        self.date().day()
+    }
+
+    /// Represents Sunday as 7 instead of 0, as required by ISO-8601.
+    pub fn day_num(self) -> u8 {
+        self.date().day_num()
+    }
+
+    pub fn new_year(year: i32) -> Self {
+        ISOMoment::new(ISO::new_year(year), TimeOfDay::midnight())
     }
 }
 

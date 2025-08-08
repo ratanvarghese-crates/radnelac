@@ -14,6 +14,7 @@ use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
 use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
+use crate::display::moment::DisplayMomentItem;
 use crate::display::private::NumericContent;
 use crate::display::text::prelude::Language;
 use crate::display::LONG_DATE;
@@ -149,6 +150,8 @@ impl fmt::Display for Armenian {
         write!(f, "{}", self.long_date())
     }
 }
+
+impl DisplayMomentItem for Armenian {}
 
 #[cfg(test)]
 mod tests {

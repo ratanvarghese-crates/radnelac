@@ -6,6 +6,7 @@ use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
+use crate::calendar::CalendarMoment;
 use crate::calendar::HasIntercalaryDays;
 use crate::calendar::OrdinalDate;
 use crate::common::error::CalendarError;
@@ -223,3 +224,6 @@ impl Quarter for Cotsworth {
 }
 
 impl GuaranteedMonth<CotsworthMonth> for Cotsworth {}
+
+/// Represents a date *and time* in the Cotsworth Calendar
+pub type CotsworthMoment = CalendarMoment<Cotsworth>;
