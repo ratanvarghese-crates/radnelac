@@ -33,5 +33,5 @@ Automated tests are run regularly-ish (?) and the results are available on [radn
 
 | Features    | Results                                              | Coverage |
 |-------------|------------------------------------------------------|----------|
-| default     | [Test results](/test-results/default/results.txt)    | [Coverage](/test-results/default/llvm-cov/html/) |
-| no default  | [Test results](/test-results/no-default/results.txt) | [Coverage](/test-results/no-default/llvm-cov/html/) |
+| default     | [Test results](https://www.radnelac.org/test-results/default/results.txt)    | [Coverage](https://www.radnelac.org/test-results/default/llvm-cov/html/) |
+| no default  | [Test results](https://www.radnelac.org/test-results/no-default/results.txt) | [Coverage](https://www.radnelac.org/test-results/no-default/llvm-cov/html/) |
