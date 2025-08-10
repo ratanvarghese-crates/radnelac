@@ -17,6 +17,20 @@ let j = g.convert::<Julian>();
 assert_eq!(j, Julian::try_new(2025, JulianMonth::July, 13).unwrap());
 ```
 
-## Repository
+## Links
 
 The primary copy of the source is the [Fossil repo at radnelac.org](https://fossil.radnelac.org/radnelac). If this code is hosted elsewhere, it is probably a mirror or fork.
+
+Other relevant links:
+
++ [GitHub mirror](https://github.com/ratanvarghese-crates/radnelac)
++ [crates.io](https://crates.io/crates/radnelac)
++ [docs.rs](https://docs.rs/radnelac)
+
+## Automated Test Results
+
+Automated tests are run regularly-ish (?) and the results are available on [radnelac.org](radnelac.org).
+
+| Features    | Results                                              | Coverage |
+| default     | [Test results](/test-results/default/results.txt)    | [Coverage](/test-results/no-default/results.txt) |
+| no default  | [Test results](/test-results/no-default/results.txt) | [Coverage](/test-results/no-default/results.txt) |
