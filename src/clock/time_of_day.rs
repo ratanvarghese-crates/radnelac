@@ -13,6 +13,7 @@ pub struct ClockTime {
 }
 
 impl ClockTime {
+    /// Returns an error if the ClockTime is invalid.
     pub fn validate(self) -> Result<(), CalendarError> {
         if self.hours > 23 {
             Err(CalendarError::InvalidHour)
