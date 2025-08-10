@@ -8,7 +8,7 @@ Additionally, the crate can convert dates to strings in some predefined formats.
 
 For example, here is a conversion from the Gregorian calendar to the Julian:
 
-```
+```rust
 use radnelac::calendar::*;
 use radnelac::day_count::*;
 
@@ -29,7 +29,7 @@ Other relevant links:
 
 ## Automated Test Results
 
-Automated tests are run regularly-ish (?) and the results are available on [radnelac.org](radnelac.org).
+Automated tests are run regularly-ish (?) and the results are available on [radnelac.org](https://radnelac.org).
 
 | Features    | Results                                              | Coverage |
 |-------------|------------------------------------------------------|----------|
