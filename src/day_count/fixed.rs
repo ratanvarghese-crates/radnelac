@@ -1,8 +1,12 @@
-use crate::day_count::prelude::BoundedDayCount;
-use crate::day_count::prelude::EffectiveBound;
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 use crate::common::math::TermNum;
 use crate::common::math::EFFECTIVE_MAX;
 use crate::common::math::EFFECTIVE_MIN;
+use crate::day_count::prelude::BoundedDayCount;
+use crate::day_count::prelude::EffectiveBound;
 
 const FIXED_MAX_SCALE: f64 = 2048.0;
 

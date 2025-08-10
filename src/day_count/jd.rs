@@ -1,9 +1,13 @@
-use crate::day_count::prelude::BoundedDayCount;
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 use crate::day_count::fixed::CalculatedBounds;
 use crate::day_count::fixed::Epoch;
 use crate::day_count::fixed::Fixed;
 use crate::day_count::fixed::FromFixed;
 use crate::day_count::fixed::ToFixed;
+use crate::day_count::prelude::BoundedDayCount;
 
 const JD_EPOCH: f64 = -1721424.5;
 

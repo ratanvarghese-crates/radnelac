@@ -1,7 +1,15 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 [package]
 name = "radnelac"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2024"
+description = "Calculations in a variety of different timekeeping systems."
+license = "MPL-2.0"
+homepage = "https://radnelac.org/"
+repository = "https://fossil.radnelac.org/radnelac"
 
 [dependencies]
 num-traits = "0.2"

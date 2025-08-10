@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 use crate::calendar::Armenian;
 use crate::calendar::CommonWeekOfYear;
 use crate::calendar::HasIntercalaryDays;
@@ -6,6 +10,7 @@ use crate::calendar::ToFromOrdinalDate;
 use crate::clock::TimeOfDay;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
+use crate::display::moment::DisplayMomentItem;
 use crate::display::prelude::PresetDisplay;
 use crate::display::private::fmt_days_since_epoch;
 use crate::display::private::fmt_number;
@@ -14,7 +19,6 @@ use crate::display::private::fmt_seconds_since_epoch;
 use crate::display::private::fmt_string;
 use crate::display::private::get_dict;
 use crate::display::private::DisplayItem;
-use crate::display::moment::DisplayMomentItem;
 use crate::display::private::NumericContent;
 use crate::display::text::prelude::Language;
 use crate::display::LONG_DATE;
