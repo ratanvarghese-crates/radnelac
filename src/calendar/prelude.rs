@@ -13,7 +13,9 @@ use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
 use std::num::NonZero;
 
+/// Calendar systems with leap years
 pub trait HasLeapYears {
+    /// [`true`] if a the given year is a leap year.
     fn is_leap(year: i32) -> bool;
 }
 
@@ -28,28 +30,41 @@ pub struct CommonDate {
 }
 
 impl CommonDate {
+    /// Create a `CommonDate`
     pub fn new(year: i32, month: u8, day: u8) -> CommonDate {
         CommonDate { year, month, day }
     }
 }
 
+/// Calendar systems in which a date can be represented by a year, month and day
 pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
+    /// Convert calendar date to a year, month and day
     fn to_common_date(self) -> CommonDate;
+    /// Convert a year, month and day into a calendar date without checking validity
+    ///
+    /// In almost all cases, [`try_from_common_date`](ToFromCommonDate::try_from_common_date) is preferred.
     fn from_common_date_unchecked(d: CommonDate) -> Self;
+    /// Returns error if the year, month or day is invalid
     fn valid_month_day(d: CommonDate) -> Result<(), CalendarError>;
+    /// Start of the year as a numeric year, month and day
     fn year_start_date(year: i32) -> CommonDate {
         //LISTING 2.18 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         //Modified to be generalized across many calendar systems
         CommonDate::new(year, 1, 1)
     }
+    /// End of the year as a numeric year, month and day
     fn year_end_date(year: i32) -> CommonDate;
 
+    /// [`true`] if the year, month and day is within the supported range of time.
+    ///
+    /// This does not checck the validity of the date.
     fn in_effective_bounds(d: CommonDate) -> bool {
         let min = Self::effective_min().to_common_date();
         let max = Self::effective_max().to_common_date();
         d >= min && d <= max
     }
 
+    /// Attempt to create a date in a specific calendar from a [`CommonDate`]
     fn try_from_common_date(d: CommonDate) -> Result<Self, CalendarError> {
         match Self::valid_month_day(d) {
             Err(e) => Err(e),
@@ -57,6 +72,10 @@ pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
         }
     }
 
+    /// Attempt to create a date in a specific calendar at the start of a specific year
+    ///
+    /// This may return an error if the year is 0, and the implementor does not support
+    /// year 0.
     fn try_year_start(year: i32) -> Result<Self, CalendarError> {
         //Might be invalid for calendars without year 0
         let d = Self::year_start_date(year);
@@ -64,6 +83,10 @@ pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
         Self::try_from_common_date(d)
     }
 
+    /// Attempt to create a date in a specific calendar at the end of a specific year
+    ///
+    /// This may return an error if the year is 0, and the implementor does not support
+    /// year 0.
     fn try_year_end(year: i32) -> Result<Self, CalendarError> {
         //Might be invalid for calendars without year 0
         let d = Self::year_end_date(year);
@@ -75,6 +98,13 @@ pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
         self.to_common_date().day
     }
 
+    /// Attempt to return the month
+    ///
+    /// In some calendars, certain dates are not associated with a month, which is why
+    /// this function returns an [`Option`].
+    ///
+    /// Callers using a calendar which guarantees that every date has a month
+    /// should use [`GuaranteedMonth::month`].
     fn try_month(self) -> Option<T> {
         T::from_u8(self.to_common_date().month)
     }
@@ -84,22 +114,26 @@ pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
     }
 }
 
+/// Calendar systems in which dates which are guaranteed to have a month
 pub trait GuaranteedMonth<T: FromPrimitive + ToPrimitive>: ToFromCommonDate<T> {
     fn month(self) -> T {
         self.try_month().expect("Month is guaranteed")
     }
 
+    /// Attempt to a date in a specific calendar system
     fn try_new(year: i32, month: T, day: u8) -> Result<Self, CalendarError> {
         let m = month.to_u8().expect("Month is correct type");
         Self::try_from_common_date(CommonDate::new(year, m, day))
     }
 }
 
+/// Calendar systems which have intercalary days
 pub trait HasIntercalaryDays<T: FromPrimitive + ToPrimitive> {
     fn complementary(self) -> Option<T>;
     fn complementary_count(year: i32) -> u8;
 }
 
+/// Calendar systems which are perennial
 pub trait Perennial<S, T>: ToFromCommonDate<S>
 where
     S: FromPrimitive + ToPrimitive,
@@ -124,11 +158,19 @@ where
     }
 }
 
+/// Calendar systems in which a year can be divided into quarters
+///
+/// The quarters may not have exactly the same number of days.
 pub trait Quarter {
+    /// Calculate the quarter associated with a particular date.
+    ///
+    /// This must be with the range [1..4] inclusive.
     fn quarter(self) -> NonZero<u8>;
 }
 
+/// Calendar systems in which a week of year can be calculated for a date
 pub trait CommonWeekOfYear<T: FromPrimitive>: ToFromCommonDate<T> + ToFixed {
+    /// Calculate the week of year for a particular date.
     fn week_of_year(self) -> u8 {
         let today = self.to_fixed();
         let start = Self::try_year_start(self.year())
@@ -138,6 +180,7 @@ pub trait CommonWeekOfYear<T: FromPrimitive>: ToFromCommonDate<T> + ToFixed {
         (diff.div_euclid(7) + 1) as u8
     }
 
+    /// Find the nth occurence of a given day of the week
     fn nth_kday(self, nz: NonZero<i16>, k: Weekday) -> Fixed {
         //LISTING 2.33 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         //Arguments swapped from the original, generalized to arbitrary calendar systems
@@ -163,11 +206,19 @@ pub struct OrdinalDate {
     pub day_of_year: u16,
 }
 
+/// Calendar systems in which a date can be represented by a year and day of year
 pub trait ToFromOrdinalDate: Sized {
+    /// Check if the year and day of year is valid for a particular calendar system
     fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError>;
+    /// Calculate the year and day of year from a [`Fixed`].
     fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate;
+    /// Calculate the year and day of year from a calendar date.
     fn to_ordinal(self) -> OrdinalDate;
+    /// Convert a year and day of year into a calendar date without checking validity
+    ///
+    /// In almost all cases, [`try_from_ordinal`](ToFromOrdinalDate::try_from_ordinal) is preferred.
     fn from_ordinal_unchecked(ord: OrdinalDate) -> Self;
+    /// Attempt to create a date in a specific calendar from an [`OrdinalDate`]
     fn try_from_ordinal(ord: OrdinalDate) -> Result<Self, CalendarError> {
         match Self::valid_ordinal(ord) {
             Err(e) => Err(e),
