@@ -1,5 +1,9 @@
 #! /usr/bin/sh
 
+#This Source Code Form is subject to the terms of the Mozilla Public
+#License, v. 2.0. If a copy of the MPL was not distributed with this
+#file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 repodir="$1"
 webdir="$2"
 
@@ -52,3 +56,7 @@ rm -rf $outdir
 mv $tmpdir $outdir
 chgrp -R srv $outdir
 chmod -R g+rx $outdir
+
+echo "Documentation"
+cargo doc --no-deps
+mv target/doc/radnelac "$webdir/doc"
