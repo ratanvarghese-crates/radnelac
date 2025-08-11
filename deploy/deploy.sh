@@ -58,5 +58,8 @@ chgrp -R srv $outdir
 chmod -R g+rx $outdir
 
 echo "Documentation"
-cargo doc --no-deps
-mv target/doc/radnelac "$webdir/doc"
+docdir="$webdir/doc"
+rm -rf $docdir
+cargo doc --no-deps --target-dir $docdir
+chgrp -R srv $docdir
+chmod -R g+rx $docdir

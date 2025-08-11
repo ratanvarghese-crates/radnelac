@@ -29,7 +29,7 @@ Other relevant links:
 + [crates.io](https://crates.io/crates/radnelac)
 + [docs.rs](https://docs.rs/radnelac)
 
-## Automated Test Results
+## Automated Builds
 
 Automated tests are run daily and the results are available on [radnelac.org](https://radnelac.org).
 
@@ -37,6 +37,9 @@ Automated tests are run daily and the results are available on [radnelac.org](ht
 |-------------|------------------------------------------------------|----------|
 | default     | [Test results](https://www.radnelac.org/test-results/default/results.txt)    | [Coverage](https://www.radnelac.org/test-results/default/llvm-cov/html/) |
 | no default  | [Test results](https://www.radnelac.org/test-results/no-default/results.txt) | [Coverage](https://www.radnelac.org/test-results/no-default/llvm-cov/html/) |
+
+Documentation for the trunk branch of the code (not yet released on crates.io) is available
+on [radnelac.org](https://radnelac.org/doc/doc/radnelac/).
 
 ## License
 
