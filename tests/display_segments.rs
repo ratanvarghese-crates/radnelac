@@ -102,8 +102,8 @@ mod display_logic {
 
     pub fn compare_perennial_weekday<S, T, U>(t0: f64, t1: f64, m_idx: usize)
     where
-        S: ToPrimitive + FromPrimitive + PartialEq,
-        T: ToPrimitive + FromPrimitive + PartialEq,
+        S: FromPrimitive + ToPrimitive + PartialEq,
+        T: FromPrimitive + ToPrimitive + PartialEq,
         U: Perennial<S, T> + FromFixed + ToString,
     {
         let a0 = U::from_fixed(Fixed::new(t0));

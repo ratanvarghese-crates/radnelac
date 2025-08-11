@@ -40,7 +40,7 @@ fn within_1_week(max: u8, w0: u8, w1: u8) {
     assert!(w1 == w0 || w1 == (w0 + 1)); //Assumes weekdays at start of year
 }
 
-fn common_week_of_year<S: ToPrimitive + FromPrimitive, T: FromFixed + CommonWeekOfYear<S>>(
+fn common_week_of_year<S: FromPrimitive + ToPrimitive, T: FromFixed + CommonWeekOfYear<S>>(
     max: u8,
     t: f64,
     dt: u8,
@@ -56,8 +56,8 @@ fn common_week_of_year<S: ToPrimitive + FromPrimitive, T: FromFixed + CommonWeek
 
 fn complementary_week_of_year<S, U, V>(allow_same_week: bool, max: u8, t: f64, dt: u8)
 where
-    S: ToPrimitive + FromPrimitive,
-    U: ToPrimitive + FromPrimitive,
+    S: FromPrimitive + ToPrimitive,
+    U: FromPrimitive + ToPrimitive,
     V: Perennial<S, U> + FromFixed,
 {
     let f0 = Fixed::new(t);

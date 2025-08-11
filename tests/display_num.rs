@@ -98,8 +98,8 @@ mod display_logic {
         t1: f64,
     ) -> Result<(), TestCaseError>
     where
-        S: ToPrimitive + FromPrimitive,
-        T: ToPrimitive + FromPrimitive,
+        S: FromPrimitive + ToPrimitive,
+        T: FromPrimitive + ToPrimitive,
         U: FromFixed + Perennial<S, T> + PresetDisplay + PartialOrd,
     {
         let f0 = Fixed::new(t0).to_day();

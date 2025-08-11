@@ -33,8 +33,8 @@ mod display_logic {
 
     pub fn perennial_compl<S, T, U>(cd: CommonDate, lang: Language, expected: &str)
     where
-        S: ToPrimitive + FromPrimitive,
-        T: ToPrimitive + FromPrimitive,
+        S: FromPrimitive + ToPrimitive,
+        T: FromPrimitive + ToPrimitive,
         U: ToFromCommonDate<S> + HasIntercalaryDays<T> + PresetDisplay + PartialOrd,
     {
         let d = U::try_from_common_date(cd).unwrap();

@@ -147,7 +147,7 @@ where
 
 impl<T, U> GuaranteedMonth<T> for CalendarMoment<U>
 where
-    T: ToPrimitive + FromPrimitive,
+    T: FromPrimitive + ToPrimitive,
     U: GuaranteedMonth<T>,
 {
     fn month(self) -> T {
@@ -162,7 +162,7 @@ where
 
 impl<T, U> HasIntercalaryDays<T> for CalendarMoment<U>
 where
-    T: ToPrimitive + FromPrimitive,
+    T: FromPrimitive + ToPrimitive,
     U: HasIntercalaryDays<T>,
 {
     fn complementary(self) -> Option<T> {
@@ -176,8 +176,8 @@ where
 
 impl<S, T, U> Perennial<S, T> for CalendarMoment<U>
 where
-    S: ToPrimitive + FromPrimitive,
-    T: ToPrimitive + FromPrimitive,
+    S: FromPrimitive + ToPrimitive,
+    T: FromPrimitive + ToPrimitive,
     U: Perennial<S, T>,
 {
     fn weekday(self) -> Option<T> {

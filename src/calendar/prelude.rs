@@ -84,7 +84,7 @@ pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
     }
 }
 
-pub trait GuaranteedMonth<T: ToPrimitive + FromPrimitive>: ToFromCommonDate<T> {
+pub trait GuaranteedMonth<T: FromPrimitive + ToPrimitive>: ToFromCommonDate<T> {
     fn month(self) -> T {
         self.try_month().expect("Month is guaranteed")
     }
@@ -102,8 +102,8 @@ pub trait HasIntercalaryDays<T: FromPrimitive + ToPrimitive> {
 
 pub trait Perennial<S, T>: ToFromCommonDate<S>
 where
-    S: ToPrimitive + FromPrimitive,
-    T: ToPrimitive + FromPrimitive,
+    S: FromPrimitive + ToPrimitive,
+    T: FromPrimitive + ToPrimitive,
 {
     fn weekday(self) -> Option<T>;
     fn days_per_week() -> u8;

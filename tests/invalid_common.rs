@@ -61,7 +61,7 @@ fn invalid_common_internal<S: FromPrimitive + ToPrimitive, T: ToFromCommonDate<S
     }
 }
 
-fn invalid_common<S: ToPrimitive + FromPrimitive, T: ToFromCommonDate<S> + Debug>(
+fn invalid_common<S: FromPrimitive + ToPrimitive, T: ToFromCommonDate<S> + Debug>(
     year: i32,
     month: u8,
     day: u8,
