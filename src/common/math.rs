@@ -358,7 +358,7 @@ impl TermNum for f64 {
         //LISTING 1.17 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let x = self;
         let y = other;
-        debug_assert!(y != 0.0); //TODO: replace with NonZero
+        debug_assert!(y != 0.0); //Cannot replace with NonZero - it's not supported for f64
         if x == 0.0 {
             0.0
         } else {
