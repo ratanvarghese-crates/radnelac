@@ -57,7 +57,7 @@ pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
 
     /// [`true`] if the year, month and day is within the supported range of time.
     ///
-    /// This does not checck the validity of the date.
+    /// This does not check the validity of the date.
     fn in_effective_bounds(d: CommonDate) -> bool {
         let min = Self::effective_min().to_common_date();
         let max = Self::effective_max().to_common_date();
