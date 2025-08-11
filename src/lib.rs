@@ -93,6 +93,10 @@
 //! > It may be considered heretical on some calendars to refer to dates before the creation
 //! > of the world.
 //!
+//! ## License
+//!
+//! This crate is provided under the [Mozilla Public License Version 2.0](https://www.mozilla.org/en-US/MPL/2.0/).
+//!
 //! [^1]: <https://en.wiktionary.org/wiki/proleptic>
 #[macro_use]
 extern crate num_derive;

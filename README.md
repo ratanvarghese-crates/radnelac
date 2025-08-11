@@ -1,4 +1,4 @@
-# radnelac
+# Radnelac
 
 This is a Rust crate for calendrical calculations: given a day represented in
 one timekeeping system, this crate can create the representation for the same
@@ -37,3 +37,9 @@ Automated tests are run daily and the results are available on [radnelac.org](ht
 |-------------|------------------------------------------------------|----------|
 | default     | [Test results](https://www.radnelac.org/test-results/default/results.txt)    | [Coverage](https://www.radnelac.org/test-results/default/llvm-cov/html/) |
 | no default  | [Test results](https://www.radnelac.org/test-results/no-default/results.txt) | [Coverage](https://www.radnelac.org/test-results/no-default/llvm-cov/html/) |
+
+## License
+
+Radnelac is provided under the [Mozilla Public License Version 2.0](https://www.mozilla.org/en-US/MPL/2.0/).
+
+The Fossil repository for radnelac uses [highlight.js]() for syntax highlighting, and is provided under the [BSD 3-Clause License](https://github.com/highlightjs/highlight.js/blob/main/LICENSE). This is not used when building Radnelac or running code using Radnelac.
