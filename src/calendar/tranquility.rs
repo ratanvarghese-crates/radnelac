@@ -87,6 +87,8 @@ pub enum TranquilityComplementaryDay {
 
 /// Represents a date in the Tranquility Calendar
 ///
+/// ## Introduction
+///
 /// The Tranquility calendar was proposed by Jeff Siggins in the July 1989 issue of
 /// OMNI magazine. It is used by the Orion's Arm collaborative science fiction project.
 /// Hardly anybody else uses the Tranquility calendar - it is so obscure that its Wikipedia
