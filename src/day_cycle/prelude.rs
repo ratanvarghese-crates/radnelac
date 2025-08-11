@@ -47,22 +47,32 @@ pub trait OnOrBefore<const N: u8, const M: u8>: BoundedCycle<N, M> {
     fn raw_on_or_before(self, date: i64) -> Fixed;
 
     fn on_or_before(self, date: Fixed) -> Fixed {
+        //LISTING 1.62,1.69 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to generalize across different day cycles
         self.raw_on_or_before(date.get_day_i())
     }
 
     fn on_or_after(self, date: Fixed) -> Fixed {
+        //LISTING 1.65,1.69 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to generalize across different day cycles
         self.raw_on_or_before(date.get_day_i() + ((Self::cycle_length() as i64) - 1))
     }
 
     fn nearest(self, date: Fixed) -> Fixed {
+        //LISTING 1.66,1.69 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to generalize across different day cycles
         self.raw_on_or_before(date.get_day_i() + ((Self::cycle_length() as i64) / 2))
     }
 
     fn before(self, date: Fixed) -> Fixed {
+        //LISTING 1.67,1.69 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to generalize across different day cycles
         self.raw_on_or_before(date.get_day_i() - 1)
     }
 
     fn after(self, date: Fixed) -> Fixed {
+        //LISTING 1.68,1.69 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to generalize across different day cycles
         self.raw_on_or_before(date.get_day_i() + (Self::cycle_length() as i64))
     }
 }

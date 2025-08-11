@@ -9,6 +9,7 @@ use crate::day_count::fixed::FromFixed;
 use crate::day_count::fixed::ToFixed;
 use crate::day_count::prelude::BoundedDayCount;
 
+//LISTING 1.6 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
 const MJD_EPOCH: f64 = 678576.0;
 
 /// Represents a Modified Julian Day Number (not to be confused with the Julian Calendar)
@@ -32,12 +33,14 @@ impl CalculatedBounds for ModifiedJulianDay {}
 
 impl FromFixed for ModifiedJulianDay {
     fn from_fixed(t: Fixed) -> ModifiedJulianDay {
+        //LISTING 1.8 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         ModifiedJulianDay(t.get() - MJD_EPOCH)
     }
 }
 
 impl ToFixed for ModifiedJulianDay {
     fn to_fixed(self) -> Fixed {
+        //LISTING 1.7 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         Fixed::new(MJD_EPOCH + self.0)
     }
 }

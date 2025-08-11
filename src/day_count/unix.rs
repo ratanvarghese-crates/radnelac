@@ -9,6 +9,7 @@ use crate::day_count::fixed::FromFixed;
 use crate::day_count::fixed::ToFixed;
 use crate::day_count::prelude::BoundedDayCount;
 
+//LISTING 1.9 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
 const UNIX_EPOCH: f64 = 719163.0;
 const UNIX_DAY: f64 = 24.0 * 60.0 * 60.0;
 
@@ -32,12 +33,15 @@ impl CalculatedBounds for UnixMoment {}
 
 impl FromFixed for UnixMoment {
     fn from_fixed(t: Fixed) -> UnixMoment {
+        //LISTING 1.11 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified from the original with `round()`
         UnixMoment((UNIX_DAY * (t.get() - UNIX_EPOCH)).round() as i64)
     }
 }
 
 impl ToFixed for UnixMoment {
     fn to_fixed(self) -> Fixed {
+        //LISTING 1.10 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         Fixed::new(UNIX_EPOCH + ((self.0 as f64) / UNIX_DAY))
     }
 }

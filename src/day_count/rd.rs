@@ -32,6 +32,7 @@ impl CalculatedBounds for RataDie {}
 
 impl FromFixed for RataDie {
     fn from_fixed(t: Fixed) -> RataDie {
+        //LISTING 1.1 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         RataDie(t.get() - RD_EPOCH)
     }
 }

@@ -19,16 +19,19 @@ pub struct Olympiad {
     year: u8,
 }
 
+//LISTING 3.15 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
 const OLYMPIAD_START: i32 = -776;
 
 impl Olympiad {
     pub fn to_julian_year(self) -> NonZero<i32> {
+        //LISTING 3.16 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let years = OLYMPIAD_START + 4 * (self.cycle - 1) + (self.year as i32) - 1;
         let result = if years < 0 { years } else { years + 1 };
         NonZero::new(result).expect("Prevented by if")
     }
 
     pub fn from_julian_year(j: NonZero<i32>) -> Self {
+        //LISTING 3.17 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let j_year = j.get();
         let years = j_year - OLYMPIAD_START - (if j_year < 0 { 0 } else { 1 });
         Olympiad {

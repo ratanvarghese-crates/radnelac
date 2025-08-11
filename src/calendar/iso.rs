@@ -101,7 +101,7 @@ impl Epoch for ISO {
 
 impl HasLeapYears for ISO {
     fn is_leap(i_year: i32) -> bool {
-        //Originally is_long_year
+        //LISTING 5.3 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let jan1 = Gregorian::try_year_start(i_year)
             .expect("Year known to be valid")
             .convert::<Weekday>();
@@ -114,6 +114,8 @@ impl HasLeapYears for ISO {
 
 impl FromFixed for ISO {
     fn from_fixed(fixed_date: Fixed) -> ISO {
+        //LISTING 5.2 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //TODO: cleanup? This is a lot harder to read than the original
         let date = fixed_date.get_day_i();
         let approx = Gregorian::ordinal_from_fixed(Fixed::cast_new(date - 3)).year;
         let next = ISO {
@@ -150,6 +152,7 @@ impl FromFixed for ISO {
 
 impl ToFixed for ISO {
     fn to_fixed(self) -> Fixed {
+        //LISTING 5.1 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let g = CommonDate::new(self.year - 1, 12, 28);
         let w = NonZero::<i16>::from(self.week);
         //Calendrical Calculations stores "day" as 7 for Sunday, as per ISO.

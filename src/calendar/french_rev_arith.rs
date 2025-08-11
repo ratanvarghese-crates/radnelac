@@ -150,6 +150,8 @@ impl<const L: bool> ToFromOrdinalDate for FrenchRevArith<L> {
     }
 
     fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        //LISTING 17.10 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //This does not include the month and day terms
         let date = fixed_date.get_day_i();
         let epoch = Self::epoch().get_day_i();
         let approx = ((4000 * (date - epoch + 2)).div_euclid(1460969) + 1) as i32;
@@ -168,6 +170,8 @@ impl<const L: bool> ToFromOrdinalDate for FrenchRevArith<L> {
     }
 
     fn to_ordinal(self) -> OrdinalDate {
+        //LISTING 17.9 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //This is only the terms relying on month and day.
         let offset_m = 30 * ((self.0.month as u16) - 1);
         let offset_d = self.0.day as u16;
         OrdinalDate {
@@ -177,6 +181,9 @@ impl<const L: bool> ToFromOrdinalDate for FrenchRevArith<L> {
     }
 
     fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        //LISTING 17.10 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //This is only the terms relying on month and day.
+        //This is modified to use ordinal days instead of days from epoch.
         let month = (1 + (ord.day_of_year - 1).div_euclid(30)) as u8;
         let month_start = Self(CommonDate::new(ord.year, month, 1)).to_ordinal();
         let day = (1 + ord.day_of_year - month_start.day_of_year) as u8;
@@ -229,6 +236,8 @@ impl<const L: bool> Perennial<FrenchRevMonth, FrenchRevWeekday> for FrenchRevAri
 
 impl<const L: bool> HasLeapYears for FrenchRevArith<L> {
     fn is_leap(year: i32) -> bool {
+        //LISTING 17.8 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to use L
         let f_year = if L { year + 1 } else { year };
         let m4 = f_year.modulus(4);
         let m400 = f_year.modulus(400);
@@ -249,6 +258,7 @@ impl<const L: bool> Epoch for FrenchRevArith<L> {
 
 impl<const L: bool> FromFixed for FrenchRevArith<L> {
     fn from_fixed(fixed_date: Fixed) -> FrenchRevArith<L> {
+        //LISTING 17.10 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         //Split compared to original
         let ord = Self::ordinal_from_fixed(fixed_date);
         Self::from_ordinal_unchecked(ord)
@@ -257,7 +267,8 @@ impl<const L: bool> FromFixed for FrenchRevArith<L> {
 
 impl<const L: bool> ToFixed for FrenchRevArith<L> {
     fn to_fixed(self) -> Fixed {
-        //Split compared to original
+        //LISTING 17.9 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Split compared to original: terms relying on month and day are processed in to_ordinal
         let year = self.0.year as i64;
         let y_adj = if L { 1 } else { 0 };
 

@@ -157,10 +157,8 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
     }
 
     /// Returns the fixed day number of a Symmetry year
-    ///
-    /// This is intended to implement SymNewYearDay() from
-    /// "Basic Symmetry454 and Symmetry010 Calendar Arithmetic" by Dr. Bromberg
     pub fn new_year_day_unchecked(sym_year: i32, sym_epoch: i64) -> i64 {
+        //LISTING SymNewYearDay (*Basic Symmetry454 and Symmetry010 Calendar Arithmetic* by Dr. Irvin L. Bromberg)
         let p = Self::params();
         #[allow(non_snake_case)]
         let E = (sym_year - 1) as i64;
@@ -168,10 +166,12 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
     }
 
     fn days_before_month_454(sym_month: i64) -> u16 {
+        //LISTING DaysBeforeMonth (*Basic Symmetry454 and Symmetry010 Calendar Arithmetic* by Dr. Irvin L. Bromberg)
         ((28 * (sym_month - 1)) + 7 * sym_month.div_euclid(3)) as u16
     }
 
     fn days_before_month_010(sym_month: i64) -> u16 {
+        //LISTING DaysBeforeMonth (*Basic Symmetry454 and Symmetry010 Calendar Arithmetic* by Dr. Irvin L. Bromberg)
         ((30 * (sym_month - 1)) + sym_month.div_euclid(3)) as u16
     }
 
@@ -184,11 +184,13 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
     }
 
     fn day_of_year(sym_month: u8, sym_day: u8) -> u16 {
+        //LISTING DayOfYear (*Basic Symmetry454 and Symmetry010 Calendar Arithmetic* by Dr. Irvin L. Bromberg)
         Self::days_before_month(sym_month) + (sym_day as u16)
     }
 
     fn year_from_fixed(fixed: i64, epoch: i64) -> (i32, i64) {
-        // Very tempting to cut "corners here" to avoid floating point.
+        //LISTING FixedToSymYear (*Basic Symmetry454 and Symmetry010 Calendar Arithmetic* by Dr. Irvin L. Bromberg)
+        // Tempting to cut "corners here" to avoid floating point.
         // But the notice at the top of the file reminds us to "stick to the script"
         let fixed_date = fixed as f64;
         let sym_epoch = epoch as f64;
@@ -248,7 +250,8 @@ impl<const T: bool, const U: bool> ToFromOrdinalDate for Symmetry<T, U> {
     }
 
     fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
-        // Originally first part of from_fixed
+        //LISTING FixedToSym (*Basic Symmetry454 and Symmetry010 Calendar Arithmetic* by Dr. Irvin L. Bromberg)
+        //Only the SymYear and DayOfYear terms.
         let date = fixed_date.get_day_i();
         let (sym_year, start_of_year) = Self::year_from_fixed(date, Self::epoch().get_day_i());
         let day_of_year = (date - start_of_year + 1) as u16;
@@ -266,6 +269,7 @@ impl<const T: bool, const U: bool> ToFromOrdinalDate for Symmetry<T, U> {
     }
 
     fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        //LISTING FixedToSym (*Basic Symmetry454 and Symmetry010 Calendar Arithmetic* by Dr. Irvin L. Bromberg)
         // Originally second part of from_fixed
         let (sym_year, day_of_year) = (ord.year, ord.day_of_year);
         // Thank Ferris for div_ceil
@@ -288,11 +292,8 @@ impl<const T: bool, const U: bool> ToFromOrdinalDate for Symmetry<T, U> {
 }
 
 impl<const T: bool, const U: bool> HasLeapYears for Symmetry<T, U> {
-    /// Returns the fixed day number of a Symmetry year
-    ///
-    /// This is intended to implement isSymLeapYear() from
-    /// "Basic Symmetry454 and Symmetry010 Calendar Arithmetic" by Dr. Bromberg
     fn is_leap(sym_year: i32) -> bool {
+        //LISTING isSymLeapYear (*Basic Symmetry454 and Symmetry010 Calendar Arithmetic* by Dr. Irvin L. Bromberg)
         let p = Self::params();
         let sym_year = sym_year as i64;
         ((p.L * sym_year) + p.K).modulus(p.C) < p.L
@@ -309,6 +310,7 @@ impl<const T: bool, const U: bool> Epoch for Symmetry<T, U> {
 
 impl<const T: bool, const U: bool> FromFixed for Symmetry<T, U> {
     fn from_fixed(fixed_date: Fixed) -> Symmetry<T, U> {
+        //LISTING FixedToSym (*Basic Symmetry454 and Symmetry010 Calendar Arithmetic* by Dr. Irvin L. Bromberg)
         // Compared to Dr. Bromberg's original, this function is split in two
         let ord = Self::ordinal_from_fixed(fixed_date);
         Self::from_ordinal_unchecked(ord)
@@ -317,6 +319,7 @@ impl<const T: bool, const U: bool> FromFixed for Symmetry<T, U> {
 
 impl<const T: bool, const U: bool> ToFixed for Symmetry<T, U> {
     fn to_fixed(self) -> Fixed {
+        //LISTING SymToFixed (*Basic Symmetry454 and Symmetry010 Calendar Arithmetic* by Dr. Irvin L. Bromberg)
         let new_year_day = Self::new_year_day_unchecked(self.0.year, Self::epoch().get_day_i());
         let day_of_year = Self::day_of_year(self.0.month, self.0.day) as i64;
         Fixed::cast_new(new_year_day + day_of_year - 1)

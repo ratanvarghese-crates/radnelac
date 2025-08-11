@@ -67,8 +67,9 @@ impl TimeOfDay {
         self.0
     }
 
-    /// Split `TimeOfDay` into hours, minutes, and seconds and aggregate into `ClockTime`
+    /// Split `TimeOfDay` into hours, minutes, and seconds
     pub fn to_clock(self) -> ClockTime {
+        //LISTING 1.44 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let b = [24.0, 60.0, 60.0];
         let mut a = [0.0, 0.0, 0.0, 0.0];
         TermNum::to_mixed_radix(self.get(), &b, 0, &mut a)
@@ -80,8 +81,9 @@ impl TimeOfDay {
         }
     }
 
-    /// Aggregate `ClockTime` hours, minutes and second fields into a `TimeOfDay`
+    /// Aggregate hours, minutes and second fields into a `TimeOfDay`
     pub fn try_from_clock(clock: ClockTime) -> Result<Self, CalendarError> {
+        //LISTING 1.43 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         clock.validate()?;
         let a = [
             0.0,

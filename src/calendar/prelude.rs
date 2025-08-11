@@ -38,6 +38,8 @@ pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
     fn from_common_date_unchecked(d: CommonDate) -> Self;
     fn valid_month_day(d: CommonDate) -> Result<(), CalendarError>;
     fn year_start_date(year: i32) -> CommonDate {
+        //LISTING 2.18 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to be generalized across many calendar systems
         CommonDate::new(year, 1, 1)
     }
     fn year_end_date(year: i32) -> CommonDate;
@@ -136,8 +138,9 @@ pub trait CommonWeekOfYear<T: FromPrimitive>: ToFromCommonDate<T> + ToFixed {
         (diff.div_euclid(7) + 1) as u8
     }
 
-    //Arguments swapped from the original
     fn nth_kday(self, nz: NonZero<i16>, k: Weekday) -> Fixed {
+        //LISTING 2.33 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Arguments swapped from the original, generalized to arbitrary calendar systems
         let n = nz.get();
         let result = if n > 0 {
             k.before(self.to_fixed()).get_day_i() + (7 * n as i64)
@@ -146,6 +149,9 @@ pub trait CommonWeekOfYear<T: FromPrimitive>: ToFromCommonDate<T> + ToFixed {
         };
         Fixed::cast_new(result)
     }
+
+    //TODO: first_kday (listing 2.34)
+    //TODO: last_kday (listing 2.34)
 }
 
 /// Represents a numeric year and day of year.

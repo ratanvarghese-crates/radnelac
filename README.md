@@ -1,6 +1,6 @@
 # radnelac
 
-This is a crate for calendrical calculations: given a day represented in
+This is a Rust crate for calendrical calculations: given a day represented in
 one timekeeping system, this crate can create the representation for the same
 day in another timekeeping system.
 
@@ -17,7 +17,9 @@ let j = g.convert::<Julian>();
 assert_eq!(j, Julian::try_new(2025, JulianMonth::July, 13).unwrap());
 ```
 
-## Links
+Most of the calculations are based on *Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.
+
+## Project Links
 
 The primary copy of the source is the [Fossil repo at radnelac.org](https://fossil.radnelac.org/radnelac). If this code is hosted elsewhere, it is probably a mirror or fork.
 
@@ -29,7 +31,7 @@ Other relevant links:
 
 ## Automated Test Results
 
-Automated tests are run regularly-ish (?) and the results are available on [radnelac.org](https://radnelac.org).
+Automated tests are run daily and the results are available on [radnelac.org](https://radnelac.org).
 
 | Features    | Results                                              | Coverage |
 |-------------|------------------------------------------------------|----------|

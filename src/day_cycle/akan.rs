@@ -15,6 +15,7 @@ use num_traits::ToPrimitive;
 /// Represents a prefix in the Akan day cycle
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum AkanPrefix {
+    //LISTING ?? SECTION 1.13 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
     Nwona = 1,
     Nkyi,
     Kuru,
@@ -28,6 +29,7 @@ impl BoundedCycle<6, 1> for AkanPrefix {}
 /// Represents a stem in the Akan day cycle
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum AkanStem {
+    //LISTING ?? SECTION 1.13 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
     Wukuo = 1,
     Yaw,
     Fie,
@@ -49,6 +51,7 @@ pub struct Akan {
     stem: AkanStem,
 }
 
+//LISTING 1.78 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
 const CYCLE_START: i64 = 37;
 const CYCLE_LENGTH: u8 = 42;
 
@@ -62,19 +65,20 @@ impl Akan {
     ///
     /// It is assumed that the first day in the cycle is Nwuna-Wukuo.
     pub fn day_name(n: i64) -> Akan {
+        //LISTING 1.76 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified so that modulus is included in BoundedCycle trait
         Akan::new(AkanPrefix::from_unbounded(n), AkanStem::from_unbounded(n))
     }
 
     /// Given two days in the Akan day cycle, return the difference in days.
     pub fn name_difference(self, other: Self) -> i16 {
+        //LISTING 1.77 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let prefix1 = self.prefix as i16;
         let stem1 = self.stem as i16;
         let prefix2 = other.prefix as i16;
         let stem2 = other.stem as i16;
-
         let prefix_diff = prefix2 - prefix1;
         let stem_diff = stem2 - stem1;
-
         (prefix_diff + 36 * (stem_diff - prefix_diff)).adjusted_remainder(CYCLE_LENGTH as i16)
     }
 
@@ -91,6 +95,7 @@ impl Akan {
 
 impl FromFixed for Akan {
     fn from_fixed(t: Fixed) -> Akan {
+        //LISTING 1.79 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         Akan::day_name(t.get_day_i() - Akan::epoch().get_day_i())
     }
 }
@@ -127,6 +132,7 @@ impl BoundedCycle<CYCLE_LENGTH, 1> for Akan {}
 
 impl OnOrBefore<CYCLE_LENGTH, 1> for Akan {
     fn raw_on_or_before(self, date: i64) -> Fixed {
+        //LISTING 1.80 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let diff = Akan::from_fixed(Fixed::cast_new(0)).name_difference(self) as i64;
         Fixed::cast_new(diff.interval_modulus(date, date - (CYCLE_LENGTH as i64)))
     }

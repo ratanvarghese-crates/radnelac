@@ -23,6 +23,7 @@ use crate::day_count::ToFixed;
 use num_traits::FromPrimitive;
 use std::num::NonZero;
 
+//LISTING 1.50 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
 const ARMENIAN_EPOCH_RD: i32 = 201443;
 const NON_MONTH: u8 = 13;
 
@@ -34,6 +35,7 @@ const NON_MONTH: u8 = 13;
 /// the month field.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum ArmenianMonth {
+    //LISTING ?? SECTION 1.11 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
     Nawasardi = 1,
     Hori,
     Sahmi,
@@ -143,6 +145,7 @@ impl Epoch for Armenian {
 
 impl FromFixed for Armenian {
     fn from_fixed(date: Fixed) -> Armenian {
+        //LISTING 1.52 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let f = Fixed::new(date.get() + Egyptian::epoch().to_day().get() - Armenian::epoch().get());
         Armenian::try_from_common_date(Egyptian::from_fixed(f).to_common_date())
             .expect("Same month/day validity")
@@ -151,6 +154,7 @@ impl FromFixed for Armenian {
 
 impl ToFixed for Armenian {
     fn to_fixed(self) -> Fixed {
+        //LISTING 1.51 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let e =
             Egyptian::try_from_common_date(self.to_common_date()).expect("Same month/day validity");
         Fixed::new(Armenian::epoch().get() + e.to_fixed().get() - Egyptian::epoch().to_day().get())

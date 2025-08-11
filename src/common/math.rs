@@ -89,6 +89,7 @@ pub trait TermNum:
     }
 
     fn gcd(self, other: Self) -> Self {
+        //LISTING 1.22 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let x = self;
         let y = other;
         if y.is_zero() {
@@ -99,12 +100,14 @@ pub trait TermNum:
     }
 
     fn lcm(self, other: Self) -> Self {
+        //LISTING 1.23 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let x = self;
         let y = other;
         (x * y) / x.gcd(y)
     }
 
     fn interval_modulus(self, a: Self, b: Self) -> Self {
+        //LISTING 1.24 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let x = self;
         if a == b {
             x
@@ -114,6 +117,7 @@ pub trait TermNum:
     }
 
     fn adjusted_remainder(self, b: Self) -> Self {
+        //LISTING 1.28 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let x = self;
         let m = x.modulus(b);
         if m == Self::zero() {
@@ -124,6 +128,8 @@ pub trait TermNum:
     }
 
     fn sum<U: TermNum>(f: impl Fn(U) -> Self, p: impl Fn(U) -> bool, k: U) -> Self {
+        //LISTING 1.30 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to use iteration instead of recursion
         let mut result = Self::zero();
         let mut i = k;
         while p(i) {
@@ -134,6 +140,8 @@ pub trait TermNum:
     }
 
     fn product<U: TermNum>(f: impl Fn(U) -> Self, p: impl Fn(U) -> bool, k: U) -> Self {
+        //LISTING 1.31 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to user iteration instead of recursion
         let mut result = Self::one();
         let mut i = k;
         while p(i) {
@@ -154,6 +162,7 @@ pub trait TermNum:
     }
 
     fn from_mixed_radix(a: &[Self], b: &[Self], k: usize) -> Result<f64, CalendarError> {
+        //LISTING 1.41 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let n = b.len();
         let as_f64 = <Self as AsPrimitive<f64>>::as_;
         match TermNum::validate_mixed_radix(a, b) {
@@ -178,6 +187,7 @@ pub trait TermNum:
     }
 
     fn to_mixed_radix(x: f64, b: &[Self], k: usize, a: &mut [Self]) -> Result<(), CalendarError> {
+        //LISTING 1.42 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let n = b.len();
         match TermNum::validate_mixed_radix(a, b) {
             Ok(()) => (),
@@ -229,6 +239,8 @@ pub trait TermNum:
     }
 
     fn search_min(p: impl Fn(Self) -> bool, k: Self) -> Self {
+        //LISTING 1.32 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to use iteration instead of recursion
         let mut i = k;
         while !p(i) {
             i += Self::one()
@@ -237,6 +249,8 @@ pub trait TermNum:
     }
 
     fn search_max(p: impl Fn(Self) -> bool, k: Self) -> Self {
+        //LISTING 1.33 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to use iteration instead of recursion
         let mut i = k - Self::one();
         while p(i) {
             i += Self::one()
@@ -304,6 +318,8 @@ impl TermNum for i8 {
 
 impl TermNum for f64 {
     fn sign(self) -> Self {
+        //LISTING 1.16 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to use `signum()`
         if self.is_zero() {
             Self::zero()
         } else {
@@ -334,14 +350,15 @@ impl TermNum for f64 {
     }
 
     fn floor_round(self) -> Self {
+        //LISTING 1.15 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         (self + 0.5).floor()
     }
 
     fn modulus(self, other: Self) -> Self {
+        //LISTING 1.17 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let x = self;
         let y = other;
-        debug_assert!(y != 0.0);
-        debug_assert!(y.abs() < EFFECTIVE_MAX && x.abs() < EFFECTIVE_MAX); //TODO: revisit
+        debug_assert!(y != 0.0); //TODO: replace with NonZero
         if x == 0.0 {
             0.0
         } else {
@@ -545,6 +562,7 @@ mod tests {
             x in -131072.0..131072.0,
             y in -131072.0..131072.0,
             z in -131072.0..131072.0) {
+            //LISTING 1.19 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
             //Using sqrt(EFFECTIVE_MAX) as limit
             let x = x as f64;
             let y = y as f64;
@@ -562,6 +580,7 @@ mod tests {
             x in i16::MIN..i16::MAX,
             y in i16::MIN..i16::MAX,
             z in i16::MIN..i16::MAX) {
+            //LISTING 1.19 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
             let x = x as i32;
             let y = y as i32;
             let z = z as i32;
@@ -575,6 +594,7 @@ mod tests {
 
         #[test]
         fn modulus_mult_minus_1(x in 0.0..EFFECTIVE_MAX, y in 0.0..EFFECTIVE_MAX) {
+            //LISTING 1.19 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
             prop_assume!(y != 0.0);
             let a0 = (-x).modulus(-y);
             let a1 = -(x.modulus(y));
@@ -583,6 +603,7 @@ mod tests {
 
         #[test]
         fn modulus_i_mult_minus_1(x in 0..i32::MAX, y in 1..i32::MAX) {
+            //LISTING 1.19 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
             let a0 = (-x).modulus(-y);
             let a1 = -(x.modulus(y));
             assert_eq!(a0, a1);
@@ -590,6 +611,7 @@ mod tests {
 
         #[test]
         fn modulus_i_multiple_of_y(x: i32, y: i32) {
+            //LISTING 1.20 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
             prop_assume!(y != 0);
             let a = (x as i64) - (x.modulus(y) as i64);
             assert_eq!(a % (y as i64), 0);
@@ -597,12 +619,14 @@ mod tests {
 
         #[test]
         fn modulus_bounds(x in EFFECTIVE_MIN..EFFECTIVE_MAX, y in EFFECTIVE_MIN..EFFECTIVE_MAX) {
+            //LISTING 1.21 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
             prop_assume!(y != 0.0);
             let a = x.modulus(y) * y.sign();
             assert!(0.0 <= a && a < y.abs());
         }
         #[test]
         fn modulus_i_bounds(x: i32, y: i32) {
+            //LISTING 1.21 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
             prop_assume!(y != 0);
             let a = x.modulus(y) * (y.sign());
             assert!(0 <= a && a < y.abs());

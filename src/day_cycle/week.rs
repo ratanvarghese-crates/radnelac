@@ -22,6 +22,7 @@ use num_traits::FromPrimitive;
 /// not necessarily correspond to Monday in the Cotsworth calendar.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum Weekday {
+    //LISTING 1.53-1.59 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
     Sunday = 0,
     Monday,
     Tuesday,
@@ -35,12 +36,15 @@ impl BoundedCycle<7, 0> for Weekday {}
 
 impl FromFixed for Weekday {
     fn from_fixed(t: Fixed) -> Weekday {
+        //LISTING 1.60 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to remove superfluous terms, modulus is in BoundedCycle
         Weekday::from_unbounded(t.get_day_i())
     }
 }
 
 impl OnOrBefore<7, 0> for Weekday {
     fn raw_on_or_before(self, date: i64) -> Fixed {
+        //LISTING 1.62 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let k = self.to_unbounded();
         Fixed::cast_new(date - (Weekday::from_unbounded(date - k) as i64))
     }

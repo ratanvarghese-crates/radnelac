@@ -25,11 +25,13 @@ use std::num::NonZero;
 #[allow(unused_imports)] //FromPrimitive is needed for derive
 use num_traits::FromPrimitive;
 
+//LISTING 2.3 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
 const GREGORIAN_EPOCH_RD: i32 = 1;
 
 /// Represents a month in the Gregorian calendar
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum GregorianMonth {
+    //LISTING 2.4-2.15 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
     January = 1,
     February,
     March,
@@ -46,6 +48,8 @@ pub enum GregorianMonth {
 
 impl GregorianMonth {
     pub fn length(self, leap: bool) -> u8 {
+        //LISTING ?? SECTION 2.1 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //TODO: use listing 2.1 here?
         match self {
             GregorianMonth::January => 31,
             GregorianMonth::February => {
@@ -94,6 +98,9 @@ pub struct Gregorian(CommonDate);
 
 impl Gregorian {
     pub fn prior_elapsed_days(year: i32) -> i64 {
+        //LISTING 2.17 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //These are the terms of the sum which do not rely on the month or day.
+        //LISTING PriorElapsedDays (*Basic Symmetry454 and Symmetry010 Calendar Arithmetic* by Dr. Irvin L. Bromberg)
         let year = year as i64;
         let offset_e = Gregorian::epoch().get_day_i() - 1;
         let offset_y = 365 * (year - 1);
@@ -114,6 +121,7 @@ impl ToFromOrdinalDate for Gregorian {
     }
 
     fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        //LISTING 2.21-2.22 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let date = fixed_date.get_day_i();
         let epoch = Gregorian::epoch().get_day_i();
         let d0 = date - epoch;
@@ -139,9 +147,10 @@ impl ToFromOrdinalDate for Gregorian {
     }
 
     fn to_ordinal(self) -> OrdinalDate {
+        //LISTING 2.17 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //These are the terms of the sum which rely on the month or day
         let month = self.0.month as i64;
         let day = self.0.day as i64;
-
         let offset_m = ((367 * month) - 362).div_euclid(12);
         let offset_x = if month <= 2 {
             0
@@ -158,6 +167,8 @@ impl ToFromOrdinalDate for Gregorian {
     }
 
     fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        //LISTING 2.23 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to use ordinal day counts instead of day counts from the epoch
         let year = ord.year;
         let prior_days: i32 = (ord.day_of_year as i32) - 1; //Modification
         let ord_march1 = Gregorian(CommonDate::new(year, 3, 1)).to_ordinal(); //Modification
@@ -179,6 +190,7 @@ impl ToFromOrdinalDate for Gregorian {
 
 impl HasLeapYears for Gregorian {
     fn is_leap(g_year: i32) -> bool {
+        //LISTING 2.16 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let m4 = g_year.modulus(4);
         let m400 = g_year.modulus(400);
         m4 == 0 && m400 != 100 && m400 != 200 && m400 != 300
@@ -202,6 +214,7 @@ impl FromFixed for Gregorian {
 
 impl ToFixed for Gregorian {
     fn to_fixed(self) -> Fixed {
+        //LISTING 2.17 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         //Method is split compared to the original
         let offset_prior = Gregorian::prior_elapsed_days(self.0.year);
         let ord = self.to_ordinal().day_of_year as i64;
@@ -233,6 +246,7 @@ impl ToFromCommonDate<GregorianMonth> for Gregorian {
     }
 
     fn year_end_date(year: i32) -> CommonDate {
+        //LISTING 2.19 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let m = GregorianMonth::December;
         CommonDate::new(year, m as u8, m.length(Gregorian::is_leap(year)))
     }

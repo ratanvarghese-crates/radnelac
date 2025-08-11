@@ -29,6 +29,8 @@ use num_traits::FromPrimitive;
 /// Represents a month in the Julian calendar
 pub type JulianMonth = GregorianMonth;
 
+//LISTING 3.2 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+//Instead of explicitly converting from Gregorian, just use the known Rata Die value.
 const JULIAN_EPOCH_RD: i32 = -1;
 
 /// Represents a date in the Julian calendar
@@ -48,8 +50,9 @@ impl Julian {
     }
 
     pub fn prior_elapsed_days(year: i32) -> i64 {
+        //LISTING 3.3 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //These are the terms which do not rely on the day or month
         let y = if year < 0 { year + 1 } else { year } as i64;
-
         let offset_e = Julian::epoch().get_day_i() - 1;
         let offset_y = 365 * (y - 1);
         let offset_leap = (y - 1).div_euclid(4);
@@ -68,6 +71,8 @@ impl ToFromOrdinalDate for Julian {
     }
 
     fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        //LISTING 3.4 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //These are the calculations except for correction, month and day
         let date = fixed_date.get_day_i();
         let epoch = Julian::epoch().get_day_i();
         let approx = ((4 * (date - epoch)) + 1464).div_euclid(1461);
@@ -81,6 +86,8 @@ impl ToFromOrdinalDate for Julian {
     }
 
     fn to_ordinal(self) -> OrdinalDate {
+        //LISTING 3.3 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //These are the terms which rely on the day or month
         let year = self.0.year;
         let month = self.0.month as i64;
         let day = self.0.day as i64;
@@ -101,6 +108,8 @@ impl ToFromOrdinalDate for Julian {
     }
 
     fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        //LISTING 3.4 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //These are the calculations for correction, month and day
         let year = ord.year;
         let prior_days = ord.day_of_year - 1;
         let march1 = Julian(CommonDate::new(year, 3, 1)).to_ordinal(); //Modification
@@ -121,6 +130,7 @@ impl ToFromOrdinalDate for Julian {
 
 impl HasLeapYears for Julian {
     fn is_leap(j_year: i32) -> bool {
+        //LISTING 3.1 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let m4 = j_year.modulus(4);
         if j_year > 0 {
             m4 == 0
@@ -140,6 +150,7 @@ impl Epoch for Julian {
 
 impl FromFixed for Julian {
     fn from_fixed(fixed_date: Fixed) -> Julian {
+        //LISTING 3.4 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         //Split compared to original
         let ord = Self::ordinal_from_fixed(fixed_date);
         Self::from_ordinal_unchecked(ord)
@@ -148,6 +159,7 @@ impl FromFixed for Julian {
 
 impl ToFixed for Julian {
     fn to_fixed(self) -> Fixed {
+        //LISTING 3.3 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         //Split compared to original
         let offset_prior = Julian::prior_elapsed_days(self.0.year);
         let ord = self.to_ordinal();

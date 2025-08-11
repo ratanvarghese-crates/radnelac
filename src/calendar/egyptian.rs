@@ -23,6 +23,7 @@ use crate::day_count::ToFixed;
 use num_traits::FromPrimitive;
 use std::num::NonZero;
 
+//LISTING 1.46 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
 const NABONASSAR_ERA_JD: i32 = 1448638;
 const NON_MONTH: u8 = 13;
 
@@ -34,6 +35,7 @@ const NON_MONTH: u8 = 13;
 /// the month field.
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum EgyptianMonth {
+    //LISTING ?? SECTION 1.11 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
     Thoth = 1,
     Phaophi,
     Athyr,
@@ -115,6 +117,7 @@ impl Epoch for Egyptian {
 
 impl FromFixed for Egyptian {
     fn from_fixed(date: Fixed) -> Egyptian {
+        //LISTING 1.49 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let days = date.get_day_i() - Egyptian::epoch().get_day_i();
         let year = days.div_euclid(365) + 1;
         let month = days.modulus(365).div_euclid(30) + 1;
@@ -129,6 +132,7 @@ impl FromFixed for Egyptian {
 
 impl ToFixed for Egyptian {
     fn to_fixed(self) -> Fixed {
+        //LISTING 1.47 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let year = self.0.year as i64;
         let month = self.0.month as i64;
         let day = self.0.day as i64;

@@ -23,6 +23,9 @@
 //! assert_eq!(j, Julian::try_new(2025, JulianMonth::July, 13).unwrap());
 //! ```
 //!
+//! Most of the calculations are based on *Calendrical Calculations: The Ultimate
+//! Edition* by Reingold & Dershowitz.
+//!
 //! ## Crate Features
 //!
 //! Some functionality in this crate can be enabled and disabled using the Cargo "features"

@@ -20,11 +20,13 @@ use std::num::NonZero;
 #[allow(unused_imports)] //FromPrimitive is needed for derive
 use num_traits::FromPrimitive;
 
+//LISTING 3.12 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
 const YEAR_ROME_FOUNDED_JULIAN: i32 = -753;
 
 /// Represents key events in a Roman month
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum RomanMonthlyEvent {
+    //LISTING 3.5-3.7 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
     Kalends = 1,
     Nones,
     Ides,
@@ -35,6 +37,7 @@ pub type RomanMonth = JulianMonth;
 
 impl RomanMonth {
     pub fn ides_of_month(self) -> u8 {
+        //LISTING 3.8 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         match self {
             RomanMonth::July => 15,
             RomanMonth::March => 15,
@@ -45,6 +48,7 @@ impl RomanMonth {
     }
 
     pub fn nones_of_month(self) -> u8 {
+        //LISTING 3.9 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         self.ides_of_month() - 8
     }
 }
@@ -88,6 +92,8 @@ impl Roman {
 
     /// Converts from BC/AD year to AUC year
     pub fn julian_year_from_auc(year: NonZero<i32>) -> NonZero<i32> {
+        //LISTING 3.13 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to use NonZero
         let j_year = year.get();
         if j_year >= 1 && j_year <= -YEAR_ROME_FOUNDED_JULIAN {
             NonZero::new(j_year + YEAR_ROME_FOUNDED_JULIAN - 1).expect("Checked by if")
@@ -98,6 +104,8 @@ impl Roman {
 
     /// Converts from AUC year to BC/AD year
     pub fn auc_year_from_julian(year: NonZero<i32>) -> NonZero<i32> {
+        //LISTING 3.14 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Modified to use NonZero
         let a_year = year.get();
         if YEAR_ROME_FOUNDED_JULIAN <= a_year && a_year <= -1 {
             NonZero::new(a_year - YEAR_ROME_FOUNDED_JULIAN + 1).expect("Checked by if")
@@ -130,6 +138,7 @@ impl CalculatedBounds for Roman {}
 
 impl FromFixed for Roman {
     fn from_fixed(date: Fixed) -> Roman {
+        //LISTING 3.11 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let j = Julian::from_fixed(date);
         let j_cdate = j.to_common_date();
         let month = (j_cdate.month as i64).adjusted_remainder(12) as u8;
@@ -209,6 +218,7 @@ impl FromFixed for Roman {
 
 impl ToFixed for Roman {
     fn to_fixed(self) -> Fixed {
+        //LISTING 3.10 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let jld = match self.event {
             RomanMonthlyEvent::Kalends => 1,
             RomanMonthlyEvent::Nones => self.month.nones_of_month(),

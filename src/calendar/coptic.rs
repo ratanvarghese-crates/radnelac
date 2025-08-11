@@ -24,6 +24,9 @@ use crate::day_count::ToFixed;
 use num_traits::FromPrimitive;
 use std::num::NonZero;
 
+//TODO: Coptic weekdays
+
+//LISTING 4.1 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
 const COPTIC_EPOCH_JULIAN: CommonDate = CommonDate {
     year: 284,
     month: 8,
@@ -33,6 +36,7 @@ const COPTIC_EPOCH_JULIAN: CommonDate = CommonDate {
 /// Represents a month in the Coptic Calendar
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum CopticMonth {
+    //LISTING ?? SECTION 4.1 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
     Thoout = 1,
     Paope,
     Athor,
@@ -50,6 +54,7 @@ pub enum CopticMonth {
 
 impl CopticMonth {
     pub fn length(self, leap: bool) -> u8 {
+        //LISTING ?? SECTION 4.1 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         match self {
             CopticMonth::Epagomene => {
                 if leap {
@@ -85,6 +90,8 @@ impl ToFromOrdinalDate for Coptic {
     }
 
     fn ordinal_from_fixed(fixed_date: Fixed) -> OrdinalDate {
+        //LISTING 4.4 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Missing the day term and parts of the month term
         let date = fixed_date.get_day_i();
         let epoch = Coptic::epoch().get_day_i();
         let year = (4 * (date - epoch) + 1463).div_euclid(1461) as i32;
@@ -97,6 +104,8 @@ impl ToFromOrdinalDate for Coptic {
     }
 
     fn to_ordinal(self) -> OrdinalDate {
+        //LISTING 4.3 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //This is just the terms containing monthand day
         OrdinalDate {
             year: self.0.year,
             day_of_year: (30 * ((self.0.month as u16) - 1) + (self.0.day as u16)),
@@ -104,6 +113,8 @@ impl ToFromOrdinalDate for Coptic {
     }
 
     fn from_ordinal_unchecked(ord: OrdinalDate) -> Self {
+        //LISTING 4.4 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Only the month and day terms, modified to use ordinal day count instead of count from epoch
         let month = ((ord.day_of_year - 1).div_euclid(30) + 1) as u8;
         let month_start = Coptic(CommonDate::new(ord.year, month, 1)).to_ordinal();
         let day = (ord.day_of_year - month_start.day_of_year + 1) as u8;
@@ -112,6 +123,7 @@ impl ToFromOrdinalDate for Coptic {
 }
 
 impl HasLeapYears for Coptic {
+    //LISTING 4.2 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
     fn is_leap(year: i32) -> bool {
         year.modulus(4) == 3
     }
@@ -129,6 +141,7 @@ impl Epoch for Coptic {
 
 impl FromFixed for Coptic {
     fn from_fixed(fixed_date: Fixed) -> Coptic {
+        //LISTING 4.4 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         //Split compared to original
         let ord = Self::ordinal_from_fixed(fixed_date);
         Self::from_ordinal_unchecked(ord)
@@ -137,7 +150,8 @@ impl FromFixed for Coptic {
 
 impl ToFixed for Coptic {
     fn to_fixed(self) -> Fixed {
-        //Split compared to original
+        //LISTING 4.3 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //Split compared to original: the terms containing month and day are in to_ordinal
         let year = self.0.year as i64;
         let epoch = Coptic::epoch().get_day_i();
         let doy = self.to_ordinal().day_of_year as i64;
@@ -200,6 +214,7 @@ mod tests {
     proptest! {
         #[test]
         fn christmas(y in i16::MIN..i16::MAX) {
+            //LISTING 4.9 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
             let c = Coptic::try_from_common_date(CommonDate::new(y as i32, CopticMonth::Koiak as u8, 29))?;
             let j = c.convert::<Julian>();
             assert_eq!(j.month(), JulianMonth::December);

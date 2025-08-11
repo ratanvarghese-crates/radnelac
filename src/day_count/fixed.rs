@@ -44,11 +44,13 @@ pub struct Fixed(f64);
 impl Fixed {
     /// Returns a new `Fixed` with day 0 and the same time of day.
     pub fn to_time_of_day(self) -> Fixed {
+        //LISTING 1.18 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         Fixed(self.0.modulus(1.0))
     }
 
     /// Returns a new `Fixed` with the same day and midnight as the time of day.
     pub fn to_day(self) -> Fixed {
+        //LISTING 1.12 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         Fixed(self.0.floor())
     }
 
@@ -97,6 +99,7 @@ pub trait FromFixed: Copy + Clone {
 pub trait ToFixed: Copy + Clone {
     fn to_fixed(self) -> Fixed;
     fn convert<T: FromFixed>(self) -> T {
+        //LISTING ?? SECTION 1.1 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         T::from_fixed(self.to_fixed())
     }
 }

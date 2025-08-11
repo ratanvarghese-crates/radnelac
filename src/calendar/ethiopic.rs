@@ -25,6 +25,9 @@ use crate::day_count::ToFixed;
 use num_traits::FromPrimitive;
 use std::num::NonZero;
 
+//TODO: Ethiopic weekdays
+
+//LISTING 4.5 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
 const ETHIOPIC_EPOCH_JULIAN: CommonDate = CommonDate {
     year: 8,
     month: 8,
@@ -34,6 +37,7 @@ const ETHIOPIC_EPOCH_JULIAN: CommonDate = CommonDate {
 /// Represents a month in the Ethiopic Calendar
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum EthiopicMonth {
+    //LISTING ?? SECTION 4.2 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
     Maskaram = 1,
     Teqemt,
     Hedar,
@@ -120,6 +124,7 @@ impl Epoch for Ethiopic {
 
 impl FromFixed for Ethiopic {
     fn from_fixed(date: Fixed) -> Ethiopic {
+        //LISTING 4.7 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let f = Fixed::new(date.get() + Coptic::epoch().get() - Ethiopic::epoch().get());
         Ethiopic::try_from_common_date(Coptic::from_fixed(f).to_common_date())
             .expect("Same month/day validity")
@@ -128,6 +133,7 @@ impl FromFixed for Ethiopic {
 
 impl ToFixed for Ethiopic {
     fn to_fixed(self) -> Fixed {
+        //LISTING 4.6 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let e =
             Coptic::try_from_common_date(self.to_common_date()).expect("Same month/day validity");
         Fixed::new(Ethiopic::epoch().get() + e.to_fixed().get() - Coptic::epoch().get())
