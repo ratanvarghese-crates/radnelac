@@ -9,6 +9,7 @@ use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::OrdinalDate;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
 use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
@@ -87,10 +88,6 @@ impl GregorianMonth {
 /// For consistency with historical dates before the Gregorian reform, applications
 /// should probably use the Julian calendar.
 ///
-/// ## Year 0
-///
-/// Year 0 is supported for this calendar.
-///
 /// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
@@ -109,6 +106,8 @@ impl Gregorian {
         offset_e + offset_y + offset_leap
     }
 }
+
+impl AllowYearZero for Gregorian {}
 
 impl ToFromOrdinalDate for Gregorian {
     fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {

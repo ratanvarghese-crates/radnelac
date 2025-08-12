@@ -10,6 +10,7 @@ use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
+use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
 use crate::calendar::HasIntercalaryDays;
 use crate::calendar::OrdinalDate;
@@ -61,10 +62,6 @@ pub enum CotsworthComplementaryDay {
 /// This calendar was originally designed by Moses B Cotsworth.
 /// George Eastman instituted its use within the Eastman Kodak Company from 1928 to 1989.
 ///
-/// ## Year 0
-///
-/// Year 0 is supported for this calendar.
-///
 /// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Cotsworth_calendar)
 /// + ["Nation's Business" May 1926](https://www.freexenon.com/wp-content/uploads/2018/07/The-Importance-of-Calendar-Reform-to-the-Business-World-George-Eastman.pdf)
@@ -73,6 +70,8 @@ pub enum CotsworthComplementaryDay {
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Cotsworth(CommonDate);
+
+impl AllowYearZero for Cotsworth {}
 
 impl ToFromOrdinalDate for Cotsworth {
     fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {

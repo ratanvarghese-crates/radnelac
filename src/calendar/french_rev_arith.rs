@@ -8,6 +8,7 @@ use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
 use crate::calendar::HasIntercalaryDays;
 use crate::calendar::OrdinalDate;
@@ -129,15 +130,13 @@ pub enum Sansculottide {
 /// astronomical calculations, those calculations will not be provided by FrenchRevArith.
 /// Instead, such calculations shall be provided by a new struct with a new name.
 ///
-/// ## Year 0
-///
-/// Year 0 is supported for this calendar.
-///
 /// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/French_Republican_calendar)
 /// + [Guanzhong "quantum" Chen](https://quantum5.ca/2022/03/09/art-of-time-keeping-part-4-french-republican-calendar/)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct FrenchRevArith<const L: bool>(CommonDate);
+
+impl<const L: bool> AllowYearZero for FrenchRevArith<L> {}
 
 impl<const L: bool> ToFromOrdinalDate for FrenchRevArith<L> {
     fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {

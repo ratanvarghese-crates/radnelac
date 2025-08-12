@@ -10,6 +10,7 @@ use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
@@ -70,14 +71,12 @@ impl EthiopicMonth {
 
 /// Represents a date in the Ethiopic calendar
 ///
-/// ## Year 0
-///
-/// Year 0 is supported for this calendar.
-///
 /// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Ethiopic_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Ethiopic(CommonDate);
+
+impl AllowYearZero for Ethiopic {}
 
 impl ToFromOrdinalDate for Ethiopic {
     fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {

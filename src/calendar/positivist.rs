@@ -10,6 +10,7 @@ use crate::calendar::prelude::Perennial;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
+use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
 use crate::calendar::HasIntercalaryDays;
 use crate::calendar::OrdinalDate;
@@ -72,16 +73,14 @@ pub enum PositivistComplementaryDay {
 
 /// Represents a date in the Positivist calendar
 ///
-/// ## Year 0
-///
-/// Year 0 is supported for this calendar.
-///
 /// ## Further reading
 /// + [Positivists.org](http://positivists.org/calendar.html)
 /// + ["Calendrier Positiviste" by August Comte](https://gallica.bnf.fr/ark:/12148/bpt6k21868f/f42.planchecontact)
 /// + ["The Positivist Calendar" by Henry Edger](https://books.google.ca/books?id=S_BRAAAAMAAJ)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Positivist(CommonDate);
+
+impl AllowYearZero for Positivist {}
 
 impl ToFromOrdinalDate for Positivist {
     fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {

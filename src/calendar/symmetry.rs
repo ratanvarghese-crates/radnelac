@@ -9,6 +9,7 @@ use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
@@ -121,10 +122,6 @@ pub enum SymmetryMonth {
 /// > probability a novel expression intended to “simplify” the arithmetic documented herein
 /// > will actually prove to function erroneously under specific circumstances. It is just not
 /// > worth wasting the time on the trouble that will make for you.
-///
-/// ## Year 0
-///
-/// Year 0 is supported for this calendar.
 ///
 /// ## Further reading
 /// + Dr. Irvin L. Bromberg
@@ -246,6 +243,8 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
         }
     }
 }
+
+impl<const T: bool, const U: bool> AllowYearZero for Symmetry<T, U> {}
 
 impl<const T: bool, const U: bool> ToFromOrdinalDate for Symmetry<T, U> {
     fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {

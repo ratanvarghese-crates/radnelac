@@ -6,6 +6,7 @@ use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
 use crate::calendar::HasIntercalaryDays;
 use crate::calendar::OrdinalDate;
@@ -62,14 +63,12 @@ pub enum EgyptianDaysUponTheYear {
 
 /// Represents a date in the Egyptian calendar
 ///
-/// ## Year 0
-///
-/// Year 0 is supported for this calendar.
-///
 /// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Egyptian_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Egyptian(CommonDate);
+
+impl AllowYearZero for Egyptian {}
 
 impl ToFromOrdinalDate for Egyptian {
     fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {

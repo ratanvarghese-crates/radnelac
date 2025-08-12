@@ -10,6 +10,7 @@ use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
@@ -33,15 +34,13 @@ pub type HoloceneMonth = GregorianMonth;
 /// with an extra 10000 years added to each date. Thus 2016
 /// in the Gregorian calendar is 12016 in the Holocene calendar.
 ///
-/// ## Year 0
-///
-/// Year 0 is supported for this calendar.
-///
 /// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Holocene_calendar)
 /// + [Kurzgesagt](https://www.youtube.com/watch?v=czgOWmtGVGs)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Holocene(CommonDate);
+
+impl AllowYearZero for Holocene {}
 
 impl ToFromOrdinalDate for Holocene {
     fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {

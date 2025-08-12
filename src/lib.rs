@@ -82,8 +82,8 @@
 //! ### Year Zero and Negative Years
 //!
 //! Additionally most calendars, including the Gregorian, are assumed to have a Year 0. One
-//! notable exception is the Julian. If a calendar does not allow Year 0, this property is
-//! mentioned on that calendar's page in the documentation.
+//! notable exception is the Julian. If a calendar does not allow Year 0, it will implement
+//! [`calendar::AllowYearZero`].
 //!
 //! The following is a quotation from Chapter 1.16 of *Calendrical Calculations: The Ultimate
 //! Edition* by Reingold & Dershowitz, which applies quite well to this situation.

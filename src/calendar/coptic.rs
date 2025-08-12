@@ -9,6 +9,7 @@ use crate::calendar::prelude::GuaranteedMonth;
 use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
@@ -70,14 +71,12 @@ impl CopticMonth {
 
 /// Represents a date in the Coptic calendar
 ///
-/// ## Year 0
-///
-/// Year 0 is supported for this calendar.
-///
 /// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Coptic_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Coptic(CommonDate);
+
+impl AllowYearZero for Coptic {}
 
 impl ToFromOrdinalDate for Coptic {
     fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {

@@ -8,6 +8,7 @@ use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
+use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
 use crate::calendar::HasLeapYears;
 use crate::clock::TimeOfDay;
@@ -31,10 +32,6 @@ use std::num::NonZero;
 /// Despite being derived from the Gregorian calendar, **the ISO-8601 has a different year
 /// start and year end than the Gregorian.** If the Gregorian year X ends in the middle of
 /// the ISO week, the next days may be in Gregorian year X+1 and ISO year X.
-///
-/// ## Year 0
-///
-/// Year 0 is supported for this calendar.
 ///
 /// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/ISO_week_date)
@@ -102,6 +99,8 @@ impl PartialOrd for ISO {
         }
     }
 }
+
+impl AllowYearZero for ISO {}
 
 impl CalculatedBounds for ISO {}
 

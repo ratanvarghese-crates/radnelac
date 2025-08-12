@@ -13,6 +13,9 @@ use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
 use std::num::NonZero;
 
+/// Calendar systems with year 0
+pub trait AllowYearZero {}
+
 /// Calendar systems with leap years
 pub trait HasLeapYears {
     /// [`true`] if a the given year is a leap year.

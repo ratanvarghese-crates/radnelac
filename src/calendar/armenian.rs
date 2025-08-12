@@ -7,6 +7,7 @@ use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
+use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
 use crate::calendar::HasIntercalaryDays;
 use crate::calendar::OrdinalDate;
@@ -91,10 +92,6 @@ pub enum ArmenianDaysOfMonth {
 
 /// Represents a date in the Armenian calendar
 ///
-/// ## Year 0
-///
-/// Year 0 is supported for this calendar.
-///
 /// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Armenian_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
@@ -110,6 +107,8 @@ impl Armenian {
         }
     }
 }
+
+impl AllowYearZero for Armenian {}
 
 impl ToFromOrdinalDate for Armenian {
     fn valid_ordinal(ord: OrdinalDate) -> Result<(), CalendarError> {
