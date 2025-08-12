@@ -92,6 +92,45 @@ pub enum ArmenianDaysOfMonth {
 
 /// Represents a date in the Armenian calendar
 ///
+/// ## Introduction
+///
+/// The Armenian calendar was used in Armenia in medieval times. It has a similar structure
+/// to the [Egyptian calendar](crate::calendar::Egyptian).
+///
+/// ## Basic Structure
+///
+/// Years are always 365 days - there are no leap years. Years are divided into 12 months
+/// of 30 days each, with an extra 5 epagomenal days.
+///
+/// ## Representation and Examples
+///
+/// The months are represented in this crate as [`ArmenianMonth`].
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c_1_1 = CommonDate::new(1462, 1, 1);
+/// let a_1_1 = Armenian::try_from_common_date(c_1_1).unwrap();
+/// assert_eq!(a_1_1.try_month().unwrap(), ArmenianMonth::Nawasardi);
+/// let c_12_30 = CommonDate::new(1462, 12, 30);
+/// let a_12_30 = Armenian::try_from_common_date(c_12_30).unwrap();
+/// assert_eq!(a_12_30.try_month().unwrap(), ArmenianMonth::Hrotich);
+/// ```
+///
+/// When converting to and from a [`CommonDate`](crate::calendar::CommonDate), the epagomenal days
+/// are treated as a 13th month.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c = CommonDate::new(1462, 13, 5);
+/// let a = Armenian::try_from_common_date(c).unwrap();
+/// assert!(a.try_month().is_none());
+/// assert!(a.complementary().is_some());
+/// ```
+///
 /// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Armenian_calendar)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
