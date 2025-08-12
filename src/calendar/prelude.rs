@@ -79,7 +79,7 @@ pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
     fn try_year_start(year: i32) -> Result<Self, CalendarError> {
         //Might be invalid for calendars without year 0
         let d = Self::year_start_date(year);
-        debug_assert!(Self::in_effective_bounds(d));
+        debug_assert!(Self::in_effective_bounds(d), "year_start: {}", year);
         Self::try_from_common_date(d)
     }
 

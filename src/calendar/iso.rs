@@ -19,6 +19,7 @@ use crate::day_count::Fixed;
 use crate::day_count::FromFixed;
 use crate::day_count::ToFixed;
 use crate::day_cycle::Weekday;
+use crate::CalendarError;
 use num_traits::FromPrimitive;
 use std::cmp::Ordering;
 use std::num::NonZero;
@@ -47,6 +48,21 @@ pub struct ISO {
 }
 
 impl ISO {
+    /// Attempt to create a new ISO week date
+    pub fn try_new(year: i32, week: u8, day: Weekday) -> Result<Self, CalendarError> {
+        if week < 1 || week > 53 || (week == 53 && !Self::is_leap(year)) {
+            //This if statement is structured specifically to minimize calls to Self::is_leap.
+            //Self::is_leap calls Gregorian calendar functions which may exceed the effective
+            //bounds.
+            return Err(CalendarError::InvalidWeek);
+        }
+        Ok(ISO {
+            year: year,
+            week: NonZero::<u8>::new(week).expect("Checked in if"),
+            day: day,
+        })
+    }
+
     pub fn year(self) -> i32 {
         self.year
     }
@@ -67,11 +83,7 @@ impl ISO {
     }
 
     pub fn new_year(year: i32) -> Self {
-        ISO {
-            year: year,
-            week: NonZero::new(1).unwrap(),
-            day: Weekday::Monday,
-        }
+        ISO::try_new(year, 1, Weekday::Monday).expect("Week 1 known to be valid")
     }
 }
 
@@ -115,38 +127,18 @@ impl HasLeapYears for ISO {
 impl FromFixed for ISO {
     fn from_fixed(fixed_date: Fixed) -> ISO {
         //LISTING 5.2 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
-        //TODO: cleanup? This is a lot harder to read than the original
         let date = fixed_date.get_day_i();
         let approx = Gregorian::ordinal_from_fixed(Fixed::cast_new(date - 3)).year;
-        let next = ISO {
-            year: approx + 1,
-            week: NonZero::<u8>::new(1).unwrap(),
-            day: Weekday::Monday,
-        }
-        .to_fixed();
-        let year = if date >= next.get_day_i() {
-            approx + 1
-        } else {
-            approx
-        };
-        let current = ISO {
-            year: year,
-            week: NonZero::<u8>::new(1).unwrap(),
-            day: Weekday::Monday,
-        }
-        .to_fixed()
-        .get_day_i();
+        let next = ISO::new_year(approx + 1).to_fixed().get_day_i();
+        let year = if date >= next { approx + 1 } else { approx };
+        let current = ISO::new_year(year).to_fixed().get_day_i();
         let week = (date - current).div_euclid(7) + 1;
         debug_assert!(week < 55 && week > 0);
         //Calendrical Calculations stores "day" as 7 for Sunday, as per ISO.
         //However since we have an unambiguous enum, we can save such details for
         //functions that need it. We also adjust "to_fixed_unchecked"
         let day = Weekday::from_u8(date.modulus(7) as u8).expect("In range due to modulus.");
-        ISO {
-            year: year,
-            week: NonZero::new(week as u8).unwrap(),
-            day: day,
-        }
+        ISO::try_new(year, week as u8, day).expect("Week known to be valid")
     }
 }
 
