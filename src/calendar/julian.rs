@@ -173,11 +173,11 @@ impl ToFromCommonDate<JulianMonth> for Julian {
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
-        debug_assert!(Self::valid_month_day(date).is_ok());
+        debug_assert!(Self::valid_ymd(date).is_ok());
         Self(date)
     }
 
-    fn valid_month_day(date: CommonDate) -> Result<(), CalendarError> {
+    fn valid_ymd(date: CommonDate) -> Result<(), CalendarError> {
         let month_opt = JulianMonth::from_u8(date.month);
         if month_opt.is_none() {
             Err(CalendarError::InvalidMonth)

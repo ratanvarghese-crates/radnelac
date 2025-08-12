@@ -48,7 +48,7 @@ pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
     /// In almost all cases, [`try_from_common_date`](ToFromCommonDate::try_from_common_date) is preferred.
     fn from_common_date_unchecked(d: CommonDate) -> Self;
     /// Returns error if the year, month or day is invalid
-    fn valid_month_day(d: CommonDate) -> Result<(), CalendarError>;
+    fn valid_ymd(d: CommonDate) -> Result<(), CalendarError>;
     /// Start of the year as a numeric year, month and day
     fn year_start_date(year: i32) -> CommonDate {
         //LISTING 2.18 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
@@ -69,7 +69,7 @@ pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
 
     /// Attempt to create a date in a specific calendar from a [`CommonDate`]
     fn try_from_common_date(d: CommonDate) -> Result<Self, CalendarError> {
-        match Self::valid_month_day(d) {
+        match Self::valid_ymd(d) {
             Err(e) => Err(e),
             Ok(_) => Ok(Self::from_common_date_unchecked(d)),
         }

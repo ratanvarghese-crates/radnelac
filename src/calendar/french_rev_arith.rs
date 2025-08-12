@@ -287,11 +287,11 @@ impl<const L: bool> ToFromCommonDate<FrenchRevMonth> for FrenchRevArith<L> {
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
-        debug_assert!(Self::valid_month_day(date).is_ok());
+        debug_assert!(Self::valid_ymd(date).is_ok());
         Self(date)
     }
 
-    fn valid_month_day(date: CommonDate) -> Result<(), CalendarError> {
+    fn valid_ymd(date: CommonDate) -> Result<(), CalendarError> {
         if date.month < 1 || date.month > NON_MONTH {
             Err(CalendarError::InvalidMonth)
         } else if date.day < 1 {

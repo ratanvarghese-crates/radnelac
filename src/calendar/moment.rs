@@ -101,8 +101,8 @@ where
         Self::new(U::from_common_date_unchecked(d), TimeOfDay::midnight())
     }
 
-    fn valid_month_day(d: CommonDate) -> Result<(), CalendarError> {
-        U::valid_month_day(d)
+    fn valid_ymd(d: CommonDate) -> Result<(), CalendarError> {
+        U::valid_ymd(d)
     }
 
     fn year_start_date(year: i32) -> CommonDate {

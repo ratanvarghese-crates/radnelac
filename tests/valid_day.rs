@@ -43,7 +43,7 @@ use std::fmt::Debug;
 fn valid_day<S: FromPrimitive + ToPrimitive, T: FromFixed + ToFromCommonDate<S> + Debug>(t: f64) {
     let f = Fixed::new(t);
     let d = T::from_fixed(f);
-    assert!(T::valid_month_day(d.to_common_date()).is_ok());
+    assert!(T::valid_ymd(d.to_common_date()).is_ok());
 }
 
 proptest! {

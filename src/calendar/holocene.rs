@@ -112,12 +112,12 @@ impl ToFromCommonDate<HoloceneMonth> for Holocene {
     }
 
     fn from_common_date_unchecked(date: CommonDate) -> Self {
-        debug_assert!(Self::valid_month_day(date).is_ok());
+        debug_assert!(Self::valid_ymd(date).is_ok());
         Self(date)
     }
 
-    fn valid_month_day(date: CommonDate) -> Result<(), CalendarError> {
-        Gregorian::valid_month_day(date)
+    fn valid_ymd(date: CommonDate) -> Result<(), CalendarError> {
+        Gregorian::valid_ymd(date)
     }
 
     fn year_end_date(year: i32) -> CommonDate {
