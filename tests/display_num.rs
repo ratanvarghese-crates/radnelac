@@ -52,7 +52,7 @@ mod display_logic {
         let f1 = Fixed::new(t1).to_day();
         let d0 = TranquilityMoment::from_fixed(f0);
         let d1 = TranquilityMoment::from_fixed(f1);
-        prop_assume!(d0.complementary().is_none() && d1.complementary().is_none());
+        prop_assume!(d0.epagomenae().is_none() && d1.epagomenae().is_none());
         ymd_order_raw::<TranquilityMoment>(preset, d0, d1);
         Ok(())
     }

@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use crate::calendar::HasIntercalaryDays;
+use crate::calendar::HasEpagemonae;
 use crate::calendar::Perennial;
 use crate::calendar::Positivist;
 use crate::calendar::ToFromCommonDate;
@@ -48,7 +48,7 @@ impl DisplayItem for Positivist {
             NumericContent::SecondsSinceEpoch => fmt_seconds_since_epoch(*self, opt),
             NumericContent::Quarter => fmt_quarter(*self, opt),
             NumericContent::DaysSinceEpoch => fmt_days_since_epoch(*self, opt),
-            NumericContent::ComplementaryDay => match self.complementary() {
+            NumericContent::ComplementaryDay => match self.epagomenae() {
                 Some(d) => fmt_number(d as i8, opt),
                 None => "".to_string(),
             },
@@ -106,7 +106,7 @@ impl DisplayItem for Positivist {
             }
             (TextContent::ComplementaryDayName, Some(dict)) => {
                 let compl: [&str; 2] = [dict.festival_of_dead, dict.festival_of_holy_women];
-                let name = match self.complementary() {
+                let name = match self.epagomenae() {
                     Some(d) => compl[(d as usize) - 1],
                     None => "",
                 };
@@ -119,7 +119,7 @@ impl DisplayItem for Positivist {
 
 impl PresetDisplay for Positivist {
     fn long_date(&self) -> String {
-        if self.complementary().is_some() {
+        if self.epagomenae().is_some() {
             self.preset_str(Language::EN, LONG_COMPL)
         } else {
             self.preset_str(Language::EN, LONG_DATE)

@@ -4,7 +4,7 @@
 
 use crate::calendar::Armenian;
 use crate::calendar::CommonWeekOfYear;
-use crate::calendar::HasIntercalaryDays;
+use crate::calendar::HasEpagemonae;
 use crate::calendar::ToFromCommonDate;
 use crate::calendar::ToFromOrdinalDate;
 use crate::clock::TimeOfDay;
@@ -141,7 +141,7 @@ impl DisplayItem for Armenian {
 
 impl PresetDisplay for Armenian {
     fn long_date(&self) -> String {
-        let p = match self.complementary() {
+        let p = match self.epagomenae() {
             None => LONG_DAY_OF_MONTH,
             Some(_) => LONG_DATE,
         };

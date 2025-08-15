@@ -12,7 +12,7 @@ use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
 use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
-use crate::calendar::HasIntercalaryDays;
+use crate::calendar::HasEpagemonae;
 use crate::calendar::OrdinalDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
@@ -117,9 +117,9 @@ impl ToFromOrdinalDate for Positivist {
     }
 }
 
-impl HasIntercalaryDays<PositivistComplementaryDay> for Positivist {
+impl HasEpagemonae<PositivistComplementaryDay> for Positivist {
     // Calendier Positiviste Page 8
-    fn complementary(self) -> Option<PositivistComplementaryDay> {
+    fn epagomenae(self) -> Option<PositivistComplementaryDay> {
         if self.0.month == NON_MONTH {
             PositivistComplementaryDay::from_u8(self.0.day)
         } else {
@@ -127,7 +127,7 @@ impl HasIntercalaryDays<PositivistComplementaryDay> for Positivist {
         }
     }
 
-    fn complementary_count(p_year: i32) -> u8 {
+    fn epagomenae_count(p_year: i32) -> u8 {
         if Positivist::is_leap(p_year) {
             2
         } else {
@@ -213,7 +213,7 @@ impl ToFromCommonDate<PositivistMonth> for Positivist {
             Err(CalendarError::InvalidDay)
         } else if date.month < NON_MONTH && date.day > 28 {
             Err(CalendarError::InvalidDay)
-        } else if date.month == NON_MONTH && date.day > Positivist::complementary_count(date.year) {
+        } else if date.month == NON_MONTH && date.day > Positivist::epagomenae_count(date.year) {
             Err(CalendarError::InvalidDay)
         } else {
             Ok(())
@@ -221,7 +221,7 @@ impl ToFromCommonDate<PositivistMonth> for Positivist {
     }
 
     fn year_end_date(year: i32) -> CommonDate {
-        CommonDate::new(year, NON_MONTH, Positivist::complementary_count(year))
+        CommonDate::new(year, NON_MONTH, Positivist::epagomenae_count(year))
     }
 }
 

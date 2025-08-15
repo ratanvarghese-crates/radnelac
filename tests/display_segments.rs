@@ -249,7 +249,7 @@ proptest! {
     fn egyptian_weekday(t0 in -FIXED_MAX..FIXED_MAX, t1 in -FIXED_MAX..FIXED_MAX) {
         let e0 = Egyptian::from_fixed(Fixed::new(t0));
         let e1 = Egyptian::from_fixed(Fixed::new(t1));
-        if e0.complementary().is_none() && e1.complementary().is_none() {
+        if e0.epagomenae().is_none() && e1.epagomenae().is_none() {
             compare_common_weekday::<Egyptian>(t0, t1, 0);
             compare_common_weekday::<EgyptianMoment>(t0, t1, 1);
         }

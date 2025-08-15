@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use crate::calendar::HasIntercalaryDays;
+use crate::calendar::HasEpagemonae;
 use crate::calendar::Perennial;
 use crate::calendar::ToFromCommonDate;
 use crate::calendar::ToFromOrdinalDate;
@@ -54,7 +54,7 @@ impl DisplayItem for Tranquility {
             NumericContent::SecondsSinceEpoch => fmt_seconds_since_epoch(*self, opt),
             NumericContent::Quarter => fmt_quarter(*self, opt),
             NumericContent::DaysSinceEpoch => fmt_days_since_epoch(*self, opt),
-            NumericContent::ComplementaryDay => match self.complementary() {
+            NumericContent::ComplementaryDay => match self.epagomenae() {
                 Some(d) => fmt_number(d as i8, opt),
                 None => "".to_string(),
             },
@@ -116,7 +116,7 @@ impl DisplayItem for Tranquility {
             }
             (TextContent::ComplementaryDayName, Some(dict)) => {
                 let compl: [&str; 3] = [dict.moon_landing_day, dict.armstrong_day, dict.aldrin_day];
-                let name = match self.complementary() {
+                let name = match self.epagomenae() {
                     Some(d) => compl[d as usize],
                     None => "",
                 };
@@ -129,7 +129,7 @@ impl DisplayItem for Tranquility {
 
 impl PresetDisplay for Tranquility {
     fn long_date(&self) -> String {
-        let p = match self.complementary() {
+        let p = match self.epagomenae() {
             None => LONG_DATE,
             Some(TranquilityComplementaryDay::MoonLandingDay) => COMPL_ONLY,
             Some(_) => LONG_COMPL,
@@ -138,7 +138,7 @@ impl PresetDisplay for Tranquility {
     }
 
     fn short_date(&self) -> String {
-        let p = match self.complementary() {
+        let p = match self.epagomenae() {
             None => YEAR_MDD,
             Some(_) => YEAR_COMPL,
         };

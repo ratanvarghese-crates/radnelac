@@ -11,7 +11,7 @@ use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
 use crate::calendar::CalendarMoment;
-use crate::calendar::HasIntercalaryDays;
+use crate::calendar::HasEpagemonae;
 use crate::clock::ClockTime;
 use crate::clock::TimeOfDay;
 use crate::common::error::CalendarError;
@@ -204,8 +204,8 @@ impl ToFromOrdinalDate for Tranquility {
     }
 
     fn to_ordinal(self) -> OrdinalDate {
-        let comp_count = Self::complementary_count(self.0.year) as i64;
-        let ordinal_day = match self.complementary() {
+        let comp_count = Self::epagomenae_count(self.0.year) as i64;
+        let ordinal_day = match self.epagomenae() {
             Some(TranquilityComplementaryDay::MoonLandingDay) => 1,
             Some(TranquilityComplementaryDay::ArmstrongDay) => 364 + comp_count,
             Some(TranquilityComplementaryDay::AldrinDay) => AFTER_H27,
@@ -261,8 +261,8 @@ impl PartialOrd for Tranquility {
     }
 }
 
-impl HasIntercalaryDays<TranquilityComplementaryDay> for Tranquility {
-    fn complementary(self) -> Option<TranquilityComplementaryDay> {
+impl HasEpagemonae<TranquilityComplementaryDay> for Tranquility {
+    fn epagomenae(self) -> Option<TranquilityComplementaryDay> {
         if self.0.month == NON_MONTH {
             TranquilityComplementaryDay::from_u8(self.0.day)
         } else {
@@ -270,7 +270,7 @@ impl HasIntercalaryDays<TranquilityComplementaryDay> for Tranquility {
         }
     }
 
-    fn complementary_count(p_year: i32) -> u8 {
+    fn epagomenae_count(p_year: i32) -> u8 {
         if Self::is_leap(p_year) {
             2
         } else if p_year == -1 {
@@ -284,7 +284,7 @@ impl HasIntercalaryDays<TranquilityComplementaryDay> for Tranquility {
 
 impl Perennial<TranquilityMonth, Weekday> for Tranquility {
     fn weekday(self) -> Option<Weekday> {
-        if self.complementary().is_some() {
+        if self.epagomenae().is_some() {
             None
         } else {
             Weekday::from_i64(((self.0.day as i64) + 4).modulus(7))
@@ -851,7 +851,7 @@ mod tests {
                 assert!(gc >= gc_min, "gc: {:?}, gc_min: {:?}, q: {:?}", gc, gc_min, q);
                 assert!(gc <= gc_max, "gc: {:?}, gc_max: {:?}, q: {:?}", gc, gc_max, q);
             } else {
-                let qc = q.complementary().unwrap();
+                let qc = q.epagomenae().unwrap();
                 let entry = match qc {
                     TranquilityComplementaryDay::MoonLandingDay => (7, 20),
                     TranquilityComplementaryDay::ArmstrongDay => (7, 20),
@@ -899,7 +899,7 @@ mod tests {
                 assert!(gc >= gc_min, "gc: {:?}, gc_min: {:?}, q: {:?}", gc, gc_min, q);
                 assert!(gc <= gc_max, "gc: {:?}, gc_max: {:?}, q: {:?}", gc, gc_max, q);
             } else {
-                let qc = q.complementary().unwrap();
+                let qc = q.epagomenae().unwrap();
                 let entry = match qc {
                     TranquilityComplementaryDay::MoonLandingDay => (7, 20),
                     TranquilityComplementaryDay::ArmstrongDay => (7, 20),

@@ -19,7 +19,7 @@ use radnelac::calendar::Ethiopic;
 use radnelac::calendar::EthiopicMonth;
 use radnelac::calendar::Gregorian;
 use radnelac::calendar::GregorianMonth;
-use radnelac::calendar::HasIntercalaryDays;
+use radnelac::calendar::HasEpagemonae;
 use radnelac::calendar::HasLeapYears;
 use radnelac::calendar::Holocene;
 use radnelac::calendar::HoloceneMonth;
@@ -106,7 +106,7 @@ proptest! {
         locked::<ArmenianMonth, EgyptianMonth, Armenian, Egyptian>(d);
         let a = Armenian::try_from_common_date(d).unwrap();
         let e = Egyptian::try_from_common_date(d).unwrap();
-        assert_eq!(a.complementary().is_some(), e.complementary().is_some());
+        assert_eq!(a.epagomenae().is_some(), e.epagomenae().is_some());
     }
 
     #[test]
@@ -115,7 +115,7 @@ proptest! {
         locked::<ArmenianMonth, EgyptianMonth, Armenian, Egyptian>(d);
         let a = Armenian::try_from_common_date(d).unwrap();
         let e = Egyptian::try_from_common_date(d).unwrap();
-        assert_eq!(a.complementary().is_some(), e.complementary().is_some());
+        assert_eq!(a.epagomenae().is_some(), e.epagomenae().is_some());
     }
 
     #[test]

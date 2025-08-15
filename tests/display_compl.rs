@@ -14,7 +14,7 @@ mod display_logic {
     pub use radnelac::calendar::CotsworthMonth;
     pub use radnelac::calendar::FrenchRevArith;
     pub use radnelac::calendar::FrenchRevMonth;
-    pub use radnelac::calendar::HasIntercalaryDays;
+    pub use radnelac::calendar::HasEpagemonae;
     pub use radnelac::calendar::HasLeapYears;
     pub use radnelac::calendar::Positivist;
     pub use radnelac::calendar::PositivistComplementaryDay;
@@ -35,7 +35,7 @@ mod display_logic {
     where
         S: FromPrimitive + ToPrimitive,
         T: FromPrimitive + ToPrimitive,
-        U: ToFromCommonDate<S> + HasIntercalaryDays<T> + PresetDisplay + PartialOrd,
+        U: ToFromCommonDate<S> + HasEpagemonae<T> + PresetDisplay + PartialOrd,
     {
         let d = U::try_from_common_date(cd).unwrap();
         let s = d.preset_str(lang, COMPL_ONLY);

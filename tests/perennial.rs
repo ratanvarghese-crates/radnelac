@@ -12,7 +12,7 @@ use radnelac::calendar::CotsworthMonth;
 use radnelac::calendar::FrenchRevArith;
 use radnelac::calendar::FrenchRevMonth;
 use radnelac::calendar::FrenchRevWeekday;
-use radnelac::calendar::HasIntercalaryDays;
+use radnelac::calendar::HasEpagemonae;
 use radnelac::calendar::Positivist;
 use radnelac::calendar::PositivistComplementaryDay;
 use radnelac::calendar::PositivistMonth;
@@ -42,14 +42,14 @@ fn complementary_xor_weekday<
     S: FromPrimitive + ToPrimitive,
     T: FromPrimitive + ToPrimitive,
     U: FromPrimitive + ToPrimitive,
-    V: Perennial<S, U> + FromFixed + HasIntercalaryDays<T>,
+    V: Perennial<S, U> + FromFixed + HasEpagemonae<T>,
 >(
     t: f64,
 ) {
     let t0 = RataDie::new(t).to_fixed().to_day();
     let r0 = V::from_fixed(t0);
     let w0 = r0.weekday();
-    let s0 = r0.complementary();
+    let s0 = r0.epagomenae();
     assert_ne!(w0.is_some(), s0.is_some());
     assert_ne!(w0.is_none(), s0.is_none());
 }

@@ -130,10 +130,15 @@ pub trait GuaranteedMonth<T: FromPrimitive + ToPrimitive>: ToFromCommonDate<T> {
     }
 }
 
-/// Calendar systems which have intercalary days
-pub trait HasIntercalaryDays<T: FromPrimitive + ToPrimitive> {
-    fn complementary(self) -> Option<T>;
-    fn complementary_count(year: i32) -> u8;
+/// Calendar systems which have epagomenae
+///
+/// "Epagomenae" are also known as "intercalary days", "blank days" or "monthless days".[^1][^2]
+///
+/// [^1]: <https://en.wikipedia.org/wiki/Intercalary_month_(Egypt)>
+/// [^2]: <https://en.wikipedia.org/wiki/Intercalation_(timekeeping)>
+pub trait HasEpagemonae<T: FromPrimitive + ToPrimitive> {
+    fn epagomenae(self) -> Option<T>;
+    fn epagomenae_count(year: i32) -> u8;
 }
 
 /// Calendar systems which are perennial

@@ -21,7 +21,7 @@ use radnelac::calendar::FrenchRevArith;
 use radnelac::calendar::FrenchRevMonth;
 use radnelac::calendar::Gregorian;
 use radnelac::calendar::GregorianMonth;
-use radnelac::calendar::HasIntercalaryDays;
+use radnelac::calendar::HasEpagemonae;
 use radnelac::calendar::Holocene;
 use radnelac::calendar::HoloceneMonth;
 use radnelac::calendar::Julian;
@@ -230,7 +230,7 @@ proptest! {
         let t = TranquilityMoment::epoch().get() + dt;
         let tq0 = TranquilityMoment::from_fixed(Fixed::new(t));
         let tq1 = TranquilityMoment::from_fixed(Fixed::new(t + 1.0));
-        match (tq0.complementary(), tq1.complementary()) {
+        match (tq0.epagomenae(), tq1.epagomenae()) {
             (None, None) => one_more_day::<TranquilityMonth, TranquilityMoment>(t),
             (None, Some(TranquilityComplementaryDay::AldrinDay)) => {
                 assert_eq!(tq0.to_common_date(), CommonDate::new(tq0.year(), 8, 27))

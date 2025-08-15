@@ -12,7 +12,7 @@ use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::prelude::ToFromOrdinalDate;
 use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
-use crate::calendar::HasIntercalaryDays;
+use crate::calendar::HasEpagemonae;
 use crate::calendar::OrdinalDate;
 use crate::common::error::CalendarError;
 use crate::common::math::TermNum;
@@ -113,8 +113,8 @@ impl ToFromOrdinalDate for Cotsworth {
     }
 }
 
-impl HasIntercalaryDays<CotsworthComplementaryDay> for Cotsworth {
-    fn complementary(self) -> Option<CotsworthComplementaryDay> {
+impl HasEpagemonae<CotsworthComplementaryDay> for Cotsworth {
+    fn epagomenae(self) -> Option<CotsworthComplementaryDay> {
         if self.0.day == 29 && self.0.month == (CotsworthMonth::December as u8) {
             Some(CotsworthComplementaryDay::YearDay)
         } else if self.0.day == 29 && self.0.month == (CotsworthMonth::June as u8) {
@@ -124,7 +124,7 @@ impl HasIntercalaryDays<CotsworthComplementaryDay> for Cotsworth {
         }
     }
 
-    fn complementary_count(p_year: i32) -> u8 {
+    fn epagomenae_count(p_year: i32) -> u8 {
         if Cotsworth::is_leap(p_year) {
             2
         } else {
@@ -135,7 +135,7 @@ impl HasIntercalaryDays<CotsworthComplementaryDay> for Cotsworth {
 
 impl Perennial<CotsworthMonth, Weekday> for Cotsworth {
     fn weekday(self) -> Option<Weekday> {
-        if self.complementary().is_some() {
+        if self.epagomenae().is_some() {
             None
         } else {
             Weekday::from_i64(((self.0.day as i64) - 1).modulus(7))

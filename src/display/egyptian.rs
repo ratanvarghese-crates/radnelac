@@ -4,7 +4,7 @@
 
 use crate::calendar::CommonWeekOfYear;
 use crate::calendar::Egyptian;
-use crate::calendar::HasIntercalaryDays;
+use crate::calendar::HasEpagemonae;
 use crate::calendar::ToFromCommonDate;
 use crate::calendar::ToFromOrdinalDate;
 use crate::clock::TimeOfDay;
@@ -48,7 +48,7 @@ impl DisplayItem for Egyptian {
             NumericContent::SecondsSinceEpoch => fmt_seconds_since_epoch(*self, opt),
             NumericContent::Quarter => fmt_quarter(*self, opt),
             NumericContent::DaysSinceEpoch => fmt_days_since_epoch(*self, opt),
-            NumericContent::ComplementaryDay => match self.complementary() {
+            NumericContent::ComplementaryDay => match self.epagomenae() {
                 Some(d) => fmt_number(d as i16, opt),
                 None => "".to_string(),
             },
@@ -105,7 +105,7 @@ impl DisplayItem for Egyptian {
                     dict.birth_of_isis,
                     dict.birth_of_nephthys,
                 ];
-                match self.complementary() {
+                match self.epagomenae() {
                     Some(d) => fmt_string(days[d as usize - 1], opt),
                     None => fmt_string("", opt),
                 }
@@ -117,7 +117,7 @@ impl DisplayItem for Egyptian {
 
 impl PresetDisplay for Egyptian {
     fn long_date(&self) -> String {
-        let p = match self.complementary() {
+        let p = match self.epagomenae() {
             None => LONG_DATE,
             Some(_) => LONG_COMPL,
         };

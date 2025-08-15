@@ -9,7 +9,7 @@ use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
-use crate::calendar::HasIntercalaryDays;
+use crate::calendar::HasEpagemonae;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
@@ -128,7 +128,7 @@ pub enum ArmenianDaysOfMonth {
 /// let c = CommonDate::new(1462, 13, 5);
 /// let a = Armenian::try_from_common_date(c).unwrap();
 /// assert!(a.try_month().is_none());
-/// assert!(a.complementary().is_some());
+/// assert!(a.epagomenae().is_some());
 /// ```
 ///
 /// ## Further reading
@@ -220,8 +220,8 @@ impl ToFromCommonDate<ArmenianMonth> for Armenian {
     }
 }
 
-impl HasIntercalaryDays<u8> for Armenian {
-    fn complementary(self) -> Option<u8> {
+impl HasEpagemonae<u8> for Armenian {
+    fn epagomenae(self) -> Option<u8> {
         if self.0.month == NON_MONTH {
             Some(self.0.day)
         } else {
@@ -229,7 +229,7 @@ impl HasIntercalaryDays<u8> for Armenian {
         }
     }
 
-    fn complementary_count(_year: i32) -> u8 {
+    fn epagomenae_count(_year: i32) -> u8 {
         5
     }
 }

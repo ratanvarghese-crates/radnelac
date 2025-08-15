@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 use crate::calendar::Cotsworth;
-use crate::calendar::HasIntercalaryDays;
+use crate::calendar::HasEpagemonae;
 use crate::calendar::Perennial;
 use crate::calendar::ToFromCommonDate;
 use crate::calendar::ToFromOrdinalDate;
@@ -48,7 +48,7 @@ impl DisplayItem for Cotsworth {
             NumericContent::SecondsSinceEpoch => fmt_seconds_since_epoch(*self, opt),
             NumericContent::Quarter => fmt_quarter(*self, opt),
             NumericContent::DaysSinceEpoch => fmt_days_since_epoch(*self, opt),
-            NumericContent::ComplementaryDay => match self.complementary() {
+            NumericContent::ComplementaryDay => match self.epagomenae() {
                 Some(d) => fmt_number(d as i8, opt),
                 None => "".to_string(),
             },
@@ -105,7 +105,7 @@ impl DisplayItem for Cotsworth {
             }
             (TextContent::ComplementaryDayName, Some(dict)) => {
                 let compl: [&str; 2] = [dict.year_day, dict.leap_day];
-                let name = match self.complementary() {
+                let name = match self.epagomenae() {
                     Some(d) => compl[(d as usize) - 1],
                     None => "",
                 };

@@ -8,7 +8,7 @@ use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
-use crate::calendar::HasIntercalaryDays;
+use crate::calendar::HasEpagemonae;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
@@ -169,8 +169,8 @@ impl ToFromCommonDate<EgyptianMonth> for Egyptian {
     }
 }
 
-impl HasIntercalaryDays<EgyptianDaysUponTheYear> for Egyptian {
-    fn complementary(self) -> Option<EgyptianDaysUponTheYear> {
+impl HasEpagemonae<EgyptianDaysUponTheYear> for Egyptian {
+    fn epagomenae(self) -> Option<EgyptianDaysUponTheYear> {
         if self.0.month == NON_MONTH {
             EgyptianDaysUponTheYear::from_u8(self.0.day)
         } else {
@@ -178,7 +178,7 @@ impl HasIntercalaryDays<EgyptianDaysUponTheYear> for Egyptian {
         }
     }
 
-    fn complementary_count(_year: i32) -> u8 {
+    fn epagomenae_count(_year: i32) -> u8 {
         5
     }
 }

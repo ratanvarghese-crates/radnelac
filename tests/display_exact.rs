@@ -75,7 +75,7 @@ proptest! {
     }
 
     #[test]
-    fn ethiopic_complementary(t0 in -FIXED_MAX..FIXED_MAX) {
+    fn ethiopic_epagomenae(t0 in -FIXED_MAX..FIXED_MAX) {
         display_blank_complementary::<Ethiopic>(t0);
     }
 
@@ -91,7 +91,7 @@ proptest! {
     }
 
     #[test]
-    fn gregorian_complementary(t0 in -FIXED_MAX..FIXED_MAX) {
+    fn gregorian_epagomenae(t0 in -FIXED_MAX..FIXED_MAX) {
         display_blank_complementary::<Gregorian>(t0);
     }
 
@@ -101,7 +101,7 @@ proptest! {
     }
 
     #[test]
-    fn holocene_complementary(t0 in -FIXED_MAX..FIXED_MAX) {
+    fn holocene_epagomenae(t0 in -FIXED_MAX..FIXED_MAX) {
         display_blank_complementary::<Holocene>(t0);
     }
 
@@ -111,7 +111,7 @@ proptest! {
     }
 
     #[test]
-    fn julian_complementary(t0 in -FIXED_MAX..FIXED_MAX) {
+    fn julian_epagomenae(t0 in -FIXED_MAX..FIXED_MAX) {
         display_blank_complementary::<Julian>(t0);
     }
 
@@ -129,7 +129,7 @@ proptest! {
     }
 
     #[test]
-    fn symmetry_complementary(t0 in -FIXED_MAX..FIXED_MAX) {
+    fn symmetry_epagomenae(t0 in -FIXED_MAX..FIXED_MAX) {
         display_blank_complementary::<Symmetry010>(t0);
         display_blank_complementary::<Symmetry454>(t0);
         display_blank_complementary::<Symmetry010Solstice>(t0);

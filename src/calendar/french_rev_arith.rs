@@ -10,7 +10,7 @@ use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
-use crate::calendar::HasIntercalaryDays;
+use crate::calendar::HasEpagemonae;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
@@ -197,8 +197,8 @@ impl<const L: bool> FrenchRevArith<L> {
     }
 }
 
-impl<const L: bool> HasIntercalaryDays<Sansculottide> for FrenchRevArith<L> {
-    fn complementary(self) -> Option<Sansculottide> {
+impl<const L: bool> HasEpagemonae<Sansculottide> for FrenchRevArith<L> {
+    fn epagomenae(self) -> Option<Sansculottide> {
         if self.0.month == NON_MONTH {
             Sansculottide::from_u8(self.0.day)
         } else {
@@ -206,7 +206,7 @@ impl<const L: bool> HasIntercalaryDays<Sansculottide> for FrenchRevArith<L> {
         }
     }
 
-    fn complementary_count(f_year: i32) -> u8 {
+    fn epagomenae_count(f_year: i32) -> u8 {
         if FrenchRevArith::<L>::is_leap(f_year) {
             6
         } else {
@@ -299,7 +299,7 @@ impl<const L: bool> ToFromCommonDate<FrenchRevMonth> for FrenchRevArith<L> {
         } else if date.month < NON_MONTH && date.day > 30 {
             Err(CalendarError::InvalidDay)
         } else if date.month == NON_MONTH
-            && date.day > FrenchRevArith::<L>::complementary_count(date.year)
+            && date.day > FrenchRevArith::<L>::epagomenae_count(date.year)
         {
             Err(CalendarError::InvalidDay)
         } else {
@@ -311,7 +311,7 @@ impl<const L: bool> ToFromCommonDate<FrenchRevMonth> for FrenchRevArith<L> {
         CommonDate::new(
             year,
             NON_MONTH,
-            FrenchRevArith::<L>::complementary_count(year),
+            FrenchRevArith::<L>::epagomenae_count(year),
         )
     }
 }

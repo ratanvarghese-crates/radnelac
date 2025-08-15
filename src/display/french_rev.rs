@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 use crate::calendar::FrenchRevArith;
-use crate::calendar::HasIntercalaryDays;
+use crate::calendar::HasEpagemonae;
 use crate::calendar::Perennial;
 use crate::calendar::ToFromCommonDate;
 use crate::calendar::ToFromOrdinalDate;
@@ -49,7 +49,7 @@ impl<const L: bool> DisplayItem for FrenchRevArith<L> {
             NumericContent::SecondsSinceEpoch => fmt_seconds_since_epoch(*self, opt),
             NumericContent::Quarter => fmt_quarter(*self, opt),
             NumericContent::DaysSinceEpoch => fmt_days_since_epoch(*self, opt),
-            NumericContent::ComplementaryDay => match self.complementary() {
+            NumericContent::ComplementaryDay => match self.epagomenae() {
                 Some(d) => fmt_number(d as i8, opt),
                 None => "".to_string(),
             },
@@ -128,7 +128,7 @@ impl<const L: bool> DisplayItem for FrenchRevArith<L> {
                     dict.fete_des_recompenses,
                     dict.fete_de_la_revolution,
                 ];
-                let name = match self.complementary() {
+                let name = match self.epagomenae() {
                     Some(d) => sansculottides[(d as usize) - 1],
                     None => "",
                 };
@@ -141,7 +141,7 @@ impl<const L: bool> DisplayItem for FrenchRevArith<L> {
 
 impl<const L: bool> PresetDisplay for FrenchRevArith<L> {
     fn long_date(&self) -> String {
-        if self.complementary().is_some() {
+        if self.epagomenae().is_some() {
             self.preset_str(Language::EN, LONG_COMPL)
         } else {
             self.preset_str(Language::EN, LONG_DATE)

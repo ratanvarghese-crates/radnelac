@@ -5,7 +5,7 @@
 use crate::calendar::CommonDate;
 use crate::calendar::CommonWeekOfYear;
 use crate::calendar::GuaranteedMonth;
-use crate::calendar::HasIntercalaryDays;
+use crate::calendar::HasEpagemonae;
 use crate::calendar::HasLeapYears;
 use crate::calendar::OrdinalDate;
 use crate::calendar::Perennial;
@@ -160,17 +160,17 @@ where
     }
 }
 
-impl<T, U> HasIntercalaryDays<T> for CalendarMoment<U>
+impl<T, U> HasEpagemonae<T> for CalendarMoment<U>
 where
     T: FromPrimitive + ToPrimitive,
-    U: HasIntercalaryDays<T>,
+    U: HasEpagemonae<T>,
 {
-    fn complementary(self) -> Option<T> {
-        self.date.complementary()
+    fn epagomenae(self) -> Option<T> {
+        self.date.epagomenae()
     }
 
-    fn complementary_count(p_year: i32) -> u8 {
-        U::complementary_count(p_year)
+    fn epagomenae_count(p_year: i32) -> u8 {
+        U::epagomenae_count(p_year)
     }
 }
 
