@@ -47,33 +47,6 @@ pub enum GregorianMonth {
     December,
 }
 
-impl GregorianMonth {
-    pub fn length(self, leap: bool) -> u8 {
-        //LISTING ?? SECTION 2.1 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
-        //TODO: use listing 2.1 here?
-        match self {
-            GregorianMonth::January => 31,
-            GregorianMonth::February => {
-                if leap {
-                    29
-                } else {
-                    28
-                }
-            }
-            GregorianMonth::March => 31,
-            GregorianMonth::April => 30,
-            GregorianMonth::May => 31,
-            GregorianMonth::June => 30,
-            GregorianMonth::July => 31,
-            GregorianMonth::August => 31,
-            GregorianMonth::September => 30,
-            GregorianMonth::October => 31,
-            GregorianMonth::November => 30,
-            GregorianMonth::December => 31,
-        }
-    }
-}
-
 /// Represents a date in the proleptic Gregorian calendar
 ///
 /// According to Wikipedia:
@@ -237,7 +210,7 @@ impl ToFromCommonDate<GregorianMonth> for Gregorian {
             Err(CalendarError::InvalidMonth)
         } else if date.day < 1 {
             Err(CalendarError::InvalidDay)
-        } else if date.day > month_opt.unwrap().length(Gregorian::is_leap(date.year)) {
+        } else if date.day > Self::month_length(date.year, month_opt.unwrap()) {
             Err(CalendarError::InvalidDay)
         } else {
             Ok(())
@@ -247,7 +220,32 @@ impl ToFromCommonDate<GregorianMonth> for Gregorian {
     fn year_end_date(year: i32) -> CommonDate {
         //LISTING 2.19 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         let m = GregorianMonth::December;
-        CommonDate::new(year, m as u8, m.length(Gregorian::is_leap(year)))
+        CommonDate::new(year, m as u8, Self::month_length(year, m))
+    }
+
+    fn month_length(year: i32, month: GregorianMonth) -> u8 {
+        //LISTING ?? SECTION 2.1 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //TODO: use listing 2.1 here?
+        match month {
+            GregorianMonth::January => 31,
+            GregorianMonth::February => {
+                if Gregorian::is_leap(year) {
+                    29
+                } else {
+                    28
+                }
+            }
+            GregorianMonth::March => 31,
+            GregorianMonth::April => 30,
+            GregorianMonth::May => 31,
+            GregorianMonth::June => 30,
+            GregorianMonth::July => 31,
+            GregorianMonth::August => 31,
+            GregorianMonth::September => 30,
+            GregorianMonth::October => 31,
+            GregorianMonth::November => 30,
+            GregorianMonth::December => 31,
+        }
     }
 }
 

@@ -53,22 +53,6 @@ pub enum CopticMonth {
     Epagomene,
 }
 
-impl CopticMonth {
-    pub fn length(self, leap: bool) -> u8 {
-        //LISTING ?? SECTION 4.1 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
-        match self {
-            CopticMonth::Epagomene => {
-                if leap {
-                    6
-                } else {
-                    5
-                }
-            }
-            _ => 30,
-        }
-    }
-}
-
 /// Represents a date in the Coptic calendar
 ///
 /// ## Further reading
@@ -174,7 +158,7 @@ impl ToFromCommonDate<CopticMonth> for Coptic {
             Err(CalendarError::InvalidMonth)
         } else if date.day < 1 {
             Err(CalendarError::InvalidDay)
-        } else if date.day > month_opt.unwrap().length(Coptic::is_leap(date.year)) {
+        } else if date.day > Self::month_length(date.year, month_opt.unwrap()) {
             Err(CalendarError::InvalidDay)
         } else {
             Ok(())
@@ -183,7 +167,16 @@ impl ToFromCommonDate<CopticMonth> for Coptic {
 
     fn year_end_date(year: i32) -> CommonDate {
         let m = CopticMonth::Epagomene;
-        CommonDate::new(year, m as u8, m.length(Coptic::is_leap(year)))
+        CommonDate::new(year, m as u8, Self::month_length(year, m))
+    }
+
+    fn month_length(year: i32, month: CopticMonth) -> u8 {
+        //LISTING ?? SECTION 4.1 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        match (month, Coptic::is_leap(year)) {
+            (CopticMonth::Epagomene, false) => 5,
+            (CopticMonth::Epagomene, true) => 6,
+            (_, _) => 30,
+        }
     }
 }
 

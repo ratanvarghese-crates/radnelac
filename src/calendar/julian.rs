@@ -10,6 +10,7 @@ use crate::calendar::prelude::HasLeapYears;
 use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::CalendarMoment;
+use crate::calendar::Gregorian;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
@@ -183,7 +184,7 @@ impl ToFromCommonDate<JulianMonth> for Julian {
             Err(CalendarError::InvalidMonth)
         } else if date.day < 1 {
             Err(CalendarError::InvalidDay)
-        } else if date.day > month_opt.unwrap().length(Julian::is_leap(date.year)) {
+        } else if date.day > Julian::month_length(date.year, month_opt.unwrap()) {
             Err(CalendarError::InvalidDay)
         } else if date.year == 0 {
             Err(CalendarError::InvalidYear)
@@ -194,7 +195,22 @@ impl ToFromCommonDate<JulianMonth> for Julian {
 
     fn year_end_date(year: i32) -> CommonDate {
         let m = JulianMonth::December;
-        CommonDate::new(year, m as u8, m.length(Julian::is_leap(year)))
+        CommonDate::new(year, m as u8, Julian::month_length(year, m))
+    }
+
+    fn month_length(year: i32, month: JulianMonth) -> u8 {
+        //LISTING ?? SECTION 2.1 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
+        //TODO: use listing 2.1 here?
+        match month {
+            JulianMonth::February => {
+                if Julian::is_leap(year) {
+                    29
+                } else {
+                    28
+                }
+            }
+            _ => Gregorian::month_length(year, month),
+        }
     }
 }
 

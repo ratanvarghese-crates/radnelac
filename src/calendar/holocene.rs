@@ -123,6 +123,10 @@ impl ToFromCommonDate<HoloceneMonth> for Holocene {
     fn year_end_date(year: i32) -> CommonDate {
         Gregorian::year_end_date(year)
     }
+
+    fn month_length(year: i32, month: HoloceneMonth) -> u8 {
+        Gregorian::month_length(year, month)
+    }
 }
 
 impl Quarter for Holocene {

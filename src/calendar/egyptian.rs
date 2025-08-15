@@ -167,6 +167,10 @@ impl ToFromCommonDate<EgyptianMonth> for Egyptian {
     fn year_end_date(year: i32) -> CommonDate {
         CommonDate::new(year, NON_MONTH, 5)
     }
+
+    fn month_length(_year: i32, _month: EgyptianMonth) -> u8 {
+        30
+    }
 }
 
 impl HasEpagemonae<EgyptianDaysUponTheYear> for Egyptian {

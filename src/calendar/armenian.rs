@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 use crate::calendar::egyptian::Egyptian;
+use crate::calendar::egyptian::EgyptianMonth;
 use crate::calendar::prelude::CommonDate;
 use crate::calendar::prelude::CommonWeekOfYear;
 use crate::calendar::prelude::Quarter;
@@ -217,6 +218,11 @@ impl ToFromCommonDate<ArmenianMonth> for Armenian {
 
     fn year_end_date(year: i32) -> CommonDate {
         Egyptian::year_end_date(year)
+    }
+
+    fn month_length(year: i32, month: ArmenianMonth) -> u8 {
+        let em = EgyptianMonth::from_u8(month as u8).expect("Same number of months");
+        Egyptian::month_length(year, em)
     }
 }
 

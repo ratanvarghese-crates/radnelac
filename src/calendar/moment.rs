@@ -113,6 +113,10 @@ where
         U::year_end_date(year)
     }
 
+    fn month_length(year: i32, month: T) -> u8 {
+        U::month_length(year, month)
+    }
+
     fn in_effective_bounds(d: CommonDate) -> bool {
         U::in_effective_bounds(d)
     }

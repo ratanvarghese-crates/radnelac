@@ -401,6 +401,10 @@ impl ToFromCommonDate<TranquilityMonth> for Tranquility {
             )
         }
     }
+
+    fn month_length(_year: i32, _month: TranquilityMonth) -> u8 {
+        28
+    }
 }
 
 impl Quarter for Tranquility {

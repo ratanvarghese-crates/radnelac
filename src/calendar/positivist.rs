@@ -223,6 +223,10 @@ impl ToFromCommonDate<PositivistMonth> for Positivist {
     fn year_end_date(year: i32) -> CommonDate {
         CommonDate::new(year, NON_MONTH, Positivist::epagomenae_count(year))
     }
+
+    fn month_length(_year: i32, _month: PositivistMonth) -> u8 {
+        28
+    }
 }
 
 impl Quarter for Positivist {

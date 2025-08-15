@@ -57,6 +57,8 @@ pub trait ToFromCommonDate<T: FromPrimitive>: Sized + EffectiveBound {
     }
     /// End of the year as a numeric year, month and day
     fn year_end_date(year: i32) -> CommonDate;
+    /// Length of month in a given year
+    fn month_length(year: i32, month: T) -> u8;
 
     /// [`true`] if the year, month and day is within the supported range of time.
     ///

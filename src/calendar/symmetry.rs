@@ -229,19 +229,6 @@ impl<const T: bool, const U: bool> Symmetry<T, U> {
             (sym_year, start_of_year)
         }
     }
-
-    /// This function is not described by Dr. Bromberg and is not
-    /// used in conversion to and from other timekeeping systems.
-    /// Instead it is used for checking if a [CommonDate] is valid.
-    pub fn days_in_month(month: SymmetryMonth) -> u8 {
-        if month == SymmetryMonth::Irvember {
-            7
-        } else if T {
-            (28 + (7 * ((month as u8).modulus(3).div_euclid(2)))) as u8
-        } else {
-            (30 + (month as u8).modulus(3).div_euclid(2)) as u8
-        }
-    }
 }
 
 impl<const T: bool, const U: bool> AllowYearZero for Symmetry<T, U> {}
@@ -352,7 +339,7 @@ impl<const T: bool, const U: bool> ToFromCommonDate<SymmetryMonth> for Symmetry<
             Err(CalendarError::InvalidMonth)
         } else if date.day < 1 {
             Err(CalendarError::InvalidDay)
-        } else if date.day > Self::days_in_month(month_opt.unwrap()) {
+        } else if date.day > Self::month_length(date.year, month_opt.unwrap()) {
             Err(CalendarError::InvalidDay)
         } else {
             Ok(())
@@ -365,7 +352,18 @@ impl<const T: bool, const U: bool> ToFromCommonDate<SymmetryMonth> for Symmetry<
         } else {
             SymmetryMonth::December
         };
-        CommonDate::new(year, m as u8, Self::days_in_month(m))
+        CommonDate::new(year, m as u8, Self::month_length(year, m))
+    }
+
+    fn month_length(_year: i32, month: SymmetryMonth) -> u8 {
+        // This function is not described by Dr. Bromberg and is not
+        // used in conversion to and from other timekeeping systems.
+        // Instead it is used for checking if a [CommonDate] is valid.
+        match (month, T) {
+            (SymmetryMonth::Irvember, _) => 7,
+            (_, true) => (28 + (7 * ((month as u8).modulus(3).div_euclid(2)))) as u8,
+            (_, false) => (30 + (month as u8).modulus(3).div_euclid(2)) as u8,
+        }
     }
 }
 
@@ -611,7 +609,7 @@ mod tests {
         #[test]
         fn month_end_on_sunday_454(year in -MAX_YEARS..MAX_YEARS, month in 1..12) {
             let m = SymmetryMonth::from_i32(month).unwrap();
-            let c = CommonDate::new(year as i32, month as u8, Symmetry454::days_in_month(m));
+            let c = CommonDate::new(year as i32, month as u8, Symmetry454::month_length(year, m));
             let d = Symmetry454::try_from_common_date(c).unwrap();
             assert_eq!(d.convert::<Weekday>(), Weekday::Sunday);
             let d = Symmetry454Solstice::try_from_common_date(c).unwrap();

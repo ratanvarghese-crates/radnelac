@@ -12,6 +12,7 @@ use crate::calendar::prelude::Quarter;
 use crate::calendar::prelude::ToFromCommonDate;
 use crate::calendar::AllowYearZero;
 use crate::calendar::CalendarMoment;
+use crate::calendar::CopticMonth;
 use crate::calendar::OrdinalDate;
 use crate::calendar::ToFromOrdinalDate;
 use crate::common::error::CalendarError;
@@ -164,6 +165,11 @@ impl ToFromCommonDate<EthiopicMonth> for Ethiopic {
 
     fn year_end_date(year: i32) -> CommonDate {
         Coptic::year_end_date(year)
+    }
+
+    fn month_length(year: i32, month: EthiopicMonth) -> u8 {
+        let em = CopticMonth::from_u8(month as u8).expect("Same number of months");
+        Coptic::month_length(year, em)
     }
 }
 

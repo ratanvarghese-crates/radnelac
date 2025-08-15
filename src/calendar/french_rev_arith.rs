@@ -308,11 +308,11 @@ impl<const L: bool> ToFromCommonDate<FrenchRevMonth> for FrenchRevArith<L> {
     }
 
     fn year_end_date(year: i32) -> CommonDate {
-        CommonDate::new(
-            year,
-            NON_MONTH,
-            FrenchRevArith::<L>::epagomenae_count(year),
-        )
+        CommonDate::new(year, NON_MONTH, FrenchRevArith::<L>::epagomenae_count(year))
+    }
+
+    fn month_length(_year: i32, _month: FrenchRevMonth) -> u8 {
+        30
     }
 }
 

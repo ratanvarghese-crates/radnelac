@@ -144,9 +144,8 @@ proptest! {
 
     #[test]
     fn gregorian_month_end(year in -MAX_YEARS..MAX_YEARS, month in 1..12) {
-        let leap = Gregorian::is_leap(year);
         let min: u8 = 28;
-        let max: u8 = GregorianMonth::from_u8(month as u8).unwrap().length(leap) + 1;
+        let max: u8 = Gregorian::month_length(year, GregorianMonth::from_u8(month as u8).unwrap()) + 1;
         for d in min..max {
             month_is_some::<GregorianMonth, Gregorian>(year, month as u8, d as u8);
             month_is_some::<GregorianMonth, GregorianMoment>(year, month as u8, d as u8);
@@ -161,9 +160,8 @@ proptest! {
 
     #[test]
     fn holocene_month_end(year in -MAX_YEARS..MAX_YEARS, month in 1..12) {
-        let leap = Holocene::is_leap(year);
         let min: u8 = 28;
-        let max: u8 = HoloceneMonth::from_u8(month as u8).unwrap().length(leap) + 1;
+        let max: u8 = Holocene::month_length(year, HoloceneMonth::from_u8(month as u8).unwrap()) + 1;
         for d in min..max {
             month_is_some::<HoloceneMonth, Holocene>(year, month as u8, d as u8);
             month_is_some::<HoloceneMonth, HoloceneMoment>(year, month as u8, d as u8);
@@ -180,9 +178,8 @@ proptest! {
     #[test]
     fn julian_month_end(year in -MAX_YEARS..MAX_YEARS, month in 1..12) {
         prop_assume!(year != 0);
-        let leap = Julian::is_leap(year);
         let min: u8 = 28;
-        let max: u8 = JulianMonth::from_u8(month as u8).unwrap().length(leap) + 1;
+        let max: u8 = Julian::month_length(year, JulianMonth::from_u8(month as u8).unwrap()) + 1;
         for d in min..max {
             month_is_some::<JulianMonth, Julian>(year, month as u8, d as u8);
             month_is_some::<JulianMonth, JulianMoment>(year, month as u8, d as u8);
@@ -220,22 +217,22 @@ proptest! {
     #[test]
     fn symmetry_normal_month_end(year in -MAX_YEARS..MAX_YEARS, month in 1..12) {
         let min: u8 = 28;
-        let max: u8 = Symmetry010::days_in_month(SymmetryMonth::from_u8(month as u8).unwrap()) + 1;
+        let max: u8 = Symmetry010::month_length(year, SymmetryMonth::from_u8(month as u8).unwrap()) + 1;
         for d in min..max {
             month_is_some::<SymmetryMonth, Symmetry010>(year, month as u8, d as u8);
             month_is_some::<SymmetryMonth, Symmetry010Moment>(year, month as u8, d as u8);
         }
-        let max: u8 = Symmetry454::days_in_month(SymmetryMonth::from_u8(month as u8).unwrap()) + 1;
+        let max: u8 = Symmetry454::month_length(year, SymmetryMonth::from_u8(month as u8).unwrap()) + 1;
         for d in min..max {
             month_is_some::<SymmetryMonth, Symmetry454>(year, month as u8, d as u8);
             month_is_some::<SymmetryMonth, Symmetry454Moment>(year, month as u8, d as u8);
         }
-        let max: u8 = Symmetry010Solstice::days_in_month(SymmetryMonth::from_u8(month as u8).unwrap()) + 1;
+        let max: u8 = Symmetry010Solstice::month_length(year, SymmetryMonth::from_u8(month as u8).unwrap()) + 1;
         for d in min..max {
             month_is_some::<SymmetryMonth, Symmetry010Solstice>(year, month as u8, d as u8);
             month_is_some::<SymmetryMonth, Symmetry010SolsticeMoment>(year, month as u8, d as u8);
         }
-        let max: u8 = Symmetry454Solstice::days_in_month(SymmetryMonth::from_u8(month as u8).unwrap()) + 1;
+        let max: u8 = Symmetry454Solstice::month_length(year, SymmetryMonth::from_u8(month as u8).unwrap()) + 1;
         for d in min..max {
             month_is_some::<SymmetryMonth, Symmetry454Solstice>(year, month as u8, d as u8);
             month_is_some::<SymmetryMonth, Symmetry454SolsticeMoment>(year, month as u8, d as u8);

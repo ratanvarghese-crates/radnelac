@@ -213,6 +213,15 @@ impl ToFromCommonDate<CotsworthMonth> for Cotsworth {
     fn year_end_date(year: i32) -> CommonDate {
         CommonDate::new(year, CotsworthMonth::December as u8, 29)
     }
+
+    fn month_length(year: i32, month: CotsworthMonth) -> u8 {
+        let approx_len = Cotsworth::days_per_week() * Cotsworth::weeks_per_month();
+        match (month, Cotsworth::is_leap(year)) {
+            (CotsworthMonth::June, true) => approx_len + 1,
+            (CotsworthMonth::December, _) => approx_len + 1,
+            (_, _) => approx_len,
+        }
+    }
 }
 
 impl Quarter for Cotsworth {
