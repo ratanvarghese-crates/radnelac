@@ -328,11 +328,11 @@ impl ToFromCommonDate<CotsworthMonth> for Cotsworth {
 
 impl Quarter for Cotsworth {
     fn quarter(self) -> NonZero<u8> {
-        let m = self.to_common_date().month;
-        if m == 13 {
-            NonZero::new(4 as u8).expect("4 != 0")
-        } else {
-            NonZero::new(((m - 1) / 3) + 1).expect("(m-1)/3 > -1")
+        match (self.try_week_of_year(), self.epagomenae()) {
+            (None, Some(CotsworthComplementaryDay::YearDay)) => NonZero::new(4).unwrap(),
+            (None, Some(CotsworthComplementaryDay::LeapDay)) => NonZero::new(2).unwrap(),
+            (Some(w), None) => NonZero::new((w - 1) / 13 + 1).expect("w > 0"),
+            (_, _) => unreachable!(),
         }
     }
 }

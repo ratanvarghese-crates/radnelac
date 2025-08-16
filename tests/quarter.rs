@@ -130,8 +130,17 @@ proptest! {
     }
 
     #[test]
-    fn cotsworth_boundary(y in -MAX_YEARS..MAX_YEARS) {
-        quarter_boundary_m13::<CotsworthMonth, Cotsworth>(y);
+    fn cotsworth_boundary(year in -MAX_YEARS..MAX_YEARS) {
+        // https://archive.org/details/rationalalmanact00cotsuoft/page/n1/mode/2up
+        // Not the true quarter boundaries because they don't lie on month boundaries
+        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 1, 1);
+        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 4, 1);
+        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 5, 2);
+        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 7, 2);
+        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 8, 3);
+        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 10, 3);
+        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 11, 4);
+        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 13, 4);
     }
 
     #[test]
