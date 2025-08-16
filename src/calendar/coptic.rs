@@ -55,8 +55,47 @@ pub enum CopticMonth {
 
 /// Represents a date in the Coptic calendar
 ///
+/// ## Introduction
+///
+/// The Coptic calendar (also called the Alexandrian calendar or the Calendar of Martyrs)
+/// is used by the Coptic Orthodox Church and the Coptic Catholic Church. Historically it
+/// was also used for fiscal purposes in Egypt.
+///
+/// ## Basic Structure
+///
+/// Years are divided into 13 months. The first 12 months have 30 days each. The final month
+/// has 5 days in a common year and 6 days in a leap year.
+///
+/// There is 1 leap year every four years. This leap year occurs *before* the Julian leap year.
+/// In other words, if a given year is divisible by 4, the year *before* was a leap year.
+///
+/// ## Epoch
+///
+/// Years are numbered from the start of the reign of the Roman Emperor Diocletian.
+///
+/// ## Representation and Examples
+///
+/// The months are represented in this crate as [`CopticMonth`].
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c_1_1 = CommonDate::new(1741, 1, 1);
+/// let a_1_1 = Coptic::try_from_common_date(c_1_1).unwrap();
+/// assert_eq!(a_1_1.month(), CopticMonth::Thoout);
+/// let c_12_30 = CommonDate::new(1741, 12, 30);
+/// let a_12_30 = Coptic::try_from_common_date(c_12_30).unwrap();
+/// assert_eq!(a_12_30.month(), CopticMonth::Mesore);
+/// ```
+///
 /// ## Further reading
-/// + [Wikipedia](https://en.wikipedia.org/wiki/Coptic_calendar)
+/// + Wikipedia
+///   + [Coptic Calendar](https://en.wikipedia.org/wiki/Coptic_calendar)
+///   + [Era of the Martyrs](https://en.wikipedia.org/wiki/Era_of_the_Martyrs)
+/// + [Coptic Orthodox Church](https://copticorthodox.church/en/coptic-church/coptic-history/)
+/// + [*The Coptic Christian Heritage* by Lois M. Farag](https://www.google.ca/books/edition/The_Coptic_Christian_Heritage/dYK3AQAAQBAJ)
+/// + [*A Handbook for Travellers in Lower and_Upper Egypt*](https://www.google.ca/books/edition/A_Handbook_for_Travellers_in_Lower_and_U/CnhJYhBzMmgC?hl=en&gbpv=1)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Coptic(CommonDate);
 
@@ -200,10 +239,30 @@ pub type CopticMoment = CalendarMoment<Coptic>;
 mod tests {
     use super::*;
     use crate::calendar::julian::JulianMonth;
+    use crate::calendar::Gregorian;
+    use proptest::prop_assume;
 
     use proptest::proptest;
 
+    #[test]
+    fn handbook() {
+        //https://www.google.ca/books/edition/A_Handbook_for_Travellers_in_Lower_and_U/CnhJYhBzMmgC?hl=en&gbpv=1
+        let c = Coptic::try_from_common_date(CommonDate::new(1604, 1, 1)).unwrap();
+        let g = c.convert::<Gregorian>();
+        assert_eq!(g.to_common_date(), CommonDate::new(1887, 9, 11));
+    }
+
     proptest! {
+        #[test]
+        fn julian_leap_ad(x in 1..(i16::MAX/4)) {
+            let jy: i32 = (x * 4) as i32;
+            prop_assume!(Julian::is_leap(jy));
+            let j = Julian::try_from_common_date(CommonDate::new(jy, 1, 1)).unwrap();
+            let c = j.convert::<Coptic>();
+            assert!(!Coptic::is_leap(c.year()));
+            assert!(Coptic::is_leap(c.year() - 1));
+        }
+
         #[test]
         fn christmas(y in i16::MIN..i16::MAX) {
             //LISTING 4.9 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
