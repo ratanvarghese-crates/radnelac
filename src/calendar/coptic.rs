@@ -71,7 +71,9 @@ pub enum CopticMonth {
 ///
 /// ## Epoch
 ///
-/// Years are numbered from the start of the reign of the Roman Emperor Diocletian.
+/// Years are numbered from the start of the reign of the Roman Emperor Diocletian. Each
+/// individual year starts of the Feast of Neyrouz. Thus the first year of the Coptic calendar
+/// began on 29 August 284 AD of the Julian calendar.
 ///
 /// ## Representation and Examples
 ///
@@ -87,6 +89,23 @@ pub enum CopticMonth {
 /// let c_12_30 = CommonDate::new(1741, 12, 30);
 /// let a_12_30 = Coptic::try_from_common_date(c_12_30).unwrap();
 /// assert_eq!(a_12_30.month(), CopticMonth::Mesore);
+/// ```
+///
+/// The start of the Era of Martyrs can be read programatically.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let e = Coptic::epoch();
+/// let j = Julian::from_fixed(e);
+/// let c = Coptic::from_fixed(e);
+/// assert_eq!(j.year(), 284);
+/// assert_eq!(j.month(), JulianMonth::August);
+/// assert_eq!(j.day(), 29);
+/// assert_eq!(c.year(), 1);
+/// assert_eq!(c.month(), CopticMonth::Thoout);
+/// assert_eq!(c.day(), 1);
 /// ```
 ///
 /// ## Further reading

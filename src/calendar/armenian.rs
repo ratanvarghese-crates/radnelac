@@ -103,6 +103,10 @@ pub enum ArmenianDaysOfMonth {
 /// Years are always 365 days - there are no leap years. Years are divided into 12 months
 /// of 30 days each, with an extra 5 epagomenal days.
 ///
+/// ## Epoch
+///
+/// Year 1 of the Armenian calendar began on 11 July 552 AD of the Julian calendar.
+///
 /// ## Representation and Examples
 ///
 /// The months are represented in this crate as [`ArmenianMonth`].
@@ -130,6 +134,23 @@ pub enum ArmenianDaysOfMonth {
 /// let a = Armenian::try_from_common_date(c).unwrap();
 /// assert!(a.try_month().is_none());
 /// assert!(a.epagomenae().is_some());
+/// ```
+///
+/// The Armenian calendar epoch can be read programatically.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let e = Armenian::epoch();
+/// let j = Julian::from_fixed(e);
+/// let a = Armenian::from_fixed(e);
+/// assert_eq!(j.year(), 552);
+/// assert_eq!(j.month(), JulianMonth::July);
+/// assert_eq!(j.day(), 11);
+/// assert_eq!(a.year(), 1);
+/// assert_eq!(a.try_month().unwrap(), ArmenianMonth::Nawasardi);
+/// assert_eq!(a.day(), 1);
 /// ```
 ///
 /// ## Further reading
@@ -201,7 +222,7 @@ impl ToFixed for Armenian {
 }
 
 /// The epagomenal days at the end of the Armenian calendar year are represented
-/// as month 13 when converting to and from a CommonDate.
+/// as month 13 when converting to and from a [`CommonDate`].
 impl ToFromCommonDate<ArmenianMonth> for Armenian {
     fn to_common_date(self) -> CommonDate {
         self.0
