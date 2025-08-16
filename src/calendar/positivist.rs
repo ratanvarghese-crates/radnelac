@@ -231,9 +231,9 @@ impl ToFromCommonDate<PositivistMonth> for Positivist {
 
 impl Quarter for Positivist {
     fn quarter(self) -> NonZero<u8> {
-        match self.try_month() {
-            Some(PositivistMonth::Bichat) | None => NonZero::new(4 as u8).unwrap(),
-            Some(m) => NonZero::new((((m as u8) - 1) / 3) + 1).expect("(m-1)/3 > -1"),
+        match self.try_week_of_year() {
+            None => NonZero::new(4).unwrap(),
+            Some(w) => NonZero::new((w - 1) / 13 + 1).expect("w > 0"),
         }
     }
 }

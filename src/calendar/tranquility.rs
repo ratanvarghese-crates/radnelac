@@ -409,18 +409,12 @@ impl ToFromCommonDate<TranquilityMonth> for Tranquility {
 
 impl Quarter for Tranquility {
     fn quarter(self) -> NonZero<u8> {
-        let m = self.to_common_date().month;
-        if m == NON_MONTH {
-            let d = self.to_common_date().day;
-            if d == 2 {
-                NonZero::new(3 as u8).expect("2 != 0")
-            } else {
-                NonZero::new(4 as u8).expect("4 != 0")
-            }
-        } else if m == 13 {
-            NonZero::new(4 as u8).expect("4 != 0")
-        } else {
-            NonZero::new(((m - 1) / 3) + 1).expect("(m - 1)/3 > -1")
+        match (self.try_week_of_year(), self.epagomenae()) {
+            (None, Some(TranquilityComplementaryDay::MoonLandingDay)) => NonZero::new(4).unwrap(),
+            (None, Some(TranquilityComplementaryDay::ArmstrongDay)) => NonZero::new(4).unwrap(),
+            (None, Some(TranquilityComplementaryDay::AldrinDay)) => NonZero::new(3).unwrap(),
+            (Some(w), None) => NonZero::new((w - 1) / 13 + 1).expect("w > 0"),
+            (_, _) => unreachable!(),
         }
     }
 }

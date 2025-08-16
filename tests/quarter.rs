@@ -103,6 +103,24 @@ fn quarter_boundary_m13<
     quarter_boundary::<S, T>(year, 13, 4);
 }
 
+fn quarter_boundary_cotsworth<
+    S: FromPrimitive + ToPrimitive,
+    T: Quarter + FromFixed + ToFromCommonDate<S>,
+>(
+    year: i32,
+) {
+    // https://archive.org/details/rationalalmanact00cotsuoft/page/n1/mode/2up
+    // Not the true quarter boundaries because they don't lie on month boundaries
+    quarter_boundary::<S, T>(year, 1, 1);
+    quarter_boundary::<S, T>(year, 4, 1);
+    quarter_boundary::<S, T>(year, 5, 2);
+    quarter_boundary::<S, T>(year, 7, 2);
+    quarter_boundary::<S, T>(year, 8, 3);
+    quarter_boundary::<S, T>(year, 10, 3);
+    quarter_boundary::<S, T>(year, 11, 4);
+    quarter_boundary::<S, T>(year, 13, 4);
+}
+
 proptest! {
     #[test]
     fn armenian(t in FIXED_MIN..FIXED_MAX) {
@@ -131,16 +149,7 @@ proptest! {
 
     #[test]
     fn cotsworth_boundary(year in -MAX_YEARS..MAX_YEARS) {
-        // https://archive.org/details/rationalalmanact00cotsuoft/page/n1/mode/2up
-        // Not the true quarter boundaries because they don't lie on month boundaries
-        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 1, 1);
-        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 4, 1);
-        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 5, 2);
-        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 7, 2);
-        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 8, 3);
-        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 10, 3);
-        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 11, 4);
-        quarter_boundary::<CotsworthMonth, Cotsworth>(year, 13, 4);
+        quarter_boundary_cotsworth::<CotsworthMonth, Cotsworth>(year);
     }
 
     #[test]
@@ -218,7 +227,7 @@ proptest! {
 
     #[test]
     fn positivist_boundary(y in -MAX_YEARS..MAX_YEARS) {
-        quarter_boundary_m13::<PositivistMonth, Positivist>(y);
+        quarter_boundary_cotsworth::<PositivistMonth, Positivist>(y);
     }
 
     #[test]
@@ -250,6 +259,6 @@ proptest! {
     #[test]
     fn tranquility_boundary(y in -MAX_YEARS..MAX_YEARS) {
         prop_assume!(y != 0 && y != -1);
-        quarter_boundary_m13::<TranquilityMonth, TranquilityMoment>(y);
+        quarter_boundary_cotsworth::<TranquilityMonth, TranquilityMoment>(y);
     }
 }
