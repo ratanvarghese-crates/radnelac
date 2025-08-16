@@ -105,7 +105,7 @@ pub enum ArmenianDaysOfMonth {
 ///
 /// ## Epoch
 ///
-/// Year 1 of the Armenian calendar began on 11 July 552 AD of the Julian calendar.
+/// The first year of the Armenian calendar began on 11 July 552 AD of the Julian calendar.
 ///
 /// ## Representation and Examples
 ///
