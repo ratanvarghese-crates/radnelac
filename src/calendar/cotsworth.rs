@@ -57,16 +57,118 @@ pub enum CotsworthComplementaryDay {
 }
 
 /// Represents a date in the Cotsworth calendar
-/// (ie. International Fixed Calendar, Eastman plan, Yearal)
 ///
-/// This calendar was originally designed by Moses B Cotsworth.
-/// George Eastman instituted its use within the Eastman Kodak Company from 1928 to 1989.
+/// ## Introduction
+///
+/// The Cotsworth calendar (also called the International Fixed Calendar, the Eastman plan, or
+/// the Yearal) was originally designed by Moses Bruine Cotsworth. The supposed benefits compared
+/// to the Gregorian calendar are that the Cotsworth months all have the same lengths and the
+/// Cotsworth months always start on the same day of the week, every year.
+///
+/// George Eastman instituted the use of the Cotsworth calendar within the Eastman Kodak\
+/// Company from 1928 to 1989.
+///
+/// There was an International Fixed Calendar League advocating for the adoption of the Cotsworth
+/// calendar from 1923 to 1937.
+///
+/// ## Basic structure
+///
+/// Years are divided into 13 months. All months have 4 weeks of 7 days each. The first day of
+/// every month is a Sunday, and the twenty-eighth day of every month is a Saturday.
+///
+/// The final month, December, has an extra day which is not part of any week - this is Year Day.
+///
+/// During leap years the sixth month, June, also has an extra day which is not part of any week -
+/// this is Leap Day. The Cotsworth calendar follows the Gregorian leap year rule: if a Gregorian
+/// year is a leap year, the corresponding Cotsworth year is also a leap year.
+///
+/// The start of any given Gregorian year is also the start of the corresponding Cotsworth year.
+///
+/// ## Epoch
+///
+/// The first year of the Cotsworth calendar is also the first year of the proleptic Gregorian
+/// calendar.
+///
+/// ## Representation and Examples
+///
+/// ### Months
+///
+/// The months are represented in this crate as [`CotsworthMonth`].
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c_1_1 = CommonDate::new(1902, 1, 1);
+/// let a_1_1 = Cotsworth::try_from_common_date(c_1_1).unwrap();
+/// assert_eq!(a_1_1.month(), CotsworthMonth::January);
+/// ```
+///
+/// Note that although many month names are shared with [`GregorianMonth`](crate::calendar::GregorianMonth),
+/// the months of these two calendar systems are represented by distinct enums. This is because:
+///
+/// 1. [`CotsworthMonth::Sol`] has no corresponding [`GregorianMonth`](crate::calendar::GregorianMonth)
+/// 2. Any [`CotsworthMonth`] after [`CotsworthMonth::Sol`] has a different numeric value than
+///    the corresponding [`GregorianMonth`](crate::calendar::GregorianMonth).
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// assert_eq!(CotsworthMonth::June as u8, GregorianMonth::June as u8);
+/// assert!(CotsworthMonth::June < CotsworthMonth::Sol && CotsworthMonth::Sol < CotsworthMonth::July);
+/// assert_ne!(CotsworthMonth::July as u8, GregorianMonth::July as u8);
+///
+/// ```
+///
+/// ### Weekdays
+///
+/// The days of the Cotsworth week are not always the same as the days of the common week.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+/// use radnelac::day_cycle::*;
+///
+/// let c_1_1 = CommonDate::new(2025, 1, 1);
+/// let a_1_1 = Cotsworth::try_from_common_date(c_1_1).unwrap();
+/// assert_eq!(a_1_1.weekday().unwrap(), Weekday::Sunday); //Cotsworth week
+/// assert_eq!(a_1_1.convert::<Weekday>(), Weekday::Wednesday); //Common week
+/// ```
+///
+/// ### Year Day and Leap Day
+///
+/// Year Day and Leap Day can be represented using [`CotsworthComplementaryDay`], or as
+/// December 29 and June 29 respectively.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c_year_day = CommonDate::new(2028, 13, 29);
+/// let a_year_day = Cotsworth::try_from_common_date(c_year_day).unwrap();
+/// assert_eq!(a_year_day.month(), CotsworthMonth::December);
+/// assert_eq!(a_year_day.epagomenae().unwrap(), CotsworthComplementaryDay::YearDay);
+/// assert!(a_year_day.weekday().is_none());
+/// let c_leap_day = CommonDate::new(2028, 6, 29);
+/// let a_leap_day = Cotsworth::try_from_common_date(c_leap_day).unwrap();
+/// assert_eq!(a_leap_day.month(), CotsworthMonth::June);
+/// assert_eq!(a_leap_day.epagomenae().unwrap(), CotsworthComplementaryDay::LeapDay);
+/// assert!(a_leap_day.weekday().is_none());
+///
+/// ```
+///
+/// ## Inconsistencies with Other Implementations
+///
+/// In other implementations of the Cotsworth calendar, Leap Day and Year Day may be treated as
+/// being outside any month. This crate **does not** support that representation - instead
+/// Leap Day is treated as June 29 and Year Day is treated as December 29.
 ///
 /// ## Further reading
+///
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Cotsworth_calendar)
-/// + ["Nation's Business" May 1926](https://www.freexenon.com/wp-content/uploads/2018/07/The-Importance-of-Calendar-Reform-to-the-Business-World-George-Eastman.pdf)
-///   + "The Importance of Calendar Reform to the Business World"
-///   + by George Eastman, President, Eastman Kodak Company
+/// + [*The Rational Almanac* by Moses Bruine Cotsworth](https://archive.org/details/rationalalmanact00cotsuoft/mode/2up)
+/// + [*The Importance of Calendar Reform to the Business World* by George Eastman](https://www.freexenon.com/wp-content/uploads/2018/07/The-Importance-of-Calendar-Reform-to-the-Business-World-George-Eastman.pdf)
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Cotsworth(CommonDate);
