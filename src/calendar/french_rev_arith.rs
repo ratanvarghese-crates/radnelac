@@ -87,7 +87,19 @@ pub enum Sansculottide {
 }
 
 /// Represents a date in the algorithmic approximation of the French Revolutionary calendar
-/// (ie. French Republican calendar)
+///
+/// ## Introduction
+///
+/// The French Revolutionary calendar (also called French Republican calendar) was the official
+/// calendar during the French First Republic. It was also used briefly by the Paris Commune.
+///
+/// `FrenchRevArith` is **an approximation** of the French Revolutionary calendar. The
+/// difference between the approximation and the historic calendar is the leap year rule.
+///
+/// The structure of an individual year has similarities to the [Coptic](crate::calendar::Coptic)
+/// and [ancient Egyptian](crate::calendar::Egyptian) calendars.
+///
+/// ### Leap Year Approximation
 ///
 /// The calendar actually implemented during the French First Republic relied on astronomical
 /// observations to determine whether a given year was a leap year. **FrenchRevArith does not
@@ -129,6 +141,83 @@ pub enum Sansculottide {
 /// at the Paris Observatory. If a future version of this library implements such
 /// astronomical calculations, those calculations will not be provided by FrenchRevArith.
 /// Instead, such calculations shall be provided by a new struct with a new name.
+///
+/// ## Basic Structure
+///
+/// Years are divided into 12 months. All months have 3 weeks of 10 days each.
+///
+/// There are additional days at the end of the year which are not part of any week or month -
+/// these are called "sansculottides". Leap years have 6 sansculottides, other years have 5
+/// sansculottides.
+///
+/// Two leap year rules are available: see the "Leap Year Approximation" section.
+///
+/// ## Epoch
+///
+/// Years are numbered from the proclamation of the French First Republic. The first day of the
+/// first year of the French Revolutionary calendar is 22 September 1792 Common Era in the
+/// Gregorian calendar.
+///
+/// This epoch is called the Republican Era.
+///
+/// ## Representation and Examples
+///
+/// The months are represented in this crate as [`FrenchRevMonth`].
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let coup = CommonDate::new(8, 2, 18);
+/// let fr = FrenchRevArith::<true>::try_from_common_date(coup).unwrap();
+/// assert_eq!(fr.try_month().unwrap(), FrenchRevMonth::Brumaire);
+/// ```
+///
+/// The parameter `L` determines the leap year rule. Use `L = true` for historical dates.
+/// For more details, see the "Leap Year Approximation" section.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let coup = CommonDate::new(8, 2, 18);
+/// let fr_t = FrenchRevArith::<true>::try_from_common_date(coup).unwrap();
+/// let fr_f = FrenchRevArith::<false>::try_from_common_date(coup).unwrap();
+/// let g_known = Gregorian::try_new(1799, GregorianMonth::November, 9).unwrap();
+/// assert_eq!(fr_t.convert::<Gregorian>(), g_known);
+/// assert_ne!(fr_f.convert::<Gregorian>(), g_known);
+/// ```
+///
+/// When converting to and from a [`CommonDate`](crate::calendar::CommonDate), the sansculottides
+/// are treated as a 13th month.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c = CommonDate::new(7, 13, 5);
+/// let fr = FrenchRevArith::<true>::try_from_common_date(c).unwrap();
+/// assert!(fr.try_month().is_none());
+/// assert_eq!(fr.epagomenae().unwrap(), Sansculottide::Recompense);
+/// ```
+///
+/// The start of the Republican Era can be read programatically.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let e = FrenchRevArith::<true>::epoch();
+/// let g = Gregorian::from_fixed(e);
+/// let fr = FrenchRevArith::<true>::from_fixed(e);
+/// assert_eq!(g.year(), 1792);
+/// assert_eq!(g.month(), GregorianMonth::September);
+/// assert_eq!(g.day(), 22);
+/// assert_eq!(fr.year(), 1);
+/// assert_eq!(fr.try_month().unwrap(), FrenchRevMonth::Vendemiaire);
+/// assert_eq!(fr.day(), 1);
+/// ```
+
 ///
 /// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/French_Republican_calendar)
