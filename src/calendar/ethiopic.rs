@@ -55,21 +55,6 @@ pub enum EthiopicMonth {
     Paguemen,
 }
 
-impl EthiopicMonth {
-    pub fn length(self, leap: bool) -> u8 {
-        match self {
-            EthiopicMonth::Paguemen => {
-                if leap {
-                    6
-                } else {
-                    5
-                }
-            }
-            _ => 30,
-        }
-    }
-}
-
 /// Represents a date in the Ethiopic calendar
 ///
 /// ## Further reading
@@ -156,7 +141,7 @@ impl ToFromCommonDate<EthiopicMonth> for Ethiopic {
             Err(CalendarError::InvalidMonth)
         } else if date.day < 1 {
             Err(CalendarError::InvalidDay)
-        } else if date.day > month_opt.unwrap().length(Ethiopic::is_leap(date.year)) {
+        } else if date.day > Ethiopic::month_length(date.year, month_opt.unwrap()) {
             Err(CalendarError::InvalidDay)
         } else {
             Ok(())
