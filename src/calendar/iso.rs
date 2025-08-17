@@ -27,11 +27,36 @@ use std::num::NonZero;
 
 /// Represents a date in the ISO-8601 week-date calendar
 ///
-/// This is essentially an alternative naming system for Gregorian dates.
+/// ## Introduction
+///
+/// The ISO-8601 week-date is essentially an alternative naming system for Gregorian dates.
+/// Instead of dividing a year into months, the ISO-8601 week-date divides the year into weeks.
 ///
 /// Despite being derived from the Gregorian calendar, **the ISO-8601 has a different year
 /// start and year end than the Gregorian.** If the Gregorian year X ends in the middle of
 /// the ISO week, the next days may be in Gregorian year X+1 and ISO year X.
+///
+/// ## Basic Structure
+///
+/// Each year is divided into 52 weeks, except for "long years" which have 53 weeks. These
+/// are common weeks with 7 days each, and start on Monday.
+///
+/// A long year occurs if the corresponding Gregorian year starts or ends on a Thursday.
+///
+/// ## Representation and Examples
+///
+/// The most obvious ways to create an ISO struct is to convert from the Gregorian, or
+/// to aggregate the year, week number and weekday.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+/// use radnelac::day_cycle::*;
+///
+/// let g = Gregorian::try_new(2025, GregorianMonth::May, 15).unwrap();
+/// let i = g.convert::<ISO>();
+/// assert_eq!(i, ISO::try_new(2025, 20, Weekday::Thursday).unwrap());
+/// ```
 ///
 /// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/ISO_week_date)
