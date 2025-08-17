@@ -63,8 +63,75 @@ pub enum EgyptianDaysUponTheYear {
 
 /// Represents a date in the Egyptian calendar
 ///
+/// ## Introduction
+///
+/// The Egyptian calendar was used in ancient Egypt.
+///
+/// ## Basic Structure
+///
+/// Years are always 365 days - there are no leap years. Years are divided into 12 months
+/// of 30 days each, with an extra 5 epagomenal days.
+///
+/// ## Epoch
+///
+/// This implementation of the Egyptian calendar uses the Nabonassar Era from the *Almagest*
+/// written by Claudius Ptolomy. The first year of the Nabonassar Era began on 26 Februrary
+/// 747 BC of the Julian calendar.
+///
+/// The *Almagest* was written in Greek, and Nabonassar was a Babylonian king instead of an
+/// Egyptian. The actual calendar dates in Ancient Egypt used regnal years.
+///
+/// ## Representation and Examples
+///
+/// The months are represented in this crate as [`EgyptianMonth`].
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c_1_1 = CommonDate::new(1462, 1, 1);
+/// let a_1_1 = Egyptian::try_from_common_date(c_1_1).unwrap();
+/// assert_eq!(a_1_1.try_month().unwrap(), EgyptianMonth::Thoth);
+/// let c_12_30 = CommonDate::new(1462, 12, 30);
+/// let a_12_30 = Egyptian::try_from_common_date(c_12_30).unwrap();
+/// assert_eq!(a_12_30.try_month().unwrap(), EgyptianMonth::Mesori);
+/// ```
+///
+/// When converting to and from a [`CommonDate`](crate::calendar::CommonDate), the epagomenal days
+/// are treated as a 13th month.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c = CommonDate::new(1462, 13, 5);
+/// let a = Egyptian::try_from_common_date(c).unwrap();
+/// assert!(a.try_month().is_none());
+/// assert!(a.epagomenae().is_some());
+/// ```
+///
+/// The start of the Nabonassar Era can be read programatically.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let e = Egyptian::epoch();
+/// let j = Julian::from_fixed(e);
+/// let a = Egyptian::from_fixed(e);
+/// assert_eq!(j.year(), -747);
+/// assert_eq!(j.month(), JulianMonth::February);
+/// assert_eq!(j.day(), 26);
+/// assert_eq!(a.year(), 1);
+/// assert_eq!(a.try_month().unwrap(), EgyptianMonth::Thoth);
+/// assert_eq!(a.day(), 1);
+/// ```
+///
 /// ## Further reading
-/// + [Wikipedia](https://en.wikipedia.org/wiki/Egyptian_calendar)
+/// + Wikipedia
+///   + [Egyptian Calendar](https://en.wikipedia.org/wiki/Egyptian_calendar)
+///   + [Nabonassar](https://en.wikipedia.org/wiki/Nabonassar)
+///   + [Egyptian chronology](https://en.wikipedia.org/wiki/Egyptian_chronology)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Egyptian(CommonDate);
 
