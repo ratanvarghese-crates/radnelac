@@ -55,11 +55,31 @@ impl RomanMonth {
 
 /// Represents a date in the Roman calendar after the Julian reform
 ///
-/// This is essentially an alternative system for naming Julian dates.
+/// ## Introduction
 ///
-/// ## Year 0
+/// This struct supports alternative naming schemes for the Julian calendar.
+///
+/// The Romans referred to days using a countdown towards one of 3 events of the year: the
+/// Kalends, the Nones and the Ides.
+///
+/// ## Epoch
+///
+/// Most functions for Roman naming use the same Anno Domini / Before Christ (AD/BC) epoch as
+/// the Julian calendar, unless stated otherwise.
+///
+/// The exceptions are functions which convert year numbers between the Anno Domini epoch and
+/// the Ab Urbe Condita (AUC) epoch, which corresponds to the legendary date of the founding of
+/// Rome.
+///
+/// The year 1 AUC corresponds to 753 BC.
+///
+/// ### Year 0
 ///
 /// Year 0 is **not** supported because they are not supported in the Julian calendar.
+///
+/// ## Further Reading
+///
+/// + [Wikipedia](https://en.wikipedia.org/wiki/Roman_calendar#Days)
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Roman {
     year: NonZero<i32>,
@@ -94,11 +114,11 @@ impl Roman {
     pub fn julian_year_from_auc(year: NonZero<i32>) -> NonZero<i32> {
         //LISTING 3.13 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         //Modified to use NonZero
-        let j_year = year.get();
-        if j_year >= 1 && j_year <= -YEAR_ROME_FOUNDED_JULIAN {
-            NonZero::new(j_year + YEAR_ROME_FOUNDED_JULIAN - 1).expect("Checked by if")
+        let y = year.get();
+        if y >= 1 && y <= -YEAR_ROME_FOUNDED_JULIAN {
+            NonZero::new(y + YEAR_ROME_FOUNDED_JULIAN - 1).expect("Checked by if")
         } else {
-            NonZero::new(j_year + YEAR_ROME_FOUNDED_JULIAN).expect("Checked by if")
+            NonZero::new(y + YEAR_ROME_FOUNDED_JULIAN).expect("Checked by if")
         }
     }
 
@@ -106,11 +126,11 @@ impl Roman {
     pub fn auc_year_from_julian(year: NonZero<i32>) -> NonZero<i32> {
         //LISTING 3.14 (*Calendrical Calculations: The Ultimate Edition* by Reingold & Dershowitz.)
         //Modified to use NonZero
-        let a_year = year.get();
-        if YEAR_ROME_FOUNDED_JULIAN <= a_year && a_year <= -1 {
-            NonZero::new(a_year - YEAR_ROME_FOUNDED_JULIAN + 1).expect("Checked by if")
+        let y = year.get();
+        if YEAR_ROME_FOUNDED_JULIAN <= y && y <= -1 {
+            NonZero::new(y - YEAR_ROME_FOUNDED_JULIAN + 1).expect("Checked by if")
         } else {
-            NonZero::new(a_year - YEAR_ROME_FOUNDED_JULIAN).expect("Checked by if")
+            NonZero::new(y - YEAR_ROME_FOUNDED_JULIAN).expect("Checked by if")
         }
     }
 }
@@ -284,7 +304,11 @@ mod tests {
         #[test]
         fn auc_roundtrip(t in i16::MIN..i16::MAX) {
             prop_assume!(t != 0);
-            assert_eq!(t as i32, Roman::julian_year_from_auc(Roman::auc_year_from_julian(NonZero::new(t as i32).unwrap())).get());
+            let j_0 = NonZero::new(t as i32).unwrap();
+            let auc = Roman::auc_year_from_julian(j_0);
+            let j_1 = Roman::julian_year_from_auc(auc);
+            assert_eq!(j_0, j_1);
+            assert!(auc > j_0);
         }
     }
 }
