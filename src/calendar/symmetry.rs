@@ -73,7 +73,30 @@ pub enum SymmetryMonth {
 /// Bromberg proposed 2 leap year rules and 2 month length rules, which can be combined to form
 /// 4 variants of the Symmetry calendar.
 ///
-/// ## Variants
+/// ### Bromberg's Warning
+///
+/// The calculations used in this library mirror Dr. Bromberg's reference documents closely
+/// while still being idiomatic Rust. From *Basic Symmetry454 and Symmetry010 Calendar
+/// Arithmetic* by Bromberg:
+///
+/// > Symmetry454 and Symmetry010 calendar arithmetic is very simple, but there is a tendency
+/// > for those who are programming their first implementation of these calendars to immediately
+/// > cut corners that may suffice for a limited range of dates, or to skip thorough validation
+/// > of their implementation.
+/// >
+/// > Please don’t deviate from the arithmetic outlined herein. Please “stick to the script”.
+/// > Don’t try to invent your own arithmetic using novel expressions. There is no reason to do
+/// > so, because this arithmetic is in the public domain, royalty free. The algorithm steps
+/// > documented herein were carefully designed for efficiency, simplicity, and clarity of
+/// > program code, and were thoroughly validated. Cutting corners will most likely result in
+/// > harder-to-read programs that are more difficult to maintain and troubleshoot. In all
+/// > probability a novel expression intended to “simplify” the arithmetic documented herein
+/// > will actually prove to function erroneously under specific circumstances. It is just not
+/// > worth wasting the time on the trouble that will make for you.
+///
+/// ## Basic Structure
+///
+/// ### Variants
 ///
 ///
 /// | `T`       | `U`       | Alias                   | Leap cycle | Quarter length    |
@@ -95,33 +118,53 @@ pub enum SymmetryMonth {
 /// 3 months. In Symmetry454 calendars, the months have lengths of 4, 5, and 4 weeks respectively.
 /// In Symmetry010 calendars, the months have lenghts of 30, 31, and 30 days respectively.
 ///
-/// ## Irvember
+/// ### Leap cycle
+///
+/// For the 293 leap year rule: Y is a leap year only if the remainder of
+/// ( 52 × Y + 146 ) / 293 is less than 52.
+///
+/// For the 393 leap year rule: Y is a leap year only if the remainder of
+/// ( 69 × Y + 194 ) / 389 is less than 69.
+///
+/// ### Irvember
 ///
 /// The Symmetry calendars have leap weeks instead of leap days. The extra week added in a leap
 /// year is a standalone thirteenth month called [Irvember](SymmetryMonth::Irvember).
 /// Dr. Bromberg suggested an alternative scheme where the extra week is added to
 /// December instead of being standalone - however this alternative scheme is **not** implemented.
 ///
-/// ## Bromberg's Warning
+/// ## Epoch
 ///
-/// The calculations used in this library mirror Dr. Bromberg's reference documents closely
-/// while still being idiomatic Rust. From *Basic Symmetry454 and Symmetry010 Calendar
-/// Arithmetic* by Bromberg:
+/// The first day of the first year of all the Symmetry calendars is also the first day of the
+/// first year of the proleptic Gregorian calendar.
 ///
-/// > Symmetry454 and Symmetry010 calendar arithmetic is very simple, but there is a tendency
-/// > for those who are programming their first implementation of these calendars to immediately
-/// > cut corners that may suffice for a limited range of dates, or to skip thorough validation
-/// > of their implementation.
-/// >
-/// > Please don’t deviate from the arithmetic outlined herein. Please “stick to the script”.
-/// > Don’t try to invent your own arithmetic using novel expressions. There is no reason to do
-/// > so, because this arithmetic is in the public domain, royalty free. The algorithm steps
-/// > documented herein were carefully designed for efficiency, simplicity, and clarity of
-/// > program code, and were thoroughly validated. Cutting corners will most likely result in
-/// > harder-to-read programs that are more difficult to maintain and troubleshoot. In all
-/// > probability a novel expression intended to “simplify” the arithmetic documented herein
-/// > will actually prove to function erroneously under specific circumstances. It is just not
-/// > worth wasting the time on the trouble that will make for you.
+/// ## Representation and Examples
+///
+/// The months are represented in this crate as [`SymmetryMonth`].
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c = CommonDate::new(2025, 1, 1);
+/// let s = Symmetry454::try_from_common_date(c).unwrap();
+/// assert_eq!(s.month(), SymmetryMonth::January);
+/// ```
+///
+/// Note that although many month names are shared with [`GregorianMonth`](crate::calendar::GregorianMonth),
+/// the months of these two calendar systems are represented by distinct enums. This is because
+/// [`SymmetryMonth::Irvember`] has no corresponding [`GregorianMonth`](crate::calendar::GregorianMonth).
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let Y: i32 = 2026;
+/// assert!(Symmetry454::is_leap(Y));
+/// let c = CommonDate::new(Y, 13, 1);
+/// let s = Symmetry454::try_from_common_date(c).unwrap();
+/// assert_eq!(s.month(), SymmetryMonth::Irvember);
+/// ```
 ///
 /// ## Further reading
 /// + Dr. Irvin L. Bromberg
