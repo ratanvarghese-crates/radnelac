@@ -73,10 +73,86 @@ pub enum PositivistComplementaryDay {
 
 /// Represents a date in the Positivist calendar
 ///
+/// ## Introduction
+///
+/// The Positivist calendar was proposed by August Comte. It was part of his project of
+/// creating a "Religion of Humanity". The months, weeks and days of the Positivist
+/// calendar are named after people who made a positive (as judged by Comte) contributions
+/// to society.
+///
+/// ## Basic structure
+///
+/// From *The Positivist Calendar* by Henry Edger:
+/// > The Positivist year, beginning and ending with the Christian year, is divided into
+/// > thirteen months, and an additional day in bisextile years, following that. To these
+/// > two days no name, either weekly or monthly, is attached, being sufficiently
+/// > designated by the corresponding festivals. The Calendar therefore becomes perpetual.
+/// > Every year, and each month in the year, begins with a Monday, while the Sundays fall
+/// > on the 7th, 14th 21st and 28th days of all the months alike.
+///
+/// The "bisextile" (leap) years must occur at the same time as Gregorian leap years based
+/// on the above definition. This further implies a leap year rule similar to the Gregorian,
+/// but offset by 1788 years.
+///
+/// ## Epoch
+///
+/// The years are numbered based on the French Revolution. The first day of the first year
+/// of the Positivist calendar occurs on 1 January 1789 Common Era of the Gregorian calendar.
+///
+/// When using this epoch, years are named "of the Great Revolution" or "of the Great Crisis".
+/// For example, 1855 Common Era in the Gregorian calendar is 67 of the Great Revolution in the
+/// Positivist calendar.
+///
+/// ## Representation and Examples
+///
+/// ### Months
+///
+/// The months are represented in this crate as [`PositivistMonth`].
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c_1_1 = CommonDate::new(67, 1, 1);
+/// let a_1_1 = Positivist::try_from_common_date(c_1_1).unwrap();
+/// assert_eq!(a_1_1.try_month().unwrap(), PositivistMonth::Moses);
+/// ```
+///
+/// ### Weekdays
+///
+/// The days of the Positivist week are not always the same as the days of the common week.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+/// use radnelac::day_cycle::*;
+///
+/// let c = CommonDate::new(66, 13, 28);
+/// let p = Positivist::try_from_common_date(c).unwrap();
+/// assert_eq!(p.weekday().unwrap(), Weekday::Sunday); //Positivist week
+/// assert_eq!(p.convert::<Weekday>(), Weekday::Saturday); //Common week
+/// ```
+///
+/// ### Festivals Ending the Year
+///
+/// The epagomenal festival days at the end of a Positivist year are represented as
+/// [`PositivistComplementaryDay`]. When converting to and from a [`CommonDate`](crate::calendar::CommonDate),
+/// the epagomenal days are treated as a 14th month.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c = CommonDate::new(67, 14, 1);
+/// let a = Positivist::try_from_common_date(c).unwrap();
+/// assert!(a.try_month().is_none());
+/// assert_eq!(a.epagomenae().unwrap(), PositivistComplementaryDay::FestivalOfTheDead);
+/// ```
+///
 /// ## Further reading
 /// + [Positivists.org](http://positivists.org/calendar.html)
-/// + ["Calendrier Positiviste" by August Comte](https://gallica.bnf.fr/ark:/12148/bpt6k21868f/f42.planchecontact)
-/// + ["The Positivist Calendar" by Henry Edger](https://books.google.ca/books?id=S_BRAAAAMAAJ)
+/// + [*Calendrier Positiviste* by August Comte](https://gallica.bnf.fr/ark:/12148/bpt6k21868f/f42.planchecontact)
+/// + [*The Positivist Calendar* by Henry Edger](https://books.google.ca/books?id=S_BRAAAAMAAJ)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Positivist(CommonDate);
 
@@ -244,6 +320,15 @@ pub type PositivistMoment = CalendarMoment<Positivist>;
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn epoch() {
+        let dg = Gregorian::try_from_common_date(CommonDate::new(1789, 1, 1)).unwrap();
+        let dp = Positivist::try_from_common_date(CommonDate::new(1, 1, 1)).unwrap();
+        let fg = dg.to_fixed();
+        let fp = dp.to_fixed();
+        assert_eq!(fg, fp);
+    }
 
     #[test]
     fn example_from_text() {
