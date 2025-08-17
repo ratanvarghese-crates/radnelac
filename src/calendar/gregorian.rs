@@ -49,6 +49,14 @@ pub enum GregorianMonth {
 
 /// Represents a date in the proleptic Gregorian calendar
 ///
+/// ## Introduction
+///
+/// The Gregorian calendar is the calendar system used in most countries in the world today.
+/// It was originally designed by Aloysius Lilius. It officially replaced the Julian calendar
+/// in October 1582 in the Papal States, as part of a decree by Pope Gregory XIII.
+///
+/// ### Proleptic Modification
+///
 /// According to Wikipedia:
 /// > The proleptic Gregorian calendar is produced by extending the Gregorian
 /// > calendar backward to the dates preceding its official introduction in 1582.
@@ -61,8 +69,79 @@ pub enum GregorianMonth {
 /// For consistency with historical dates before the Gregorian reform, applications
 /// should probably use the Julian calendar.
 ///
+/// ## Basic Structure
+///
+/// Years are divided into 12 months. Every month has either 30 or 31 days except for the
+/// second month, February. February has 28 days in a common year and 29 days in a leap year.
+///
+/// Leap years occur on every year divisible by 400, and additionally on every year divisible
+/// by 4 but not divisible by 100.
+///
+/// ## Epoch
+///
+/// The first day of the first year of the proleptic Gregorian calendar differs slightly from
+/// that of the Julian calendar. This is one of the side effects of using a proleptic calendar
+/// as mentioned in the "Proleptic Modification" section.
+///
+/// This crate uses the term "Common Era" (abbreviated "CE") specifically for the proleptic
+/// Gregorian calendar epoch. The term "Anno Domini" (abbreviated "AD") is used for the Julian
+/// calendar instead.
+///
+/// ## Representation and Examples
+///
+/// ### Months
+///
+/// The months are represented in this crate as [`GregorianMonth`].
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c_1_1 = CommonDate::new(2025, 1, 1);
+/// let a_1_1 = Gregorian::try_from_common_date(c_1_1).unwrap();
+/// assert_eq!(a_1_1.month(), GregorianMonth::January);
+/// ```
+///
+/// ### Conversion from Julian
+///
+/// For historical dates, it is often necessary to convert from the Julian system.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let j = Julian::try_new(1752, JulianMonth::September, 3).unwrap();
+/// let g = j.convert::<Gregorian>();
+/// assert_eq!(g, Gregorian::try_new(1752, GregorianMonth::September, 14).unwrap());
+/// ```
+///
+/// ## Inconsistencies with Other Implementations
+///
+/// Some other tools might use non-proleptic Gregorian calendars. See the "Proleptic
+/// Modification" section for details.
+///
+/// For example, the UNIX `cal` command uses a non-proleptic Gregorian calendar by default.
+/// The default settings assume 3 September 1752 was the date of the Gregorian reform (this
+/// was the date used in the British Empire). Thus, some days of September 1752 are skipped:
+///
+/// ```bash
+/// $ cal September 1752
+///   September 1752   
+/// Su Mo Tu We Th Fr Sa
+///        1  2 14 15 16
+/// 17 18 19 20 21 22 23
+/// 24 25 26 27 28 29 30
+/// ```
+///
+/// To imitate such behaviour in this crate, callers must explicitly switch between the
+/// Julian and the Gregorian calendar. See the "Conversion from Julian" section for an example.
+///
+///
 /// ## Further reading
-/// + [Wikipedia](https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar)
+/// + Wikipedia
+///   + [Gregorian calendar](https://en.wikipedia.org/wiki/Gregorian_calendar)
+///   + [Proleptic Gregorian calendar](https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar)
+/// + [OpenGroup `cal`](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/cal.html)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Gregorian(CommonDate);
 
