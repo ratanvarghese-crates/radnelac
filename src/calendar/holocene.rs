@@ -29,10 +29,57 @@ pub type HoloceneMonth = GregorianMonth;
 
 /// Represents a date in the Holocene calendar
 ///
-/// The Holocene calendar was proposed by Cesare Emiliani.
-/// It is identical to the proleptic Gregorian calendar, but
-/// with an extra 10000 years added to each date. Thus 2016
-/// in the Gregorian calendar is 12016 in the Holocene calendar.
+/// ## Introduction
+///
+/// The Holocene calendar was proposed by Cesare Emiliani. It is identical to the proleptic
+/// Gregorian calendar, but with an extra 10000 years added to each date. Thus 2016 in the
+/// Gregorian calendar is 12016 in the Holocene calendar.
+///
+/// ## Epoch
+///
+/// Years are numbered based on a very rough estimate of the invention of agriculture.
+/// The first year of the Holocene calendar starts 10000 years before the first year of the
+/// proleptic Gregorian calendar.
+///
+/// This epoch is called the Human Era.
+///
+/// ## Representation and Examples
+///
+/// ### Months
+///
+/// The months are represented in this crate as [`HoloceneMonth`].
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c_1_1 = CommonDate::new(12025, 1, 1);
+/// let a_1_1 = Holocene::try_from_common_date(c_1_1).unwrap();
+/// assert_eq!(a_1_1.month(), HoloceneMonth::January);
+/// ```
+///
+/// ### Conversion from Gregorian
+///
+/// For dates from other systems, it might be necessary to convert from the Gregorian system.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let g = Gregorian::try_new(1752, JulianMonth::September, 14).unwrap();
+/// let h = g.convert::<Holocene>();
+/// assert_eq!(h, Holocene::try_new(11752, GregorianMonth::September, 14).unwrap());
+/// ```
+///
+/// ## Inconsistencies with Other Implementations
+///
+/// Since this crate uses a proleptic Gregorian calendar with a year 0, some of the
+/// Gregorian conversions for dates before 1 Common Era may differ from other implementations.
+///
+/// For example, Wikipedia claims that 1 Human Era corresponds to "10000 BC" in the Gregorian
+/// calendar and "-9999" in ISO-8601. However since this crate uses a proleptic Gregorian
+/// calendar, "-9999" (or 9999 Before Common Era) is the Gregorian year corresponding to 1
+/// Human Era as per the functions in this crate.
 ///
 /// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Holocene_calendar)
@@ -144,6 +191,42 @@ pub type HoloceneMoment = CalendarMoment<Holocene>;
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn h_epoch() {
+        let dh = CommonDate {
+            year: 1,
+            month: 1,
+            day: 1,
+        };
+        let dg = CommonDate {
+            year: -9999,
+            month: 1,
+            day: 1,
+        };
+        let fh = Holocene::try_from_common_date(dh).unwrap().to_fixed();
+        let fg = Gregorian::try_from_common_date(dg).unwrap().to_fixed();
+        assert_eq!(fh, fg);
+        assert_eq!(fh, Holocene::epoch());
+    }
+
+    #[test]
+    fn g_epoch() {
+        let dh = CommonDate {
+            year: 10001,
+            month: 1,
+            day: 1,
+        };
+        let dg = CommonDate {
+            year: 1,
+            month: 1,
+            day: 1,
+        };
+        let fh = Holocene::try_from_common_date(dh).unwrap().to_fixed();
+        let fg = Gregorian::try_from_common_date(dg).unwrap().to_fixed();
+        assert_eq!(fh, fg);
+        assert_eq!(fh, Gregorian::epoch());
+    }
 
     #[test]
     fn date_of_proposal() {
