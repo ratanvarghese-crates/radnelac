@@ -72,8 +72,10 @@ pub enum CopticMonth {
 /// ## Epoch
 ///
 /// Years are numbered from the start of the reign of the Roman Emperor Diocletian. Each
-/// individual year starts of the Feast of Neyrouz. Thus the first year of the Coptic calendar
+/// individual year starts on the Feast of Neyrouz. Thus the first year of the Coptic calendar
 /// began on 29 August 284 AD of the Julian calendar.
+///
+/// This epoch is called the Era of the Martyrs.
 ///
 /// ## Representation and Examples
 ///
