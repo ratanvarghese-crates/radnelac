@@ -62,12 +62,16 @@ pub enum GregorianMonth {
 /// > calendar backward to the dates preceding its official introduction in 1582.
 ///
 /// This means there are no "skipped days" at the point where the Gregorian
-/// calendar was introduced. Additionally, this means that year 0 is considered
-/// valid for this implementation of the Gregorian calendar.
+/// calendar was introduced.
 ///
 /// The Gregorian reform was implemented at different times in different countries.
 /// For consistency with historical dates before the Gregorian reform, applications
 /// should probably use the Julian calendar.
+///
+/// ### Year 0
+///
+/// Additionally, year 0 is considered valid for this implementation of the proleptic
+/// Gregorian calendar.
 ///
 /// ## Basic Structure
 ///
@@ -136,6 +140,7 @@ pub enum GregorianMonth {
 /// To imitate such behaviour in this crate, callers must explicitly switch between the
 /// Julian and the Gregorian calendar. See the "Conversion from Julian" section for an example.
 ///
+/// Additionally, other tools might not allow year 0 for the Gregorian calendar.
 ///
 /// ## Further reading
 /// + Wikipedia
