@@ -34,14 +34,103 @@ pub type JulianMonth = GregorianMonth;
 //Instead of explicitly converting from Gregorian, just use the known Rata Die value.
 const JULIAN_EPOCH_RD: i32 = -1;
 
-/// Represents a date in the Julian calendar
+/// Represents a date in the proleptic Julian calendar
 ///
-/// ## Year 0
+/// ## Introduction
 ///
-/// Year 0 is **not** supported for this calendar. The year before 1 AD is 1 BC.
+/// The Julian calendar is used by the Eastern Orthodox Church. Historically, it was used
+/// by the Roman Empire, many later European states, and the colonies of those states.
+///
+/// The calendar is named after Julius Caesar who decreed that the calendar be used in the
+/// Roman Empire, replacing the calendar used in the late Roman Republic. Caesar may have
+/// been assisted by Sosigenes of Alexandria, according to Pliny. He may have also been
+/// assisted by Marcus Flavius, according to Macrobius.
+///
+/// Over the past 500 years, the Julian calendar has been almost entirely replaced by the
+/// Gregorian calendar.
+///
+/// ### Proleptic Modification
+///
+/// During the initial adoption of the Julian calendar in 45 Before Christ (BC), leap years
+/// were every 3 years instead of every 4 years. According to Macrobius, this error was
+/// introduced by Roman priests and had to be corrected by Augustus in 8 Anno Domini (AD).
+/// (See the "Epoch" section for more details about BC, AD and AUC epoch labels).
+///
+/// According to Wikipedia:
+/// > The proleptic Julian calendar is produced by extending the Julian calendar backwards
+/// > to dates preceding AD 8 when the quadrennial leap year stabilized.
+///
+/// This crate implements a proleptic Julian calendar, and so does **not** change the leap year
+/// rules for dates before 8 AD.
+///
+/// ### Year 0
+///
+/// Year 0 is **not** supported for this implementation of the Julian calendar.
+/// The year before 1 is -1.
+///
+/// ## Basic Structure
+///
+/// Years are divided into 12 months. Every month has either 30 or 31 days except for the
+/// second month, February. February has 28 days in a common year and 29 days in a leap year.
+///
+/// Leap years occur on every positive year divisible by 4, and every negative year before
+/// a year divisible by 4.
+///
+/// (See [`Roman`](crate::calendar::Roman) for Roman names of days).
+///
+/// ## Epoch
+///
+/// Years are numbered based on an estimate of the date of birth of Jesus Christ. The estimate
+/// was devised by Dionysius Exiguus 525 years after the birth supposedly happened.
+///
+/// The first year of the Julian calendar is called 1 Anno Domini (abbreviated "AD"), and the
+/// year before that is called 1 Before Christ (abbreviated "BC").
+///
+/// ### Alternative Epochs
+///
+/// Before 525 AD (and for centuries after 525 AD) there were other epochs used with the Julian
+/// calendar. One such epoch is "Ab urbe condita" (abbreviated "AUC"), based on the date of the
+/// founding of Rome - see [`Roman`](crate::calendar::Roman) for more details.
+///
+/// Another method of identifying years was to name the consuls who held office that year. Regnal
+/// years were also used in Roman Egypt and the Byzantine Empire.
+///
+/// ## Representation and Examples
+///
+/// The months are represented in this crate as [`JulianMonth`].
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c_1_1 = CommonDate::new(2025, 1, 1);
+/// let a_1_1 = Julian::try_from_common_date(c_1_1).unwrap();
+/// assert_eq!(a_1_1.month(), JulianMonth::January);
+/// ```
+///
+/// ### Conversion to Gregorian
+///
+/// For historical dates, it is often necessary to convert to the Gregorian system.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let j = Julian::try_new(1752, JulianMonth::September, 3).unwrap();
+/// let g = j.convert::<Gregorian>();
+/// assert_eq!(g, Gregorian::try_new(1752, GregorianMonth::September, 14).unwrap());
+/// ```
+///
+/// ## Inconsistencies with Other Implementations
+///
+/// Other systems may use non-proleptic Julian calendars. They might also allow year 0 for the
+/// Julian calendar.
 ///
 /// ## Further reading
-/// + [Wikipedia](https://en.wikipedia.org/wiki/Julian_calendar)
+/// + Wikipedia
+///   + [Julian calendar](https://en.wikipedia.org/wiki/Julian_calendar)
+///   + [Proleptic Julian calendar](https://en.m.wikipedia.org/wiki/Proleptic_Julian_calendar)
+///   + [Ab urbe condita](https://en.m.wikipedia.org/wiki/Ab_urbe_condita)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Julian(CommonDate);
 
