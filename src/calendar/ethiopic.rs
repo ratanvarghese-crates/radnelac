@@ -57,8 +57,63 @@ pub enum EthiopicMonth {
 
 /// Represents a date in the Ethiopic calendar
 ///
+/// ## Introduction
+///
+/// The Ethiopic calendar (also called the Ge'ez calendar) is the civil calendar in Ethiopia.
+/// It is similar to the [Coptic calendar](crate::calendar::Coptic).
+///
+/// ## Basic Structure
+///
+/// Years are divided into 13 months. The first 12 months have 30 days each. The final month
+/// has 5 days in a common year and 6 days in a leap year.
+///
+/// There is 1 leap year every four years. This leap year occurs *before* the Julian leap year.
+/// In other words, if a given year is divisible by 4, the year *before* was a leap year.
+///
+/// ## Epoch
+///
+/// Years are numbered based on a calculation of the "incarnation" of Jesus - this is a slightly
+/// different calculation than the one used by the Julian calendar. The first year of the
+/// Ethiopic calendar began on 29 August 8 AD of the Julian calendar.
+///
+/// This epoch is called the Incarnation Era.
+///
+/// ## Representation and Examples
+///
+/// The months are represented in this crate as [`EthiopicMonth`].
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c_1_1 = CommonDate::new(2017, 1, 1);
+/// let a_1_1 = Ethiopic::try_from_common_date(c_1_1).unwrap();
+/// assert_eq!(a_1_1.month(), EthiopicMonth::Maskaram);
+/// let c_12_30 = CommonDate::new(2017, 12, 30);
+/// let a_12_30 = Ethiopic::try_from_common_date(c_12_30).unwrap();
+/// assert_eq!(a_12_30.month(), EthiopicMonth::Nahase);
+/// ```
+///
+/// The start of the Incarnation Era can be read programatically.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let e = Ethiopic::epoch();
+/// let j = Julian::from_fixed(e);
+/// let c = Ethiopic::from_fixed(e);
+/// assert_eq!(j.year(), 8);
+/// assert_eq!(j.month(), JulianMonth::August);
+/// assert_eq!(j.day(), 29);
+/// assert_eq!(c.year(), 1);
+/// assert_eq!(c.month(), EthiopicMonth::Maskaram);
+/// assert_eq!(c.day(), 1);
+/// ```
+///
 /// ## Further reading
 /// + [Wikipedia](https://en.wikipedia.org/wiki/Ethiopic_calendar)
+/// + [Embassy of Ethiopia, Washington D.C.](https://ethiopianembassy.org/ethiopian-time/)
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Ethiopic(CommonDate);
 
