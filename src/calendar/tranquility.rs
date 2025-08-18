@@ -110,18 +110,294 @@ pub enum TranquilityComplementaryDay {
 /// > the events of their lives.
 ///
 /// Unfortunately, despite these lofty goals, the Tranquility Calendar has many edge cases not
-/// present in other timekeeping systems; this can cause difficulty when implementing software
-/// applications. **There are almost certainly discrepancies between this library and others
-/// attempting to implement the Tranquility calendar**.
+/// present in other timekeeping systems, and some aspects of the calendar are poorly documented;
+/// this can cause difficulty when implementing software applications.
 ///
-/// ## Year 0
+/// ### Year 0
 ///
-/// Year 0 is **not** supported for this calendar **except** when representing Moon Landing
-/// Day as a `CommonDate`. Technically, Moon Landing Day is not part of any week, month, or
-/// year.
+/// Year 0 is **not** supported for this implementation of the Tranquility calendar, except as
+/// a dummy value for the epoch. See the "Epoch" and "The Curious Case of 1 Before Tranquility"
+/// sections for details.
+///
+/// ## Basic Structure
+///
+/// The epoch of the Tranquility calendar, known as Moon Landing Day, is an exception to
+/// every other rule of the calendar. This also requires some special cases for the year
+/// immediately before the epoch, 1 BT. See the "Epoch" section for details. The remainder
+/// of this section is about days other than Moon Landing Day.
+///
+/// ### Months
+///
+/// From Siggins' article proposing the calendar:
+/// > The Tranquility calendar uses a format of 13 months, each with 28 days (four seven-day
+/// > weeks), for a total of 364 days. One extra day is added on at the end of the year to make
+/// > 365. For leap years, a second extra day is added.
+///
+/// The months of the Tranquility calendar are named after notable scientists, and are also
+/// in alphabetical order. Note that the "second extra day" for leap years is **not** at the
+/// end of the year.
+///
+/// The first day of every Tranquility year is 1 Archimedes, as stated by Siggins:
+/// >  The first day of each year is the first day of Archimedes (July 21 on the Gregorian calendar).
+///
+/// ### Armstrong Day and Aldrin Day
+///
+/// The two extra days are described as follows by Siggins:
+/// > The last day of each Tranquility year is called Armstrong Day. Named for the first human
+/// > to step on the moon, Armstrong Day celebrates the anniversary of Moon Landing Day. Thus
+/// > July 20, 1970, is the Gregorian equivalent of Armstrong Day, 1 A.T., and July 20, 1989,
+/// > is Armstrong Day, 20 A.T.
+/// >
+/// > Finally, the Tranquility calendar equivalent of leap day is called Aldrin Day. Named for
+/// > Armstrong's fellow moon walker, Aldrin Day occurs every four years, with some exceptions.
+/// > The exceptions are the leap days in every 400 years that are dropped to keep the calendar
+/// > astronomically precise. Aldrin Day falls between the twenty-seventh and twenty-eighth of
+/// > Hippocrates (February 29).
+///
+/// Siggins explains the Gregorian leap year rule earlier in the article, so we can assume that
+/// "the leap days in every 400 years that are dropped" refer to the leap days dropped in
+/// Gregorian years divisible by 100 and not by 400.
+///
+/// The odd placement of Aldrin Day is not explicitly justified in the text. However, implicit
+/// in the passage above is the idea that *every* Armstrong Day corresponds to July 20 in the
+/// proleptic Gregorian calendar, and *every* Aldrin Day corresponds to February 29. The year
+/// lengths are also the same, meaning that there should be a one-to-one relationship between
+/// Gregorian dates and Tranquility dates stable across all years (ignoring Moon Landing Day,
+/// which replaces one specific Armstrong Day).
+///
+/// This would also imply that when calculating leap years, we need to apply the Gregorian
+/// rule after applying an offset of 1969 or 1970, depending on the date relative to the epoch.
+///
+/// ## Epoch
+///
+/// The Tranquility calendar epoch is specific down to the tenth of a second. The day on which
+/// the epoch occurs is called Moon Landing Day, and is described as follows by Siggins:
+/// > The Tranquility calendar, on the other hand, is based on a recent, well-documented event,
+/// > the landing by two American astronauts, Neil Armstrong and Edwin "Buzz" Aldrin, on the
+/// > moon. Upon touchdown came those almost mystical words, "Houston ... Tranquility Base here.
+/// > The Eagle has landed." Omni's Tranquility calendar starts at the very instant the word
+/// > Tranquility was uttered. As one of the most astronomically analyzed moments in scientific
+/// > history, our base point can be used to chart the exact position of the earth in
+/// > relationship to the moon and other celestial bodies.
+/// >
+/// > Now for the details of the calendar itself. The day on which the moment of Tranquility
+/// > occurred is called Moon Landing Day. It is the central day of the Tranquility calendar
+/// > and it stands alone. Not part of any month or year, it has 20 hours, 18 minutes, and 1.2
+/// > seconds Before Tranquility (B.T.), and 3 hours, 41 minutes, and 58.8 seconds After
+/// > Tranquility (A.T). The Gregorian equivalent of Moon Landing Day is July 20, A.D. 1969.
+///
+/// We can assume that any date after Moon Landing Day is "After Tranquility" and any day before
+/// Moon Landing Day is "Before Tranquility".
+///
+/// ### The Curious Case of 1 Before Tranquility
+///
+/// Siggins devoted very little of his article to dates Before Tranquility, and the year
+/// immediately preceding Moon Landing Day is particularly confusing.
+///
+/// Consider the following statements in Siggins' article:
+///
+/// 1. "The Gregorian equivalent of Moon Landing Day is July 20, A.D. 1969"
+/// 2. "The first day of each year is the first day of Archimedes (July 21 on the Gregorian calendar)."
+/// 3. "The last day of each Tranquility year is called Armstrong Day."
+/// 4. "Armstrong Day celebrates the anniversary of Moon Landing Day."
+///
+///    a. "July 20, 1970, is the Gregorian equivalent of Armstrong Day, 1 A.T."
+///
+///    b. "July 20, 1989, is Armstrong Day, 20 A.T."
+///
+/// First of all, it is not stated whether the year immediately preceding Moon Landing Day is
+/// 1 BT or 0 BT - however the full version of Siggins' article in OMNI (with all the
+/// images) contains many example dates which imply that 0 BT does not exist. For example,
+/// the first airplane flight by Orville and Wilbur Wright at Kitty Hawk is listed as occurring
+/// on Faraday 10, 66 BT and 1903 CE. [The exact date of the flight was December 17, 1903](https://airandspace.si.edu/collection-objects/1903-wright-flyer/nasm_A19610048000).
+/// The 66th anniversary of the Wright brother's flight would be December 17, 1969 CE which
+/// is after Moon Landing Day (as per statement 1 above) and before Armstrong Day, 1 AT (as
+/// per statement 4a above) which is the last day of 1 AT (as per statement 3). However,
+/// naively calculating 66 BT + 66 = 0 BT would suggest that the year should be 0 BT.
+///
+/// Based on the math above, we can assume some year BT was skipped, and the most obvious
+/// choice is 0 BT. Skipping some other year such as 1 BT, 2 BT or 50 BT would be
+/// unintuitive, whereas skipping year 0 is common practice when working with historical dates
+/// using the Julian calendar.
+///
+/// Having established that the year immediately preceding Moon Landing Day is 1 BT, we must
+/// figure out what the last day of 1 BT is named.
+///
+/// All 4 statements above cannot be true for 1 BT, as Armstrong Day, 1 BT would
+/// either conflict with Moon Landing Day, not end the year, or not occur on the anniversary
+/// of Moon Landing Day. Any implementation of the Tranquility calendar must implement some
+/// special case to deal with this situation.
+///
+/// **This crate assumes that Armstrong Day is skipped in the year 1 BT** The day that
+/// would normally be Armstrong Day, 1 BT is Moon Landing Day. The day before Moon Landing
+/// Day is Mendel 28, 1 BT - which *would* be the day before Armstrong Day, 1 BT *if*
+/// Armstrong Day existed in 1 BT.
+///
+/// This also seems to be the approach taken by the Orion's Arm Calendar Converter (note that
+/// other pages in the Orion's Arm project may differ from the converter).
+///
+/// ## Representation and Examples
+///
+/// ### Months
+///
+/// The months are represented in this crate as [`TranquilityMonth`].
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c_1_1 = CommonDate::new(57, 1, 1);
+/// let tq_1_1 = Tranquility::try_from_common_date(c_1_1).unwrap();
+/// assert_eq!(tq_1_1.try_month().unwrap(), TranquilityMonth::Archimedes);
+/// let c_13_28 = CommonDate::new(57, 13, 28);
+/// let tq_13_28 = Tranquility::try_from_common_date(c_13_28).unwrap();
+/// assert_eq!(tq_13_28.try_month().unwrap(), TranquilityMonth::Mendel);
+/// ```
+///
+/// ### Weekdays
+///
+/// The days of the Tranquility week are not always the same as the days of the common week.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+/// use radnelac::day_cycle::*;
+///
+/// let c = CommonDate::new(-1, 13, 28);
+/// let p = Tranquility::try_from_common_date(c).unwrap();
+/// assert_eq!(p.weekday().unwrap(), Weekday::Thursday); //Positivist week
+/// assert_eq!(p.convert::<Weekday>(), Weekday::Saturday); //Common week
+/// ```
+///
+/// ### Armstrong Day and Aldrin Day
+///
+/// The epagomenal days of a Tranquility year are represented as [`TranquilityComplementaryDay`].
+/// When converting to and from a [`CommonDate`](crate::calendar::CommonDate), the epagomenal
+/// days are treated as month 0.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let c_arm = CommonDate::new(31, 0, 1);
+/// let tq_arm = Tranquility::try_from_common_date(c_arm).unwrap();
+/// assert!(tq_arm.try_month().is_none());
+/// assert_eq!(tq_arm.epagomenae().unwrap(), TranquilityComplementaryDay::ArmstrongDay);
+/// assert!(tq_arm.weekday().is_none());
+///
+/// let c_ald = CommonDate::new(31, 0, 2);
+/// let tq_ald = Tranquility::try_from_common_date(c_ald).unwrap();
+/// assert!(tq_ald.try_month().is_none());
+/// assert_eq!(tq_ald.epagomenae().unwrap(), TranquilityComplementaryDay::AldrinDay);
+/// assert!(tq_ald.weekday().is_none());
+/// ```
+///
+/// Armstrong Day is at the end of a year (except the year 1 BT).
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let tq_end_31 = Tranquility::try_year_end(31).unwrap();
+/// assert_eq!(tq_end_31.epagomenae().unwrap(), TranquilityComplementaryDay::ArmstrongDay);
+/// let tq_end_1 = Tranquility::try_year_end(-1).unwrap();
+/// assert!(tq_end_1.epagomenae().is_none());
+/// ```
+///
+/// Aldrin Day is between 27 and 28 Hippocrates in a leap year. Note that leap years occur
+/// at the same time as proleptic Gregorian leap years and Aldrin Day is always February 28
+/// in the proleptic Gregorian calendar.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let g_list = [
+///     Gregorian::try_new(2024, GregorianMonth::February, 28).unwrap(),
+///     Gregorian::try_new(2024, GregorianMonth::February, 29).unwrap(),
+///     Gregorian::try_new(2024, GregorianMonth::March, 1).unwrap(),
+/// ];
+///
+/// let tq_list = [
+///     g_list[0].convert::<Tranquility>(),
+///     g_list[1].convert::<Tranquility>(),
+///     g_list[2].convert::<Tranquility>(),
+/// ];
+///
+/// // Before Aldrin Day
+/// assert_eq!(tq_list[0].year(), 55);
+/// assert_eq!(tq_list[0].day(), 27);
+/// assert_eq!(tq_list[0].try_month().unwrap(), TranquilityMonth::Hippocrates);
+/// // Aldrin Day
+/// assert_eq!(tq_list[1].year(), 55);
+/// assert_eq!(tq_list[1].epagomenae().unwrap(), TranquilityComplementaryDay::AldrinDay);
+/// assert!(tq_list[1].try_month().is_none());
+/// // After Aldrin Day
+/// assert_eq!(tq_list[2].year(), 55);
+/// assert_eq!(tq_list[2].day(), 28);
+/// assert_eq!(tq_list[2].try_month().unwrap(), TranquilityMonth::Hippocrates);
+/// ```
+///
+/// ### Moon Landing Day
+///
+/// Moon Landing Day technically does not have any year, month or weekday. However it is
+/// sometimes represented using the dummy year and month value `0`. The corresponding Gregorian
+/// date is July 20, 1969.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let g = Gregorian::try_new(1969, GregorianMonth::July, 20).unwrap();
+/// let tq = g.convert::<Tranquility>();
+/// assert_eq!(tq.year(), 0);
+/// assert_eq!(tq.epagomenae().unwrap(), TranquilityComplementaryDay::MoonLandingDay);
+/// assert!(tq.try_month().is_none());
+/// assert!(tq.weekday().is_none());
+/// assert_eq!(tq.to_common_date(), CommonDate::new(0, 0, 0));
+/// ```
+///
+/// Moon Landing Day is between Mendel 28, 1 BT and Archimedes 1, 1 AT.
+///
+/// ```
+/// use radnelac::calendar::*;
+/// use radnelac::day_count::*;
+///
+/// let g_list = [
+///     Gregorian::try_new(1969, GregorianMonth::July, 19).unwrap(),
+///     Gregorian::try_new(1969, GregorianMonth::July, 20).unwrap(),
+///     Gregorian::try_new(1969, GregorianMonth::July, 21).unwrap(),
+/// ];
+///
+/// let tq_list = [
+///     g_list[0].convert::<Tranquility>(),
+///     g_list[1].convert::<Tranquility>(),
+///     g_list[2].convert::<Tranquility>(),
+/// ];
+///
+/// // Before Moon Landing Day
+/// assert_eq!(tq_list[0].year(), -1);
+/// assert_eq!(tq_list[0].day(), 28);
+/// assert_eq!(tq_list[0].try_month().unwrap(), TranquilityMonth::Mendel);
+/// // Moon Landing Day
+/// assert_eq!(tq_list[1].epagomenae().unwrap(), TranquilityComplementaryDay::MoonLandingDay);
+/// // After Moon Landing Day
+/// assert_eq!(tq_list[2].year(), 1);
+/// assert_eq!(tq_list[2].day(), 1);
+/// assert_eq!(tq_list[2].try_month().unwrap(), TranquilityMonth::Archimedes);
+/// ```
+///
+/// The epoch of the Tranquility calendar is specific to the tenth of a second. To check if
+/// a specific point in time is before or after the epoch, callers should use [`TranquilityMoment`].
+///
+/// ## Inconsistencies with Other Implementations
+///
+/// The assumptions regarding 0 BT and 1 BT could differ from other implementations.
 ///
 /// ## Further reading
-/// + [Orion's Arm "Encyclopaedia Galactica"](https://www.orionsarm.com/eg-article/48c6d4c3d54cf/)
+/// + Orion's Arm
+///   + ["Encyclopaedia Galactica"](https://www.orionsarm.com/eg-article/48c6d4c3d54cf/)
+///   + [Calendar Converter](https://www.orionsarm.com/xcms.php?r=oa-calendar-converter)
 /// + [Wikipedia Deletion Log](https://en.wikipedia.org/wiki/Wikipedia:Articles_for_deletion/Tranquility_Calendar)
 /// + [Archived Wikipedia article](https://web.archive.org/web/20180818233025/https://en.wikipedia.org/wiki/Tranquility_calendar)
 /// + Archived copies of Jeff Siggins' article for OMNI
@@ -435,6 +711,7 @@ impl TranquilityMoment {
 #[cfg(test)]
 mod tests {
     use super::*;
+    //use crate::calendar::Julian;
     use crate::day_count::RataDie;
 
     use crate::day_count::FIXED_MAX;
@@ -522,9 +799,10 @@ mod tests {
             // Launch of Voyager 2, space-craft for planetary exploration (1977)
             // 1977-08-20 https://en.wikipedia.org/wiki/Voyager_2
             (CommonDate::new(1977, 8, 20), CommonDate::new(9, 2, 3)),
-            // -1890, 2, 7
             // Pliny the Elder dies in eruption of Vesuvius at Pompeii (79)
-            // ???
+            // 79-08-24 https://en.wikipedia.org/wiki/Eruption_of_Mount_Vesuvius_in_79_AD
+            // Actual date seems controversial, additionally shouldn't this be Julian?
+            (CommonDate::new(79, 8, 24), CommonDate::new(-1890, 2, 7)),
             // Partial solar eclipse (1989)
             // 1989-08-31 wiki:https://en.wikipedia.org/wiki/Solar_eclipse_of_August_31,_1989
             (CommonDate::new(1989, 8, 31), CommonDate::new(21, 2, 14)),
@@ -560,10 +838,10 @@ mod tests {
             // ???
             // Christopher Columbus lands in the Bahamas (1492)
             // 1492-10-12 https://en.wikipedia.org/wiki/Voyages_of_Christopher_Columbus
-            // (CommonDate::new(1492, 10, 2), CommonDate::new(-477, 3, 28)), //Incorrect?
+            (CommonDate::new(1492, 10, 12), CommonDate::new(-477, 3, 28)), //Apparently not Julian
             // USAF Chaptain Charles Yeager becomes first human to fly faster than the speed of sound
             // 1947-10-14 https://en.wikipedia.org/wiki/Bell_X-1
-            // (CommonDate::new(1947, 10, 4), CommonDate::new(-22, 4, 2)), //Incorrect?
+            (CommonDate::new(1947, 10, 14), CommonDate::new(-22, 4, 2)),
             // -123, 4, 4
             // First public operation using ether as an anesthetic is performed at Massachusetts General Hospital
             // ???
@@ -581,7 +859,7 @@ mod tests {
             (CommonDate::new(1957, 11, 3), CommonDate::new(-12, 4, 22)),
             // Archaeologist Howard Carter discovers tomb of King Tut at Luxor, Egypt (1922)
             // 1992-11-04 https://en.wikipedia.org/wiki/Discovery_of_the_tomb_of_Tutankhamun
-            // (CommonDate::new(1992, 11, 4), CommonDate::new(-47, 4, 23)), // Incorrect?
+            (CommonDate::new(1922, 11, 4), CommonDate::new(-47, 4, 23)),
             // 25, 4, 28
             // The next transit of the planet Mercury across the face of the sun (1993)
             // ??? 1993-11-06 https://en.m.wikipedia.org/wiki/Transit_of_Mercury
@@ -650,14 +928,12 @@ mod tests {
             (CommonDate::new(1966, 2, 3), CommonDate::new(-4, 8, 2)),
             // Two US astronauts become first humans to fly untethered in space (1984)
             //1984-02-07 https://en.wikipedia.org/wiki/STS-41-B
-            // (CommonDate::new(1984, 2, 7), CommonDate::new(15, 8, 2)), //Incorrect??
+            // Launch date instead of untethered spacewalk date!
+            (CommonDate::new(1984, 2, 3), CommonDate::new(15, 8, 2)),
             // Total lunar eclipse (1990)
             //1990-02-09 https://en.wikipedia.org/wiki/List_of_lunar_eclipses_in_the_20th_century
             // (CommonDate::new(1990, 2, 9), CommonDate::new(21, 8, 7)), //Incorrect??
-            // -388, 8, 12
-            // Pope Gregory corrects the Julian calendar (1582)
-            // ??? 1582-10-15 wiki:https://en.wikipedia.org/wiki/Gregorian_calendar
-
+            // Pope Gregory corrects the Julian calendar (1582) (See Julian test)
             // Italian philosopher Giordano Bruno burned at the stake for his heliocentric views (1600)
             //1600-02-17 https://en.wikipedia.org/wiki/Giordano_Bruno
             (CommonDate::new(1600, 2, 17), CommonDate::new(-370, 8, 16)),
@@ -672,17 +948,13 @@ mod tests {
             (CommonDate::new(1932, 2, 27), CommonDate::new(-38, 8, 26)),
             // The launch of Pioneer 10, first known Earth object to leave solar system (1972)
             //1972-03-03 https://en.wikipedia.org/wiki/Pioneer_10
-            // (CommonDate::new(1972, 3, 3), CommonDate::new(3, 9, 1)),
-            // -189, 9, 5
+            // (CommonDate::new(1972, 3, 3), CommonDate::new(3, 9, 1)), //Incorrect?
             // Sir William Herschel discovers Uranus (1781)
-            // ?? 1781-03-13 wiki:https://en.wikipedia.org/wiki/Uranus
-            // -2013, 9, 14
-            // The Ides of March, the day that Julius Caesar died (-44)
-            // ?? Julian -44-03-15 wiki:https://en.wikipedia.org/wiki/Julius_Caesar
-            // -44, 9, 15
+            // 1781-03-13 wiki:https://en.wikipedia.org/wiki/Uranus
+            // (CommonDate::new(1781, 3, 13), CommonDate::new(-189, 9, 5)), //Incorrect?
+            // The Ides of March, the day that Julius Caesar died (-44) (See Julian test)
             // Robert Goddard launches the first successful liquid-fuel rocket (1926)
             // ??
-
             // The US Congress authorizes conversion to standard time zones and daylight saving time (1918)
             // 1918-03-29 https://en.wikipedia.org/wiki/Standard_Time_Act
             // (CommonDate::new(1918, 3, 29), CommonDate::new(-12, 9, 18)), //Incorrect?
@@ -701,15 +973,15 @@ mod tests {
             // First commerical communications satellite launched (US) (1965)
             // 1965-04-06 https://en.wikipedia.org/wiki/Communications_satellite
             // (CommonDate::new(1965, 4, 6), CommonDate::new(-5, 10, 6)), //Incorrect?
-            // -61, 10, 8
             // Robert E. Peary claims discovery of the North Pole (1909)
-            // ?? 1909-04-06?? -07?? wiki:https://en.wikipedia.org/wiki/Robert_Peary
+            // 1909-04-06 wiki:https://en.wikipedia.org/wiki/Robert_Peary
+            (CommonDate::new(1909, 4, 6), CommonDate::new(-61, 10, 8)),
             // Cosmonaut Yuri Gagarin of the USSR orbits Earth, becoming the first human in space (1961)
             // 1961-04-12 https://en.wikipedia.org/wiki/Vostok_1
             (CommonDate::new(1961, 4, 12), CommonDate::new(-9, 10, 14)),
-            // 3, 10, 18
             // Two giant pandas, gifts from People's Republic of China, arrive at the National Zoo in Washington DC (1972)
-            // ??
+            // 1972-04-16 wiki:https://en.wikipedia.org/wiki/Ling-Ling_and_Hsing-Hsing
+            (CommonDate::new(1972, 4, 16), CommonDate::new(3, 10, 18)),
             // -284, 10, 19
             // Sir Isaac Newton presents Philosophiae naturalis principia mathematica to the Royal Society (1686)
             // ??
@@ -728,9 +1000,10 @@ mod tests {
             // The Concorde supersonic transport makes its first transatlantic flight to USA (1976)
             //1976-05-24 wiki:https://en.wikipedia.org/wiki/Concorde_operational_history
             (CommonDate::new(1976, 05, 24), CommonDate::new(7, 11, 28)),
-            // -2554, 12, 4
-            // Most famous ancient solar eclipse occurs during a battle between Lydians and Medes (585 BC)
-            // ?? Julian -585-05-28 wiki:https://en.wikipedia.org/wiki/Eclipse_of_Thales
+            // Most famous ancient solar eclipse occurs during a battle between Lydians and Medes (585 BC) (see Julian test)
+            // -585-05-28 wiki:https://en.wikipedia.org/wiki/Eclipse_of_Thales
+            // You would think this is a Julian date but no, this is a Gregorian date without year 0
+            (CommonDate::new(-584, 5, 28), CommonDate::new(-2554, 12, 4)),
             // US launches the Mariner 9, first spacecraft to orbit another planet (1971)
             // 1971-05-30 https://en.wikipedia.org/wiki/Mariner_9
             (CommonDate::new(1971, 5, 30), CommonDate::new(2, 12, 6)),
@@ -740,9 +1013,9 @@ mod tests {
             // Byron Allen pedals Gossamer Albatross aircraft across the English Channel (1979)
             // 1979-06-12 https://en.wikipedia.org/wiki/MacCready_Gossamer_Albatross
             (CommonDate::new(1979, 6, 12), CommonDate::new(10, 12, 19)),
-            // 14, 12, 20
             // Pioneer 10 exits solar system (1983)
-            // ???
+            // 1983-06-13 https://en.wikipedia.org/wiki/Pioneer_10
+            (CommonDate::new(1983, 6, 13), CommonDate::new(14, 12, 20)),
             // Ben Franklin flies kite during a lightning storm and discovers electricity (1752)
             //1752-06-15 https://en.wikipedia.org/wiki/Benjamin_Franklin
             (CommonDate::new(1752, 6, 15), CommonDate::new(-218, 12, 22)),
@@ -769,7 +1042,8 @@ mod tests {
             (CommonDate::new(1979, 7, 11), CommonDate::new(10, 13, 20)),
             // -8, 13, 22
             // First transatlantic conversation using communications satellite (1962)
-            // ??? wiki:https://en.wikipedia.org/wiki/Telstar
+            // 1962-07-23 wiki:https://en.wikipedia.org/wiki/Telstar
+            // (CommonDate::new(1962, 7, 23), CommonDate::new(-8, 13, 22)), //Incorrect?
             // First atomic bomb is detonated, Trinity Site, New Mexico (1945)
             // 1945-07-16 https://en.wikipedia.org/wiki/Trinity_(nuclear_test)
             (CommonDate::new(1945, 7, 16), CommonDate::new(-25, 13, 25)),
@@ -779,9 +1053,31 @@ mod tests {
             let dq = TranquilityMoment::try_from_common_date(pair.1)
                 .unwrap()
                 .to_fixed();
-            assert_eq!(dq.get_day_i(), dg.get_day_i(), "{:?}", pair);
+            assert_eq!(dg.get_day_i(), dq.get_day_i(), "{:?}", pair);
         }
     }
+
+    // #[test]
+    // fn article_examples_julian() {
+    //     let d_list = [
+    //         // From Siggins' article
+    //         // Pope Gregory corrects the Julian calendar (1582)
+    //         // 1582-02-24 (Julian) wiki:https://en.wikipedia.org/wiki/Inter_gravissimas
+    //         // Off by 23, that's pretty bad
+    //         (CommonDate::new(1582, 2, 3), CommonDate::new(-388, 8, 12)),
+    //         // The Ides of March, the day that Julius Caesar died (-44)
+    //         // -44-03-15 (Julian) wiki:https://en.wikipedia.org/wiki/Julius_Caesar
+    //         // Off by 2, could this be caused by using a proleptic Julian calendar?
+    //         (CommonDate::new(-44, 3, 17), CommonDate::new(-2013, 9, 14)),
+    //     ];
+    //     for pair in d_list {
+    //         let dg = Julian::try_from_common_date(pair.0).unwrap().to_fixed();
+    //         let dq = TranquilityMoment::try_from_common_date(pair.1)
+    //             .unwrap()
+    //             .to_fixed();
+    //         assert_eq!(dg.get_day_i(), dq.get_day_i(), "{:?}", pair);
+    //     }
+    // }
 
     #[test]
     fn orions_arm() {
