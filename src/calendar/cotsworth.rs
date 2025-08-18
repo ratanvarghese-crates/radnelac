@@ -155,7 +155,6 @@ pub enum CotsworthComplementaryDay {
 /// assert_eq!(a_leap_day.month(), CotsworthMonth::June);
 /// assert_eq!(a_leap_day.epagomenae().unwrap(), CotsworthComplementaryDay::LeapDay);
 /// assert!(a_leap_day.weekday().is_none());
-///
 /// ```
 ///
 /// ## Inconsistencies with Other Implementations
